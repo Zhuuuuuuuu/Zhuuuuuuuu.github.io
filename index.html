@@ -75,6 +75,140 @@
     
     
     
+    <article id="post-Mysql安装和配置" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/02/10/Mysql%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE/"
+    >Mysql 安装与配置</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/02/10/Mysql%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE/" class="article-date">
+  <time datetime="2020-02-10T08:02:27.000Z" itemprop="datePublished">2020-02-10</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Mysql-安装与配置"><a href="#Mysql-安装与配置" class="headerlink" title="Mysql 安装与配置"></a>Mysql 安装与配置</h1><h2 id="MySQL5-7免安装版配置详细教程"><a href="#MySQL5-7免安装版配置详细教程" class="headerlink" title="MySQL5.7免安装版配置详细教程"></a>MySQL5.7免安装版配置详细教程</h2><h3 id="1-软件下载"><a href="#1-软件下载" class="headerlink" title="1.软件下载"></a>1.软件下载</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Mysql是一个比较流行且很好用的一款数据库软件，如下记录了我学习总结的mysql免安装版的配置经验，要安装的朋友可以当做参考哦</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.19-winx64.zip" target="_blank" rel="noopener">mysql下载地址</a></p>
+<h3 id="2-操作步骤"><a href="#2-操作步骤" class="headerlink" title="2.操作步骤"></a>2.操作步骤</h3><p> 1.下载后得到zip压缩包.</p>
+<p> 2.解压到自己想要安装到的目录</p>
+<p> 3.添加环境变量</p>
+<p> 4.编辑 my.ini 文件 ,注意替换路径位置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1 [mysqld]</span><br><span class="line">2 basedir&#x3D;D:\Program Files\mysql-5.7\</span><br><span class="line">3 datadir&#x3D;D:\Program Files\mysql-5.7\data\</span><br><span class="line">4 port&#x3D;3306</span><br><span class="line">5 skip-grant-tables</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><p>启动管理员模式下的CMD，并将路径切换至mysql下的bin目录，然后输入mysqld –install (安装mysql)</p>
+</li>
+<li><p>再输入 mysqld –initialize-insecure –user=mysql 初始化数据文件</p>
+</li>
+<li><p>然后再次启动mysql 然后用命令 mysql –u root –p 进入mysql管理界面（密码可为空）</p>
+</li>
+<li><p>进入界面后更改root密码</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update mysql.user set authentication_string&#x3D;password(&#39;123456&#39;) where user&#x3D;&#39;root&#39; and Host &#x3D; &#39;localhost&#39;;</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li><p>(最后输入flush privileges; 刷新权限)</p>
+</li>
+<li><p>修改 my.ini文件删除最后一句skip-grant-tables</p>
+</li>
+<li><p>重启mysql即可正常使用<br>net stop mysql<br>net start mysql</p>
+</li>
+<li><p>连接上测试出现以下结果就安装好了</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200210155952.png" alt=""></p>
+</li>
+</ol>
+<h2 id="MySql介绍"><a href="#MySql介绍" class="headerlink" title="MySql介绍"></a>MySql介绍</h2><h3 id="1-什么是数据库"><a href="#1-什么是数据库" class="headerlink" title="1.什么是数据库?"></a>1.什么是数据库?</h3><p>数据库(<strong>DataBase</strong>,简称<strong>DB</strong>)</p>
+<p><strong>概念</strong> : 长期存放在计算机内,有组织,可共享的大量数据的集合,是一个数据”仓库”</p>
+<p><strong>作用</strong> : 保存,并能安全管理数据(如:增删改查等),减少冗余…</p>
+<p> <strong>数据库总览 :</strong></p>
+<ul>
+<li><p>关系型数据库</p>
+<p>(SQL)</p>
+<ul>
+<li>MySQL , Oracle , SQL Server , SQLite , DB2 , …</li>
+<li>关系型数据库通过外键关联来建立表与表之间的关系</li>
+</ul>
+</li>
+<li><p>非关系型数据库</p>
+<p>(NOSQL)</p>
+<ul>
+<li>Redis , MongoDB , …</li>
+<li>非关系型数据库通常指数据以对象的形式存储在数据库中，而对象之间的关系通过每个对象自身的属性来决定</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-什么是DBMS"><a href="#2-什么是DBMS" class="headerlink" title="2.什么是DBMS?"></a>2.什么是DBMS?</h3><p>数据库管理系统 ( <strong>D</strong>ata<strong>B</strong>ase <strong>M</strong>anagement <strong>S</strong>ystem )</p>
+<p>　　数据库管理软件 , 科学组织和存储数据 , 高效地获取和维护数据</p>
+<h3 id="3-MySQL简介"><a href="#3-MySQL简介" class="headerlink" title="3.MySQL简介"></a>3.MySQL简介</h3><p><strong>概念 :</strong> 是现在<strong>流行</strong>的<strong>开源</strong>的,<strong>免费</strong>的 <strong>关系型</strong>数据库</p>
+<p><strong>历史 :</strong> 由瑞典MySQL AB 公司开发，目前属于 Oracle 旗下产品。</p>
+<p><strong>特点 :</strong> </p>
+<ul>
+<li>免费 , 开源数据库</li>
+<li>小巧 , 功能齐全</li>
+<li>使用便捷</li>
+<li>可运行于Windows或Linux操作系统</li>
+<li>可适用于中小型甚至大型网站应用</li>
+</ul>
+<p><strong>官网 :</strong> <strong><a href="https://www.mysql.com/" target="_blank" rel="noopener">https://www.mysql.com/</a></strong></p>
+<h3 id="4-可视化工具SQLyog"><a href="#4-可视化工具SQLyog" class="headerlink" title="4.可视化工具SQLyog"></a>4.可视化工具SQLyog</h3><p>可手动操作,管理MySQL数据库的软件工具</p>
+<p>特点 : 简洁 , 易用 , 图形化</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200210160104.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200210160123.png" alt=""></p>
+
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-MyBatis IDEA" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -186,18 +320,16 @@
 
 
 
+
+
+
 </li>
 </ol>
 <ol start="3">
-<li><p>编写MyBatis核心配置文件</p>
-<p>可以查看官方帮助文档</p>
-</li>
+<li>编写MyBatis核心配置文件</li>
 </ol>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">configuration</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Config 3.0//EN"</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-config.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">"JDBC"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">"POOLED"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driver"</span> <span class="attr">value</span>=<span class="string">"com.mysql.jdbc.Driver"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"jdbc:mysql://localhost:3306/mybatis?useSSL=true<span class="symbol">&amp;amp;</span>useUnicode=true<span class="symbol">&amp;amp;</span>characterEncoding=utf8"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"root"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"123456"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">"com/zhuuu/dao/userMapper.xml"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<ol start="4">
+<p>​       可以查看官方帮助文档 </p>
+<pre><code><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">configuration</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Config 3.0//EN"</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-config.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">"JDBC"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">"POOLED"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driver"</span> <span class="attr">value</span>=<span class="string">"com.mysql.jdbc.Driver"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"jdbc:mysql://localhost:3306/mybatis?useSSL=true<span class="symbol">&amp;amp;</span>useUnicode=true<span class="symbol">&amp;amp;</span>characterEncoding=utf8"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"root"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"123456"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">"com/zhuuu/dao/userMapper.xml"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></code></pre><ol start="4">
 <li><p>编写Mybatis工具类</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MybatisUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SqlSessionFactory sqlSessionFactory;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">            InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">            sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取SqlSession连接</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SqlSession <span class="title">getSession</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> sqlSessionFactory.openSession();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
