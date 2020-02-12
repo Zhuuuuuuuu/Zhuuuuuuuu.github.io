@@ -116,124 +116,9 @@
       <h1 id="Mysql：MySQL数据管理"><a href="#Mysql：MySQL数据管理" class="headerlink" title="Mysql：MySQL数据管理"></a>Mysql：MySQL数据管理</h1><h2 id="外键管理（一般不用）"><a href="#外键管理（一般不用）" class="headerlink" title="外键管理（一般不用）"></a>外键管理（一般不用）</h2><h3 id="外键的概念"><a href="#外键的概念" class="headerlink" title="外键的概念"></a>外键的概念</h3><p>​    如果公共关键字在一个关系中是主关键字，那么这个公共关键字被称为另一个关系的外键。</p>
 <p>​    由此可见，外键表示了两个关系之间的相关联系。以另一个关系的外键作为主关键字的表被称为主表，具有此外键的表被陈伟主表的从表。</p>
 <p>​    在实际操作中，将一个表的值放入第二个表中来表示关联，所使用的值是第一个表的主键值(在必要时可包括复合主键值)。此时，第二个表中保存这些值的属性称为外键(<strong>foreign key</strong>)。</p>
-<h3 id="外键的作用"><a href="#外键的作用" class="headerlink" title="外键的作用"></a>外键的作用</h3><p>​    保持数据的<strong>一致性，完整性</strong> ，主要目的是控制存储在外键表中的数据<strong>约束</strong>，使两张表形成关联，外键只能引用外表中的列的值或者使用空值 。</p>
-<h3 id="创建外键"><a href="#创建外键" class="headerlink" title="创建外键"></a>创建外键</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--方式一 : 创建子表同时创建外键</span></span><br><span class="line"><span class="comment">-- 年级表(id\年级名称) --主表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`grade`</span> (</span><br><span class="line">  <span class="string">`gradeid`</span> <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'年级ID'</span>,</span><br><span class="line">  <span class="string">`gradename`</span> <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'年级名称'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`gradeid`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">INNODB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 学生信息表 从表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`student`</span> (</span><br><span class="line">  <span class="string">`studentno`</span> <span class="built_in">INT</span>(<span class="number">4</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'学号'</span>,</span><br><span class="line">  <span class="string">`studentname`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'匿名'</span> <span class="keyword">COMMENT</span> <span class="string">'姓名'</span>,</span><br><span class="line">  <span class="string">`sex`</span> <span class="built_in">TINYINT</span>(<span class="number">1</span>) <span class="keyword">DEFAULT</span> <span class="string">'1'</span> <span class="keyword">COMMENT</span> <span class="string">'性别'</span>,</span><br><span class="line">  <span class="string">`gradeid`</span> <span class="built_in">INT</span>(<span class="number">10</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'年级'</span>,</span><br><span class="line">  <span class="string">`phoneNum`</span> <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'手机'</span>,</span><br><span class="line">  <span class="string">`address`</span> <span class="built_in">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'地址'</span>,</span><br><span class="line">  <span class="string">`borndate`</span> DATETIME <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'生日'</span>,</span><br><span class="line">  <span class="string">`email`</span> <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'邮箱'</span>,</span><br><span class="line">  <span class="string">`idCard`</span> <span class="built_in">VARCHAR</span>(<span class="number">18</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'身份证号'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`studentno`</span>),</span><br><span class="line">   <span class="keyword">KEY</span> <span class="string">`FK_gradeid`</span>(<span class="string">`gradeid`</span>),</span><br><span class="line">   <span class="keyword">CONSTRAINT</span> <span class="string">`FK_gradeid`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (<span class="string">`gradeid`</span>) <span class="keyword">REFERENCES</span> <span class="string">`grade`</span>(<span class="string">`gradeid`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">INNODB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--方式二:创建完字表后，修改子表添加外键</span></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> student</span><br><span class="line"><span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> <span class="string">`FK_gradeid`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span>(<span class="string">`gradeid`</span>) <span class="keyword">REFERENCES</span> <span class="string">`grade`</span>(<span class="string">`gradeid`</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="删除外键"><a href="#删除外键" class="headerlink" title="删除外键"></a>删除外键</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#删除外键</span><br><span class="line">ALTER TABLE student DROP FOREIGN KEY  FK_gradeid;</span><br><span class="line"># 发现执行完上面的,索引还在,所以还要删除索引</span><br><span class="line"># 注:这个索引是建立外键的时候默认生成的</span><br><span class="line">ALTER TABLE student DROP INDEX FK_gradeid;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="DML语言（重要-）"><a href="#DML语言（重要-）" class="headerlink" title="DML语言（重要~）"></a>DML语言（重要~）</h2><p>数据库的意思：数据存储 数据管理</p>
-<p><strong>DML语言：数据库操作语言</strong></p>
-<ul>
-<li><p>Insert</p>
-</li>
-<li><p>update</p>
-</li>
-<li><p>delete</p>
-</li>
-</ul>
-<h3 id="添加-Insert"><a href="#添加-Insert" class="headerlink" title="添加 Insert"></a>添加 Insert</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#语法： </span><br><span class="line">#单条插入</span><br><span class="line">insert into 表名&#123;[字段名1，字段名2，字段名3]&#125; values(&#39;值1&#39;,&#39;值2&#39;,&#39;值3&#39;)</span><br><span class="line">#多条插入</span><br><span class="line">insert into 表名&#123;[字段名1，字段名2，字段名3]&#125; </span><br><span class="line">values(&#39;值1&#39;,&#39;值2&#39;,&#39;值3&#39;),(&#39;值1&#39;,&#39;值2&#39;,&#39;值3&#39;),values(&#39;值1&#39;,&#39;值2&#39;,&#39;值3&#39;).....</span><br></pre></td></tr></table></figure>
-
-<p>注意：</p>
-<ul>
-<li><p>一般写插入语句，数据要和字段一一对应</p>
-</li>
-<li><p>‘字段1,字段2…’该部分可省略 , 但添加的值务必与表结构,数据列,顺序相对应,且数量一致</p>
-</li>
-<li><p>可同时插入多条数据 , values 后用英文逗号隔开.</p>
-</li>
-</ul>
-<h3 id="修改-update"><a href="#修改-update" class="headerlink" title="修改 update"></a>修改 update</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 语法 </span><br><span class="line">update &#96;表名&#96; set &#96;colnum_name&#96; &#x3D; value where [条件]</span><br><span class="line"></span><br><span class="line">#修改多个属性 逗号隔开</span><br><span class="line">update &#96;表名&#96; set &#96;colnum_name1&#96; &#x3D; value1,&#96;colnum_name2&#96; &#x3D; value2... where [条件]</span><br></pre></td></tr></table></figure>
-
-
-
-<table>
-<thead>
-<tr>
-<th>操作符</th>
-<th>含义</th>
-<th>范围</th>
-<th>结果</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>=</td>
-<td>等于</td>
-<td>5=6</td>
-<td>false</td>
-</tr>
-<tr>
-<td>&lt;&gt; 或者 !=</td>
-<td>不等于</td>
-<td>5=6</td>
-<td>true</td>
-</tr>
-<tr>
-<td>&gt;</td>
-<td>大于</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>&lt;</td>
-<td>小于</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>&gt;=</td>
-<td>大于等于</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>&lt;=</td>
-<td>小与等于</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Between …and…</td>
-<td>闭合区间</td>
-<td>[2,5]</td>
-<td></td>
-</tr>
-<tr>
-<td>AND</td>
-<td>并列</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>OR</td>
-<td>或者</td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<p>注意：</p>
-<ul>
-<li><p>column_name 为要更改的数据列</p>
-</li>
-<li><p>value 为修改后的数据 , 可以为变量 , 具体指 , 表达式或者嵌套的SELECT结果</p>
-</li>
-<li><p>condition 为筛选条件 , 如不指定则修改该表的所有列数据</p>
-</li>
-</ul>
-<h3 id="删除-Delete"><a href="#删除-Delete" class="headerlink" title="删除 Delete"></a>删除 Delete</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 语法</span><br><span class="line"># 删除指定数据</span><br><span class="line">DELETE From &#96;表名&#96; where 条件</span><br><span class="line"></span><br><span class="line"># TRUNCATE：完全清空一个数据库表，表的结构和索引约束不会变</span><br><span class="line">TRUNCATE TABLE &#96;表名&#96;</span><br></pre></td></tr></table></figure>
-
-<h3 id="delete-和-Truncate-区别"><a href="#delete-和-Truncate-区别" class="headerlink" title="delete 和 Truncate 区别"></a>delete 和 Truncate 区别</h3><p>相同 : 都能删除数据 , 不删除表结构 , 但TRUNCATE速度更快</p>
-<p>不同点：</p>
-<ul>
-<li>truncate :  重新设置自增列，计数器会归零</li>
-<li>使用TRUNCATE TABLE不会对事务有影响</li>
-</ul>
-
+      
+      <a class="article-more-link" href="/2020/02/12/Mysql/Mysql%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">阅读更多...</a>
+      
       
       <!-- reward -->
       
@@ -693,6 +578,77 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/" rel="tag">JAVA</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-personal_server/MarkDown语法" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/12/12/personal_server/MarkDown%E8%AF%AD%E6%B3%95/"
+    >MarkDown语法</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/12/12/personal_server/MarkDown%E8%AF%AD%E6%B3%95/" class="article-date">
+  <time datetime="2019-12-12T07:02:24.000Z" itemprop="datePublished">2019-12-12</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MarkDown-语法（快速上手）"><a href="#MarkDown-语法（快速上手）" class="headerlink" title="MarkDown 语法（快速上手）"></a>MarkDown 语法（快速上手）</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Markdown是一种纯文本格式的标记语言。通过简单的标记语法，它可以使普通文本内容具有一定的格式。</p>
+<p><strong>优点：</strong></p>
+<p>1、因为是纯文本，所以只要支持Markdown的地方都能获得一样的编辑效果，可以让作者摆脱排版的困扰，专心写作。</p>
+<p>2、操作简单。比如:WYSIWYG编辑时标记个标题，先选中内容，再点击导航栏的标题按钮，选择几级标题。要三个步骤。而Markdown只需要在标题内容前加#即可</p>
+      
+      <a class="article-more-link" href="/2019/12/12/personal_server/MarkDown%E8%AF%AD%E6%B3%95/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MarkDown/" rel="tag">MarkDown</a></li></ul>
 
 
     </footer>
