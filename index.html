@@ -770,7 +770,7 @@
 
 </article>
     
-    <article id="post-Mybatis/MyBatis-动态SQL" class="article article-type-post" itemscope
+    <article id="post-Mybatis/MyBatis-使用注解开发" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -778,8 +778,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/01/15/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/"
-    >MyBatis-动态SQL</a
+  <a class="article-title" href="/2020/01/15/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/"
+    >MyBatis-使用注解开发</a
   >
 </h2>
   
@@ -789,7 +789,7 @@
 
     
     <div class="article-meta">
-      <a href="/2020/01/15/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/" class="article-date">
+      <a href="/2020/01/15/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" class="article-date">
   <time datetime="2020-01-15T03:12:22.000Z" itemprop="datePublished">2020-01-15</time>
 </a>
       
@@ -808,11 +808,36 @@
       
 
       
-      <h1 id="MyBatis-动态SQL"><a href="#MyBatis-动态SQL" class="headerlink" title="MyBatis 动态SQL"></a>MyBatis 动态SQL</h1><p>动态SQL 官方文档：<a href="https://mybatis.org/mybatis-3/zh/dynamic-sql.html" target="_blank" rel="noopener">文档链接</a></p>
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>什么是动态SQL:就是根据不同的查询条件，自动生成不同的Sql语句</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">官网描述：</span><br><span class="line">    MyBatis 的强大特性之一便是它的动态 SQL。如果你有使用 JDBC 或其它类似框架的经验，你就能体会到根据不同条件拼接 SQL 语句的痛苦。例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL 这一特性可以彻底摆脱这种痛苦。</span><br><span class="line">    虽然在以前使用动态 SQL 并非一件易事，但正是 MyBatis 提供了可以被用在任意 SQL 映射语句中的强大的动态 SQL 语言得以改进这种情形。</span><br><span class="line">    动态 SQL 元素和 JSTL 或基于类似 XML 的文本处理器相似。在 MyBatis 之前的版本中，有很多元素需要花时间了解。MyBatis 3 大大精简了元素种类，现在只需学习原来一半的元素便可。MyBatis 采用功能强大的基于 OGNL 的表达式来淘汰其它大部分元素。</span><br><span class="line">    </span><br><span class="line">    -------------------------------</span><br><span class="line">    - if</span><br><span class="line">    - choose (when, otherwise)</span><br><span class="line">    - trim (where, set)</span><br><span class="line">    - foreach</span><br><span class="line">    -------------------------------</span><br></pre></td></tr></table></figure>
+      <h1 id="MyBatis-使用注解开发"><a href="#MyBatis-使用注解开发" class="headerlink" title="MyBatis 使用注解开发"></a>MyBatis 使用注解开发</h1><h2 id="面向接口编程"><a href="#面向接口编程" class="headerlink" title="面向接口编程"></a>面向接口编程</h2><ul>
+<li><p>真正的开发中，很多时候我们会选择面向接口编程</p>
+</li>
+<li><p><strong>根本原因 : 解耦 , 可拓展 , 提高复用 , 分层开发中 , 上层不用管具体的实现 , 大家都遵守共同的标准 , 使得开发变得容易 , 规范性更好</strong></p>
+</li>
+<li><p>在一个面向对象的系统中，系统的各种功能是由许许多多的不同对象协作完成的。在这种情况下，各个对象内部是如何实现自己的,对系统设计人员来讲就不那么重要了</p>
+</li>
+<li><p>而各个对象之间的协作关系则成为系统设计的关键。小到不同类之间的通信，大到各模块之间的交互，在系统设计之初都是要着重考虑的，这也是系统设计的主要工作内容。面向接口编程就是指按照这种思想来编程。</p>
+</li>
+</ul>
+<h3 id="关于接口的理解"><a href="#关于接口的理解" class="headerlink" title="关于接口的理解"></a>关于接口的理解</h3><ul>
+<li><p>接口从更深层次的理解，应该是定义（规范，约束）与实现（名实分离的原则）的分离</p>
+</li>
+<li><p>接口的本身反映了系统设计人员对系统的抽象理解</p>
+</li>
+<li><p>接口应该有两类：</p>
+<ul>
+<li>第一类是对一个个体的抽象，它可对应为一个抽象体（abstract class）;</li>
+<li>第二类是对一个个体某一方面的抽象，即形成一个抽象面（interface）;</li>
+</ul>
+<p><strong>一个个体有可能有多个抽象面，抽象体和抽象面是有区别的</strong></p>
+</li>
+</ul>
+<h3 id="三个面向的区别"><a href="#三个面向的区别" class="headerlink" title="三个面向的区别"></a>三个面向的区别</h3><ul>
+<li>面向对象：考虑问题时，以对象为单位，考虑它的属性及方法</li>
+<li>面向过程：考虑问题时，以一个具体的流程（事务过程）为单位，考虑它的实现</li>
+<li>接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题.更多的体现就是对系统整体的架构</li>
+</ul>
       
-      <a class="article-more-link" href="/2020/01/15/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/01/15/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/">阅读更多...</a>
       
       
       <!-- reward -->
