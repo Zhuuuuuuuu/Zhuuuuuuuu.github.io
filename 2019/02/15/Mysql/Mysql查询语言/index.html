@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python Mysql Spring SpringBoot" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Mysql 查询语言 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Mysql/Mysql查询语言" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Mysql 查询语言
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/02/15/Mysql/Mysql%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/" class="article-date">
+  <time datetime="2019-02-15T08:02:27.000Z" itemprop="datePublished">2019-02-15</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">7.9k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">42分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Mysql-查询语言"><a href="#Mysql-查询语言" class="headerlink" title="Mysql 查询语言"></a>Mysql 查询语言</h1><h2 id="DQL语言"><a href="#DQL语言" class="headerlink" title="DQL语言"></a>DQL语言</h2><p><strong>DQL( Data Query Language 数据查询语言 )</strong></p>
+<ul>
+<li><p>查询数据库数据 , 如<strong>SELECT</strong>语句</p>
+</li>
+<li><p>简单的单表查询或多表的复杂查询和嵌套查询</p>
+</li>
+<li><p>使用频率最高的语句</p>
+</li>
+<li><p>是数据库语言中最核心,最重要的语句</p>
+</li>
+</ul>
+<a id="more"></a>
+
+<h3 id="1-select-语法公式："><a href="#1-select-语法公式：" class="headerlink" title="1. select 语法公式："></a>1. select 语法公式：</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">SELECT [ALL | DISTINCT]</span></span><br><span class="line"><span class="comment">&#123;* | table.* | [table.field1[as alias1][,table.field2[as alias2]][,...]]&#125;</span></span><br><span class="line"><span class="comment">FROM table_name [as table_alias]</span></span><br><span class="line"><span class="comment">    [left | right | inner join table_name2]  #联合查询</span></span><br><span class="line"><span class="comment">    [WHERE ...]  #指定结果需满足的条件</span></span><br><span class="line"><span class="comment">    [GROUP BY ...]  #指定结果按照哪几个字段来分组</span></span><br><span class="line"><span class="comment">    [HAVING]  #过滤分组的记录必须满足的次要条件</span></span><br><span class="line"><span class="comment">    [ORDER BY ...]  #指定查询记录按一个或多个条件排序</span></span><br><span class="line"><span class="comment">    [LIMIT &#123;[offset,]row_count | row_countOFFSET offset&#125;];</span></span><br><span class="line"><span class="comment">    # 指定查询的记录从哪条至哪条</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>预备数据环境：提供的素材SQL语句 :</strong> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line">SQLyog Ultimate v10.00 Beta1</span><br><span class="line">MySQL - 5.7.19 : Database - school</span><br><span class="line">*********************************************************************</span><br><span class="line">*&#x2F;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;*!40101 SET NAMES utf8 *&#x2F;;</span><br><span class="line"></span><br><span class="line">&#x2F;*!40101 SET SQL_MODE&#x3D;&#39;&#39;*&#x2F;;</span><br><span class="line"></span><br><span class="line">&#x2F;*!40014 SET @OLD_UNIQUE_CHECKS&#x3D;@@UNIQUE_CHECKS, UNIQUE_CHECKS&#x3D;0 *&#x2F;;</span><br><span class="line">&#x2F;*!40014 SET @OLD_FOREIGN_KEY_CHECKS&#x3D;@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS&#x3D;0 *&#x2F;;</span><br><span class="line">&#x2F;*!40101 SET @OLD_SQL_MODE&#x3D;@@SQL_MODE, SQL_MODE&#x3D;&#39;NO_AUTO_VALUE_ON_ZERO&#39; *&#x2F;;</span><br><span class="line">&#x2F;*!40111 SET @OLD_SQL_NOTES&#x3D;@@SQL_NOTES, SQL_NOTES&#x3D;0 *&#x2F;;</span><br><span class="line">CREATE DATABASE &#x2F;*!32312 IF NOT EXISTS*&#x2F;&#96;school&#96; &#x2F;*!40100 DEFAULT CHARACTER SET utf8 *&#x2F;;</span><br><span class="line"></span><br><span class="line">USE &#96;school&#96;;</span><br><span class="line"></span><br><span class="line">&#x2F;*Table structure for table &#96;grade&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">DROP TABLE IF EXISTS &#96;grade&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;grade&#96; (</span><br><span class="line">  &#96;GradeID&#96; INT(11) NOT NULL AUTO_INCREMENT COMMENT &#39;年级编号&#39;,</span><br><span class="line">  &#96;GradeName&#96; VARCHAR(50) NOT NULL COMMENT &#39;年级名称&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;GradeID&#96;)</span><br><span class="line">) ENGINE&#x3D;INNODB AUTO_INCREMENT&#x3D;6 DEFAULT CHARSET&#x3D;utf8;</span><br><span class="line"></span><br><span class="line">&#x2F;*Data for the table &#96;grade&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">INSERT  INTO &#96;grade&#96;(&#96;GradeID&#96;,&#96;GradeName&#96;) VALUES (1,&#39;大一&#39;),(2,&#39;大二&#39;),(3,&#39;大三&#39;),(4,&#39;大四&#39;),(5,&#39;预科班&#39;);</span><br><span class="line"></span><br><span class="line">&#x2F;*Table structure for table &#96;result&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">DROP TABLE IF EXISTS &#96;result&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;result&#96; (</span><br><span class="line">  &#96;StudentNo&#96; INT(4) NOT NULL COMMENT &#39;学号&#39;,</span><br><span class="line">  &#96;SubjectNo&#96; INT(4) NOT NULL COMMENT &#39;课程编号&#39;,</span><br><span class="line">  &#96;ExamDate&#96; DATETIME NOT NULL COMMENT &#39;考试日期&#39;,</span><br><span class="line">  &#96;StudentResult&#96; INT(4) NOT NULL COMMENT &#39;考试成绩&#39;,</span><br><span class="line">  KEY &#96;SubjectNo&#96; (&#96;SubjectNo&#96;)</span><br><span class="line">) ENGINE&#x3D;INNODB DEFAULT CHARSET&#x3D;utf8;</span><br><span class="line"></span><br><span class="line">&#x2F;*Data for the table &#96;result&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">INSERT  INTO &#96;result&#96;(&#96;StudentNo&#96;,&#96;SubjectNo&#96;,&#96;ExamDate&#96;,&#96;StudentResult&#96;) VALUES (1000,1,&#39;2013-11-11 16:00:00&#39;,94),(1000,2,&#39;2012-11-10 10:00:00&#39;,75),(1000,3,&#39;2011-12-19 10:00:00&#39;,76),(1000,4,&#39;2010-11-18 11:00:00&#39;,93),(1000,5,&#39;2013-11-11 14:00:00&#39;,97),(1000,6,&#39;2012-09-13 15:00:00&#39;,87),(1000,7,&#39;2011-10-16 16:00:00&#39;,79),(1000,8,&#39;2010-11-11 16:00:00&#39;,74),(1000,9,&#39;2013-11-21 10:00:00&#39;,69),(1000,10,&#39;2012-11-11 12:00:00&#39;,78),(1000,11,&#39;2011-11-11 14:00:00&#39;,66),(1000,12,&#39;2010-11-11 15:00:00&#39;,82),(1000,13,&#39;2013-11-11 14:00:00&#39;,94),(1000,14,&#39;2012-11-11 15:00:00&#39;,98),(1000,15,&#39;2011-12-11 10:00:00&#39;,70),(1000,16,&#39;2010-09-11 10:00:00&#39;,74),(1001,1,&#39;2013-11-11 16:00:00&#39;,76),(1001,2,&#39;2012-11-10 10:00:00&#39;,93),(1001,3,&#39;2011-12-19 10:00:00&#39;,65),(1001,4,&#39;2010-11-18 11:00:00&#39;,71),(1001,5,&#39;2013-11-11 14:00:00&#39;,98),(1001,6,&#39;2012-09-13 15:00:00&#39;,74),(1001,7,&#39;2011-10-16 16:00:00&#39;,85),(1001,8,&#39;2010-11-11 16:00:00&#39;,69),(1001,9,&#39;2013-11-21 10:00:00&#39;,63),(1001,10,&#39;2012-11-11 12:00:00&#39;,70),(1001,11,&#39;2011-11-11 14:00:00&#39;,62),(1001,12,&#39;2010-11-11 15:00:00&#39;,90),(1001,13,&#39;2013-11-11 14:00:00&#39;,97),(1001,14,&#39;2012-11-11 15:00:00&#39;,89),(1001,15,&#39;2011-12-11 10:00:00&#39;,72),(1001,16,&#39;2010-09-11 10:00:00&#39;,90),(1002,1,&#39;2013-11-11 16:00:00&#39;,61),(1002,2,&#39;2012-11-10 10:00:00&#39;,80),(1002,3,&#39;2011-12-19 10:00:00&#39;,89),(1002,4,&#39;2010-11-18 11:00:00&#39;,88),(1002,5,&#39;2013-11-11 14:00:00&#39;,82),(1002,6,&#39;2012-09-13 15:00:00&#39;,91),(1002,7,&#39;2011-10-16 16:00:00&#39;,63),(1002,8,&#39;2010-11-11 16:00:00&#39;,84),(1002,9,&#39;2013-11-21 10:00:00&#39;,60),(1002,10,&#39;2012-11-11 12:00:00&#39;,71),(1002,11,&#39;2011-11-11 14:00:00&#39;,93),(1002,12,&#39;2010-11-11 15:00:00&#39;,96),(1002,13,&#39;2013-11-11 14:00:00&#39;,83),(1002,14,&#39;2012-11-11 15:00:00&#39;,69),(1002,15,&#39;2011-12-11 10:00:00&#39;,89),(1002,16,&#39;2010-09-11 10:00:00&#39;,83),(1003,1,&#39;2013-11-11 16:00:00&#39;,91),(1003,2,&#39;2012-11-10 10:00:00&#39;,75),(1003,3,&#39;2011-12-19 10:00:00&#39;,65),(1003,4,&#39;2010-11-18 11:00:00&#39;,63),(1003,5,&#39;2013-11-11 14:00:00&#39;,90),(1003,6,&#39;2012-09-13 15:00:00&#39;,96),(1003,7,&#39;2011-10-16 16:00:00&#39;,97),(1003,8,&#39;2010-11-11 16:00:00&#39;,77),(1003,9,&#39;2013-11-21 10:00:00&#39;,62),(1003,10,&#39;2012-11-11 12:00:00&#39;,81),(1003,11,&#39;2011-11-11 14:00:00&#39;,76),(1003,12,&#39;2010-11-11 15:00:00&#39;,61),(1003,13,&#39;2013-11-11 14:00:00&#39;,93),(1003,14,&#39;2012-11-11 15:00:00&#39;,79),(1003,15,&#39;2011-12-11 10:00:00&#39;,78),(1003,16,&#39;2010-09-11 10:00:00&#39;,96),(1004,1,&#39;2013-11-11 16:00:00&#39;,84),(1004,2,&#39;2012-11-10 10:00:00&#39;,79),(1004,3,&#39;2011-12-19 10:00:00&#39;,76),(1004,4,&#39;2010-11-18 11:00:00&#39;,78),(1004,5,&#39;2013-11-11 14:00:00&#39;,81),(1004,6,&#39;2012-09-13 15:00:00&#39;,90),(1004,7,&#39;2011-10-16 16:00:00&#39;,63),(1004,8,&#39;2010-11-11 16:00:00&#39;,89),(1004,9,&#39;2013-11-21 10:00:00&#39;,67),(1004,10,&#39;2012-11-11 12:00:00&#39;,100),(1004,11,&#39;2011-11-11 14:00:00&#39;,94),(1004,12,&#39;2010-11-11 15:00:00&#39;,65),(1004,13,&#39;2013-11-11 14:00:00&#39;,86),(1004,14,&#39;2012-11-11 15:00:00&#39;,77),(1004,15,&#39;2011-12-11 10:00:00&#39;,82),(1004,16,&#39;2010-09-11 10:00:00&#39;,87),(1005,1,&#39;2013-11-11 16:00:00&#39;,82),(1005,2,&#39;2012-11-10 10:00:00&#39;,92),(1005,3,&#39;2011-12-19 10:00:00&#39;,80),(1005,4,&#39;2010-11-18 11:00:00&#39;,92),(1005,5,&#39;2013-11-11 14:00:00&#39;,97),(1005,6,&#39;2012-09-13 15:00:00&#39;,72),(1005,7,&#39;2011-10-16 16:00:00&#39;,84),(1005,8,&#39;2010-11-11 16:00:00&#39;,79),(1005,9,&#39;2013-11-21 10:00:00&#39;,76),(1005,10,&#39;2012-11-11 12:00:00&#39;,87),(1005,11,&#39;2011-11-11 14:00:00&#39;,65),(1005,12,&#39;2010-11-11 15:00:00&#39;,67),(1005,13,&#39;2013-11-11 14:00:00&#39;,63),(1005,14,&#39;2012-11-11 15:00:00&#39;,64),(1005,15,&#39;2011-12-11 10:00:00&#39;,99),(1005,16,&#39;2010-09-11 10:00:00&#39;,97),(1006,1,&#39;2013-11-11 16:00:00&#39;,82),(1006,2,&#39;2012-11-10 10:00:00&#39;,73),(1006,3,&#39;2011-12-19 10:00:00&#39;,79),(1006,4,&#39;2010-11-18 11:00:00&#39;,63),(1006,5,&#39;2013-11-11 14:00:00&#39;,97),(1006,6,&#39;2012-09-13 15:00:00&#39;,83),(1006,7,&#39;2011-10-16 16:00:00&#39;,78),(1006,8,&#39;2010-11-11 16:00:00&#39;,88),(1006,9,&#39;2013-11-21 10:00:00&#39;,89),(1006,10,&#39;2012-11-11 12:00:00&#39;,82),(1006,11,&#39;2011-11-11 14:00:00&#39;,70),(1006,12,&#39;2010-11-11 15:00:00&#39;,69),(1006,13,&#39;2013-11-11 14:00:00&#39;,64),(1006,14,&#39;2012-11-11 15:00:00&#39;,80),(1006,15,&#39;2011-12-11 10:00:00&#39;,90),(1006,16,&#39;2010-09-11 10:00:00&#39;,85),(1007,1,&#39;2013-11-11 16:00:00&#39;,87),(1007,2,&#39;2012-11-10 10:00:00&#39;,63),(1007,3,&#39;2011-12-19 10:00:00&#39;,70),(1007,4,&#39;2010-11-18 11:00:00&#39;,74),(1007,5,&#39;2013-11-11 14:00:00&#39;,79),(1007,6,&#39;2012-09-13 15:00:00&#39;,83),(1007,7,&#39;2011-10-16 16:00:00&#39;,86),(1007,8,&#39;2010-11-11 16:00:00&#39;,76),(1007,9,&#39;2013-11-21 10:00:00&#39;,65),(1007,10,&#39;2012-11-11 12:00:00&#39;,87),(1007,11,&#39;2011-11-11 14:00:00&#39;,69),(1007,12,&#39;2010-11-11 15:00:00&#39;,69),(1007,13,&#39;2013-11-11 14:00:00&#39;,90),(1007,14,&#39;2012-11-11 15:00:00&#39;,84),(1007,15,&#39;2011-12-11 10:00:00&#39;,95),(1007,16,&#39;2010-09-11 10:00:00&#39;,92),(1008,1,&#39;2013-11-11 16:00:00&#39;,96),(1008,2,&#39;2012-11-10 10:00:00&#39;,62),(1008,3,&#39;2011-12-19 10:00:00&#39;,97),(1008,4,&#39;2010-11-18 11:00:00&#39;,84),(1008,5,&#39;2013-11-11 14:00:00&#39;,86),(1008,6,&#39;2012-09-13 15:00:00&#39;,72),(1008,7,&#39;2011-10-16 16:00:00&#39;,67),(1008,8,&#39;2010-11-11 16:00:00&#39;,83),(1008,9,&#39;2013-11-21 10:00:00&#39;,86),(1008,10,&#39;2012-11-11 12:00:00&#39;,60),(1008,11,&#39;2011-11-11 14:00:00&#39;,61),(1008,12,&#39;2010-11-11 15:00:00&#39;,68),(1008,13,&#39;2013-11-11 14:00:00&#39;,99),(1008,14,&#39;2012-11-11 15:00:00&#39;,77),(1008,15,&#39;2011-12-11 10:00:00&#39;,73),(1008,16,&#39;2010-09-11 10:00:00&#39;,78),(1009,1,&#39;2013-11-11 16:00:00&#39;,67),(1009,2,&#39;2012-11-10 10:00:00&#39;,70),(1009,3,&#39;2011-12-19 10:00:00&#39;,75),(1009,4,&#39;2010-11-18 11:00:00&#39;,92),(1009,5,&#39;2013-11-11 14:00:00&#39;,76),(1009,6,&#39;2012-09-13 15:00:00&#39;,90),(1009,7,&#39;2011-10-16 16:00:00&#39;,62),(1009,8,&#39;2010-11-11 16:00:00&#39;,68),(1009,9,&#39;2013-11-21 10:00:00&#39;,70),(1009,10,&#39;2012-11-11 12:00:00&#39;,83),(1009,11,&#39;2011-11-11 14:00:00&#39;,88),(1009,12,&#39;2010-11-11 15:00:00&#39;,65),(1009,13,&#39;2013-11-11 14:00:00&#39;,91),(1009,14,&#39;2012-11-11 15:00:00&#39;,99),(1009,15,&#39;2011-12-11 10:00:00&#39;,65),(1009,16,&#39;2010-09-11 10:00:00&#39;,83),(1010,1,&#39;2013-11-11 16:00:00&#39;,83),(1010,2,&#39;2012-11-10 10:00:00&#39;,87),(1010,3,&#39;2011-12-19 10:00:00&#39;,89),(1010,4,&#39;2010-11-18 11:00:00&#39;,99),(1010,5,&#39;2013-11-11 14:00:00&#39;,91),(1010,6,&#39;2012-09-13 15:00:00&#39;,96),(1010,7,&#39;2011-10-16 16:00:00&#39;,72),(1010,8,&#39;2010-11-11 16:00:00&#39;,72),(1010,9,&#39;2013-11-21 10:00:00&#39;,98),(1010,10,&#39;2012-11-11 12:00:00&#39;,73),(1010,11,&#39;2011-11-11 14:00:00&#39;,68),(1010,12,&#39;2010-11-11 15:00:00&#39;,62),(1010,13,&#39;2013-11-11 14:00:00&#39;,67),(1010,14,&#39;2012-11-11 15:00:00&#39;,69),(1010,15,&#39;2011-12-11 10:00:00&#39;,71),(1010,16,&#39;2010-09-11 10:00:00&#39;,66),(1011,1,&#39;2013-11-11 16:00:00&#39;,62),(1011,2,&#39;2012-11-10 10:00:00&#39;,72),(1011,3,&#39;2011-12-19 10:00:00&#39;,96),(1011,4,&#39;2010-11-18 11:00:00&#39;,64),(1011,5,&#39;2013-11-11 14:00:00&#39;,89),(1011,6,&#39;2012-09-13 15:00:00&#39;,91),(1011,7,&#39;2011-10-16 16:00:00&#39;,95),(1011,8,&#39;2010-11-11 16:00:00&#39;,96),(1011,9,&#39;2013-11-21 10:00:00&#39;,89),(1011,10,&#39;2012-11-11 12:00:00&#39;,73),(1011,11,&#39;2011-11-11 14:00:00&#39;,82),(1011,12,&#39;2010-11-11 15:00:00&#39;,98),(1011,13,&#39;2013-11-11 14:00:00&#39;,66),(1011,14,&#39;2012-11-11 15:00:00&#39;,69),(1011,15,&#39;2011-12-11 10:00:00&#39;,91),(1011,16,&#39;2010-09-11 10:00:00&#39;,69),(1012,1,&#39;2013-11-11 16:00:00&#39;,86),(1012,2,&#39;2012-11-10 10:00:00&#39;,66),(1012,3,&#39;2011-12-19 10:00:00&#39;,97),(1012,4,&#39;2010-11-18 11:00:00&#39;,69),(1012,5,&#39;2013-11-11 14:00:00&#39;,70),(1012,6,&#39;2012-09-13 15:00:00&#39;,74),(1012,7,&#39;2011-10-16 16:00:00&#39;,91),(1012,8,&#39;2010-11-11 16:00:00&#39;,97),(1012,9,&#39;2013-11-21 10:00:00&#39;,84),(1012,10,&#39;2012-11-11 12:00:00&#39;,82),(1012,11,&#39;2011-11-11 14:00:00&#39;,90),(1012,12,&#39;2010-11-11 15:00:00&#39;,91),(1012,13,&#39;2013-11-11 14:00:00&#39;,91),(1012,14,&#39;2012-11-11 15:00:00&#39;,97),(1012,15,&#39;2011-12-11 10:00:00&#39;,85),(1012,16,&#39;2010-09-11 10:00:00&#39;,90),(1013,1,&#39;2013-11-11 16:00:00&#39;,73),(1013,2,&#39;2012-11-10 10:00:00&#39;,69),(1013,3,&#39;2011-12-19 10:00:00&#39;,91),(1013,4,&#39;2010-11-18 11:00:00&#39;,72),(1013,5,&#39;2013-11-11 14:00:00&#39;,76),(1013,6,&#39;2012-09-13 15:00:00&#39;,87),(1013,7,&#39;2011-10-16 16:00:00&#39;,61),(1013,8,&#39;2010-11-11 16:00:00&#39;,77),(1013,9,&#39;2013-11-21 10:00:00&#39;,83),(1013,10,&#39;2012-11-11 12:00:00&#39;,99),(1013,11,&#39;2011-11-11 14:00:00&#39;,91),(1013,12,&#39;2010-11-11 15:00:00&#39;,84),(1013,13,&#39;2013-11-11 14:00:00&#39;,98),(1013,14,&#39;2012-11-11 15:00:00&#39;,74),(1013,15,&#39;2011-12-11 10:00:00&#39;,92),(1013,16,&#39;2010-09-11 10:00:00&#39;,90),(1014,1,&#39;2013-11-11 16:00:00&#39;,64),(1014,2,&#39;2012-11-10 10:00:00&#39;,81),(1014,3,&#39;2011-12-19 10:00:00&#39;,79),(1014,4,&#39;2010-11-18 11:00:00&#39;,74),(1014,5,&#39;2013-11-11 14:00:00&#39;,65),(1014,6,&#39;2012-09-13 15:00:00&#39;,88),(1014,7,&#39;2011-10-16 16:00:00&#39;,86),(1014,8,&#39;2010-11-11 16:00:00&#39;,77),(1014,9,&#39;2013-11-21 10:00:00&#39;,86),(1014,10,&#39;2012-11-11 12:00:00&#39;,85),(1014,11,&#39;2011-11-11 14:00:00&#39;,86),(1014,12,&#39;2010-11-11 15:00:00&#39;,75),(1014,13,&#39;2013-11-11 14:00:00&#39;,89),(1014,14,&#39;2012-11-11 15:00:00&#39;,79),(1014,15,&#39;2011-12-11 10:00:00&#39;,73),(1014,16,&#39;2010-09-11 10:00:00&#39;,68),(1015,1,&#39;2013-11-11 16:00:00&#39;,99),(1015,2,&#39;2012-11-10 10:00:00&#39;,60),(1015,3,&#39;2011-12-19 10:00:00&#39;,60),(1015,4,&#39;2010-11-18 11:00:00&#39;,75),(1015,5,&#39;2013-11-11 14:00:00&#39;,78),(1015,6,&#39;2012-09-13 15:00:00&#39;,78),(1015,7,&#39;2011-10-16 16:00:00&#39;,84),(1015,8,&#39;2010-11-11 16:00:00&#39;,95),(1015,9,&#39;2013-11-21 10:00:00&#39;,93),(1015,10,&#39;2012-11-11 12:00:00&#39;,79),(1015,11,&#39;2011-11-11 14:00:00&#39;,74),(1015,12,&#39;2010-11-11 15:00:00&#39;,65),(1015,13,&#39;2013-11-11 14:00:00&#39;,63),(1015,14,&#39;2012-11-11 15:00:00&#39;,74),(1015,15,&#39;2011-12-11 10:00:00&#39;,67),(1015,16,&#39;2010-09-11 10:00:00&#39;,65),(1016,1,&#39;2013-11-11 16:00:00&#39;,97),(1016,2,&#39;2012-11-10 10:00:00&#39;,90),(1016,3,&#39;2011-12-19 10:00:00&#39;,77),(1016,4,&#39;2010-11-18 11:00:00&#39;,75),(1016,5,&#39;2013-11-11 14:00:00&#39;,75),(1016,6,&#39;2012-09-13 15:00:00&#39;,97),(1016,7,&#39;2011-10-16 16:00:00&#39;,96),(1016,8,&#39;2010-11-11 16:00:00&#39;,92),(1016,9,&#39;2013-11-21 10:00:00&#39;,62),(1016,10,&#39;2012-11-11 12:00:00&#39;,83),(1016,11,&#39;2011-11-11 14:00:00&#39;,98),(1016,12,&#39;2010-11-11 15:00:00&#39;,94),(1016,13,&#39;2013-11-11 14:00:00&#39;,62),(1016,14,&#39;2012-11-11 15:00:00&#39;,97),(1016,15,&#39;2011-12-11 10:00:00&#39;,76),(1016,16,&#39;2010-09-11 10:00:00&#39;,82),(1017,1,&#39;2013-11-11 16:00:00&#39;,100),(1017,2,&#39;2012-11-10 10:00:00&#39;,88),(1017,3,&#39;2011-12-19 10:00:00&#39;,86),(1017,4,&#39;2010-11-18 11:00:00&#39;,73),(1017,5,&#39;2013-11-11 14:00:00&#39;,96),(1017,6,&#39;2012-09-13 15:00:00&#39;,64),(1017,7,&#39;2011-10-16 16:00:00&#39;,81),(1017,8,&#39;2010-11-11 16:00:00&#39;,66),(1017,9,&#39;2013-11-21 10:00:00&#39;,76),(1017,10,&#39;2012-11-11 12:00:00&#39;,95),(1017,11,&#39;2011-11-11 14:00:00&#39;,73),(1017,12,&#39;2010-11-11 15:00:00&#39;,82),(1017,13,&#39;2013-11-11 14:00:00&#39;,85),(1017,14,&#39;2012-11-11 15:00:00&#39;,68),(1017,15,&#39;2011-12-11 10:00:00&#39;,99),(1017,16,&#39;2010-09-11 10:00:00&#39;,76);</span><br><span class="line"></span><br><span class="line">&#x2F;*Table structure for table &#96;student&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">DROP TABLE IF EXISTS &#96;student&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;student&#96; (</span><br><span class="line">  &#96;StudentNo&#96; INT(4) NOT NULL COMMENT &#39;学号&#39;,</span><br><span class="line">  &#96;LoginPwd&#96; VARCHAR(20) DEFAULT NULL,</span><br><span class="line">  &#96;StudentName&#96; VARCHAR(20) DEFAULT NULL COMMENT &#39;学生姓名&#39;,</span><br><span class="line">  &#96;Sex&#96; TINYINT(1) DEFAULT NULL COMMENT &#39;性别，取值0或1&#39;,</span><br><span class="line">  &#96;GradeId&#96; INT(11) DEFAULT NULL COMMENT &#39;年级编号&#39;,</span><br><span class="line">  &#96;Phone&#96; VARCHAR(50) NOT NULL COMMENT &#39;联系电话，允许为空，即可选输入&#39;,</span><br><span class="line">  &#96;Address&#96; VARCHAR(255) NOT NULL COMMENT &#39;地址，允许为空，即可选输入&#39;,</span><br><span class="line">  &#96;BornDate&#96; DATETIME DEFAULT NULL COMMENT &#39;出生时间&#39;,</span><br><span class="line">  &#96;Email&#96; VARCHAR(50) NOT NULL COMMENT &#39;邮箱账号，允许为空，即可选输入&#39;,</span><br><span class="line">  &#96;IdentityCard&#96; VARCHAR(18) DEFAULT NULL COMMENT &#39;身份证号&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;StudentNo&#96;),</span><br><span class="line">  UNIQUE KEY &#96;IdentityCard&#96; (&#96;IdentityCard&#96;),</span><br><span class="line">  KEY &#96;Email&#96; (&#96;Email&#96;)</span><br><span class="line">) ENGINE&#x3D;MYISAM DEFAULT CHARSET&#x3D;utf8;</span><br><span class="line"></span><br><span class="line">&#x2F;*Data for the table &#96;student&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">INSERT  INTO &#96;student&#96;(&#96;StudentNo&#96;,&#96;LoginPwd&#96;,&#96;StudentName&#96;,&#96;Sex&#96;,&#96;GradeId&#96;,&#96;Phone&#96;,&#96;Address&#96;,&#96;BornDate&#96;,&#96;Email&#96;,&#96;IdentityCard&#96;) VALUES (1000,&#39;111111&#39;,&#39;郭靖&#39;,1,1,&#39;13500000001&#39;,&#39;北京海淀区中关村大街1号&#39;,&#39;1986-12-11 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612111234&#39;),(1001,&#39;123456&#39;,&#39;李文才&#39;,1,2,&#39;13500000002&#39;,&#39;河南洛阳&#39;,&#39;1981-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198112311234&#39;),(1002,&#39;111111&#39;,&#39;李斯文&#39;,1,1,&#39;13500000003&#39;,&#39;天津市和平区&#39;,&#39;1986-11-30 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198611301234&#39;),(1003,&#39;123456&#39;,&#39;武松&#39;,1,3,&#39;13500000004&#39;,&#39;上海卢湾区&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612314234&#39;),(1004,&#39;123456&#39;,&#39;张三&#39;,1,4,&#39;13500000005&#39;,&#39;北京市通州&#39;,&#39;1989-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311244&#39;),(1005,&#39;123456&#39;,&#39;张秋丽 &#39;,2,1,&#39;13500000006&#39;,&#39;广西桂林市灵川&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311214&#39;),(1006,&#39;123456&#39;,&#39;肖梅&#39;,2,4,&#39;13500000007&#39;,&#39;地址不详&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311134&#39;),(1007,&#39;111111&#39;,&#39;欧阳峻峰&#39;,1,1,&#39;13500000008&#39;,&#39;北京东城区&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311133&#39;),(1008,&#39;111111&#39;,&#39;梅超风&#39;,1,1,&#39;13500000009&#39;,&#39;河南洛阳&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311221&#39;),(1009,&#39;123456&#39;,&#39;刘毅&#39;,1,2,&#39;13500000011&#39;,&#39;安徽&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311231&#39;),(1010,&#39;111111&#39;,&#39;大凡&#39;,1,1,&#39;13500000012&#39;,&#39;河南洛阳&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311044&#39;),(1011,&#39;111111&#39;,&#39;奥丹斯&#39;,1,1,&#39;13500000013&#39;,&#39;北京海淀区中关村大街*号&#39;,&#39;1984-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198412311234&#39;),(1012,&#39;123456&#39;,&#39;多伦&#39;,2,3,&#39;13500000014&#39;,&#39;广西南宁中央大街&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311334&#39;),(1013,&#39;123456&#39;,&#39;李梅&#39;,2,1,&#39;13500000015&#39;,&#39;上海卢湾区&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311534&#39;),(1014,&#39;123456&#39;,&#39;张得&#39;,2,4,&#39;13500000016&#39;,&#39;北京海淀区中关村大街*号&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311264&#39;),(1015,&#39;123456&#39;,&#39;李东方&#39;,1,4,&#39;13500000017&#39;,&#39;广西桂林市灵川&#39;,&#39;1976-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323197612311234&#39;),(1016,&#39;111111&#39;,&#39;刘奋斗&#39;,1,1,&#39;13500000018&#39;,&#39;上海卢湾区&#39;,&#39;1986-12-31 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198612311251&#39;),(1017,&#39;123456&#39;,&#39;可可&#39;,2,3,&#39;13500000019&#39;,&#39;北京长安街1号&#39;,&#39;1981-09-10 00:00:00&#39;,&#39;test1@bdqn.cn&#39;,&#39;450323198109108311&#39;),(10066,&#39;&#39;,&#39;Tom&#39;,1,1,&#39;13500000000&#39;,&#39;&#39;,&#39;0000-00-00 00:00:00&#39;,&#39;email@22.com&#39;,&#39;33123123123123123&#39;);</span><br><span class="line"></span><br><span class="line">&#x2F;*Table structure for table &#96;subject&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">DROP TABLE IF EXISTS &#96;subject&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;subject&#96; (</span><br><span class="line">  &#96;SubjectNo&#96; INT(11) NOT NULL AUTO_INCREMENT COMMENT &#39;课程编号&#39;,</span><br><span class="line">  &#96;SubjectName&#96; VARCHAR(50) DEFAULT NULL COMMENT &#39;课程名称&#39;,</span><br><span class="line">  &#96;ClassHour&#96; INT(4) DEFAULT NULL COMMENT &#39;学时&#39;,</span><br><span class="line">  &#96;GradeID&#96; INT(4) DEFAULT NULL COMMENT &#39;年级编号&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;SubjectNo&#96;)</span><br><span class="line">) ENGINE&#x3D;INNODB AUTO_INCREMENT&#x3D;18 DEFAULT CHARSET&#x3D;utf8;</span><br><span class="line"></span><br><span class="line">&#x2F;*Data for the table &#96;subject&#96; *&#x2F;</span><br><span class="line"></span><br><span class="line">INSERT  INTO &#96;subject&#96;(&#96;SubjectNo&#96;,&#96;SubjectName&#96;,&#96;ClassHour&#96;,&#96;GradeID&#96;) VALUES (1,&#39;高等数学-1&#39;,110,1),(2,&#39;高等数学-2&#39;,110,2),(3,&#39;高等数学-3&#39;,100,3),(4,&#39;高等数学-4&#39;,130,4),(5,&#39;C语言-1&#39;,110,1),(6,&#39;C语言-2&#39;,110,2),(7,&#39;C语言-3&#39;,100,3),(8,&#39;C语言-4&#39;,130,4),(9,&#39;JAVA第一学年&#39;,110,1),(10,&#39;JAVA第二学年&#39;,110,2),(11,&#39;JAVA第三学年&#39;,100,3),(12,&#39;JAVA第四学年&#39;,130,4),(13,&#39;数据库结构-1&#39;,110,1),(14,&#39;数据库结构-2&#39;,110,2),(15,&#39;数据库结构-3&#39;,100,3),(16,&#39;数据库结构-4&#39;,130,4),(17,&#39;C#基础&#39;,130,1);</span><br><span class="line"></span><br><span class="line">&#x2F;*!40101 SET SQL_MODE&#x3D;@OLD_SQL_MODE *&#x2F;;</span><br><span class="line">&#x2F;*!40014 SET FOREIGN_KEY_CHECKS&#x3D;@OLD_FOREIGN_KEY_CHECKS *&#x2F;;</span><br><span class="line">&#x2F;*!40014 SET UNIQUE_CHECKS&#x3D;@OLD_UNIQUE_CHECKS *&#x2F;;</span><br><span class="line">&#x2F;*!40111 SET SQL_NOTES&#x3D;@OLD_SQL_NOTES *&#x2F;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-指定查询字段"><a href="#2-指定查询字段" class="headerlink" title="2. 指定查询字段"></a>2. 指定查询字段</h3><ul>
+<li><p>查询表结果时 , 可指定查询结果的数据列</p>
+<ul>
+<li><p>如 : SELECT * FROM student;</p>
+</li>
+<li><pre><code class="mysql"># 查询所有学生信息
+SELECT * FROM student;
+
+# 查询指定列(学号 , 姓名)
+SELECT studentno,studentname FROM student;
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">### 3. AS起别名</span><br><span class="line"></span><br><span class="line">AS子句作用 :</span><br><span class="line"></span><br><span class="line">- 可给**数据列**取一个新别名</span><br><span class="line">- 可给**表**去一个新别名</span><br><span class="line">- 可把经计算或总结的结果用另一个新名称来代替</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;mysql</span><br><span class="line"># 这里是为列取别名(当然as关键词可以省略)</span><br><span class="line">SELECT studentno AS 学号,studentname AS 姓名 FROM student;</span><br><span class="line"></span><br><span class="line"># 使用as也可以为表取别名</span><br><span class="line">SELECT studentno AS 学号,studentname AS 姓名 FROM student AS s;</span><br><span class="line"></span><br><span class="line"># 使用as,为查询结果取一个新名字</span><br><span class="line"># CONCAT()函数拼接字符串</span><br><span class="line">SELECT CONCAT(&#39;姓名:&#39;,studentname) AS 新姓名 FROM student;</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-去重"><a href="#4-去重" class="headerlink" title="4. 去重"></a>4. 去重</h3><ul>
+<li>作用 : 去掉SELECT查询返回的记录结果中重复的记录(返回所有列的值都相同),只返回一条</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 查看哪些同学参加了考试(学号)--去除重复项</span><br><span class="line">SELECT * FROM result; # 查看考试成绩</span><br><span class="line">SELECT studentno FROM result; # 查看哪些同学参加了考试</span><br><span class="line">SELECT DISTINCT studentno FROM result;</span><br><span class="line"># 了解:DISTINCT 去除重复项 , (默认是ALL)</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-使用表达式的列"><a href="#5-使用表达式的列" class="headerlink" title="5. 使用表达式的列"></a>5. 使用表达式的列</h3><p>数据库中的表达式：文本值,列，NULL，计算表达式，变量</p>
+<p>select <code>表达式</code> from 表</p>
+<p>应用场景：</p>
+<ul>
+<li>select 语句返回结果列中使用</li>
+<li>select 与剧中的order by, having 等子句中使用</li>
+<li>DML语句中where条件语句中使用表达式</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># selcet查询中可以使用表达式</span><br><span class="line">SELECT @@auto_increment_increment; # 查询自增步长</span><br><span class="line">SELECT VERSION(); #查询版本号</span><br><span class="line">SELECT 100*3-1 AS 计算结果; # 表达式</span><br><span class="line"></span><br><span class="line"># 学员考试成绩集体提分一分查看</span><br><span class="line">SELECT studentno,StudentResult+1 AS &#39;提分后&#39; FROM result;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-where条件字句"><a href="#6-where条件字句" class="headerlink" title="6. where条件字句"></a>6. where条件字句</h3><ul>
+<li>作用：检索数据中符合条件的值</li>
+<li>搜索条件可由一个或多个逻辑表达式组成 , 结果一般为真或假.</li>
+</ul>
+<p>逻辑运算符</p>
+<table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>语法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>and &amp;&amp;</td>
+<td>a  and b</td>
+<td>逻辑与</td>
+</tr>
+<tr>
+<td>or   ||</td>
+<td>a  or b</td>
+<td>逻辑或</td>
+</tr>
+<tr>
+<td>Not   !</td>
+<td>not a      ! a</td>
+<td>逻辑非</td>
+</tr>
+</tbody></table>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"># 满足条件的查询(where)</span><br><span class="line">SELECT Studentno,StudentResult FROM result;</span><br><span class="line"></span><br><span class="line"># 查询考试成绩在95-100之间的</span><br><span class="line">SELECT Studentno,StudentResult </span><br><span class="line">FROM result</span><br><span class="line">WHERE StudentResult&gt;&#x3D;95 AND StudentResult&lt;&#x3D;100;</span><br><span class="line"># AND也可以写成 &amp;&amp;</span><br><span class="line">SELECT Studentno,StudentResult </span><br><span class="line">FROM result</span><br><span class="line">WHERE StudentResult&gt;&#x3D;95 &amp;&amp; StudentResult&lt;&#x3D;100;</span><br><span class="line"></span><br><span class="line"># 模糊查询(对应的词:精确查询)</span><br><span class="line">SELECT Studentno,StudentResult </span><br><span class="line">FROM result</span><br><span class="line">WHERE StudentResult BETWEEN 95 AND 100;</span><br><span class="line"># 除了1000号同学,要其他同学的成绩</span><br><span class="line">SELECT studentno,studentresult</span><br><span class="line">FROM result</span><br><span class="line">WHERE studentno!&#x3D;1000;</span><br><span class="line"></span><br><span class="line"># 使用NOT</span><br><span class="line">SELECT studentno,studentresult</span><br><span class="line">FROM result</span><br><span class="line">WHERE NOT studentno&#x3D;1000;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-模糊查询"><a href="#7-模糊查询" class="headerlink" title="7. 模糊查询"></a>7. 模糊查询</h3><h4 id="比较运算符"><a href="#比较运算符" class="headerlink" title="比较运算符"></a>比较运算符</h4><table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>语法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Is NUll</td>
+<td>a is null</td>
+<td>如果操作符是null ,结果为真</td>
+</tr>
+<tr>
+<td>Is not NUll</td>
+<td>a is not null</td>
+<td>如果操作符不为null,结果为真</td>
+</tr>
+<tr>
+<td>Between</td>
+<td>a between b and c</td>
+<td>如果a在b和c之间，结果为真</td>
+</tr>
+<tr>
+<td>Like</td>
+<td>a like b</td>
+<td>SQL匹配，如果a 匹配到 b，则结果为真</td>
+</tr>
+<tr>
+<td>in</td>
+<td>a in (a1,a2,a3)</td>
+<td>如果a在a1,a2,a3中，结果为真</td>
+</tr>
+</tbody></table>
+<h4 id="通配符"><a href="#通配符" class="headerlink" title="通配符"></a>通配符</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%     <span class="comment">--代表0到任意个字符</span></span><br><span class="line">_     <span class="comment">--代表1个字符</span></span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">#模糊查询 between and \ like \ in \ null</span><br><span class="line"></span><br><span class="line">#&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line"># LIKE</span><br><span class="line">#&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">#查询姓李的同学的学号及姓名</span><br><span class="line">#like结合使用的通配符 : % (代表0到任意个字符)  _ (一个字符)</span><br><span class="line">SELECT studentno,studentname FROM student</span><br><span class="line">WHERE studentname LIKE &#39;李%&#39;;</span><br><span class="line"></span><br><span class="line">#查询姓李的同学,后面只有一个字的</span><br><span class="line">SELECT studentno,studentname FROM student</span><br><span class="line">WHERE studentname LIKE &#39;李_&#39;;</span><br><span class="line"></span><br><span class="line">#查询姓李的同学,后面只有两个字的</span><br><span class="line">SELECT studentno,studentname FROM student</span><br><span class="line">WHERE studentname LIKE &#39;李__&#39;;</span><br><span class="line"></span><br><span class="line">#查询姓名中含有 文 字的</span><br><span class="line">SELECT studentno,studentname FROM student</span><br><span class="line">WHERE studentname LIKE &#39;%文%&#39;;</span><br><span class="line"></span><br><span class="line">#查询姓名中含有特殊字符的需要使用转义符号 &#39;\&#39;</span><br><span class="line">#自定义转义符关键字:  ESCAPE &#39;:&#39;</span><br><span class="line"></span><br><span class="line">#&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line"># IN</span><br><span class="line">#&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">#查询学号为1000,1001,1002的学生姓名</span><br><span class="line">SELECT studentno,studentname FROM student</span><br><span class="line">WHERE studentno IN (1000,1001,1002);</span><br><span class="line"></span><br><span class="line">#查询地址在北京,南京,河南洛阳的学生</span><br><span class="line">SELECT studentno,studentname,address FROM student</span><br><span class="line">WHERE address IN (&#39;北京&#39;,&#39;南京&#39;,&#39;河南洛阳&#39;);</span><br><span class="line"></span><br><span class="line">#&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line"># NULL 空</span><br><span class="line">#&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">#查询出生日期没有填写的同学</span><br><span class="line">#不能直接写&#x3D;NULL , 这是代表错误的 , 用 is null </span><br><span class="line">SELECT studentname FROM student</span><br><span class="line">WHERE BornDate IS NULL;</span><br><span class="line"></span><br><span class="line">#查询出生日期填写的同学</span><br><span class="line">SELECT studentname FROM student</span><br><span class="line">WHERE BornDate IS NOT NULL;</span><br><span class="line"></span><br><span class="line">#查询没有写家庭住址的同学(空字符串不等于null)</span><br><span class="line">SELECT studentname FROM student</span><br><span class="line">WHERE Address&#x3D;&#39;&#39; OR Address IS NULL;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-联表查询"><a href="#8-联表查询" class="headerlink" title="8. 联表查询"></a>8. 联表查询</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200215174854.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Inner join</td>
+<td>如果表中有一个匹配的值，就返回</td>
+</tr>
+<tr>
+<td>left    join</td>
+<td>会从左表中返回所有的值，哪怕右表中没有配置的值</td>
+</tr>
+<tr>
+<td>right  join</td>
+<td>会从右表中返回所有的值，哪怕左表中没有匹配的值</td>
+</tr>
+</tbody></table>
+<ul>
+<li>join on     — 连接查询</li>
+<li>where      — 等值查询</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line">1. 连接查询</span><br><span class="line">    如需要多张数据表的数据进行查询,则可通过连接运算符实现多个查询</span><br><span class="line">内连接 inner join</span><br><span class="line">    查询两个表中的结果集中的交集</span><br><span class="line">外连接 outer join</span><br><span class="line">    左外连接 left join</span><br><span class="line">        (以左表作为基准,右边表来一一匹配,匹配不上的,返回左表的记录,右表以NULL填充)</span><br><span class="line">    右外连接 right join</span><br><span class="line">        (以右表作为基准,左边表来一一匹配,匹配不上的,返回右表的记录,左表以NULL填充)</span><br><span class="line">        </span><br><span class="line">2. 等值连接和非等值连接</span><br><span class="line">*&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>练习：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">#查询参加了考试的同学信息(学号,学生姓名,科目编号,分数)</span><br><span class="line">SELECT * FROM student;</span><br><span class="line">SELECT * FROM result;</span><br><span class="line"></span><br><span class="line">&#x2F;*思路:</span><br><span class="line">(1):分析需求,确定查询的列来源于两个类,student  result,连接查询</span><br><span class="line">(2):确定使用哪种连接查询?(内连接)</span><br><span class="line">*&#x2F;</span><br><span class="line">SELECT s.studentno,studentname,subjectno,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">INNER JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line"></span><br><span class="line"># 右连接(也可实现)</span><br><span class="line">SELECT s.studentno,studentname,subjectno,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">RIGHT JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line"></span><br><span class="line"># 等值连接</span><br><span class="line">SELECT s.studentno,studentname,subjectno,StudentResult</span><br><span class="line">FROM student s , result r</span><br><span class="line">WHERE r.studentno &#x3D; s.studentno</span><br><span class="line"></span><br><span class="line"># 左连接 (查询了所有同学,不考试的也会查出来)</span><br><span class="line">SELECT s.studentno,studentname,subjectno,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">LEFT JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line"></span><br><span class="line">#查一下缺考的同学(左连接应用场景)</span><br><span class="line">SELECT s.studentno,studentname,subjectno,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">LEFT JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line">WHERE StudentResult IS NULL</span><br><span class="line"></span><br><span class="line">#思考题:查询参加了考试的同学信息(学号,学生姓名,科目名,分数)</span><br><span class="line">SELECT s.studentno,studentname,subjectname,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">INNER JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line">INNER JOIN &#96;subject&#96; sub</span><br><span class="line">ON sub.subjectno &#x3D; r.subjectno</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-自连接"><a href="#9-自连接" class="headerlink" title="9. 自连接"></a>9. 自连接</h3><p><strong>准备环境</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># 创建一个表</span><br><span class="line">CREATE TABLE &#96;category&#96; (</span><br><span class="line">  &#96;categoryid&#96; INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT &#39;主题id&#39;,</span><br><span class="line">  &#96;pid&#96; INT(10) NOT NULL COMMENT &#39;父id&#39;,</span><br><span class="line">  &#96;categoryName&#96; VARCHAR(50) NOT NULL COMMENT &#39;主题名字&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;categoryid&#96;)</span><br><span class="line">) ENGINE&#x3D;INNODB AUTO_INCREMENT&#x3D;9 DEFAULT CHARSET&#x3D;utf8</span><br><span class="line"></span><br><span class="line"># 插入数据</span><br><span class="line">INSERT INTO &#96;category&#96; (&#96;categoryid&#96;, &#96;pid&#96;, &#96;categoryName&#96;) </span><br><span class="line">VALUES(&#39;2&#39;,&#39;1&#39;,&#39;信息技术&#39;),</span><br><span class="line">(&#39;3&#39;,&#39;1&#39;,&#39;软件开发&#39;),</span><br><span class="line">(&#39;4&#39;,&#39;3&#39;,&#39;数据库&#39;),</span><br><span class="line">(&#39;5&#39;,&#39;1&#39;,&#39;美术设计&#39;),</span><br><span class="line">(&#39;6&#39;,&#39;3&#39;,&#39;web开发&#39;),</span><br><span class="line">(&#39;7&#39;,&#39;5&#39;,&#39;ps技术&#39;),</span><br><span class="line">(&#39;8&#39;,&#39;2&#39;,&#39;办公信息&#39;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>练习：</strong>核心思想:把一张表看成两张一模一样的表,然后将这两张表连接查询(自连接)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 编写SQL语句,将栏目的父子关系呈现出来 (父栏目名称,子栏目名称)</span><br><span class="line"># 核心思想:把一张表看成两张一模一样的表,然后将这两张表连接查询(自连接)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">自连接</span><br><span class="line">    数据表与自身进行连接</span><br><span class="line"></span><br><span class="line">需求:从一个包含栏目ID , 栏目名称和父栏目ID的表中 </span><br><span class="line">     查询父栏目名称和其他子栏目名称</span><br><span class="line">*&#x2F;</span><br><span class="line"></span><br><span class="line">SELECT a.categoryName AS &#39;父栏目&#39;,b.categoryName AS &#39;子栏目&#39;</span><br><span class="line">FROM category AS a,category AS b</span><br><span class="line">WHERE a.&#96;categoryid&#96;&#x3D;b.&#96;pid&#96;</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-分页和排序"><a href="#10-分页和排序" class="headerlink" title="10.分页和排序"></a>10.分页和排序</h3><h4 id="排序-order-by"><a href="#排序-order-by" class="headerlink" title="排序  (order by)"></a>排序  (order by)</h4><ul>
+<li>升序 ASC</li>
+<li>降序 DESC</li>
+</ul>
+<p>语法：order by</p>
+<ul>
+<li>用于根据指定的列对结果集进行排序</li>
+<li>默认按照ASC升序对记录进行排序</li>
+</ul>
+<p>练习：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 查询 数据库结构-1 的所有考试结果(学号 学生姓名 科目名称 成绩)</span><br><span class="line"># 按成绩降序排序</span><br><span class="line">SELECT s.studentno,studentname,subjectname,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">INNER JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line">INNER JOIN &#96;subject&#96; sub</span><br><span class="line">ON r.subjectno &#x3D; sub.subjectno</span><br><span class="line">WHERE subjectname&#x3D;&#39;数据库结构-1&#39;</span><br><span class="line">ORDER BY StudentResult DESC , studentno</span><br></pre></td></tr></table></figure>
+
+<h4 id="分页（limit）"><a href="#分页（limit）" class="headerlink" title="分页（limit）"></a>分页（limit）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">推导: </span><br><span class="line">    第一页 : limit 0,5</span><br><span class="line">    第二页 : limit 5,5</span><br><span class="line">    第三页 : limit 10,5</span><br><span class="line">    ......</span><br><span class="line">    第N页 : limit (pageNo-1)*pageSzie,pageSzie</span><br><span class="line">    [pageNo:页码,pageSize:单页面显示条数]</span><br></pre></td></tr></table></figure>
+
+<p>练习：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 每页显示5条数据</span><br><span class="line">SELECT s.studentno,studentname,subjectname,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">INNER JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line">INNER JOIN &#96;subject&#96; sub</span><br><span class="line">ON r.subjectno &#x3D; sub.subjectno</span><br><span class="line">WHERE subjectname&#x3D;&#39;数据库结构-1&#39;</span><br><span class="line">ORDER BY StudentResult DESC , studentno</span><br><span class="line">LIMIT 0,5</span><br><span class="line"></span><br><span class="line">#查询 JAVA第一学年 课程成绩前10名并且分数大于80的学生信息(学号,姓名,课程名,分数)</span><br><span class="line">SELECT s.studentno,studentname,subjectname,StudentResult</span><br><span class="line">FROM student s</span><br><span class="line">INNER JOIN result r</span><br><span class="line">ON r.studentno &#x3D; s.studentno</span><br><span class="line">INNER JOIN &#96;subject&#96; sub</span><br><span class="line">ON r.subjectno &#x3D; sub.subjectno</span><br><span class="line">WHERE subjectname&#x3D;&#39;JAVA第一学年&#39;</span><br><span class="line">ORDER BY StudentResult DESC</span><br><span class="line">LIMIT 0,10</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-子查询和嵌套查询"><a href="#11-子查询和嵌套查询" class="headerlink" title="11. 子查询和嵌套查询"></a>11. 子查询和嵌套查询</h3><p>练习：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># 查询 数据库结构-1 的所有考试结果(学号,科目编号,成绩),并且成绩降序排列</span><br><span class="line">#方法一:使用连接查询</span><br><span class="line">SELECT studentno,r.subjectno,StudentResult</span><br><span class="line">FROM result r </span><br><span class="line">INNER JOIN &#96;subject&#96; sub</span><br><span class="line">ON r.&#96;SubjectNo&#96;&#x3D;sub.&#96;SubjectNo&#96;</span><br><span class="line">WHERE subjectname &#x3D; &#39;数据库结构-1&#39;</span><br><span class="line">ORDER BY studentresult DESC;</span><br><span class="line"></span><br><span class="line">#方法二:使用子查询(执行顺序:由里及外)</span><br><span class="line">SELECT studentno,subjectno,StudentResult</span><br><span class="line">FROM result</span><br><span class="line">WHERE subjectno&#x3D;(</span><br><span class="line">    SELECT subjectno FROM &#96;subject&#96; </span><br><span class="line">    WHERE subjectname &#x3D; &#39;数据库结构-1&#39;</span><br><span class="line">)</span><br><span class="line">ORDER BY studentresult DESC;</span><br><span class="line"></span><br><span class="line">#方法二:使用连接查询+子查询</span><br><span class="line">#分数不小于80分的学生的学号和姓名</span><br><span class="line">SELECT r.studentno,studentname FROM student s</span><br><span class="line">INNER JOIN result r ON s.&#96;StudentNo&#96;&#x3D;r.&#96;StudentNo&#96;</span><br><span class="line">WHERE StudentResult&gt;&#x3D;80</span><br><span class="line"></span><br><span class="line">#在上面SQL基础上,添加需求:课程为 高等数学-2</span><br><span class="line">SELECT r.studentno,studentname FROM student s</span><br><span class="line">INNER JOIN result r ON s.&#96;StudentNo&#96;&#x3D;r.&#96;StudentNo&#96;</span><br><span class="line">WHERE StudentResult&gt;&#x3D;80 AND subjectno&#x3D;(</span><br><span class="line">    SELECT subjectno FROM &#96;subject&#96;</span><br><span class="line">    WHERE subjectname &#x3D; &#39;高等数学-2&#39;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">#方法三:使用子查询</span><br><span class="line">#分步写简单sql语句,然后将其嵌套起来</span><br><span class="line">SELECT studentno,studentname FROM student WHERE studentno IN(</span><br><span class="line">    SELECT studentno FROM result WHERE StudentResult&gt;&#x3D;80 AND subjectno&#x3D;(</span><br><span class="line">        SELECT subjectno FROM &#96;subject&#96; WHERE subjectname &#x3D; &#39;高等数学-2&#39;</span><br><span class="line">    )</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-分组查询"><a href="#12-分组查询" class="headerlink" title="12. 分组查询"></a>12. 分组查询</h3><p>语法：group by</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 查询不同课程的平均分,最高分,最低分</span><br><span class="line"># 前提:根据不同的课程进行分组</span><br><span class="line"></span><br><span class="line">SELECT subjectname,AVG(studentresult) AS 平均分,MAX(StudentResult) AS 最高分,MIN(StudentResult) AS 最低分</span><br><span class="line">FROM result AS r</span><br><span class="line">INNER JOIN &#96;subject&#96; AS s</span><br><span class="line">ON r.subjectno &#x3D; s.subjectno</span><br><span class="line">GROUP BY r.subjectno</span><br><span class="line">HAVING 平均分&gt;80;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">where写在group by前面.</span><br><span class="line">要是放在分组后面的筛选</span><br><span class="line">要使用HAVING..</span><br><span class="line">*&#x2F;</span><br></pre></td></tr></table></figure>
+
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/02/15/Mysql/Mysql%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2019/02/16/Mysql/Mysql%E5%87%BD%E6%95%B0%E5%92%8C%E7%BC%96%E7%A8%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Mysql 函数和编程
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/02/12/Mysql/Mysql%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Mysql数据管理</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>
