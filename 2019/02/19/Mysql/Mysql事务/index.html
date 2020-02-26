@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Mysql 事务索引备份视图 |  朱酱酱的学习博客
+    Mysql 事务 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-Mysql/Mysql事务索引备份视图" class="article article-type-post" itemscope
+  <article id="post-Mysql/Mysql事务" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Mysql 事务索引备份视图
+  Mysql 事务
 </h1>
   
 
@@ -53,7 +53,7 @@
 
     
     <div class="article-meta">
-      <a href="/2019/02/19/Mysql/Mysql%E4%BA%8B%E5%8A%A1%E7%B4%A2%E5%BC%95%E5%A4%87%E4%BB%BD%E8%A7%86%E5%9B%BE/" class="article-date">
+      <a href="/2019/02/19/Mysql/Mysql%E4%BA%8B%E5%8A%A1/" class="article-date">
   <time datetime="2019-02-19T08:02:27.000Z" itemprop="datePublished">2019-02-19</time>
 </a>
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">495字</span>
+            <span class="post-count">864字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -99,7 +99,7 @@
       
 
       
-      <h1 id="Mysql-事务索引备份视图"><a href="#Mysql-事务索引备份视图" class="headerlink" title="Mysql 事务索引备份视图"></a>Mysql 事务索引备份视图</h1><h2 id="Mysql-事务"><a href="#Mysql-事务" class="headerlink" title="Mysql 事务"></a>Mysql 事务</h2><p><strong>事务：==要么都成功，要么都失败==</strong></p>
+      <h1 id="Mysql-事务"><a href="#Mysql-事务" class="headerlink" title="Mysql 事务"></a>Mysql 事务</h1><h2 id="Mysql-事务-1"><a href="#Mysql-事务-1" class="headerlink" title="Mysql 事务"></a>Mysql 事务</h2><p><strong>事务：==要么都成功，要么都失败==</strong></p>
 <p>举例： </p>
 <ol>
 <li>SQL执行  A给B转账</li>
@@ -149,6 +149,11 @@
 <li>是指在一个事务中读取到了别的事务插入的数据，导致前后读取不一致。</li>
 </ul>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200225114350.png" alt=""></p>
+<h3 id="4-Mysql事务实现办法"><a href="#4-Mysql事务实现办法" class="headerlink" title="4. Mysql事务实现办法"></a>4. Mysql事务实现办法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">-- 使用set语句来改变自动提交模式</span><br><span class="line">Set autocommit &#x3D; 0  #关闭事务</span><br><span class="line">Set autocommit &#x3D; 1  #开启事务</span><br><span class="line"></span><br><span class="line">-- 注意：</span><br><span class="line">1.Mysql中默认是自动提交事务</span><br><span class="line">2.使用事务时应该先关闭后自动提交</span><br><span class="line"></span><br><span class="line">-- 步骤</span><br><span class="line">-- 1.开启一个事务，标记事务的起始点</span><br><span class="line">Start Transaction;</span><br><span class="line"></span><br><span class="line">-- 2.提交一个事务给数据库</span><br><span class="line">commit;</span><br><span class="line"></span><br><span class="line">-- 3. 将事务混滚，数据回到本次事务的初始状态</span><br><span class="line">Rollback;</span><br><span class="line"></span><br><span class="line">-- 4 .还原mysql数据库的自动提交</span><br><span class="line">Set autocommit &#x3D; 1;</span><br><span class="line"></span><br><span class="line">-- 5. 保存点</span><br><span class="line">Savepoint  保存点名称   -- 设置一个事务的保存点</span><br><span class="line">Rollback to savepoint 保存点名称  -- 回滚到保存点名称</span><br><span class="line">Release  Savepoint  保存点名称   -- 删除保存点</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200225151950.png" alt=""></p>
+<h4 id="4-1示例联系"><a href="#4-1示例联系" class="headerlink" title="4.1示例联系"></a>4.1示例联系</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line">课堂测试题目</span><br><span class="line"></span><br><span class="line">A在线买一款价格为500元商品,网上银行转账.</span><br><span class="line">A的银行卡余额为2000,然后给商家B支付500.</span><br><span class="line">商家B一开始的银行卡余额为10000</span><br><span class="line"></span><br><span class="line">创建数据库shop和创建表account并插入2条数据</span><br><span class="line">*&#x2F;</span><br><span class="line"></span><br><span class="line">CREATE DATABASE &#96;shop&#96;CHARACTER SET utf8 COLLATE utf8_general_ci; </span><br><span class="line">USE &#96;shop&#96;; </span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;account&#96; (</span><br><span class="line">  &#96;id&#96; INT(11) NOT NULL AUTO_INCREMENT,</span><br><span class="line">  &#96;name&#96; VARCHAR(32) NOT NULL,</span><br><span class="line">  &#96;cash&#96; DECIMAL(9,2) NOT NULL,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;)</span><br><span class="line">) ENGINE&#x3D;INNODB DEFAULT CHARSET&#x3D;utf8</span><br><span class="line"></span><br><span class="line">INSERT INTO account (&#96;name&#96;,&#96;cash&#96;)</span><br><span class="line">VALUES(&#39;A&#39;,2000.00),(&#39;B&#39;,10000.00)</span><br><span class="line"></span><br><span class="line"># 转账实现</span><br><span class="line">SET autocommit &#x3D; 0;</span><br><span class="line">START TRANSACTION;</span><br><span class="line">UPDATE account SET cash&#x3D;cash-500 WHERE &#96;name&#96;&#x3D;&#39;A&#39;;</span><br><span class="line">UPDATE account SET cash&#x3D;cash+500 WHERE &#96;name&#96;&#x3D;&#39;B&#39;;</span><br><span class="line">COMMIT;</span><br><span class="line"># rollback;</span><br><span class="line">SET autocommit &#x3D; 1;</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
@@ -216,7 +221,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/02/19/Mysql/Mysql%E4%BA%8B%E5%8A%A1%E7%B4%A2%E5%BC%95%E5%A4%87%E4%BB%BD%E8%A7%86%E5%9B%BE/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/02/19/Mysql/Mysql%E4%BA%8B%E5%8A%A1/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -234,11 +239,11 @@
   
   <nav class="article-nav">
     
-      <a href="/2019/05/12/Leetcode/Leetcode-001/" class="article-nav-link">
+      <a href="/2019/02/20/Mysql/Mysql%E7%B4%A2%E5%BC%95/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Leetcode-001
+            Mysql 索引
           
         </div>
       </a>
