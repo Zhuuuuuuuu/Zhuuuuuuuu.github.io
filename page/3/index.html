@@ -75,6 +75,255 @@
     
     
     
+    <article id="post-Mybatis/MyBatis-日志和分页的实现" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/15/Mybatis/MyBatis-%E6%97%A5%E5%BF%97%E5%92%8C%E5%88%86%E9%A1%B5%E7%9A%84%E5%AE%9E%E7%8E%B0/"
+    >MyBatis-日志和分页的实现</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/15/Mybatis/MyBatis-%E6%97%A5%E5%BF%97%E5%92%8C%E5%88%86%E9%A1%B5%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2019-07-15T07:04:39.000Z" itemprop="datePublished">2019-07-15</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-日志和分页的实现"><a href="#MyBatis-日志和分页的实现" class="headerlink" title="MyBatis 日志和分页的实现"></a>MyBatis 日志和分页的实现</h1><h2 id="日志的实现"><a href="#日志的实现" class="headerlink" title="日志的实现"></a>日志的实现</h2><h3 id="为什么需要日志？"><a href="#为什么需要日志？" class="headerlink" title="为什么需要日志？"></a>为什么需要日志？</h3><ul>
+<li>以往的开发过程，我们会经常使用到debug模式来调节，跟踪我们的代码执行过程。</li>
+<li>但是现在使用Mybatis是基于接口，配置文件的源代码执行过程。因此，我们必须选择日志工具来作为我们开发，调节程序的工具。</li>
+</ul>
+<p><strong>Mybatis内置的日志工厂提供日志功能，具体的日志实现有以下几种工具：</strong></p>
+<ul>
+<li>SLF4J</li>
+<li>Apache Commons Logging</li>
+<li>Log4j 2</li>
+<li>Log4j</li>
+<li>JDK logging</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/15/Mybatis/MyBatis-%E6%97%A5%E5%BF%97%E5%92%8C%E5%88%86%E9%A1%B5%E7%9A%84%E5%AE%9E%E7%8E%B0/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-使用注解开发" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/14/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/"
+    >MyBatis-使用注解开发</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/14/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" class="article-date">
+  <time datetime="2019-07-14T03:12:22.000Z" itemprop="datePublished">2019-07-14</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-使用注解开发"><a href="#MyBatis-使用注解开发" class="headerlink" title="MyBatis 使用注解开发"></a>MyBatis 使用注解开发</h1><h2 id="面向接口编程"><a href="#面向接口编程" class="headerlink" title="面向接口编程"></a>面向接口编程</h2><ul>
+<li><p>真正的开发中，很多时候我们会选择面向接口编程</p>
+</li>
+<li><p><strong>根本原因 : 解耦 , 可拓展 , 提高复用 , 分层开发中 , 上层不用管具体的实现 , 大家都遵守共同的标准 , 使得开发变得容易 , 规范性更好</strong></p>
+</li>
+<li><p>在一个面向对象的系统中，系统的各种功能是由许许多多的不同对象协作完成的。在这种情况下，各个对象内部是如何实现自己的,对系统设计人员来讲就不那么重要了</p>
+</li>
+<li><p>而各个对象之间的协作关系则成为系统设计的关键。小到不同类之间的通信，大到各模块之间的交互，在系统设计之初都是要着重考虑的，这也是系统设计的主要工作内容。面向接口编程就是指按照这种思想来编程。</p>
+</li>
+</ul>
+<h3 id="关于接口的理解"><a href="#关于接口的理解" class="headerlink" title="关于接口的理解"></a>关于接口的理解</h3><ul>
+<li><p>接口从更深层次的理解，应该是定义（规范，约束）与实现（名实分离的原则）的分离</p>
+</li>
+<li><p>接口的本身反映了系统设计人员对系统的抽象理解</p>
+</li>
+<li><p>接口应该有两类：</p>
+<ul>
+<li>第一类是对一个个体的抽象，它可对应为一个抽象体（abstract class）;</li>
+<li>第二类是对一个个体某一方面的抽象，即形成一个抽象面（interface）;</li>
+</ul>
+<p><strong>一个个体有可能有多个抽象面，抽象体和抽象面是有区别的</strong></p>
+</li>
+</ul>
+<h3 id="三个面向的区别"><a href="#三个面向的区别" class="headerlink" title="三个面向的区别"></a>三个面向的区别</h3><ul>
+<li>面向对象：考虑问题时，以对象为单位，考虑它的属性及方法</li>
+<li>面向过程：考虑问题时，以一个具体的流程（事务过程）为单位，考虑它的实现</li>
+<li>接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题.更多的体现就是对系统整体的架构</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/14/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-生命周期和作用域" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/13/Mybatis/MyBatis-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F/"
+    >MyBatis-生命周期和作用域</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/13/Mybatis/MyBatis-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F/" class="article-date">
+  <time datetime="2019-07-13T03:12:22.000Z" itemprop="datePublished">2019-07-13</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-生命周期和作用域"><a href="#MyBatis-生命周期和作用域" class="headerlink" title="MyBatis 生命周期和作用域"></a>MyBatis 生命周期和作用域</h1><h2 id="作用域（Scope）和生命周期"><a href="#作用域（Scope）和生命周期" class="headerlink" title="作用域（Scope）和生命周期"></a><strong>作用域（Scope）和生命周期</strong></h2><ul>
+<li><p>理解我们目前已经讨论过的不同作用域和生命周期类是至关重要的，因为错误的使用会导致非常严重的并发问题。</p>
+</li>
+<li><p>画一个流程图，分析一下Mybatis的执行过程！</p>
+</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200213111632.png" alt=""></p>
+<p><a href="https://mybatis.org/mybatis-3/zh/getting-started.html" target="_blank" rel="noopener">官方说明</a></p>
+      
+      <a class="article-more-link" href="/2019/07/13/Mybatis/MyBatis-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Leetcode/Leetcode-074" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -140,94 +389,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-633" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/12/Leetcode/Leetcode-633/"
-    >Leetcode-633</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/07/12/Leetcode/Leetcode-633/" class="article-date">
-  <time datetime="2019-07-12T07:52:53.000Z" itemprop="datePublished">2019-07-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 [Sum of Square Numbers]"></a>Leecode-633 [<a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a>]</h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: 5</span><br><span class="line">Output: True</span><br><span class="line">Explanation: 1 * 1 + 2 * 2 &#x3D; 5</span><br></pre></td></tr></table></figure>
-
-<p>可以看成是在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，</p>
-<p>如果能找到，则返回 true，表示 target 是两个整数的平方和</p>
-<p><strong>注意点：本题和 167. Two Sum II - Input array is sorted 类似，只有一个明显区别：一个是和为 target，一个是平方和为 target。本题同样可以使用双指针得到两个数，使其平方和为 target。</strong></p>
-<p><strong>Solution：双指针</strong></p>
-<ul>
-<li>步骤<ul>
-<li>本题目的关键时右指针的初始化，实现剪枝，从而降低时间复杂度</li>
-<li>设右指针为x,左指针固定为0.为了使 0^2 + x^2 的值尽可能接近 target,我们可以将 x 取为 sqrt(target)。</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>复杂度分析：<ul>
-<li>因为最多只需要遍历一次0~sqrt(target),所以时间复杂度为o(sqrt(target))</li>
-<li>空间复杂度为O（1）,因为使用了两个变量</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/07/12/Leetcode/Leetcode-633/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
 
 
     </footer>
@@ -313,6 +474,94 @@
 </ul>
       
       <a class="article-more-link" href="/2019/07/12/Leetcode/Leetcode-167/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-633" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/12/Leetcode/Leetcode-633/"
+    >Leetcode-633</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/12/Leetcode/Leetcode-633/" class="article-date">
+  <time datetime="2019-07-12T07:52:53.000Z" itemprop="datePublished">2019-07-12</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 [Sum of Square Numbers]"></a>Leecode-633 [<a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a>]</h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: 5</span><br><span class="line">Output: True</span><br><span class="line">Explanation: 1 * 1 + 2 * 2 &#x3D; 5</span><br></pre></td></tr></table></figure>
+
+<p>可以看成是在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，</p>
+<p>如果能找到，则返回 true，表示 target 是两个整数的平方和</p>
+<p><strong>注意点：本题和 167. Two Sum II - Input array is sorted 类似，只有一个明显区别：一个是和为 target，一个是平方和为 target。本题同样可以使用双指针得到两个数，使其平方和为 target。</strong></p>
+<p><strong>Solution：双指针</strong></p>
+<ul>
+<li>步骤<ul>
+<li>本题目的关键时右指针的初始化，实现剪枝，从而降低时间复杂度</li>
+<li>设右指针为x,左指针固定为0.为了使 0^2 + x^2 的值尽可能接近 target,我们可以将 x 取为 sqrt(target)。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>复杂度分析：<ul>
+<li>因为最多只需要遍历一次0~sqrt(target),所以时间复杂度为o(sqrt(target))</li>
+<li>空间复杂度为O（1）,因为使用了两个变量</li>
+</ul>
+</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/12/Leetcode/Leetcode-633/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -645,255 +894,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-033" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/15/Leetcode/Leetcode-033/"
-    >Leetcode-033</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/06/15/Leetcode/Leetcode-033/" class="article-date">
-  <time datetime="2019-06-15T07:52:53.000Z" itemprop="datePublished">2019-06-15</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-033-Search-in-Rotated-Sorted-Array"><a href="#Leecode-033-Search-in-Rotated-Sorted-Array" class="headerlink" title="Leecode-033 [Search in Rotated Sorted Array]"></a>Leecode-033 [<strong>Search in Rotated Sorted Array</strong>]</h1><h2 id="思路：二分法查找"><a href="#思路：二分法查找" class="headerlink" title="思路：二分法查找"></a>思路：二分法查找</h2><p><strong>Solution：binary search</strong></p>
-<ul>
-<li><p>需要的参数</p>
-<ul>
-<li>start 初始化为0</li>
-<li>end  初始化为length-1</li>
-<li>mid  初始化为start + (end-start)/2</li>
-</ul>
-</li>
-<li><p>分以下三种情况进行查找</p>
-<ul>
-<li>第一种情况：target = mid</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200217214041.png" alt=""></p>
-      
-      <a class="article-more-link" href="/2019/06/15/Leetcode/Leetcode-033/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-032" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/12/Leetcode/Leetcode-032/"
-    >Leetcode-032</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/06/12/Leetcode/Leetcode-032/" class="article-date">
-  <time datetime="2019-06-12T07:52:53.000Z" itemprop="datePublished">2019-06-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-032-Longest-Valid-Parentheses"><a href="#Leecode-032-Longest-Valid-Parentheses" class="headerlink" title="Leecode-032 [Longest Valid Parentheses]"></a>Leecode-032 [Longest Valid Parentheses]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：stack</strong></p>
-<ul>
-<li>leftmost:  指定最左侧的边界–&gt;初始值为-1</li>
-<li>stack：初始为空</li>
-<li>idx:     每个括号的索引</li>
-<li>原则：遇到正括号就push,反括号就pop</li>
-<li>max:   计算最大长度（反括号的index减去最上层的正括号的index）<ul>
-<li>[如果遇到反括号，pop之后stack为空，那么长度 = 当前idx - leftmost]</li>
-<li>[如果遇到反括号，pop之前stack为空，那么leftmost = 当前 idx, 长度就是当前idx-leftmost]</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/06/12/Leetcode/Leetcode-032/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-082" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/12/Leetcode/Leetcode-082/"
-    >Leetcode-0XX</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/06/12/Leetcode/Leetcode-082/" class="article-date">
-  <time datetime="2019-06-12T07:52:53.000Z" itemprop="datePublished">2019-06-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-082-Remove-Duplicates-from-Sorted-List-II"><a href="#Leecode-082-Remove-Duplicates-from-Sorted-List-II" class="headerlink" title="Leecode-082 Remove Duplicates from Sorted List II"></a>Leecode-082 <a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/" target="_blank" rel="noopener">Remove Duplicates from Sorted List II</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>题目描述</strong></p>
-<ul>
-<li>本题是83题目的升级版本</li>
-<li>给出一个链表，如果重复就直接把所有重复的元素都去掉，只保留没有重复的元素</li>
-</ul>
-<p><strong>Solution：一次遍历</strong></p>
-<ul>
-<li><p>需要的参数</p>
-<ul>
-<li>dummynode(注意这个节点不能初始化时候就跟后面连起来)</li>
-<li>preNode  前一个节点</li>
-<li>currNode 当前指向的节点</li>
-<li>realNode  记录不重复的节点（初始化为dummy）</li>
-</ul>
-</li>
-<li><p>步骤</p>
-<ul>
-<li>如果currNode的值跟前一个节点preNode不一样并且和下一个节点next的值不一样。那么realNode就记录下当前节点的位置</li>
-<li>同时需要考虑preNode为dummy 还有 currentNode.next最后为空的情况</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/06/12/Leetcode/Leetcode-082/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
 
 
     </footer>

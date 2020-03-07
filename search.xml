@@ -1,6 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Leetcode-994</title>
+    <url>/2020/03/04/Leetcode/Leetcode-994/</url>
+    <content><![CDATA[<h1 id="Leecode-994-Rotting-Oranges"><a href="#Leecode-994-Rotting-Oranges" class="headerlink" title="Leecode-994 Rotting Oranges"></a>Leecode-994 <a href="https://leetcode-cn.com/problems/rotting-oranges/" target="_blank" rel="noopener">Rotting Oranges</a></h1><h2 id="思路：BFS"><a href="#思路：BFS" class="headerlink" title="思路：BFS"></a>思路：BFS</h2><p><strong>题目描述</strong></p>
+<ul>
+<li>在一个二维的网格中，0代表空的网格，1代表新鲜的橘子，2代表腐烂的橘子</li>
+<li>每过一分钟，新鲜的橘子会被腐烂的橘子传染，传染方向来自上下左右</li>
+<li>如果有无法感染的橘子，最终返回-1</li>
+<li>如果全部感染，返回需要的分钟数（轮数）</li>
+</ul>
+<p>Example1:</p>
+<img src='https://assets.leetcode.com/uploads/2019/02/16/oranges.png'>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [[2,1,1],[1,1,0],[0,1,1]]</span><br><span class="line">Output: 4</span><br></pre></td></tr></table></figure>
+
+<p>Example2:</p>
+<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="section">Input: [[2,1,1],[0,1,1],[1,0,1]]</span></span><br><span class="line"><span class="section">Output: -1</span></span><br><span class="line"><span class="section">Explanation:  The orange in the bottom left corner (row 2, column 0) is never rotten, because rotting only happens 4-directionally.</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Solution：BFS</strong></p>
+<ul>
+<li>一开始，我们找出所有腐烂的橘子，将他们放入队列，作为第0层的节点。</li>
+<li>然后进行BFS遍历，每个节点的相邻节点可能是上下左右四个方向的节点，注意判断网格边界的特殊情况</li>
+<li>由于可能存在无法被感染的橘子，我们需要记录新鲜橘子的数量。在BFS中，每遍历到一个橘子（污染了一个橘子）就将新鲜橘子的数量减掉1。</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">orangesRotting</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> M = grid.length;</span><br><span class="line">        <span class="keyword">int</span> N = grid[<span class="number">0</span>].length;</span><br><span class="line">        Queue&lt;<span class="keyword">int</span>[]&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> r = <span class="number">0</span>;r &lt; M;r++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> c = <span class="number">0</span>;c &lt; N;c++)&#123;</span><br><span class="line">                <span class="keyword">if</span>(grid[r][c] == <span class="number">1</span>) count++;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span>(grid[r][c] == <span class="number">2</span>) queue.add(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;r,c&#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> round = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(count &gt; <span class="number">0</span> &amp;&amp; queue.size()&gt;<span class="number">0</span>)&#123;</span><br><span class="line">            round ++;</span><br><span class="line">            <span class="keyword">int</span> n = queue.size();</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n;i++)&#123;</span><br><span class="line">                <span class="keyword">int</span>[] orange = queue.poll();</span><br><span class="line">                <span class="keyword">int</span> r = orange[<span class="number">0</span>];</span><br><span class="line">                <span class="keyword">int</span> c = orange[<span class="number">1</span>];</span><br><span class="line">                <span class="keyword">if</span>(r - <span class="number">1</span>&gt;= <span class="number">0</span> &amp;&amp; grid[r-<span class="number">1</span>][c] == <span class="number">1</span>)&#123;</span><br><span class="line">                    grid[r-<span class="number">1</span>][c] = <span class="number">2</span>;</span><br><span class="line">                    count --;</span><br><span class="line">                    queue.add(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;r-<span class="number">1</span>,c&#125;);</span><br><span class="line">                &#125; </span><br><span class="line">                <span class="keyword">if</span> (r+<span class="number">1</span> &lt; M &amp;&amp; grid[r+<span class="number">1</span>][c] == <span class="number">1</span>) &#123;</span><br><span class="line">                    grid[r+<span class="number">1</span>][c] = <span class="number">2</span>;</span><br><span class="line">                    count--;</span><br><span class="line">                    queue.add(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;r+<span class="number">1</span>, c&#125;);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (c-<span class="number">1</span> &gt;= <span class="number">0</span> &amp;&amp; grid[r][c-<span class="number">1</span>] == <span class="number">1</span>) &#123;</span><br><span class="line">                    grid[r][c-<span class="number">1</span>] = <span class="number">2</span>;</span><br><span class="line">                    count--;</span><br><span class="line">                    queue.add(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;r, c-<span class="number">1</span>&#125;);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (c+<span class="number">1</span> &lt; N &amp;&amp; grid[r][c+<span class="number">1</span>] == <span class="number">1</span>) &#123;</span><br><span class="line">                    grid[r][c+<span class="number">1</span>] = <span class="number">2</span>;</span><br><span class="line">                    count--;</span><br><span class="line">                    queue.add(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;r, c+<span class="number">1</span>&#125;);</span><br><span class="line">                &#125;                </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(count &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> round;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">orangesRotting</span><span class="params">(self, grid: List[List[int]])</span> -&gt; int:</span></span><br><span class="line">        M = len(grid)</span><br><span class="line">        N = len(grid[<span class="number">0</span>])</span><br><span class="line">        queue = []</span><br><span class="line"></span><br><span class="line">        count = <span class="number">0</span> <span class="comment"># count用来记录新鲜橘子的数量</span></span><br><span class="line">        <span class="keyword">for</span> r <span class="keyword">in</span> range(M):</span><br><span class="line">            <span class="keyword">for</span> c <span class="keyword">in</span> range(N):</span><br><span class="line">                <span class="keyword">if</span> grid[r][c] == <span class="number">1</span>:</span><br><span class="line">                    count += <span class="number">1</span></span><br><span class="line">                <span class="keyword">elif</span> grid[r][c] == <span class="number">2</span>:</span><br><span class="line">                    queue.append((r,c))</span><br><span class="line"></span><br><span class="line">        round = <span class="number">0</span> <span class="comment"># round表示腐烂需要的轮数，或者是分钟数</span></span><br><span class="line">        <span class="keyword">while</span> count &gt; <span class="number">0</span> <span class="keyword">and</span> len(queue) &gt; <span class="number">0</span>:</span><br><span class="line">            round += <span class="number">1</span></span><br><span class="line">            n = len(queue)</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">                r,c = queue.pop(<span class="number">0</span>)</span><br><span class="line">                <span class="keyword">if</span> r<span class="number">-1</span> &gt;= <span class="number">0</span> <span class="keyword">and</span> grid[r<span class="number">-1</span>][c] == <span class="number">1</span>:</span><br><span class="line">                    grid[r<span class="number">-1</span>][c] = <span class="number">2</span></span><br><span class="line">                    count -= <span class="number">1</span></span><br><span class="line">                    queue.append((r<span class="number">-1</span>,c))</span><br><span class="line">                <span class="keyword">if</span> r+<span class="number">1</span> &lt; M <span class="keyword">and</span> grid[r+<span class="number">1</span>][c] == <span class="number">1</span>:</span><br><span class="line">                    grid[r+<span class="number">1</span>][c] = <span class="number">2</span></span><br><span class="line">                    count -= <span class="number">1</span></span><br><span class="line">                    queue.append((r+<span class="number">1</span>,c))</span><br><span class="line">                <span class="keyword">if</span> c<span class="number">-1</span> &gt;= <span class="number">0</span> <span class="keyword">and</span> grid[r][c<span class="number">-1</span>] == <span class="number">1</span>:</span><br><span class="line">                    grid[r][c<span class="number">-1</span>] = <span class="number">2</span></span><br><span class="line">                    count -= <span class="number">1</span></span><br><span class="line">                    queue.append((r,c<span class="number">-1</span>))</span><br><span class="line">                <span class="keyword">if</span> c+<span class="number">1</span> &lt; N <span class="keyword">and</span> grid[r][c+<span class="number">1</span>] == <span class="number">1</span>:</span><br><span class="line">                    grid[r][c+<span class="number">1</span>] = <span class="number">2</span></span><br><span class="line">                    count -= <span class="number">1</span></span><br><span class="line">                    queue.append((r,c+<span class="number">1</span>))</span><br><span class="line">        <span class="keyword">if</span> count &gt; <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> round</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>春招每日一题</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>html详解</title>
     <url>/2020/03/01/%E5%89%8D%E7%AB%AF/html/</url>
     <content><![CDATA[<h1 id="html详解"><a href="#html详解" class="headerlink" title="html详解"></a>html详解</h1><h2 id="1-什么是HTMl？"><a href="#1-什么是HTMl？" class="headerlink" title="1. 什么是HTMl？"></a>1. 什么是HTMl？</h2><ul>
@@ -1434,6 +1480,58 @@
       </tags>
   </entry>
   <entry>
+    <title>MVC</title>
+    <url>/2019/11/01/SpringMVC/MVC/</url>
+    <content><![CDATA[<h1 id="回顾MVC"><a href="#回顾MVC" class="headerlink" title="回顾MVC"></a>回顾MVC</h1><h2 id="1-什么是MVC"><a href="#1-什么是MVC" class="headerlink" title="1. 什么是MVC?"></a>1. 什么是MVC?</h2><ul>
+<li>MVC是模型（model）,视图（view）,控制器(controller)的简写，是一种软件设计规范</li>
+<li>是将业务逻辑代码，数据，显示分离的方法来组织代码</li>
+<li>MVC主要的作用是<strong>降低了视图与业务逻辑之间的双向耦合</strong></li>
+<li>MVC不是一种设置模式，MVC是一种架构模式，当然不同的MVC存在差异。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200307085830.png" alt=""></p>
+<a id="more"></a>
+
+<p><strong>Model（模型）：</strong>数据模型，提供要展示的数据，因此包含数据和行为，可以认为是领域模型或JavaBean组件（包含数据和行为），不过现在一般都分离开来：Value Object（数据Dao） 和 服务层（行为Service）。也就是模型提供了模型数据查询和模型数据的状态更新等功能，包括数据和业务。</p>
+<p><strong>View（视图）：</strong>负责进行模型的展示，一般就是我们见到的用户界面，客户想看到的东西。</p>
+<p><strong>Controller（控制器）：</strong>接收用户请求，委托给模型进行处理（状态改变），处理完毕后把返回的模型数据返回给视图，由视图负责展示。 也就是说控制器做了个调度员的工作。</p>
+<p> <strong>最经典的MVC就是：JSP+Servlet+javabean的模式</strong></p>
+<h2 id="2-时代划分"><a href="#2-时代划分" class="headerlink" title="2. 时代划分"></a>2. 时代划分</h2><p><strong>Model1时代</strong></p>
+<ul>
+<li>在web早期的开发中，通常采用的都是Model1。</li>
+<li>Model1中，主要分为两层，视图层和模型层。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200307090615.png" alt=""></p>
+<p><strong>Model2时代</strong></p>
+<p>Model2把一个项目分成三部分，包括<strong>视图、控制、模型</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200307090720.png" alt=""></p>
+<ol>
+<li>用户发送请求</li>
+<li>Servlet接受请求数据，并调用对应的业务逻辑方法</li>
+<li>业务处理完毕，返回更新后的Servlet</li>
+<li>servlet转向JSP,由JSP来渲染页面</li>
+<li>响应给前端更新后的页面</li>
+</ol>
+<p><strong>职业分析</strong></p>
+<p><strong>Controller：控制器</strong>（Servlet）</p>
+<ol>
+<li>取得表单数据</li>
+<li>调用业务逻辑</li>
+<li>转向指定的页面</li>
+</ol>
+<p><strong>Model：模型</strong></p>
+<ol>
+<li>业务逻辑</li>
+<li>保存数据的状态</li>
+</ol>
+<p><strong>View：视图</strong></p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>​    Model2这样不仅提高的代码的复用率与项目的扩展性，且大大降低了项目的维护成本。Model 1模式的实现比较简单，适用于快速开发小规模项目，Model1中JSP页面身兼View和Controller两种角色，将控制逻辑和表现逻辑混杂在一起，从而导致代码的重用性非常低，增加了应用的扩展性和维护的难度。Model2消除了Model1的缺点</p>
+]]></content>
+      <tags>
+        <tag>MVC</tag>
+        <tag>SpringMVC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JDBC</title>
     <url>/2019/09/27/Mysql/JDBC/</url>
     <content><![CDATA[<h1 id="JDBC"><a href="#JDBC" class="headerlink" title="JDBC"></a>JDBC</h1><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200228170325.png" alt=""></p>
@@ -1608,7 +1706,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Leetcode-0XX</title>
+    <title>Leetcode-083</title>
     <url>/2019/08/15/Leetcode/Leetcode-083/</url>
     <content><![CDATA[<h1 id="Leecode-083-Remove-Duplicates-from-Sorted-List"><a href="#Leecode-083-Remove-Duplicates-from-Sorted-List" class="headerlink" title="Leecode-083 Remove Duplicates from Sorted List"></a>Leecode-083 <a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/" target="_blank" rel="noopener">Remove Duplicates from Sorted List</a></h1><h2 id="思路：一次遍历"><a href="#思路：一次遍历" class="headerlink" title="思路：一次遍历"></a>思路：一次遍历</h2><p><strong>题目描述</strong></p>
 <p>给出一个链表，如果有重复的数只记录一次</p>
@@ -1637,6 +1735,43 @@
 
 <h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"># class ListNode:</span></span><br><span class="line"><span class="comment">#     def __init__(self, x):</span></span><br><span class="line"><span class="comment">#         self.val = x</span></span><br><span class="line"><span class="comment">#         self.next = None</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">deleteDuplicates</span><span class="params">(self, head: ListNode)</span> -&gt; ListNode:</span></span><br><span class="line">        curr = head</span><br><span class="line">        <span class="keyword">while</span> curr != <span class="literal">None</span> <span class="keyword">and</span> curr.next != <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">if</span> curr.val == curr.next.val: curr.next = curr.next.next</span><br><span class="line">            <span class="keyword">else</span>: curr = curr.next</span><br><span class="line">        <span class="keyword">return</span> head</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-345</title>
+    <url>/2019/08/12/Leetcode/Leetcode-345/</url>
+    <content><![CDATA[<h1 id="Leecode-345-Reverse-Vowels-of-a-String"><a href="#Leecode-345-Reverse-Vowels-of-a-String" class="headerlink" title="Leecode-345 Reverse Vowels of a String"></a>Leecode-345 <a href="https://leetcode-cn.com/problems/reverse-vowels-of-a-string/" target="_blank" rel="noopener">Reverse Vowels of a String</a></h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：</strong></p>
+<p>将元音字母进行交换</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Given s &#x3D; &quot;leetcode&quot;, return &quot;leotcede&quot;.</span><br></pre></td></tr></table></figure>
+
+<img src='https://camo.githubusercontent.com/6e66ca91f2688beacd6f9dd3ef2774abb53dda73/68747470733a2f2f63732d6e6f7465732d313235363130393739362e636f732e61702d6775616e677a686f752e6d7971636c6f75642e636f6d2f65663235666637632d306636332d343230642d386233302d6561666265656133356431312e676966'>
+
+<p><strong>Solution：双指针</strong></p>
+<ul>
+<li>使用双指针，一个指针从头向尾遍历，一个指针从尾向头遍历，当两个指针都遍历到元音字母时，交换这两个原因字符。</li>
+<li>为了快速判断一个字符是不是元音字符没我们将全部原因字母添加到集合HashSet中，从而以O(1)的时间复杂度进行该操作</li>
+</ul>
+<ul>
+<li>时间复杂度：O(N)只需要遍历所有元素一次</li>
+<li>空间复杂度：O(1)只需要使用两个额外的变量</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> HashSet&lt;Character&gt; vowels = <span class="keyword">new</span> HashSet&lt;&gt;(</span><br><span class="line">        Arrays.asList(<span class="string">'a'</span>, <span class="string">'e'</span>, <span class="string">'i'</span>, <span class="string">'o'</span>, <span class="string">'u'</span>, <span class="string">'A'</span>, <span class="string">'E'</span>, <span class="string">'I'</span>, <span class="string">'O'</span>, <span class="string">'U'</span>));</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">reverseVowels</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, j = s.length() - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">char</span>[] result = <span class="keyword">new</span> <span class="keyword">char</span>[s.length()];</span><br><span class="line">    <span class="keyword">while</span> (i &lt;= j) &#123;</span><br><span class="line">        <span class="keyword">char</span> ci = s.charAt(i);</span><br><span class="line">        <span class="keyword">char</span> cj = s.charAt(j);</span><br><span class="line">        <span class="keyword">if</span> (!vowels.contains(ci)) &#123;</span><br><span class="line">            result[i++] = ci;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!vowels.contains(cj)) &#123;</span><br><span class="line">            result[j--] = cj;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result[i++] = cj;</span><br><span class="line">            result[j--] = ci;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> String(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">reverseVowels</span><span class="params">(self, s: str)</span> -&gt; str:</span></span><br><span class="line">        vowels = [<span class="string">'a'</span>, <span class="string">'e'</span>, <span class="string">'i'</span>, <span class="string">'o'</span>, <span class="string">'u'</span>, <span class="string">'A'</span>, <span class="string">'E'</span>, <span class="string">'I'</span>, <span class="string">'O'</span>, <span class="string">'U'</span>]</span><br><span class="line">        string = list(s)</span><br><span class="line">        i,j = <span class="number">0</span>,len(s) - <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> i &lt;= j:</span><br><span class="line">            <span class="keyword">if</span> s[i] <span class="keyword">not</span> <span class="keyword">in</span> vowels:</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">            <span class="keyword">elif</span> s[j] <span class="keyword">not</span> <span class="keyword">in</span> vowels:</span><br><span class="line">                j -= <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                string[i],string[j]= string[j],string[i]</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">                j -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">''</span>.join(string)</span><br></pre></td></tr></table></figure>
 
 
 
@@ -3259,48 +3394,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Leetcode-633</title>
-    <url>/2019/07/12/Leetcode/Leetcode-633/</url>
-    <content><![CDATA[<h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 [Sum of Square Numbers]"></a>Leecode-633 [<a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a>]</h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: 5</span><br><span class="line">Output: True</span><br><span class="line">Explanation: 1 * 1 + 2 * 2 &#x3D; 5</span><br></pre></td></tr></table></figure>
-
-<p>可以看成是在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，</p>
-<p>如果能找到，则返回 true，表示 target 是两个整数的平方和</p>
-<p><strong>注意点：本题和 167. Two Sum II - Input array is sorted 类似，只有一个明显区别：一个是和为 target，一个是平方和为 target。本题同样可以使用双指针得到两个数，使其平方和为 target。</strong></p>
-<p><strong>Solution：双指针</strong></p>
-<ul>
-<li>步骤<ul>
-<li>本题目的关键时右指针的初始化，实现剪枝，从而降低时间复杂度</li>
-<li>设右指针为x,左指针固定为0.为了使 0^2 + x^2 的值尽可能接近 target,我们可以将 x 取为 sqrt(target)。</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>复杂度分析：<ul>
-<li>因为最多只需要遍历一次0~sqrt(target),所以时间复杂度为o(sqrt(target))</li>
-<li>空间复杂度为O（1）,因为使用了两个变量</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution : 双指针</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">judgeSquareSum</span><span class="params">(<span class="keyword">int</span> c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (c &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> j = (<span class="keyword">int</span>)Math.sqrt(c); <span class="comment">//这里一定要强转</span></span><br><span class="line">        <span class="keyword">while</span> (i &lt;= j)&#123;</span><br><span class="line">            <span class="keyword">int</span> powSum = i*i + j*j;</span><br><span class="line">            <span class="keyword">if</span> (c == powSum) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            <span class="keyword">if</span> (c &lt; powSum)  j--;</span><br><span class="line">            <span class="keyword">if</span> (c &gt; powSum)  i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : 双指针</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">judgeSquareSum</span><span class="params">(self, c: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> c &lt; <span class="number">0</span>: <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        i = <span class="number">0</span> </span><br><span class="line">        j = int(math.sqrt(c)) <span class="comment">#这里一定要强转成int</span></span><br><span class="line">        <span class="keyword">while</span> i &lt;= j:</span><br><span class="line">            powSum = i*i + j*j</span><br><span class="line">            <span class="keyword">if</span> powSum == c:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="keyword">elif</span> powSum &gt; c:</span><br><span class="line">                j -= <span class="number">1</span></span><br><span class="line">            <span class="keyword">elif</span> powSum &lt; c:</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-        <tag>双指针</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Leetcode-167</title>
     <url>/2019/07/12/Leetcode/Leetcode-167/</url>
     <content><![CDATA[<h1 id="Leecode-167Two-Sum-II-Input-array-is-sorted"><a href="#Leecode-167Two-Sum-II-Input-array-is-sorted" class="headerlink" title="Leecode-167Two Sum II - Input array is sorted"></a>Leecode-167<a href="https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/" target="_blank" rel="noopener">Two Sum II - Input array is sorted</a></h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：</strong></p>
@@ -3341,6 +3434,48 @@
 
 <h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">twoSum</span><span class="params">(self, numbers: List[int], target: int)</span> -&gt; List[int]:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> numbers: <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        i = <span class="number">0</span></span><br><span class="line">        j = len(numbers) - <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> i &lt; j:</span><br><span class="line">            sum = numbers[i] + numbers[j]</span><br><span class="line">            <span class="keyword">if</span> sum == target:</span><br><span class="line">                <span class="keyword">return</span>[i + <span class="number">1</span>,j + <span class="number">1</span>]</span><br><span class="line">            <span class="keyword">elif</span> sum &lt;= target:</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                j -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>双指针</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-633</title>
+    <url>/2019/07/12/Leetcode/Leetcode-633/</url>
+    <content><![CDATA[<h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 [Sum of Square Numbers]"></a>Leecode-633 [<a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a>]</h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: 5</span><br><span class="line">Output: True</span><br><span class="line">Explanation: 1 * 1 + 2 * 2 &#x3D; 5</span><br></pre></td></tr></table></figure>
+
+<p>可以看成是在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，</p>
+<p>如果能找到，则返回 true，表示 target 是两个整数的平方和</p>
+<p><strong>注意点：本题和 167. Two Sum II - Input array is sorted 类似，只有一个明显区别：一个是和为 target，一个是平方和为 target。本题同样可以使用双指针得到两个数，使其平方和为 target。</strong></p>
+<p><strong>Solution：双指针</strong></p>
+<ul>
+<li>步骤<ul>
+<li>本题目的关键时右指针的初始化，实现剪枝，从而降低时间复杂度</li>
+<li>设右指针为x,左指针固定为0.为了使 0^2 + x^2 的值尽可能接近 target,我们可以将 x 取为 sqrt(target)。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>复杂度分析：<ul>
+<li>因为最多只需要遍历一次0~sqrt(target),所以时间复杂度为o(sqrt(target))</li>
+<li>空间复杂度为O（1）,因为使用了两个变量</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution : 双指针</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">judgeSquareSum</span><span class="params">(<span class="keyword">int</span> c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (c &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> j = (<span class="keyword">int</span>)Math.sqrt(c); <span class="comment">//这里一定要强转</span></span><br><span class="line">        <span class="keyword">while</span> (i &lt;= j)&#123;</span><br><span class="line">            <span class="keyword">int</span> powSum = i*i + j*j;</span><br><span class="line">            <span class="keyword">if</span> (c == powSum) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            <span class="keyword">if</span> (c &lt; powSum)  j--;</span><br><span class="line">            <span class="keyword">if</span> (c &gt; powSum)  i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : 双指针</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">judgeSquareSum</span><span class="params">(self, c: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> c &lt; <span class="number">0</span>: <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        i = <span class="number">0</span> </span><br><span class="line">        j = int(math.sqrt(c)) <span class="comment">#这里一定要强转成int</span></span><br><span class="line">        <span class="keyword">while</span> i &lt;= j:</span><br><span class="line">            powSum = i*i + j*j</span><br><span class="line">            <span class="keyword">if</span> powSum == c:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="keyword">elif</span> powSum &gt; c:</span><br><span class="line">                j -= <span class="number">1</span></span><br><span class="line">            <span class="keyword">elif</span> powSum &lt; c:</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
 
 
 
@@ -3942,7 +4077,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Leetcode-0XX</title>
+    <title>Leetcode-082</title>
     <url>/2019/06/12/Leetcode/Leetcode-082/</url>
     <content><![CDATA[<h1 id="Leecode-082-Remove-Duplicates-from-Sorted-List-II"><a href="#Leecode-082-Remove-Duplicates-from-Sorted-List-II" class="headerlink" title="Leecode-082 Remove Duplicates from Sorted List II"></a>Leecode-082 <a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/" target="_blank" rel="noopener">Remove Duplicates from Sorted List II</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>题目描述</strong></p>
 <ul>
@@ -4250,6 +4385,14 @@
       </tags>
   </entry>
   <entry>
+    <title>Mysql 视图</title>
+    <url>/2019/02/21/Mysql/Mysql%E8%A7%86%E5%9B%BE/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mysql 索引</title>
     <url>/2019/02/21/Mysql/Mysql%E7%B4%A2%E5%BC%95/</url>
     <content><![CDATA[<h1 id="Mysql-索引"><a href="#Mysql-索引" class="headerlink" title="Mysql 索引"></a>Mysql 索引</h1><h2 id="1-索引的作用"><a href="#1-索引的作用" class="headerlink" title="1. 索引的作用"></a>1. 索引的作用</h2><ul>
@@ -4318,14 +4461,6 @@
       <tags>
         <tag>Mysql</tag>
         <tag>索引</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mysql 视图</title>
-    <url>/2019/02/21/Mysql/Mysql%E8%A7%86%E5%9B%BE/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>Mysql</tag>
       </tags>
   </entry>
   <entry>
