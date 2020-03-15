@@ -75,6 +75,162 @@
     
     
     
+    <article id="post-Mybatis/MyBatis-缓存机制" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/17/Mybatis/MyBatis-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/"
+    >MyBatis-缓存机制</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/17/Mybatis/MyBatis-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2019-07-17T11:12:22.000Z" itemprop="datePublished">2019-07-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-缓存机制"><a href="#MyBatis-缓存机制" class="headerlink" title="MyBatis 缓存机制"></a>MyBatis 缓存机制</h1><h2 id="缓存简介"><a href="#缓存简介" class="headerlink" title="缓存简介"></a>缓存简介</h2><ol>
+<li>什么是缓存？</li>
+</ol>
+<ul>
+<li>存在内存中的临时数据。</li>
+<li>将用户经常查询的数据放在缓存（内存）中，用户去查询数据就不用从磁盘上(关系型数据库数据文件)查询，从缓存中查询，从而提高查询效率，解决了高并发系统的性能问题。</li>
+</ul>
+<ol start="2">
+<li>为什么使用缓存？</li>
+</ol>
+<ul>
+<li>减少和数据库的交互次数，减少系统开销，提高系统效率。</li>
+</ul>
+<ol start="3">
+<li>什么样的数据能使用缓存？</li>
+</ol>
+<ul>
+<li>经常查询并且不经常改变的数据。</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/17/Mybatis/MyBatis-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-动态SQL" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/17/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/"
+    >MyBatis-动态SQL</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/17/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/" class="article-date">
+  <time datetime="2019-07-17T03:12:22.000Z" itemprop="datePublished">2019-07-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-动态SQL"><a href="#MyBatis-动态SQL" class="headerlink" title="MyBatis 动态SQL"></a>MyBatis 动态SQL</h1><p>动态SQL 官方文档：<a href="https://mybatis.org/mybatis-3/zh/dynamic-sql.html" target="_blank" rel="noopener">文档链接</a></p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>什么是动态SQL:就是根据不同的查询条件，自动生成不同的Sql语句</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">官网描述：</span><br><span class="line">    MyBatis 的强大特性之一便是它的动态 SQL。如果你有使用 JDBC 或其它类似框架的经验，你就能体会到根据不同条件拼接 SQL 语句的痛苦。例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL 这一特性可以彻底摆脱这种痛苦。</span><br><span class="line">    虽然在以前使用动态 SQL 并非一件易事，但正是 MyBatis 提供了可以被用在任意 SQL 映射语句中的强大的动态 SQL 语言得以改进这种情形。</span><br><span class="line">    动态 SQL 元素和 JSTL 或基于类似 XML 的文本处理器相似。在 MyBatis 之前的版本中，有很多元素需要花时间了解。MyBatis 3 大大精简了元素种类，现在只需学习原来一半的元素便可。MyBatis 采用功能强大的基于 OGNL 的表达式来淘汰其它大部分元素。</span><br><span class="line">    </span><br><span class="line">    -------------------------------</span><br><span class="line">    - if</span><br><span class="line">    - choose (when, otherwise)</span><br><span class="line">    - trim (where, set)</span><br><span class="line">    - foreach</span><br><span class="line">    -------------------------------</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2019/07/17/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Mybatis/MyBatis-多对一,一对多处理" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -712,161 +868,6 @@
 <p>可以阅读 mybatis-config.xml 上面的dtd的头文件！</p>
       
       <a class="article-more-link" href="/2019/07/11/Mybatis/MyBatis-%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mybatis/MyBatis-ResultMap" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/10/Mybatis/MyBatis-ResultMap/"
-    >MyBatis-ResultMap</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/07/10/Mybatis/MyBatis-ResultMap/" class="article-date">
-  <time datetime="2019-07-10T03:26:48.000Z" itemprop="datePublished">2019-07-10</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MyBatis-ResultMap"><a href="#MyBatis-ResultMap" class="headerlink" title="MyBatis ResultMap"></a>MyBatis ResultMap</h1><h2 id="ResultMap"><a href="#ResultMap" class="headerlink" title="ResultMap"></a>ResultMap</h2><p>实际：<strong>要解决的问题：属性名和字段名不一致</strong></p>
-<p>环境：新建一个项目，将之前的项目拷贝过来</p>
-<h3 id="查询为null问题"><a href="#查询为null问题" class="headerlink" title="查询为null问题"></a>查询为null问题</h3><ol>
-<li><p>查看之前数据库的字段名</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200213112852.png" alt=""></p>
-</li>
-</ol>
-      
-      <a class="article-more-link" href="/2019/07/10/Mybatis/MyBatis-ResultMap/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mybatis/MyBatis-CRUD操作" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/09/Mybatis/MyBatis-CRUD%E6%93%8D%E4%BD%9C/"
-    >Mybatis CRUD操作</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/07/09/Mybatis/MyBatis-CRUD%E6%93%8D%E4%BD%9C/" class="article-date">
-  <time datetime="2019-07-09T03:00:35.000Z" itemprop="datePublished">2019-07-09</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MyBatis-CRUD操作"><a href="#MyBatis-CRUD操作" class="headerlink" title="MyBatis CRUD操作"></a>MyBatis CRUD操作</h1><h2 id="关于namespace"><a href="#关于namespace" class="headerlink" title="关于namespace"></a>关于namespace</h2><p><strong>配置文件中namespace中的名称为对应Mapper接口或者Dao接口的完整包名,必须一致</strong></p>
-<h2 id="查询-select"><a href="#查询-select" class="headerlink" title="查询 select"></a>查询 select</h2><p>id</p>
-<ul>
-<li>命名空间中唯一的标识符</li>
-<li>接口中的<strong>方法名</strong>与映射文件中的SQL语句ID 一一对应</li>
-</ul>
-<p>resultType</p>
-<ul>
-<li>SQL语句返回值类型。【完整的类名或者别名】</li>
-</ul>
-<p>parameterType</p>
-<ul>
-<li>传入SQL语句的参数类型 。【Map】</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/07/09/Mybatis/MyBatis-CRUD%E6%93%8D%E4%BD%9C/">阅读更多...</a>
       
       
       <!-- reward -->
