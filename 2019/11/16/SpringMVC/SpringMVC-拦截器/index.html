@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    云服务器Tomcat配置 |  朱酱酱的学习博客
+    SpringMVC-拦截器 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-personal_server/服务器Tomcat配置" class="article article-type-post" itemscope
+  <article id="post-SpringMVC/SpringMVC-拦截器" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  云服务器Tomcat配置
+  SpringMVC-拦截器
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8Tomcat%E9%85%8D%E7%BD%AE/" class="article-date">
-  <time datetime="2019-12-25T07:02:24.000Z" itemprop="datePublished">2019-12-25</time>
+      <a href="/2019/11/16/SpringMVC/SpringMVC-%E6%8B%A6%E6%88%AA%E5%99%A8/" class="article-date">
+  <time datetime="2019-11-16T03:02:24.000Z" itemprop="datePublished">2019-11-16</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">273字</span>
+            <span class="post-count">670字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -99,30 +99,56 @@
       
 
       
-      <h1 id="云服务器Tomcat配置"><a href="#云服务器Tomcat配置" class="headerlink" title="云服务器Tomcat配置"></a>云服务器Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
-<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
-<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
-</li>
-<li><p>如果JDK已经配置好,</p>
-<ul>
-<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
+      <h1 id="SpringMVC-拦截器"><a href="#SpringMVC-拦截器" class="headerlink" title="SpringMVC-拦截器"></a>SpringMVC-拦截器</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ul>
+<li>SpringMVC的处理器拦截器类似于Servlet开发中的过滤器Filter,<strong>用于对处理器进行预处理和后处理</strong></li>
+<li>过滤器与拦截器的区别：<strong>拦截器是AOP思想的具体应用</strong></li>
 </ul>
-</li>
+<p><strong>过滤器</strong></p>
+<ul>
+<li>servlet规范中的一部分，任何java  web工程都可以使用</li>
+<li>在url-pattern中配置了/*之后，可以对所有要访问的资源进行拦截</li>
+</ul>
+<p><strong>拦截器</strong></p>
+<ul>
+<li>拦截器是SpringMVC框架自己的，只有使用了<strong>SpringMVC框架的工程才能使用</strong></li>
+<li>拦截器<strong>只会拦截访问控制器方法</strong>，如果访问的是jsp/html/css/image/js是不会进行拦截的</li>
 </ul>
 <a id="more"></a>
 
-<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
-<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
-<p>如果出现Tomcat的主页,即安装成功,</p>
-<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
-<p><strong>回答：</strong></p>
-<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
-<p>使用下面的命令即可</p>
-<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
-<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
-<p><strong>回答：</strong></p>
-<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
-<p>tail -f catalina.out</p>
+<p>最大的区别：拦截器<strong>只会拦截访问控制器方法</strong>，如果访问的是jsp/html/css/image/js是不会进行拦截的（<strong>只拦截controller层的</strong>）</p>
+<h2 id="2-自定义拦截器"><a href="#2-自定义拦截器" class="headerlink" title="2. 自定义拦截器"></a>2. 自定义拦截器</h2><p>想要自定义拦截器，必须实现HandlerInterceptor接口</p>
+<ol>
+<li><p>新建一个module</p>
+</li>
+<li><p>配置web.xml</p>
+</li>
+<li><p>新建一个config包，在下面新建myinterceptor.java</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">myIntercepter</span> <span class="keyword">implements</span> <span class="title">HandlerInterceptor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//return true 执行下一个拦截器，放行</span></span><br><span class="line">    <span class="comment">//return false 不放行</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"============处理前============"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//后面两个重载可以写拦截日志</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"============处理后============"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterCompletion</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"============清理============"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>拦截器配置 （在appliCation.xml中配置）</li>
+</ol>
+<p>/* :   代表当前文件夹下的某一个东西</p>
+<p>/**：代表当前文件夹下的所有东西</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--拦截器配置--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mvc:interceptors</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mvc:interceptor</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--/**包括这个请求下的所有的请求--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">mvc:mapping</span> <span class="attr">path</span>=<span class="string">"/**"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.config.myIntercepter"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">mvc:interceptor</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mvc:interceptors</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>Controller测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/t1"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"test执行了"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"OK"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-拦截器实现登录验证"><a href="#3-拦截器实现登录验证" class="headerlink" title="3. 拦截器实现登录验证"></a>3. 拦截器实现登录验证</h2><ol>
+<li>编写登录页面(login.jsp)</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line"></span><br><span class="line">&lt;%--在web-inf下面的所有页面或者资源，只能通过controller，或者servlet进行访问--%&gt;</span><br><span class="line">&lt;h1&gt;登录页面&lt;/h1&gt;</span><br><span class="line"></span><br><span class="line">&lt;form action=<span class="string">"$&#123;pageContext.request.contextPath&#125;/user/login"</span> method=<span class="string">"post"</span>&gt;</span><br><span class="line">    用户名： &lt;input type=<span class="string">"text"</span> name=<span class="string">"username"</span>&gt;</span><br><span class="line">    密码： &lt;input type=<span class="string">"text"</span> name=<span class="string">"password"</span>&gt;</span><br><span class="line">    &lt;input type=<span class="string">"submit"</span> value=<span class="string">"提交"</span>&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>登录拦截器</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">loginInteceptor</span> <span class="keyword">implements</span> <span class="title">HandlerInterceptor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        HttpSession session = request.getSession(); <span class="comment">//获取到session</span></span><br><span class="line">        <span class="comment">//放行的判断</span></span><br><span class="line">        <span class="comment">//登录页面也要放行</span></span><br><span class="line">        <span class="keyword">if</span> (request.getRequestURI().contains(<span class="string">"goLogin"</span>))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//session不为空放行</span></span><br><span class="line">        <span class="keyword">if</span> (session.getAttribute(<span class="string">"userloginInfo"</span>)!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//判断什么情况下没有登录</span></span><br><span class="line">        request.getRequestDispatcher(<span class="string">"/WEB-INF/jsp/login.jsp"</span>).forward(request,response);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
@@ -190,14 +216,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8Tomcat%E9%85%8D%E7%BD%AE/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/11/16/SpringMVC/SpringMVC-%E6%8B%A6%E6%88%AA%E5%99%A8/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tomcat/" rel="tag">Tomcat</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" rel="tag">云服务器开发环境</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
 
 
     </footer>
@@ -208,19 +234,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8JDK%E9%85%8D%E7%BD%AE/" class="article-nav-link">
+      <a href="/2019/11/20/SpringMVC/SpringMVC-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            云服务器JDK配置
+            SpringMVC-文件上传下载
           
         </div>
       </a>
     
     
-      <a href="/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8Mysql%E9%85%8D%E7%BD%AE/" class="article-nav-link">
+      <a href="/2019/11/14/SpringMVC/SpringMVC-Ajax/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">云服务器Mysql配置</div>
+        <div class="article-nav-title">SpringMVC-Ajax</div>
       </a>
     
   </nav>
