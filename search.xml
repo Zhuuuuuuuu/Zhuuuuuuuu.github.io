@@ -1,6 +1,349 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>SpringBoot-04-JSR303校验和多环境切换</title>
+    <url>/2020/03/25/SpringBoot/SpringBoot-04-JSR303%E6%A0%A1%E9%AA%8C%E5%92%8C%E5%A4%9A%E7%8E%AF%E5%A2%83%E5%88%87%E6%8D%A2/</url>
+    <content><![CDATA[<h1 id="SpringBoot-04-JSR303校验和多环境切换"><a href="#SpringBoot-04-JSR303校验和多环境切换" class="headerlink" title="SpringBoot-04-JSR303校验和多环境切换"></a>SpringBoot-04-JSR303校验和多环境切换</h1><h2 id="1-JSR303校验"><a href="#1-JSR303校验" class="headerlink" title="1. JSR303校验"></a>1. JSR303校验</h2><h3 id="1-1-简单使用"><a href="#1-1-简单使用" class="headerlink" title="1.1 简单使用"></a>1.1 简单使用</h3><p>​    Springboot中可以用<strong>@validated来校验数据</strong>，如果数据异常则会统一抛出异常，方便异常中心统一处理。我们这里来写个注解让我们的name只能支持Email格式；</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="meta">@Validated</span>  <span class="comment">//数据校验</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Email</span>(message=<span class="string">"邮箱格式错误"</span>) <span class="comment">//name必须是邮箱格式</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326101553.png" alt=""></p>
+<p><strong>使用数据校验，可以保证数据的正确性；</strong> </p>
+<a id="more"></a>
+
+<h3 id="1-2-常见参数"><a href="#1-2-常见参数" class="headerlink" title="1.2 常见参数"></a>1.2 常见参数</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@NotNull</span>(message=<span class="string">"名字不能为空"</span>)</span><br><span class="line"><span class="keyword">private</span> String userName;</span><br><span class="line"><span class="meta">@Max</span>(value=<span class="number">120</span>,message=<span class="string">"年龄最大不能查过120"</span>)</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"><span class="meta">@Email</span>(message=<span class="string">"邮箱格式错误"</span>)</span><br><span class="line"><span class="keyword">private</span> String email;</span><br><span class="line"></span><br><span class="line">空检查</span><br><span class="line"><span class="meta">@Null</span>       验证对象是否为<span class="keyword">null</span></span><br><span class="line"><span class="meta">@NotNull</span>    验证对象是否不为<span class="keyword">null</span>, 无法查检长度为<span class="number">0</span>的字符串</span><br><span class="line"><span class="meta">@NotBlank</span>   检查约束字符串是不是Null还有被Trim的长度是否大于<span class="number">0</span>,只对字符串,且会去掉前后空格.</span><br><span class="line"><span class="meta">@NotEmpty</span>   检查约束元素是否为NULL或者是EMPTY.</span><br><span class="line">    </span><br><span class="line">Booelan检查</span><br><span class="line"><span class="meta">@AssertTrue</span>     验证 Boolean 对象是否为 <span class="keyword">true</span>  </span><br><span class="line"><span class="meta">@AssertFalse</span>    验证 Boolean 对象是否为 <span class="keyword">false</span>  </span><br><span class="line">    </span><br><span class="line">长度检查</span><br><span class="line"><span class="meta">@Size</span>(min=, max=) 验证对象（Array,Collection,Map,String）长度是否在给定的范围之内  </span><br><span class="line"><span class="meta">@Length</span>(min=, max=) string is between min and max included.</span><br><span class="line"></span><br><span class="line">日期检查</span><br><span class="line"><span class="meta">@Past</span>       验证 Date 和 Calendar 对象是否在当前时间之前  </span><br><span class="line"><span class="meta">@Future</span>     验证 Date 和 Calendar 对象是否在当前时间之后  </span><br><span class="line"><span class="meta">@Pattern</span>    验证 String 对象是否符合正则表达式的规则</span><br><span class="line"></span><br><span class="line">.......等等</span><br><span class="line">除此以外，我们还可以自定义一些数据校验规则</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-多环境切换"><a href="#2-多环境切换" class="headerlink" title="2. 多环境切换"></a>2. 多环境切换</h2><p>​    profile是Spring对不同环境提供不同配置功能的支持，可以通过激活不同的环境版本，实现快速切换环境；</p>
+<h3 id="2-1-多配置文件"><a href="#2-1-多配置文件" class="headerlink" title="2.1 多配置文件"></a>2.1 多配置文件</h3><p>在主配置文件编写的时候，文件名可以是 application-{profile}.properties/yml , 用来指定多个环境版本；</p>
+<p><strong>例如：</strong></p>
+<p>application-test.properties 代表测试环境配置</p>
+<p>application-dev.properties 代表开发环境配置</p>
+<p>但是Springboot并不会直接启动这些配置文件，它<strong>默认使用application.properties主配置文件</strong>；</p>
+<p>我们需要通过一个配置来选择需要激活的环境：</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment">#比如在配置文件中指定使用dev环境，我们可以通过设置不同的端口号进行测试；</span></span><br><span class="line"><span class="comment">#我们启动SpringBoot，就可以看到已经切换到dev下的配置了；</span></span><br><span class="line"><span class="meta">spring.profiles.active</span>=<span class="string">dev</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>yaml多文档块</strong></p>
+<p>和properties配置文件中一样，但是使用yml去实现不需要创建多个配置文件，更加方便了 !</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line"><span class="comment">#选择要激活那个环境块</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">prod</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8083</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span> <span class="string">dev</span> <span class="comment">#配置环境的名称</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8084</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span> <span class="string">prod</span>  <span class="comment">#配置环境的名称</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：如果yml和properties同时都配置了端口，并且没有激活其他环境 ， 默认会使用properties配置文件的！</strong></p>
+<h3 id="2-2-配置文件加载位置"><a href="#2-2-配置文件加载位置" class="headerlink" title="2.2 配置文件加载位置"></a>2.2 配置文件加载位置</h3><p>外部加载配置文件的方式十分多，我们选择最常用的即可，在开发的资源文件中进行配置！</p>
+<p>springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">优先级1：项目路径下的config文件夹配置文件</span><br><span class="line">优先级2：项目路径下配置文件</span><br><span class="line">优先级3：资源路径下的config文件夹配置文件</span><br><span class="line">优先级4：资源路径下配置文件</span><br></pre></td></tr></table></figure>
+
+<p>优先级由高到底，高优先级的配置会覆盖低优先级的配置；</p>
+<p><strong>SpringBoot会从这四个位置全部加载主配置文件；互补配置；</strong></p>
+<h2 id="3-扩展"><a href="#3-扩展" class="headerlink" title="3. 扩展"></a>3. 扩展</h2><p>指定位置加载配置文件</p>
+<p>我们还可以通过<strong>spring.config.location</strong>来改变默认的配置文件位置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">java -jar spring-boot-config.jar --spring.config.location&#x3D;E:&#x2F;application.properties</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot-03-yaml配置注入</title>
+    <url>/2020/03/25/SpringBoot/SpringBoot-03-yaml%E9%85%8D%E7%BD%AE%E6%B3%A8%E5%85%A5/</url>
+    <content><![CDATA[<h1 id="SpringBoot-03-yaml配置注入"><a href="#SpringBoot-03-yaml配置注入" class="headerlink" title="SpringBoot-03-yaml配置注入"></a>SpringBoot-03-yaml配置注入</h1><h2 id="1-yaml语法学习"><a href="#1-yaml语法学习" class="headerlink" title="1. yaml语法学习"></a>1. yaml语法学习</h2><h3 id="1-1-配置文件"><a href="#1-1-配置文件" class="headerlink" title="1.1 配置文件"></a>1.1 配置文件</h3><p>SpringBoot使用一个全局的配置文件 ， 配置文件名称是固定的</p>
+<ul>
+<li>application.properties<ul>
+<li>语法结构： key = value</li>
+</ul>
+</li>
+<li>application.yml<ul>
+<li>语法结构： key: 空格 value</li>
+</ul>
+</li>
+</ul>
+<p><strong>配置文件的作用 ：修改SpringBoot自动配置的默认值，因为SpringBoot在底层都给我们自动配置好了：</strong></p>
+<p>比如我们可以在配置文件中修改Tomcat 默认启动的端口号！测试一下！</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server.port&#x3D;8081</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h3 id="1-2-yaml概述"><a href="#1-2-yaml概述" class="headerlink" title="1.2 yaml概述"></a>1.2 yaml概述</h3><p>​    YAML是 “YAML Ain’t a Markup Language” （YAML不是一种标记语言）的递归缩写。在开发的这种语言时，YAML 的意思其实是：”Yet Another Markup Language”（仍是一种标记语言）</p>
+<p><strong>这种语言以数据作为中心，而不是以标记语言为重点</strong></p>
+<p>以前的配置文件，大多数都是使用xml来配置，比如一个简单的端口配置，我们来对比下yaml和xml</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">server</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">port</span>&gt;</span>8081<span class="tag">&lt;/<span class="name">port</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">server</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>yaml配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server: </span><br><span class="line">	port: 8080</span><br></pre></td></tr></table></figure>
+
+<p><strong>yaml基础语法：</strong></p>
+<p>说明：语法要求严格！</p>
+<ol>
+<li>空格不能省略</li>
+<li>以缩进来控制层级关系，只要是左边对齐的一列数据都是同一个层级的。</li>
+<li>属性和值的大小写都是十分敏感的。</li>
+</ol>
+<p><strong>字面量：普通的值【数字，布尔值，字符串】</strong></p>
+<p><strong>字面量直接写在后面就可以 ， 字符串默认不用加上双引号或者单引号；</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">k:</span> <span class="string">v</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<ul>
+<li><p><strong>“”双引号，</strong>不会转义字符串里面的特殊字符，特殊字符会作用本身想表达的意思；比如 ：name: “kuang \n shen”  输出 ：kuang  换行  shen</p>
+</li>
+<li><p><strong>‘’ 单引号，</strong>会转义特殊字符 ， 特殊字符最终会变成和普通字符一样输出</p>
+<p>比如 ：name: ‘kuang \n shen’  输出 ：kuang  \n  shen</p>
+</li>
+</ul>
+<p><strong>对象、Map(键值对)</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#对象、Map格式</span></span><br><span class="line"><span class="attr">k:</span> </span><br><span class="line">    <span class="attr">v1:</span></span><br><span class="line">    <span class="attr">v2:</span></span><br></pre></td></tr></table></figure>
+
+<p>在下一行来写对象的属性和值得关系，注意缩进；比如：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">student:</span> </span><br><span class="line">	<span class="attr">name:</span> <span class="string">zhuuu</span></span><br><span class="line">	<span class="attr">age:</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>行内写法：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">student:</span> <span class="string">&#123;name:</span> <span class="string">zhuuu,age:</span> <span class="number">3</span><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>数组（List,Set）</strong></p>
+<p>用-值表示数组中的一个元素，比如：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">pets:</span> </span><br><span class="line">	<span class="bullet">-</span> <span class="string">cat</span></span><br><span class="line">	<span class="bullet">-</span> <span class="string">dog</span></span><br><span class="line">	<span class="bullet">-</span> <span class="string">pig</span></span><br></pre></td></tr></table></figure>
+
+<p>行内写法：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">pets:[cat,dog,pig]</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>修改SpringBoot的默认端口号</strong></p>
+<p>配置文件中添加，端口号的参数，就可以切换端口；</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span>  </span><br><span class="line">	<span class="attr">port:</span> <span class="number">8082</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-注入配置文件"><a href="#2-注入配置文件" class="headerlink" title="2. 注入配置文件"></a>2. 注入配置文件</h2><p>yaml文件更强大的地方在于，他可以给我们的实体类直接注入匹配值！</p>
+<h3 id="2-1-注入配置文件"><a href="#2-1-注入配置文件" class="headerlink" title="2.1 注入配置文件"></a>2.1 注入配置文件</h3><p>1、在springboot项目中的resources目录下新建一个文件 application.yml</p>
+<p>2、编写一个实体类 Dog；</p>
+ <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span>  <span class="comment">//注册bean到容器中</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//有参无参构造、get、set方法、toString()方法  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>思考，我们原来是如何给bean注入属性值的！@Value，给狗狗类测试一下：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"旺财"</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"18"</span>)</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4、在SpringBoot的测试类下注入狗狗输出一下；</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span> <span class="comment">//将狗狗自动注入进来</span></span><br><span class="line">    Dog dog;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(dog); <span class="comment">//打印看下狗狗对象</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326094448.png" alt=""></p>
+<p>5、我们在编写一个复杂一点的实体类：Person 类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean到容器中</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> Boolean happy;</span><br><span class="line">    <span class="keyword">private</span> Date birth;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; maps;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Object&gt; lists;</span><br><span class="line">    <span class="keyword">private</span> Dog dog;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//有参无参构造、get、set方法、toString()方法  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>6、我们来使用yaml配置的方式进行注入，大家写的时候注意区别和优势，我们编写一个yaml配置！</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">person:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">zhuuu</span></span><br><span class="line">  <span class="attr">age:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">happy:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">birth:</span> <span class="number">2000</span><span class="string">/01/01</span></span><br><span class="line">  <span class="attr">maps:</span> <span class="string">&#123;k1:</span> <span class="string">v1,k2:</span> <span class="string">v2&#125;</span></span><br><span class="line">  <span class="attr">lists:</span></span><br><span class="line">   <span class="bullet">-</span> <span class="string">code</span></span><br><span class="line">   <span class="bullet">-</span> <span class="string">girl</span></span><br><span class="line">   <span class="bullet">-</span> <span class="string">music</span></span><br><span class="line">  <span class="attr">dog:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">旺财</span></span><br><span class="line">    <span class="attr">age:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>7、我们刚才已经把person这个对象的所有值都写好了，我们现在来注入到我们的类中！</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">@ConfigurationProperties作用：</span></span><br><span class="line"><span class="comment">将配置文件中配置的每一个属性的值，映射到这个组件中；</span></span><br><span class="line"><span class="comment">告诉SpringBoot将本类中的所有属性和配置文件中相关的配置进行绑定</span></span><br><span class="line"><span class="comment">参数 prefix = “person” : 将配置文件中的person下面的所有属性一一对应</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> Boolean happy;</span><br><span class="line">    <span class="keyword">private</span> Date birth;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; maps;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Object&gt; lists;</span><br><span class="line">    <span class="keyword">private</span> Dog dog;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>8、IDEA 提示，springboot配置注解处理器没有找到，让我们看文档，我们可以查看文档，找到一个依赖！</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 导入配置文件处理器，配置文件进行绑定就会有提示，需要重启 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>9、确认以上配置都OK之后，我们去测试类中测试一下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    Person person; <span class="comment">//将person自动注入进来</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(person); <span class="comment">//打印person信息</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>yaml配置注入到实体类完全OK！</strong></p>
+<h3 id="2-2-加载指定的配置文件"><a href="#2-2-加载指定的配置文件" class="headerlink" title="2.2 加载指定的配置文件"></a>2.2 加载指定的配置文件</h3><p><strong>@PropertySource ：</strong>加载指定的配置文件；</p>
+<p><strong>@configurationProperties</strong>：默认从全局配置文件中获取值；</p>
+<p>1、我们去在resources目录下新建一个<strong>person.properties</strong>文件</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="attr">name</span> = <span class="string">zhuuu</span></span><br></pre></td></tr></table></figure>
+
+<p>2、然后在我们的代码中指定加载person.properties文件</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@PropertySource</span>(value = <span class="string">"classpath:person.properties"</span>)</span><br><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;name&#125;"</span>)  </span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    ......  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3、再次输出测试一下：指定配置文件绑定成功！</p>
+<h3 id="2-3-配置占位符"><a href="#2-3-配置占位符" class="headerlink" title="2.3 配置占位符"></a>2.3 配置占位符</h3><p>配置文件还可以编写占位符生成随机数</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">person:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">zhuuu$&#123;random.uuid&#125;</span> <span class="comment"># 随机uuid</span></span><br><span class="line">    <span class="attr">age:</span> <span class="string">$&#123;random.int&#125;</span>  <span class="comment"># 随机int</span></span><br><span class="line">    <span class="attr">happy:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">birth:</span> <span class="number">2000</span><span class="string">/01/01</span></span><br><span class="line">    <span class="attr">maps:</span> <span class="string">&#123;k1:</span> <span class="string">v1,k2:</span> <span class="string">v2&#125;</span></span><br><span class="line">    <span class="attr">lists:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">code</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">girl</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">music</span></span><br><span class="line">    <span class="attr">dog:</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">$&#123;person.hello:other&#125;_旺财</span></span><br><span class="line">      <span class="attr">age:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-回顾properties设置"><a href="#3-回顾properties设置" class="headerlink" title="3. 回顾properties设置"></a>3. 回顾properties设置</h2><p>【注意】properties配置文件在写中文的时候，会有乱码 ， 我们需要去IDEA中设置编码格式为UTF-8；</p>
+<p>settings–&gt;FileEncodings 中配置；</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326100008.png" alt=""></p>
+<p><strong>测试步骤：</strong></p>
+<ol>
+<li>新建一个实体类User</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> String sex;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2、编辑配置文件 user.properties</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">user1.name</span>=<span class="string">zhuuu</span></span><br><span class="line"><span class="meta">user1.age</span>=<span class="string">18</span></span><br><span class="line"><span class="meta">user1.sex</span>=<span class="string">男</span></span><br></pre></td></tr></table></figure>
+
+<p>3、我们在User类上使用@Value来进行注入！</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="meta">@PropertySource</span>(value = <span class="string">"classpath:user.properties"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="comment">//直接使用@value</span></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;user.name&#125;"</span>) <span class="comment">//从配置文件中取值</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"#&#123;9*2&#125;"</span>)  <span class="comment">// #&#123;SPEL&#125; Spring表达式</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"男"</span>)  <span class="comment">// 字面量</span></span><br><span class="line">    <span class="keyword">private</span> String sex;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4、Springboot测试</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    User user;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果正常输出</p>
+<h2 id="4-对比小结"><a href="#4-对比小结" class="headerlink" title="4. 对比小结"></a>4. 对比小结</h2><p>@Value这个使用起来并不友好！我们需要为每个属性单独注解赋值，比较麻烦；我们来看个功能对比图</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>@ConfigurationProperties</th>
+<th>@Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>功能</td>
+<td>批量注入配置文件中的属性</td>
+<td>一个个指定</td>
+</tr>
+<tr>
+<td>松散绑定</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>SpEL</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>JSR303数据校验</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>复杂类型封装</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+</tbody></table>
+<p>1、@ConfigurationProperties只需要写一次即可 ， @Value则需要每个字段都添加</p>
+<p>2、松散绑定：这个什么意思呢? 比如我的yml中写的last-name，这个和lastName是一样的， - 后面跟着的字母默认是大写的。这就是松散绑定。可以测试一下</p>
+<p>3、JSR303数据校验 ， 这个就是我们可以在字段是增加一层过滤器验证 ， 可以保证数据的合法性（@Email。。。。。）</p>
+<p>4、复杂类型封装，yml中可以封装对象，使用value就不支持</p>
+<p><strong>结论：</strong></p>
+<p>配置yml和配置properties都可以获取到值 ， 强烈推荐 yml；</p>
+<p>如果在某个业务中，只需要获取配置文件中的某个值，可以使用一下@Value</p>
+<p>如果说，专门编写了一个JavaBean来和配置文件一一映射，就直接使用@ConfigurationProperties，不要犹豫！</p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot-02-运行原理初探</title>
+    <url>/2020/03/24/SpringBoot/SpringBoot-02-%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86%E5%88%9D%E6%8E%A2/</url>
+    <content><![CDATA[<h1 id="SpringBoot-02-运行原理初探"><a href="#SpringBoot-02-运行原理初探" class="headerlink" title="SpringBoot-02-运行原理初探"></a>SpringBoot-02-运行原理初探</h1><p>我们之前写的HelloSpringBoot，到底是怎么运行的呢，Maven项目，我们一般从pom.xml文件探究起；</p>
+<a id="more"></a>
+
+<h2 id="1-pom-xml"><a href="#1-pom-xml" class="headerlink" title="1. pom.xml"></a>1. pom.xml</h2><ul>
+<li><strong>父依赖</strong></li>
+</ul>
+<p>其中它主要是依赖一个父项目，主要是管理项目的资源过滤及插件</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>点进去，发现还有一个父依赖</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>&gt;</span>../../spring-boot-dependencies<span class="tag">&lt;/<span class="name">relativePath</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里才是真正管理SpringBoot应用里面所有依赖版本的地方，SpringBoot的版本控制中心；</p>
+<p><strong>以后我们导入依赖默认是不需要写版本；但是如果导入的包没有在依赖中管理着就需要手动配置版本了；</strong></p>
+<ul>
+<li>启动器 <strong>spring-boot-starter</strong></li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>springboot-boot-starter-xxx</strong>：就是spring-boot的场景启动器</p>
+<p><strong>spring-boot-starter-web</strong>：帮我们导入了web模块正常运行所依赖的组件；SpringBoot将所有的功能场景都抽取出来，做成了一个个的启动器（starter），只要在项目中引用这些starter即可，所有相关的依赖都会导入进来，我们需要什么功能就导入什么场景启动器即可，我们为未来也可以自己自定义starter;</p>
+<h2 id="2-主启动类"><a href="#2-主启动类" class="headerlink" title="2. 主启动类"></a>2. 主启动类</h2><p>分析完了 pom.xml 来看看这个启动类</p>
+<ul>
+<li>默认的主启动类</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//@SpringBootApplication 来标注一个主程序类</span></span><br><span class="line"><span class="comment">//说明这是一个Spring Boot应用</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringbootApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">     <span class="comment">//以为是启动了一个方法，没想到启动了一个服务</span></span><br><span class="line">      SpringApplication.run(SpringbootApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是<strong>一个简单的启动类并不简单！</strong>我们来分析一下这些注解都干了什么</p>
+<h3 id="2-1-SpringBootApplication"><a href="#2-1-SpringBootApplication" class="headerlink" title="2.1 @SpringBootApplication"></a>2.1 @SpringBootApplication</h3><p>作用：标注在某个类上说明这个类是SpringBoot的主配置类 ， SpringBoot就应该运行这个类的main方法来启动SpringBoot应用；</p>
+<p>进入这个注解：可以看到上面还有很多其他注解！</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootConfiguration</span></span><br><span class="line"><span class="meta">@EnableAutoConfiguration</span></span><br><span class="line"><span class="meta">@ComponentScan</span>(excludeFilters = &#123; <span class="meta">@Filter</span>(type = FilterType.CUSTOM, classes = TypeExcludeFilter<span class="class">.<span class="keyword">class</span>),</span></span><br><span class="line"><span class="class">		@<span class="title">Filter</span>(<span class="title">type</span> </span>= FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter<span class="class">.<span class="keyword">class</span>) &#125;)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">SpringBootApplication</span> </span>&#123;</span><br><span class="line">    <span class="comment">//.....</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-1-ComponentScan"><a href="#2-1-1-ComponentScan" class="headerlink" title="2.1.1 @ComponentScan"></a>2.1.1 @ComponentScan</h4><p>这个注解在Spirng中很重要，它对应xml配置中的元素。</p>
+<p>作用：自动扫描并在家符合条件的组件或者bean,将这个bean定义加载到IOC容器中！</p>
+<h4 id="2-1-2-SpringBootConfiguration"><a href="#2-1-2-SpringBootConfiguration" class="headerlink" title="2.1.2 @SpringBootConfiguration"></a>2.1.2 @SpringBootConfiguration</h4><p>作用：SpringBoot的配置类 ，标注在某个类上 ， 表示这是一个SpringBoot的配置类；</p>
+<p>我们继续进去这个注解查看</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 点进去得到下面的 @Component</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SpringBootConfiguration &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Configuration &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 @Configuration，说明这是一个配置类 ，配置类就是对应Spring的xml 配置文件；</p>
+<p>里面的 @Component 这就说明，启动类本身也是Spring中的一个组件而已，负责启动应用！</p>
+<p>我们回到 SpringBootApplication 注解中继续看。</p>
+<h3 id="2-2-EnableAutoConfiguration"><a href="#2-2-EnableAutoConfiguration" class="headerlink" title="2.2 @EnableAutoConfiguration"></a>2.2 @EnableAutoConfiguration</h3><p><strong>@EnableAutoConfiguration ：开启自动配置功能</strong></p>
+<p>以前我们需要自己配置的东西，而现在SpringBoot可以自动帮我们配置 ；@EnableAutoConfiguration告诉SpringBoot开启自动配置功能，这样自动配置才能生效；</p>
+<h4 id="2-2-1-AutoConfigurationPackage-：自动配置包"><a href="#2-2-1-AutoConfigurationPackage-：自动配置包" class="headerlink" title="2.2.1 AutoConfigurationPackage ：自动配置包"></a>2.2.1 AutoConfigurationPackage ：自动配置包</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Import</span>(AutoConfigurationPackages.Registrar<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">AutoConfigurationPackage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>import:</strong> Spring底层注解@import，给容器导入一个组件</li>
+<li>Registrar.class作用：将主启动类的所在包及包下面所有子包里面的所有组件扫描到Spring容器中；</li>
+</ul>
+<p>这个分析完了，退到上一步，继续看</p>
+<h4 id="2-2-2-Import-AutoConfigurationImportSelector-class-：给容器导入组件-；"><a href="#2-2-2-Import-AutoConfigurationImportSelector-class-：给容器导入组件-；" class="headerlink" title="2.2.2 Import({AutoConfigurationImportSelector.class}) ：给容器导入组件 ；"></a>2.2.2 Import({AutoConfigurationImportSelector.class}) ：给容器导入组件 ；</h4><p>AutoConfigurationImportSelector ：自动配置导入选择器，那么它会导入哪些组件的选择器呢？我们点击去这个类看源码：</p>
+<ol>
+<li>这个类中有一个这样的方法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获得候选的配置</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> List&lt;String&gt; <span class="title">getCandidateConfigurations</span><span class="params">(AnnotationMetadata metadata, AnnotationAttributes attributes)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//这里的getSpringFactoriesLoaderFactoryClass（）方法</span></span><br><span class="line">    <span class="comment">//返回的就是我们最开始看的启动自动导入配置文件的注解类；EnableAutoConfiguration</span></span><br><span class="line">    List&lt;String&gt; configurations = SpringFactoriesLoader.loadFactoryNames(<span class="keyword">this</span>.getSpringFactoriesLoaderFactoryClass(), <span class="keyword">this</span>.getBeanClassLoader());</span><br><span class="line">    Assert.notEmpty(configurations, <span class="string">"No auto configuration classes found in META-INF/spring.factories. If you are using a custom packaging, make sure that file is correct."</span>);</span><br><span class="line">    <span class="keyword">return</span> configurations;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>这个方法又调用了  SpringFactoriesLoader 类的静态方法！我们进入SpringFactoriesLoader类loadFactoryNames() 方法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;String&gt; <span class="title">loadFactoryNames</span><span class="params">(Class&lt;?&gt; factoryClass, @Nullable ClassLoader classLoader)</span> </span>&#123;</span><br><span class="line">    String factoryClassName = factoryClass.getName();</span><br><span class="line">    <span class="comment">//这里它又调用了 loadSpringFactories 方法</span></span><br><span class="line">    <span class="keyword">return</span> (List)loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>我们继续点击查看 loadSpringFactories 方法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, List&lt;String&gt;&gt; loadSpringFactories(<span class="meta">@Nullable</span> ClassLoader classLoader) &#123;</span><br><span class="line">    <span class="comment">//获得classLoader ， 我们返回可以看到这里得到的就是EnableAutoConfiguration标注的类本身</span></span><br><span class="line">    MultiValueMap&lt;String, String&gt; result = (MultiValueMap)cache.get(classLoader);</span><br><span class="line">    <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//去获取一个资源 "META-INF/spring.factories"</span></span><br><span class="line">            Enumeration&lt;URL&gt; urls = classLoader != <span class="keyword">null</span> ? classLoader.getResources(<span class="string">"META-INF/spring.factories"</span>) : ClassLoader.getSystemResources(<span class="string">"META-INF/spring.factories"</span>);</span><br><span class="line">            LinkedMultiValueMap result = <span class="keyword">new</span> LinkedMultiValueMap();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//将读取到的资源遍历，封装成为一个Properties</span></span><br><span class="line">            <span class="keyword">while</span>(urls.hasMoreElements()) &#123;</span><br><span class="line">                URL url = (URL)urls.nextElement();</span><br><span class="line">                UrlResource resource = <span class="keyword">new</span> UrlResource(url);</span><br><span class="line">                Properties properties = PropertiesLoaderUtils.loadProperties(resource);</span><br><span class="line">                Iterator var6 = properties.entrySet().iterator();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">while</span>(var6.hasNext()) &#123;</span><br><span class="line">                    Entry&lt;?, ?&gt; entry = (Entry)var6.next();</span><br><span class="line">                    String factoryClassName = ((String)entry.getKey()).trim();</span><br><span class="line">                    String[] var9 = StringUtils.commaDelimitedListToStringArray((String)entry.getValue());</span><br><span class="line">                    <span class="keyword">int</span> var10 = var9.length;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">int</span> var11 = <span class="number">0</span>; var11 &lt; var10; ++var11) &#123;</span><br><span class="line">                        String factoryName = var9[var11];</span><br><span class="line">                        result.add(factoryClassName, factoryName.trim());</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            cache.put(classLoader, result);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException var13) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unable to load factories from location [META-INF/spring.factories]"</span>, var13);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>发现一个多次出现的文件：spring.factories，全局搜索它</strong></li>
+</ol>
+<h3 id="2-3-spring-factories"><a href="#2-3-spring-factories" class="headerlink" title="2.3 spring.factories"></a>2.3 spring.factories</h3><p>​    我们根据源头打开spring.factories ， 看到了很多自动配置的文件；这就是自动配置根源所在！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325095209.png" alt=""></p>
+<p><strong>WebMvcAutoConfiguration</strong></p>
+<p>我们在上面的自动配置类随便找一个打开看看，比如 ：WebMvcAutoConfiguration</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325095418.png" alt=""></p>
+<ul>
+<li>可以看到这些一个个都是JavaConfig配之类，而且都注入了一些Bean，可以找一些自己认识的类，看着熟悉一下！</li>
+<li>所以，自动装配真正实现是从classpath中搜寻所有META-INF/spring.factories配置文件 ，并将其中对应的org.springframework.boot.autoconfigure. 包下的配置项，通过反射实例化为对应标注了@Configuration的JavaConfig形式的IOC容器配置类，然后将这些都汇总成为一个示例并加载到IOC容器中。</li>
+</ul>
+<h3 id="2-4-结论"><a href="#2-4-结论" class="headerlink" title="2.4 结论"></a>2.4 结论</h3><ol>
+<li><p>SpringBoot在启动的时候从类路径下的META-INF/spring.factories获取EnableAutoConfiguration指定（<strong>有一个判断：@ConditionalOnXXX</strong>）的值</p>
+</li>
+<li><p>将这些值作为自动配置类导入容器 ， 自动配置类就生效 ， 帮我们进行自动配置工作；</p>
+</li>
+<li><p>整个J2EE的整体解决方案和自动配置都在springboot-autoconfigure的jar包中；</p>
+</li>
+<li><p>它会给容器导入非常多的自动配置类（xxxAutoConfiguration）, 就是给容器中导入这个场景需要的所有组件 ， 并配置好这些组件 ；</p>
+</li>
+<li><p>有了自动配置类 ， 免去了我们手动编写配置注入功能组件等的工作；</p>
+</li>
+</ol>
+<iframe id="embed_dom" name="embed_dom" frameborder="0" style="display:block;width:525px; height:245px;" src="https://www.processon.com/embed/5e7977e3e4b06b852ff24f2d"></iframe>
+
+<h2 id="3-主启动类中的主方法"><a href="#3-主启动类中的主方法" class="headerlink" title="3. 主启动类中的主方法"></a>3. 主启动类中的主方法</h2><h3 id="3-1-SpringApplication"><a href="#3-1-SpringApplication" class="headerlink" title="3.1  SpringApplication"></a>3.1  <strong>SpringApplication</strong></h3><h4 id="不简单的方法"><a href="#不简单的方法" class="headerlink" title="不简单的方法:"></a>不简单的方法:</h4><p>最初以为就是运行了一个main方法，没想到却开启了一个服务；</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringbootApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(SpringbootApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-SpringApplication-run分析"><a href="#3-2-SpringApplication-run分析" class="headerlink" title="3.2 SpringApplication.run分析"></a>3.2 <strong>SpringApplication.run分析</strong></h3><p>这个类主要做了以下四件事情：</p>
+<ol>
+<li>推断应用的类型是普通的项目还是web项目</li>
+<li>查找并加载所有可用的初始化器，设置到initializers属性中</li>
+<li>找出所有的应用程序监听器，设置到listeners属性中</li>
+<li>推断并设置main方法的定义类，找到运行的主类</li>
+</ol>
+<p>查看构造器：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">SpringApplication</span><span class="params">(ResourceLoader resourceLoader, Class... primarySources)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ......</span></span><br><span class="line">    <span class="keyword">this</span>.webApplicationType = WebApplicationType.deduceFromClasspath();</span><br><span class="line">    <span class="keyword">this</span>.setInitializers(<span class="keyword">this</span>.getSpringFactoriesInstances();</span><br><span class="line">    <span class="keyword">this</span>.setListeners(<span class="keyword">this</span>.getSpringFactoriesInstances(ApplicationListener<span class="class">.<span class="keyword">class</span>))</span>;</span><br><span class="line">    <span class="keyword">this</span>.mainApplicationClass = <span class="keyword">this</span>.deduceMainApplicationClass();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>run方法流程分析：</strong></p>
+<p>博客参考：<a href="https://www.cnblogs.com/trgl/p/7353782.html" target="_blank" rel="noopener">https://www.cnblogs.com/trgl/p/7353782.html</a></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325103112.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python-01-快速入门</title>
     <url>/2020/03/23/Python/Python-01-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<h1 id="Python-教程"><a href="#Python-教程" class="headerlink" title="Python 教程"></a>Python 教程</h1><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324143127.jpg" alt=""></p>
@@ -185,9 +528,90 @@
 <p>微服务论文中文翻译版地址： <a href="https://www.jianshu.com/p/d32b053e86e1" target="_blank" rel="noopener">https://www.jianshu.com/p/d32b053e86e1</a></p>
 <p>中文防挂链接： <a href="https://blog.csdn.net/weixin_42236165/article/details/92979025" target="_blank" rel="noopener">https://blog.csdn.net/weixin_42236165/article/details/92979025</a></p>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324092504.png" alt=""></p>
-<h2 id="2-第一个Spring-Boot-程序"><a href="#2-第一个Spring-Boot-程序" class="headerlink" title="2. 第一个Spring Boot 程序"></a>2. 第一个Spring Boot 程序</h2>]]></content>
+<h2 id="2-Hello-World"><a href="#2-Hello-World" class="headerlink" title="2. Hello,World"></a>2. Hello,World</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><p>​    学习如何快速的创建一个Spring Boot应用，并且实现一个简单的Http请求处理。通过这个例子对Spring Boot有一个初步的了解，并体验其结构简单、开发快速的特性。</p>
+<p>我的环境准备：</p>
+<ul>
+<li>java version “1.8.0_181”</li>
+<li>Maven-3.6.1</li>
+<li>SpringBoot 2.x 最新版</li>
+</ul>
+<p>开发工具：</p>
+<ul>
+<li>IDEA</li>
+</ul>
+<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
+<p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<h4 id="2-2-1-项目创建方式一"><a href="#2-2-1-项目创建方式一" class="headerlink" title="2.2.1 项目创建方式一"></a>2.2.1 项目创建方式一</h4><p> <strong>项目创建方式一：</strong>使用Spring Initializr 的 Web页面创建项目</p>
+<p>1、打开  <a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<p>2、填写项目信息</p>
+<p>3、点击”Generate Project“按钮生成项目；下载此项目</p>
+<p>4、解压项目包，并用IDEA以Maven项目导入，一路下一步即可，直到项目导入完毕。</p>
+<p>5、如果是第一次使用，可能速度会比较慢，包比较多、需要耐心等待一切就绪。</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090429.png" alt=""></p>
+<h4 id="2-2-2-项目创建方式二"><a href="#2-2-2-项目创建方式二" class="headerlink" title="2.2.2  项目创建方式二"></a>2.2.2  项目创建方式二</h4><p><strong>项目创建方式二</strong>：使用 IDEA 直接创建项目</p>
+<p>1、创建一个新项目</p>
+<p>2、选择spring initalizr ， 可以看到默认就是去官网的快速构建工具那里实现</p>
+<p>3、填写项目信息</p>
+<p>4、选择初始化的组件（初学勾选 Web 即可）</p>
+<p>5、填写项目路径</p>
+<p>6、等待项目构建成功</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090921.png" alt=""></p>
+<h3 id="2-3-项目结构分析"><a href="#2-3-项目结构分析" class="headerlink" title="2.3 项目结构分析"></a>2.3 项目结构分析</h3><p>通过上面步骤完成了基础项目的创建。就会自动生成以下文件。</p>
+<ul>
+<li>程序的主启动类</li>
+<li>一个application.properties配置文件</li>
+<li>一个测试类</li>
+<li>一个pom.xml</li>
+</ul>
+<h4 id="2-3-1-pom-xml-分析"><a href="#2-3-1-pom-xml-分析" class="headerlink" title="2.3.1 pom.xml 分析"></a>2.3.1 pom.xml 分析</h4><p>打开pom.xml，看看Spring Boot项目的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 父依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web场景启动器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- springboot单元测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 剔除依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 打包插件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-编写一个http接口"><a href="#2-4-编写一个http接口" class="headerlink" title="2.4 编写一个http接口"></a>2.4 编写一个http接口</h3><ol>
+<li><p>在主程序的同级目录下，新建一个controller包，<strong>一定要在同级目录下，否则识别不到</strong></p>
+</li>
+<li><p>在包中新建一个HelloController类</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>编写完毕后，从主程序启动项目，浏览器发起请求，看页面返回；控制台输出了 Tomcat 访问的端口号！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092020.png" alt=""></p>
+<h2 id="3-彩蛋"><a href="#3-彩蛋" class="headerlink" title="3. 彩蛋"></a>3. 彩蛋</h2><p>​    如何更改启动时显示的字符拼成的字母，SpringBoot呢？也就是 banner 图案；</p>
+<p>​    只需一步：到项目下的 resources 目录下新建一个banner.txt 即可。</p>
+<p>​    图案可以到：<a href="https://www.bootschool.net/ascii" target="_blank" rel="noopener">https://www.bootschool.net/ascii</a> 这个网站生成，然后拷贝到文件中即可！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092125.png" alt=""></p>
+]]></content>
       <tags>
         <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-876</title>
+    <url>/2020/03/22/Leetcode/Leetcode-876-%E9%93%BE%E8%A1%A8%E7%9A%84%E4%B8%AD%E9%97%B4%E8%8A%82%E7%82%B9/</url>
+    <content><![CDATA[<h1 id="Leecode-876-Middle-of-the-Linked-List"><a href="#Leecode-876-Middle-of-the-Linked-List" class="headerlink" title="Leecode-876 Middle of the Linked List"></a>Leecode-876 <a href="https://leetcode-cn.com/problems/middle-of-the-linked-list/" target="_blank" rel="noopener">Middle of the Linked List</a></h1><h2 id="思路：快慢指针"><a href="#思路：快慢指针" class="headerlink" title="思路：快慢指针"></a>思路：快慢指针</h2><p><strong>题目描述</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [1,2,3,4,5,6]</span><br><span class="line">Output: 4</span><br><span class="line">Since the list has two middle nodes with values 3 and 4, we return the second one.</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: [1,2,3,4,5]</span><br><span class="line">Output: 3 (Serialization: [3,4,5])</span><br><span class="line">The returned node has value 3.  (The judge&#39;s serialization of this node is [3,4,5]).</span><br><span class="line">Note that we returned a ListNode object ans, such that:</span><br><span class="line">ans.val &#x3D; 3, ans.next.val &#x3D; 4, ans.next.next.val &#x3D; 5, and ans.next.next.next &#x3D; NULL.</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p><strong>Solution：快慢指针</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326212826.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326212837.png" alt=""></p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * public class ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">middleNode</span><span class="params">(ListNode head)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(head == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        ListNode slow = head;</span><br><span class="line">        ListNode fast = head;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(fast != <span class="keyword">null</span> &amp;&amp; fast.next!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            slow = slow.next;</span><br><span class="line">            fast = fast.next.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> slow;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"># class ListNode:</span></span><br><span class="line"><span class="comment">#     def __init__(self, x):</span></span><br><span class="line"><span class="comment">#         self.val = x</span></span><br><span class="line"><span class="comment">#         self.next = None</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">middleNode</span><span class="params">(self, head: ListNode)</span> -&gt; ListNode:</span></span><br><span class="line">        <span class="keyword">if</span> head <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        slow = head</span><br><span class="line">        fast = head</span><br><span class="line">        <span class="keyword">while</span> fast <span class="keyword">and</span> fast.next:</span><br><span class="line">            slow = slow.next</span><br><span class="line">            fast = fast.next.next</span><br><span class="line">        <span class="keyword">return</span> slow</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>快慢指针</tag>
       </tags>
   </entry>
   <entry>
@@ -316,7 +740,7 @@
   </entry>
   <entry>
     <title>Leetcode-395</title>
-    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
+    <url>/2020/03/20/Leetcode/Leetcode-365-%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<h1 id="Leecode-395-Water-and-Jug-Problem"><a href="#Leecode-395-Water-and-Jug-Problem" class="headerlink" title="Leecode-395 Water and Jug Problem"></a>Leecode-395 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
 <p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
 <p>只允许以下操作：</p>
@@ -336,6 +760,62 @@
 
 <h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
+<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
+<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
+<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
+<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
+<p><strong>Solution : 裴蜀定理</strong></p>
+<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
+<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
+<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
+<ul>
+<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
+</li>
+<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
+</li>
+<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
+</li>
+</ul>
+<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
+<p>​                                                    <strong>ax+by=z</strong></p>
+<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>深度优先搜索</tag>
+        <tag>春招每日一题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-365</title>
+    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
+    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
+<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
+<p>只允许以下操作：</p>
+<ul>
+<li>装满任意一个水壶</li>
+<li>清空任意一个水壶</li>
+<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
+</ul>
+<p><strong>Solution：</strong></p>
+<ul>
+<li>DFS</li>
+<li>裴蜀定理</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
+<a id="more"></a>
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -494,7 +974,7 @@
   </entry>
   <entry>
     <title>Leetcode-409</title>
-    <url>/2020/03/19/Leetcode/Leetcode-409/</url>
+    <url>/2020/03/19/Leetcode/Leetcode-409-%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E4%B8%B2/</url>
     <content><![CDATA[<h1 id="Leecode-409-Longest-Palindrome"><a href="#Leecode-409-Longest-Palindrome" class="headerlink" title="Leecode-409 Longest Palindrome"></a>Leecode-409 <a href="https://leetcode-cn.com/problems/longest-palindrome/" target="_blank" rel="noopener">Longest Palindrome</a></h1><h2 id="思路：贪心算法"><a href="#思路：贪心算法" class="headerlink" title="思路：贪心算法"></a>思路：贪心算法</h2><p><strong>题目描述：</strong></p>
 <ul>
 <li>给定一个字符串，问其中字母能构造出最长多少的回文串</li>
@@ -658,13 +1138,13 @@
 ]]></content>
       <tags>
         <tag>Leetcode</tag>
-        <tag>春招每日一题</tag>
         <tag>堆</tag>
+        <tag>春招每日一题</tag>
       </tags>
   </entry>
   <entry>
     <title>Leetcode-836</title>
-    <url>/2020/03/18/Leetcode/Leetcode-836/</url>
+    <url>/2020/03/18/Leetcode/Leetcode-836-%E9%95%BF%E6%96%B9%E5%BD%A2%E6%8A%95%E5%BD%B1/</url>
     <content><![CDATA[<h1 id="Leecode-836-Rectangle-Overlap"><a href="#Leecode-836-Rectangle-Overlap" class="headerlink" title="Leecode-836 Rectangle Overlap"></a>Leecode-836 <a href="https://leetcode-cn.com/problems/rectangle-overlap/" target="_blank" rel="noopener">Rectangle Overlap</a></h1><h2 id="思路：投影"><a href="#思路：投影" class="headerlink" title="思路：投影"></a>思路：投影</h2><p><strong>题目描述：判断两个矩阵是否有重叠面积</strong></p>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200318094941.jpg" alt=""></p>
 <a id="more"></a>
@@ -703,58 +1183,6 @@
       <tags>
         <tag>Leetcode</tag>
         <tag>数学算法题</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript-流程控制</title>
-    <url>/2020/03/17/Webfront/JavaScript/JavaScript-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/</url>
-    <content><![CDATA[<h1 id="JavaScript-流程控制"><a href="#JavaScript-流程控制" class="headerlink" title="JavaScript-流程控制"></a>JavaScript-流程控制</h1><h2 id="1-条件判断"><a href="#1-条件判断" class="headerlink" title="1. 条件判断"></a>1. 条件判断</h2><ul>
-<li>JavaScript使用if () { … } else { … }来进行条件判断。例如，根据年龄显示不同内容，可以用if语句实现如下：</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">20</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123; <span class="comment">// 如果age &gt;= 18为true，则执行if语句块</span></span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123; <span class="comment">// 否则执行else语句块</span></span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果还要更细致地判断条件，可以使用多个if…else…的组合：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123;</span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (age &gt;= <span class="number">6</span>) &#123;</span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    alert(<span class="string">'kid'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>if-else语句的执行特点是二选一，如果在多个if…else…语句中，如果某个条件成立，后面的将不再判断</strong></p>
-<h2 id="2-for-循环"><a href="#2-for-循环" class="headerlink" title="2. for 循环"></a>2. for 循环</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> i;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;=<span class="number">10000</span>; i++) &#123;</span><br><span class="line">    x = x + i;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 50005000</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>i=1 这是初始条件，将变量i置为1；</li>
-<li>i&lt;=10000 这是判断条件，满足时就继续循环，不满足就退出循环；</li>
-<li>i++ 这是每次循环后的递增条件，由于每次循环后变量i都会加1，因此它终将在若干次循环后不满足判断条件i&lt;=10000而退出循环。</li>
-</ul>
-<p><strong>for循环最常用的地方是利用索引来遍历数组：</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [<span class="string">'Apple'</span>, <span class="string">'Google'</span>, <span class="string">'Microsoft'</span>];</span><br><span class="line"><span class="keyword">var</span> i, x;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;arr.length; i++) &#123;</span><br><span class="line">    x = arr[i];</span><br><span class="line">    <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>for循环的3个条件都是可以省略的，如果没有退出循环的判断条件，就必须使用break语句退出循环，否则就是死循环：</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (;;) &#123; <span class="comment">// 将无限循环下去</span></span><br><span class="line">    <span class="keyword">if</span> (x &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// 通过if判断来退出循环</span></span><br><span class="line">    &#125;</span><br><span class="line">    x ++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出结果：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200319144935.png" alt=""></p>
-<p><strong>for循环的一个变体是for … in循环，它可以把一个对象的所有属性依次循环出来：</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">    name: <span class="string">'Jack'</span>,</span><br><span class="line">    age: <span class="number">20</span>,</span><br><span class="line">    city: <span class="string">'Beijing'</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> o) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key); <span class="comment">// 'name', 'age', 'city'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-while-循环"><a href="#3-while-循环" class="headerlink" title="3. while 循环"></a>3. while 循环</h2><p><strong>for循环之外的条件判断</strong></p>
-<ul>
-<li>for循环在已知循环的初始和结束条件时非常有用。而上述忽略了条件的for循环容易让人看不清循环的逻辑，此时用while循环更佳。</li>
-<li>while循环只有一个判断条件，条件满足，就不断循环，条件不满足时则退出循环。比如我们要计算100以内所有奇数之和，可以用while循环实现：</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> n = <span class="number">99</span>;</span><br><span class="line"><span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    x = x + n;</span><br><span class="line">    n = n - <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 2500</span></span><br></pre></td></tr></table></figure>
-
-<p>最后一种循环是do { … } while()循环，它和while循环的唯一区别在于，不是在每次循环开始的时候判断条件，而是在每次循环完成的时候判断条件：至少 执行一次!</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> n = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    n = n + <span class="number">1</span>;</span><br><span class="line">&#125; <span class="keyword">while</span> (n &lt; <span class="number">100</span>);</span><br><span class="line">n; <span class="comment">// 100</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>在编写循环代码时，务必小心编写初始条件和判断条件，尤其是边界值。</p>
-</li>
-<li><p>同时也要避免死循环的产生!</p>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>前端</tag>
-        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
@@ -905,8 +1333,60 @@
       </tags>
   </entry>
   <entry>
+    <title>JavaScript-流程控制</title>
+    <url>/2020/03/17/Webfront/JavaScript/JavaScript-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/</url>
+    <content><![CDATA[<h1 id="JavaScript-流程控制"><a href="#JavaScript-流程控制" class="headerlink" title="JavaScript-流程控制"></a>JavaScript-流程控制</h1><h2 id="1-条件判断"><a href="#1-条件判断" class="headerlink" title="1. 条件判断"></a>1. 条件判断</h2><ul>
+<li>JavaScript使用if () { … } else { … }来进行条件判断。例如，根据年龄显示不同内容，可以用if语句实现如下：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">20</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123; <span class="comment">// 如果age &gt;= 18为true，则执行if语句块</span></span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123; <span class="comment">// 否则执行else语句块</span></span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果还要更细致地判断条件，可以使用多个if…else…的组合：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123;</span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (age &gt;= <span class="number">6</span>) &#123;</span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    alert(<span class="string">'kid'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>if-else语句的执行特点是二选一，如果在多个if…else…语句中，如果某个条件成立，后面的将不再判断</strong></p>
+<h2 id="2-for-循环"><a href="#2-for-循环" class="headerlink" title="2. for 循环"></a>2. for 循环</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> i;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;=<span class="number">10000</span>; i++) &#123;</span><br><span class="line">    x = x + i;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 50005000</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>i=1 这是初始条件，将变量i置为1；</li>
+<li>i&lt;=10000 这是判断条件，满足时就继续循环，不满足就退出循环；</li>
+<li>i++ 这是每次循环后的递增条件，由于每次循环后变量i都会加1，因此它终将在若干次循环后不满足判断条件i&lt;=10000而退出循环。</li>
+</ul>
+<p><strong>for循环最常用的地方是利用索引来遍历数组：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [<span class="string">'Apple'</span>, <span class="string">'Google'</span>, <span class="string">'Microsoft'</span>];</span><br><span class="line"><span class="keyword">var</span> i, x;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;arr.length; i++) &#123;</span><br><span class="line">    x = arr[i];</span><br><span class="line">    <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>for循环的3个条件都是可以省略的，如果没有退出循环的判断条件，就必须使用break语句退出循环，否则就是死循环：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (;;) &#123; <span class="comment">// 将无限循环下去</span></span><br><span class="line">    <span class="keyword">if</span> (x &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// 通过if判断来退出循环</span></span><br><span class="line">    &#125;</span><br><span class="line">    x ++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200319144935.png" alt=""></p>
+<p><strong>for循环的一个变体是for … in循环，它可以把一个对象的所有属性依次循环出来：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">    name: <span class="string">'Jack'</span>,</span><br><span class="line">    age: <span class="number">20</span>,</span><br><span class="line">    city: <span class="string">'Beijing'</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> o) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key); <span class="comment">// 'name', 'age', 'city'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-while-循环"><a href="#3-while-循环" class="headerlink" title="3. while 循环"></a>3. while 循环</h2><p><strong>for循环之外的条件判断</strong></p>
+<ul>
+<li>for循环在已知循环的初始和结束条件时非常有用。而上述忽略了条件的for循环容易让人看不清循环的逻辑，此时用while循环更佳。</li>
+<li>while循环只有一个判断条件，条件满足，就不断循环，条件不满足时则退出循环。比如我们要计算100以内所有奇数之和，可以用while循环实现：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> n = <span class="number">99</span>;</span><br><span class="line"><span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    x = x + n;</span><br><span class="line">    n = n - <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 2500</span></span><br></pre></td></tr></table></figure>
+
+<p>最后一种循环是do { … } while()循环，它和while循环的唯一区别在于，不是在每次循环开始的时候判断条件，而是在每次循环完成的时候判断条件：至少 执行一次!</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> n = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    n = n + <span class="number">1</span>;</span><br><span class="line">&#125; <span class="keyword">while</span> (n &lt; <span class="number">100</span>);</span><br><span class="line">n; <span class="comment">// 100</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在编写循环代码时，务必小心编写初始条件和判断条件，尤其是边界值。</p>
+</li>
+<li><p>同时也要避免死循环的产生!</p>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>前端</tag>
+        <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-1160</title>
-    <url>/2020/03/17/Leetcode/Leetcode-1160/</url>
+    <url>/2020/03/17/Leetcode/Leetcode-1160-%E5%AD%97%E6%AF%8D%E7%BB%84%E6%88%90%E5%8D%95%E8%AF%8D/</url>
     <content><![CDATA[<h1 id="Leecode-1160-Find-Words-That-Can-Be-Formed-by-Characters"><a href="#Leecode-1160-Find-Words-That-Can-Be-Formed-by-Characters" class="headerlink" title="Leecode-1160 Find Words That Can Be Formed by Characters"></a>Leecode-1160 <a href="https://leetcode-cn.com/problems/find-words-that-can-be-formed-by-characters/" target="_blank" rel="noopener">Find Words That Can Be Formed by Characters</a></h1><h2 id="思路：哈希表"><a href="#思路：哈希表" class="headerlink" title="思路：哈希表"></a>思路：哈希表</h2><p><strong>题目描述：</strong></p>
 <ul>
 <li>给定一个字符串，看这个字符串中的字母能否组成数组中的字符串</li>
@@ -1232,7 +1712,7 @@
   </entry>
   <entry>
     <title>Leetcode-695</title>
-    <url>/2020/03/15/Leetcode/Leetcode-695/</url>
+    <url>/2020/03/15/Leetcode/Leetcode-695-%E6%9C%80%E5%A4%A7%E5%B2%9B%E5%B1%BF%E7%9A%84%E9%9D%A2%E7%A7%AF/</url>
     <content><![CDATA[<h1 id="Leecode-695-Max-Area-of-Island"><a href="#Leecode-695-Max-Area-of-Island" class="headerlink" title="Leecode-695 Max Area of Island"></a>Leecode-695 <a href="https://leetcode-cn.com/problems/max-area-of-island/" target="_blank" rel="noopener">Max Area of Island</a></h1><h2 id="思路：DFS"><a href="#思路：DFS" class="headerlink" title="思路：DFS"></a>思路：DFS</h2><p><strong>题目描述</strong></p>
 <ul>
 <li>有一个2D的数组，0代表海洋，1代表陆地</li>
@@ -1647,7 +2127,7 @@
   </entry>
   <entry>
     <title>Leetcode-543</title>
-    <url>/2020/03/10/Leetcode/Leetcode-543/</url>
+    <url>/2020/03/10/Leetcode/Leetcode-543-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%A4%A7%E6%B7%B1%E5%BA%A6/</url>
     <content><![CDATA[<h1 id="Leecode-543-Diameter-of-Binary-Tree"><a href="#Leecode-543-Diameter-of-Binary-Tree" class="headerlink" title="Leecode-543 Diameter of Binary Tree"></a>Leecode-543 <a href="https://leetcode-cn.com/problems/diameter-of-binary-tree/" target="_blank" rel="noopener">Diameter of Binary Tree</a></h1><h2 id="思路：递归"><a href="#思路：递归" class="headerlink" title="思路：递归"></a>思路：递归</h2><p><strong>题目描述</strong>：<strong>找出二叉树的最大深度</strong></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">    1</span><br><span class="line">   &#x2F; \</span><br><span class="line">  2   3</span><br><span class="line"> &#x2F; \     </span><br><span class="line">4   5</span><br></pre></td></tr></table></figure>
 
@@ -1746,7 +2226,7 @@
   </entry>
   <entry>
     <title>Leetcode-994</title>
-    <url>/2020/03/04/Leetcode/Leetcode-994/</url>
+    <url>/2020/03/04/Leetcode/Leetcode-994-%E8%85%90%E7%83%82%E7%9A%84%E6%A9%98%E5%AD%90/</url>
     <content><![CDATA[<h1 id="Leecode-994-Rotting-Oranges"><a href="#Leecode-994-Rotting-Oranges" class="headerlink" title="Leecode-994 Rotting Oranges"></a>Leecode-994 <a href="https://leetcode-cn.com/problems/rotting-oranges/" target="_blank" rel="noopener">Rotting Oranges</a></h1><h2 id="思路：BFS"><a href="#思路：BFS" class="headerlink" title="思路：BFS"></a>思路：BFS</h2><p><strong>题目描述</strong></p>
 <ul>
 <li>在一个二维的网格中，0代表空的网格，1代表新鲜的橘子，2代表腐烂的橘子</li>
@@ -7055,8 +7535,8 @@
   </entry>
   <entry>
     <title>Leetcode-633</title>
-    <url>/2019/07/12/Leetcode/Leetcode-633/</url>
-    <content><![CDATA[<h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 [Sum of Square Numbers]"></a>Leecode-633 [<a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a>]</h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
+    <url>/2019/07/12/Leetcode/Leetcode-633-%E4%B8%A4%E4%B8%AA%E6%95%B4%E6%95%B0%E7%9A%84%E5%B9%B3%E6%96%B9%E5%92%8C/</url>
+    <content><![CDATA[<h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 Sum of Square Numbers"></a>Leecode-633 <a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a></h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Input: 5</span><br><span class="line">Output: True</span><br><span class="line">Explanation: 1 * 1 + 2 * 2 &#x3D; 5</span><br></pre></td></tr></table></figure>
 
 <p>可以看成是在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，</p>
@@ -7817,6 +8297,61 @@
       </tags>
   </entry>
   <entry>
+    <title>Leetcode-023</title>
+    <url>/2019/05/25/Leetcode/Leetcode-023-%E5%90%88%E5%B9%B6k%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/</url>
+    <content><![CDATA[<h1 id="Leecode-023-Merge-k-Sorted-Lists"><a href="#Leecode-023-Merge-k-Sorted-Lists" class="headerlink" title="Leecode-023 Merge k Sorted Lists"></a>Leecode-023 <a href="https://leetcode-cn.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：堆</strong></p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution : 利用Comparator接口和PriorityQueue</strong></p>
+<ul>
+<li>需要的参数：<ul>
+<li>一个NodeComparator比较node.val的大小</li>
+<li>一个dummy node 初始为空节点</li>
+<li>一个current node 指向dummy</li>
+<li>一个PriorityQueue最小堆队列</li>
+</ul>
+</li>
+<li>步骤：<ul>
+<li>首先构造NodeComparator比较node.val的大小</li>
+<li>一个current node 指向dummy</li>
+<li>遍历k个list中每一个的头结点，如果头结点不为空，都把它放进PriorityQueue形成一个最小堆</li>
+<li>如果PriorityQueue不为空，取出其中最小的节点（pqueue.poll()），current指向取出的节点，current向后移动一位; 同时如果取出后这个node的next不为空，那么把next丢进PriorityQueue中</li>
+<li>返回dummy.next</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">Definition for singly-linked list.</span></span><br><span class="line"><span class="comment">pubulic class ListNode&#123;</span></span><br><span class="line"><span class="comment">	int val;</span></span><br><span class="line"><span class="comment">	ListNode Next;</span></span><br><span class="line"><span class="comment">	ListNode(int x)&#123;val = x;&#125;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">NodeComparator</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">ListNode</span>&gt;</span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(ListNode a, ListNode b)</span></span>&#123;</span><br><span class="line">            <span class="keyword">return</span> a.val - b.val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeKLists</span><span class="params">(ListNode[] lists)</span></span>&#123;</span><br><span class="line">        ListNode dummy = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span>(lists == <span class="keyword">null</span> || lists.length == <span class="number">0</span>) <span class="keyword">return</span> dummy.next;</span><br><span class="line">        <span class="keyword">int</span> size = lists.length;</span><br><span class="line">        ListNode current = dummy;</span><br><span class="line">        NodeComparator cmp = <span class="keyword">new</span> NodeComparator();</span><br><span class="line">        PriorityQueue&lt;ListNode&gt; pqueue = <span class="keyword">new</span> PriorityQueue(cmp);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; size;i++)&#123; </span><br><span class="line">            <span class="comment">//遍历k个list中每一个的头结点，都把它放进PriorityQueue形成一个最小堆</span></span><br><span class="line">            <span class="keyword">if</span>(lists[i] != <span class="keyword">null</span>) pqueue.add(lists[i]);</span><br><span class="line">    &#125;</span><br><span class="line">        <span class="keyword">while</span>(pqueue.size()!=<span class="number">0</span>)&#123;</span><br><span class="line">            ListNode node = pqueue.poll(); <span class="comment">//取出其中最小的节点</span></span><br><span class="line">            current.next = node; <span class="comment">//current指向取出的节点</span></span><br><span class="line">            current = current.next; <span class="comment">//current向后移动一位</span></span><br><span class="line">            <span class="comment">//同时如果取出后这个node的next不为空，那么把next丢进PriorityQueue中</span></span><br><span class="line">            <span class="keyword">if</span>(node.next!=<span class="keyword">null</span>) pqueue.add(node.next);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h4><p><strong>Comparator</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>1.比较功能，对一些对象的集合施加了一个整体排序 。 可以将比较器传递给排序方法（如Collections.sort或Arrays.sort ），以便对排序顺序进行精确控制。 比较器还可以用来控制某些数据结构（如顺序sorted sets或sorted maps ），或对于不具有对象的集合提供的排序natural ordering 。<br>2.通过比较c上的一组元素S的确定的顺序对被认为是与equals一致当且仅当c.compare(e1, e2)==0具有用于S每e1和e2相同布尔值e1.equals(e2)。<br>3.一般是在比较器例如: Collections.sort(List<T> list, Comparator&lt;? super T&gt; c) ，Arrays.sort(T[] a, Comparator&lt;? super T&gt; c)根据指定的比较器引起的顺序对指定的列表进行排序。 在Comparator比较器中重写int compare(T o1, T o2) 如果遇到数字的比较，直接在方法内返回两个对象的属性的差值，例如o1.getValue()-o2.getValue() 是升序，o2.getValue()-o1.getValue() 是降序；如果遇到字符形式的比较利用compareTo(T o) 方法进行比较，该方法比较从头开始每一个字符，当前者大于后者返回1，当前者小于后者返回-1。</p>
+<p><strong>代码举例</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        List&lt;Node&gt; list = <span class="keyword">new</span> ArrayList&lt;Node&gt;();</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"yguo"</span>,<span class="number">25</span>));</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"msdfj"</span>,<span class="number">22</span>));</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"skf"</span>,<span class="number">20</span>));</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"sfe"</span>,<span class="number">23</span>));</span><br><span class="line">        System.out.println(<span class="string">"===Age排序==="</span>);</span><br><span class="line">        Collections.sort(list, <span class="keyword">new</span> Comparator&lt;Node&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Node o1, Node o2)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> o1.getAge()-o2.getAge();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Iterator&lt;Node&gt; it = list.iterator(); it.hasNext();)&#123;</span><br><span class="line">            System.out.println(it.next());</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"===Name排序===="</span>);</span><br><span class="line">        Collections.sort(list, <span class="keyword">new</span> Comparator&lt;Node&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Node o1, Node o2)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> o1.getName().compareTo(o2.getName());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">for</span>(Iterator&lt;Node&gt; it = list.iterator(); it.hasNext();)&#123;</span><br><span class="line">            System.out.println(it.next());</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"===Age排序==="</span>);</span><br><span class="line">        Collections.sort(list);</span><br><span class="line">        <span class="keyword">for</span>(Iterator&lt;Node&gt; it = list.iterator(); it.hasNext();)&#123;</span><br><span class="line">            System.out.println(it.next());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Node</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Node</span><span class="params">(String name, <span class="keyword">int</span> age)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Node other)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(age &gt; other.getAge())</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(age &lt; other.getAge())</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Name "</span>+name+<span class="string">" age "</span>+age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输出：</span></span><br><span class="line">===Age排序===</span><br><span class="line">Name skf age <span class="number">20</span></span><br><span class="line">Name msdfj age <span class="number">22</span></span><br><span class="line">Name sfe age <span class="number">23</span></span><br><span class="line">Name yguo age <span class="number">25</span></span><br><span class="line">===Name排序====</span><br><span class="line">Name msdfj age <span class="number">22</span></span><br><span class="line">Name sfe age <span class="number">23</span></span><br><span class="line">Name skf age <span class="number">20</span></span><br><span class="line">Name yguo age <span class="number">25</span></span><br><span class="line">===Age排序===</span><br><span class="line">Name yguo age <span class="number">25</span></span><br><span class="line">Name sfe age <span class="number">23</span></span><br><span class="line">Name msdfj age <span class="number">22</span></span><br><span class="line">Name skf age <span class="number">20</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :heapq堆</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"># class ListNode:</span></span><br><span class="line"><span class="comment">#     def __init__(self, x):</span></span><br><span class="line"><span class="comment">#         self.val = x</span></span><br><span class="line"><span class="comment">#         self.next = None</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mergeKLists</span><span class="params">(self, lists: List[ListNode])</span> -&gt; ListNode:</span></span><br><span class="line">        <span class="keyword">import</span> heapq</span><br><span class="line">        dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        p = dummy</span><br><span class="line">        head = []</span><br><span class="line">        <span class="comment">#遍历k个list中每一个的头结点，如果头结点不为空，都把它放进PriorityQueue形成一个最小堆</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(len(lists)):</span><br><span class="line">            <span class="keyword">if</span> lists[i]:</span><br><span class="line">                heapq.heappush(head,(lists[i].val,i))</span><br><span class="line">                lists[i] = lists[i].next</span><br><span class="line">        <span class="comment">#如果PriorityQueue不为空，取出其中最小的节点</span></span><br><span class="line">        <span class="keyword">while</span> head:</span><br><span class="line">            val,idx = heapq.heappop(head)</span><br><span class="line">            p.next = ListNode(val)</span><br><span class="line">            p = p.next</span><br><span class="line">            <span class="keyword">if</span> lists[idx]:</span><br><span class="line">                heapq.heappush(head,(lists[idx].val,idx))</span><br><span class="line">                lists[idx] = lists[idx].next</span><br><span class="line">        <span class="keyword">return</span> dummy.next</span><br></pre></td></tr></table></figure>
+
+<h3 id="补充知识-1"><a href="#补充知识-1" class="headerlink" title="补充知识"></a>补充知识</h3><h4 id="python高级（堆heapq模块）"><a href="#python高级（堆heapq模块）" class="headerlink" title="python高级（堆heapq模块）"></a>python高级（堆heapq模块）</h4><ol>
+<li>一种著名的数据结构是堆（heap），它是一种优先队列。</li>
+<li>优先队列让你能够以任意顺序添加对象，并随时（可能是在两次添加对象之间）找出（并删除）最小的元素。相比于列表方法min，这样做的效率要高得多。</li>
+<li>实际上，Python没有独立的堆类型，而只有一个包含一些堆操作函数的模块。这个模块名为heapq（其中的q表示队列），它包含6个函数，其中前4个与堆操作直接相关。必须使用列表来表示堆对象本身。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">                              模块heapq中一些重要的函数</span><br><span class="line">                                                       函 数                                                           描 述</span><br><span class="line">                                                      heappush(heap, x)                                        将x压入堆中</span><br><span class="line">                                                        heappop(heap)                                      从堆中弹出最小的元素</span><br><span class="line">                                                        heapify(heap)                                         让列表具备堆特征</span><br><span class="line">                                                  heapreplace(heap, x)                                     弹出最小的元素，并将x压入堆中</span><br><span class="line">                                                      nlargest(n, iter)                                     返回iter中n个最大的元素</span><br><span class="line">                                                        nsmallest(n, iter)                                   返回iter中n个最小的元素</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>堆</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-021</title>
     <url>/2019/05/25/Leetcode/Leetcode-021/</url>
     <content><![CDATA[<h1 id="Leecode-021-Merge-Two-Sorted-Lists"><a href="#Leecode-021-Merge-Two-Sorted-Lists" class="headerlink" title="Leecode-021 [Merge Two Sorted Lists]"></a>Leecode-021 [Merge Two Sorted Lists]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：遍历，判断链表值的大小</strong></p>
@@ -7867,60 +8402,6 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mergeTwoLists</span><span class="params">(self, l1: ListNode, l2: ListNode)</span> -&gt; ListNode:</span></span><br><span class="line">        curr = dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">while</span> l1 <span class="keyword">and</span> l2:</span><br><span class="line">            <span class="keyword">if</span> l1.val &lt; l2.val:</span><br><span class="line">                curr.next=l1</span><br><span class="line">                l1=l1.next</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                curr.next=l2</span><br><span class="line">                l2=l2.next</span><br><span class="line">            curr=curr.next</span><br><span class="line">        curr.next =l1 <span class="keyword">or</span> l2</span><br><span class="line">        <span class="keyword">return</span> dummy.next</span><br></pre></td></tr></table></figure>
 
 
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-023</title>
-    <url>/2019/05/25/Leetcode/Leetcode-023/</url>
-    <content><![CDATA[<h1 id="Leecode-023-Merge-k-Sorted-Lists"><a href="#Leecode-023-Merge-k-Sorted-Lists" class="headerlink" title="Leecode-023 Merge k Sorted Lists"></a>Leecode-023 <a href="https://leetcode-cn.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：堆</strong></p>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution : 利用Comparator接口和PriorityQueue</strong></p>
-<ul>
-<li>需要的参数：<ul>
-<li>一个NodeComparator比较node.val的大小</li>
-<li>一个dummy node 初始为空节点</li>
-<li>一个current node 指向dummy</li>
-<li>一个PriorityQueue最小堆队列</li>
-</ul>
-</li>
-<li>步骤：<ul>
-<li>首先构造NodeComparator比较node.val的大小</li>
-<li>一个current node 指向dummy</li>
-<li>遍历k个list中每一个的头结点，如果头结点不为空，都把它放进PriorityQueue形成一个最小堆</li>
-<li>如果PriorityQueue不为空，取出其中最小的节点（pqueue.poll()），current指向取出的节点，current向后移动一位; 同时如果取出后这个node的next不为空，那么把next丢进PriorityQueue中</li>
-<li>返回dummy.next</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">Definition for singly-linked list.</span></span><br><span class="line"><span class="comment">pubulic class ListNode&#123;</span></span><br><span class="line"><span class="comment">	int val;</span></span><br><span class="line"><span class="comment">	ListNode Next;</span></span><br><span class="line"><span class="comment">	ListNode(int x)&#123;val = x;&#125;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">NodeComparator</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">ListNode</span>&gt;</span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(ListNode a, ListNode b)</span></span>&#123;</span><br><span class="line">            <span class="keyword">return</span> a.val - b.val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeKLists</span><span class="params">(ListNode[] lists)</span></span>&#123;</span><br><span class="line">        ListNode dummy = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span>(lists == <span class="keyword">null</span> || lists.length == <span class="number">0</span>) <span class="keyword">return</span> dummy.next;</span><br><span class="line">        <span class="keyword">int</span> size = lists.length;</span><br><span class="line">        ListNode current = dummy;</span><br><span class="line">        NodeComparator cmp = <span class="keyword">new</span> NodeComparator();</span><br><span class="line">        PriorityQueue&lt;ListNode&gt; pqueue = <span class="keyword">new</span> PriorityQueue(cmp);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; size;i++)&#123; </span><br><span class="line">            <span class="comment">//遍历k个list中每一个的头结点，都把它放进PriorityQueue形成一个最小堆</span></span><br><span class="line">            <span class="keyword">if</span>(lists[i] != <span class="keyword">null</span>) pqueue.add(lists[i]);</span><br><span class="line">    &#125;</span><br><span class="line">        <span class="keyword">while</span>(pqueue.size()!=<span class="number">0</span>)&#123;</span><br><span class="line">            ListNode node = pqueue.poll(); <span class="comment">//取出其中最小的节点</span></span><br><span class="line">            current.next = node; <span class="comment">//current指向取出的节点</span></span><br><span class="line">            current = current.next; <span class="comment">//current向后移动一位</span></span><br><span class="line">            <span class="comment">//同时如果取出后这个node的next不为空，那么把next丢进PriorityQueue中</span></span><br><span class="line">            <span class="keyword">if</span>(node.next!=<span class="keyword">null</span>) pqueue.add(node.next);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h4><p><strong>Comparator</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>1.比较功能，对一些对象的集合施加了一个整体排序 。 可以将比较器传递给排序方法（如Collections.sort或Arrays.sort ），以便对排序顺序进行精确控制。 比较器还可以用来控制某些数据结构（如顺序sorted sets或sorted maps ），或对于不具有对象的集合提供的排序natural ordering 。<br>2.通过比较c上的一组元素S的确定的顺序对被认为是与equals一致当且仅当c.compare(e1, e2)==0具有用于S每e1和e2相同布尔值e1.equals(e2)。<br>3.一般是在比较器例如: Collections.sort(List<T> list, Comparator&lt;? super T&gt; c) ，Arrays.sort(T[] a, Comparator&lt;? super T&gt; c)根据指定的比较器引起的顺序对指定的列表进行排序。 在Comparator比较器中重写int compare(T o1, T o2) 如果遇到数字的比较，直接在方法内返回两个对象的属性的差值，例如o1.getValue()-o2.getValue() 是升序，o2.getValue()-o1.getValue() 是降序；如果遇到字符形式的比较利用compareTo(T o) 方法进行比较，该方法比较从头开始每一个字符，当前者大于后者返回1，当前者小于后者返回-1。</p>
-<p><strong>代码举例</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        List&lt;Node&gt; list = <span class="keyword">new</span> ArrayList&lt;Node&gt;();</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"yguo"</span>,<span class="number">25</span>));</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"msdfj"</span>,<span class="number">22</span>));</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"skf"</span>,<span class="number">20</span>));</span><br><span class="line">        list.add(<span class="keyword">new</span> Node(<span class="string">"sfe"</span>,<span class="number">23</span>));</span><br><span class="line">        System.out.println(<span class="string">"===Age排序==="</span>);</span><br><span class="line">        Collections.sort(list, <span class="keyword">new</span> Comparator&lt;Node&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Node o1, Node o2)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> o1.getAge()-o2.getAge();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Iterator&lt;Node&gt; it = list.iterator(); it.hasNext();)&#123;</span><br><span class="line">            System.out.println(it.next());</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"===Name排序===="</span>);</span><br><span class="line">        Collections.sort(list, <span class="keyword">new</span> Comparator&lt;Node&gt;() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Node o1, Node o2)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> o1.getName().compareTo(o2.getName());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">for</span>(Iterator&lt;Node&gt; it = list.iterator(); it.hasNext();)&#123;</span><br><span class="line">            System.out.println(it.next());</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"===Age排序==="</span>);</span><br><span class="line">        Collections.sort(list);</span><br><span class="line">        <span class="keyword">for</span>(Iterator&lt;Node&gt; it = list.iterator(); it.hasNext();)&#123;</span><br><span class="line">            System.out.println(it.next());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Node</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Node</span><span class="params">(String name, <span class="keyword">int</span> age)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Node other)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(age &gt; other.getAge())</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(age &lt; other.getAge())</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Name "</span>+name+<span class="string">" age "</span>+age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输出：</span></span><br><span class="line">===Age排序===</span><br><span class="line">Name skf age <span class="number">20</span></span><br><span class="line">Name msdfj age <span class="number">22</span></span><br><span class="line">Name sfe age <span class="number">23</span></span><br><span class="line">Name yguo age <span class="number">25</span></span><br><span class="line">===Name排序====</span><br><span class="line">Name msdfj age <span class="number">22</span></span><br><span class="line">Name sfe age <span class="number">23</span></span><br><span class="line">Name skf age <span class="number">20</span></span><br><span class="line">Name yguo age <span class="number">25</span></span><br><span class="line">===Age排序===</span><br><span class="line">Name yguo age <span class="number">25</span></span><br><span class="line">Name sfe age <span class="number">23</span></span><br><span class="line">Name msdfj age <span class="number">22</span></span><br><span class="line">Name skf age <span class="number">20</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :heapq堆</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"># class ListNode:</span></span><br><span class="line"><span class="comment">#     def __init__(self, x):</span></span><br><span class="line"><span class="comment">#         self.val = x</span></span><br><span class="line"><span class="comment">#         self.next = None</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mergeKLists</span><span class="params">(self, lists: List[ListNode])</span> -&gt; ListNode:</span></span><br><span class="line">        <span class="keyword">import</span> heapq</span><br><span class="line">        dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        p = dummy</span><br><span class="line">        head = []</span><br><span class="line">        <span class="comment">#遍历k个list中每一个的头结点，如果头结点不为空，都把它放进PriorityQueue形成一个最小堆</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(len(lists)):</span><br><span class="line">            <span class="keyword">if</span> lists[i]:</span><br><span class="line">                heapq.heappush(head,(lists[i].val,i))</span><br><span class="line">                lists[i] = lists[i].next</span><br><span class="line">        <span class="comment">#如果PriorityQueue不为空，取出其中最小的节点</span></span><br><span class="line">        <span class="keyword">while</span> head:</span><br><span class="line">            val,idx = heapq.heappop(head)</span><br><span class="line">            p.next = ListNode(val)</span><br><span class="line">            p = p.next</span><br><span class="line">            <span class="keyword">if</span> lists[idx]:</span><br><span class="line">                heapq.heappush(head,(lists[idx].val,idx))</span><br><span class="line">                lists[idx] = lists[idx].next</span><br><span class="line">        <span class="keyword">return</span> dummy.next</span><br></pre></td></tr></table></figure>
-
-<h3 id="补充知识-1"><a href="#补充知识-1" class="headerlink" title="补充知识"></a>补充知识</h3><h4 id="python高级（堆heapq模块）"><a href="#python高级（堆heapq模块）" class="headerlink" title="python高级（堆heapq模块）"></a>python高级（堆heapq模块）</h4><ol>
-<li>一种著名的数据结构是堆（heap），它是一种优先队列。</li>
-<li>优先队列让你能够以任意顺序添加对象，并随时（可能是在两次添加对象之间）找出（并删除）最小的元素。相比于列表方法min，这样做的效率要高得多。</li>
-<li>实际上，Python没有独立的堆类型，而只有一个包含一些堆操作函数的模块。这个模块名为heapq（其中的q表示队列），它包含6个函数，其中前4个与堆操作直接相关。必须使用列表来表示堆对象本身。</li>
-</ol>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">                              模块heapq中一些重要的函数</span><br><span class="line">                                                       函 数                                                           描 述</span><br><span class="line">                                                      heappush(heap, x)                                        将x压入堆中</span><br><span class="line">                                                        heappop(heap)                                      从堆中弹出最小的元素</span><br><span class="line">                                                        heapify(heap)                                         让列表具备堆特征</span><br><span class="line">                                                  heapreplace(heap, x)                                     弹出最小的元素，并将x压入堆中</span><br><span class="line">                                                      nlargest(n, iter)                                     返回iter中n个最大的元素</span><br><span class="line">                                                        nsmallest(n, iter)                                   返回iter中n个最小的元素</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>
@@ -8048,8 +8529,8 @@
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>

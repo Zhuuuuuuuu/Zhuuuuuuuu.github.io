@@ -75,6 +75,409 @@
     
     
     
+    <article id="post-Mybatis/MyBatis-缓存机制" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/17/Mybatis/MyBatis-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/"
+    >MyBatis-缓存机制</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/17/Mybatis/MyBatis-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2019-07-17T11:12:22.000Z" itemprop="datePublished">2019-07-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-缓存机制"><a href="#MyBatis-缓存机制" class="headerlink" title="MyBatis 缓存机制"></a>MyBatis 缓存机制</h1><h2 id="缓存简介"><a href="#缓存简介" class="headerlink" title="缓存简介"></a>缓存简介</h2><ol>
+<li>什么是缓存？</li>
+</ol>
+<ul>
+<li>存在内存中的临时数据。</li>
+<li>将用户经常查询的数据放在缓存（内存）中，用户去查询数据就不用从磁盘上(关系型数据库数据文件)查询，从缓存中查询，从而提高查询效率，解决了高并发系统的性能问题。</li>
+</ul>
+<ol start="2">
+<li>为什么使用缓存？</li>
+</ol>
+<ul>
+<li>减少和数据库的交互次数，减少系统开销，提高系统效率。</li>
+</ul>
+<ol start="3">
+<li>什么样的数据能使用缓存？</li>
+</ol>
+<ul>
+<li>经常查询并且不经常改变的数据。</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/17/Mybatis/MyBatis-%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-动态SQL" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/17/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/"
+    >MyBatis-动态SQL</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/17/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/" class="article-date">
+  <time datetime="2019-07-17T03:12:22.000Z" itemprop="datePublished">2019-07-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-动态SQL"><a href="#MyBatis-动态SQL" class="headerlink" title="MyBatis 动态SQL"></a>MyBatis 动态SQL</h1><p>动态SQL 官方文档：<a href="https://mybatis.org/mybatis-3/zh/dynamic-sql.html" target="_blank" rel="noopener">文档链接</a></p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>什么是动态SQL:就是根据不同的查询条件，自动生成不同的Sql语句</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">官网描述：</span><br><span class="line">    MyBatis 的强大特性之一便是它的动态 SQL。如果你有使用 JDBC 或其它类似框架的经验，你就能体会到根据不同条件拼接 SQL 语句的痛苦。例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL 这一特性可以彻底摆脱这种痛苦。</span><br><span class="line">    虽然在以前使用动态 SQL 并非一件易事，但正是 MyBatis 提供了可以被用在任意 SQL 映射语句中的强大的动态 SQL 语言得以改进这种情形。</span><br><span class="line">    动态 SQL 元素和 JSTL 或基于类似 XML 的文本处理器相似。在 MyBatis 之前的版本中，有很多元素需要花时间了解。MyBatis 3 大大精简了元素种类，现在只需学习原来一半的元素便可。MyBatis 采用功能强大的基于 OGNL 的表达式来淘汰其它大部分元素。</span><br><span class="line">    </span><br><span class="line">    -------------------------------</span><br><span class="line">    - if</span><br><span class="line">    - choose (when, otherwise)</span><br><span class="line">    - trim (where, set)</span><br><span class="line">    - foreach</span><br><span class="line">    -------------------------------</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2019/07/17/Mybatis/MyBatis-%E5%8A%A8%E6%80%81SQL/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-多对一,一对多处理" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/16/Mybatis/MyBatis-%E5%A4%9A%E5%AF%B9%E4%B8%80,%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%A4%84%E7%90%86/"
+    >MyBatis-多对一,一对多处理</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/16/Mybatis/MyBatis-%E5%A4%9A%E5%AF%B9%E4%B8%80,%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%A4%84%E7%90%86/" class="article-date">
+  <time datetime="2019-07-16T03:12:22.000Z" itemprop="datePublished">2019-07-16</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-多对一-一对多处理"><a href="#MyBatis-多对一-一对多处理" class="headerlink" title="MyBatis 多对一,一对多处理"></a>MyBatis 多对一,一对多处理</h1><h2 id="多对一的处理"><a href="#多对一的处理" class="headerlink" title="多对一的处理"></a>多对一的处理</h2><p>多对一的理解：</p>
+<ul>
+<li>多个学生对应一个老师</li>
+<li>如果对于学生这边，就是一个多对一的理解</li>
+<li>也就是从学生这边关联了一个老师</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/16/Mybatis/MyBatis-%E5%A4%9A%E5%AF%B9%E4%B8%80,%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%A4%84%E7%90%86/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-日志和分页的实现" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/15/Mybatis/MyBatis-%E6%97%A5%E5%BF%97%E5%92%8C%E5%88%86%E9%A1%B5%E7%9A%84%E5%AE%9E%E7%8E%B0/"
+    >MyBatis-日志和分页的实现</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/15/Mybatis/MyBatis-%E6%97%A5%E5%BF%97%E5%92%8C%E5%88%86%E9%A1%B5%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2019-07-15T07:04:39.000Z" itemprop="datePublished">2019-07-15</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-日志和分页的实现"><a href="#MyBatis-日志和分页的实现" class="headerlink" title="MyBatis 日志和分页的实现"></a>MyBatis 日志和分页的实现</h1><h2 id="日志的实现"><a href="#日志的实现" class="headerlink" title="日志的实现"></a>日志的实现</h2><h3 id="为什么需要日志？"><a href="#为什么需要日志？" class="headerlink" title="为什么需要日志？"></a>为什么需要日志？</h3><ul>
+<li>以往的开发过程，我们会经常使用到debug模式来调节，跟踪我们的代码执行过程。</li>
+<li>但是现在使用Mybatis是基于接口，配置文件的源代码执行过程。因此，我们必须选择日志工具来作为我们开发，调节程序的工具。</li>
+</ul>
+<p><strong>Mybatis内置的日志工厂提供日志功能，具体的日志实现有以下几种工具：</strong></p>
+<ul>
+<li>SLF4J</li>
+<li>Apache Commons Logging</li>
+<li>Log4j 2</li>
+<li>Log4j</li>
+<li>JDK logging</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/15/Mybatis/MyBatis-%E6%97%A5%E5%BF%97%E5%92%8C%E5%88%86%E9%A1%B5%E7%9A%84%E5%AE%9E%E7%8E%B0/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Mybatis/MyBatis-使用注解开发" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/14/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/"
+    >MyBatis-使用注解开发</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/07/14/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" class="article-date">
+  <time datetime="2019-07-14T03:12:22.000Z" itemprop="datePublished">2019-07-14</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="MyBatis-使用注解开发"><a href="#MyBatis-使用注解开发" class="headerlink" title="MyBatis 使用注解开发"></a>MyBatis 使用注解开发</h1><h2 id="面向接口编程"><a href="#面向接口编程" class="headerlink" title="面向接口编程"></a>面向接口编程</h2><ul>
+<li><p>真正的开发中，很多时候我们会选择面向接口编程</p>
+</li>
+<li><p><strong>根本原因 : 解耦 , 可拓展 , 提高复用 , 分层开发中 , 上层不用管具体的实现 , 大家都遵守共同的标准 , 使得开发变得容易 , 规范性更好</strong></p>
+</li>
+<li><p>在一个面向对象的系统中，系统的各种功能是由许许多多的不同对象协作完成的。在这种情况下，各个对象内部是如何实现自己的,对系统设计人员来讲就不那么重要了</p>
+</li>
+<li><p>而各个对象之间的协作关系则成为系统设计的关键。小到不同类之间的通信，大到各模块之间的交互，在系统设计之初都是要着重考虑的，这也是系统设计的主要工作内容。面向接口编程就是指按照这种思想来编程。</p>
+</li>
+</ul>
+<h3 id="关于接口的理解"><a href="#关于接口的理解" class="headerlink" title="关于接口的理解"></a>关于接口的理解</h3><ul>
+<li><p>接口从更深层次的理解，应该是定义（规范，约束）与实现（名实分离的原则）的分离</p>
+</li>
+<li><p>接口的本身反映了系统设计人员对系统的抽象理解</p>
+</li>
+<li><p>接口应该有两类：</p>
+<ul>
+<li>第一类是对一个个体的抽象，它可对应为一个抽象体（abstract class）;</li>
+<li>第二类是对一个个体某一方面的抽象，即形成一个抽象面（interface）;</li>
+</ul>
+<p><strong>一个个体有可能有多个抽象面，抽象体和抽象面是有区别的</strong></p>
+</li>
+</ul>
+<h3 id="三个面向的区别"><a href="#三个面向的区别" class="headerlink" title="三个面向的区别"></a>三个面向的区别</h3><ul>
+<li>面向对象：考虑问题时，以对象为单位，考虑它的属性及方法</li>
+<li>面向过程：考虑问题时，以一个具体的流程（事务过程）为单位，考虑它的实现</li>
+<li>接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题.更多的体现就是对系统整体的架构</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/07/14/Mybatis/MyBatis-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Mybatis/MyBatis-生命周期和作用域" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -327,7 +730,7 @@
 
 </article>
     
-    <article id="post-Leetcode/Leetcode-633" class="article article-type-post" itemscope
+    <article id="post-Leetcode/Leetcode-633-两个整数的平方和" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -335,7 +738,7 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2019/07/12/Leetcode/Leetcode-633/"
+  <a class="article-title" href="/2019/07/12/Leetcode/Leetcode-633-%E4%B8%A4%E4%B8%AA%E6%95%B4%E6%95%B0%E7%9A%84%E5%B9%B3%E6%96%B9%E5%92%8C/"
     >Leetcode-633</a
   >
 </h2>
@@ -346,7 +749,7 @@
 
     
     <div class="article-meta">
-      <a href="/2019/07/12/Leetcode/Leetcode-633/" class="article-date">
+      <a href="/2019/07/12/Leetcode/Leetcode-633-%E4%B8%A4%E4%B8%AA%E6%95%B4%E6%95%B0%E7%9A%84%E5%B9%B3%E6%96%B9%E5%92%8C/" class="article-date">
   <time datetime="2019-07-12T07:52:53.000Z" itemprop="datePublished">2019-07-12</time>
 </a>
       
@@ -365,7 +768,7 @@
       
 
       
-      <h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 [Sum of Square Numbers]"></a>Leecode-633 [<a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a>]</h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
+      <h1 id="Leecode-633-Sum-of-Square-Numbers"><a href="#Leecode-633-Sum-of-Square-Numbers" class="headerlink" title="Leecode-633 Sum of Square Numbers"></a>Leecode-633 <a href="https://leetcode-cn.com/problems/sum-of-square-numbers/" target="_blank" rel="noopener">Sum of Square Numbers</a></h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><p><strong>题目描述：判断一个非负整数是否为两个整数的平方和。</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: 5</span><br><span class="line">Output: True</span><br><span class="line">Explanation: 1 * 1 + 2 * 2 &#x3D; 5</span><br></pre></td></tr></table></figure>
 
 <p>可以看成是在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，</p>
@@ -387,7 +790,7 @@
 </li>
 </ul>
       
-      <a class="article-more-link" href="/2019/07/12/Leetcode/Leetcode-633/">阅读更多...</a>
+      <a class="article-more-link" href="/2019/07/12/Leetcode/Leetcode-633-%E4%B8%A4%E4%B8%AA%E6%95%B4%E6%95%B0%E7%9A%84%E5%B9%B3%E6%96%B9%E5%92%8C/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -492,417 +895,13 @@
 
 </article>
     
-    <article id="post-Mybatis/MyBatis-ResultMap" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/10/Mybatis/MyBatis-ResultMap/"
-    >MyBatis-ResultMap</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/07/10/Mybatis/MyBatis-ResultMap/" class="article-date">
-  <time datetime="2019-07-10T03:26:48.000Z" itemprop="datePublished">2019-07-10</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MyBatis-ResultMap"><a href="#MyBatis-ResultMap" class="headerlink" title="MyBatis ResultMap"></a>MyBatis ResultMap</h1><h2 id="ResultMap"><a href="#ResultMap" class="headerlink" title="ResultMap"></a>ResultMap</h2><p>实际：<strong>要解决的问题：属性名和字段名不一致</strong></p>
-<p>环境：新建一个项目，将之前的项目拷贝过来</p>
-<h3 id="查询为null问题"><a href="#查询为null问题" class="headerlink" title="查询为null问题"></a>查询为null问题</h3><ol>
-<li><p>查看之前数据库的字段名</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200213112852.png" alt=""></p>
-</li>
-</ol>
-      
-      <a class="article-more-link" href="/2019/07/10/Mybatis/MyBatis-ResultMap/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mybatis/MyBatis-CRUD操作" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/09/Mybatis/MyBatis-CRUD%E6%93%8D%E4%BD%9C/"
-    >Mybatis CRUD操作</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/07/09/Mybatis/MyBatis-CRUD%E6%93%8D%E4%BD%9C/" class="article-date">
-  <time datetime="2019-07-09T03:00:35.000Z" itemprop="datePublished">2019-07-09</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MyBatis-CRUD操作"><a href="#MyBatis-CRUD操作" class="headerlink" title="MyBatis CRUD操作"></a>MyBatis CRUD操作</h1><h2 id="关于namespace"><a href="#关于namespace" class="headerlink" title="关于namespace"></a>关于namespace</h2><p><strong>配置文件中namespace中的名称为对应Mapper接口或者Dao接口的完整包名,必须一致</strong></p>
-<h2 id="查询-select"><a href="#查询-select" class="headerlink" title="查询 select"></a>查询 select</h2><p>id</p>
-<ul>
-<li>命名空间中唯一的标识符</li>
-<li>接口中的<strong>方法名</strong>与映射文件中的SQL语句ID 一一对应</li>
-</ul>
-<p>resultType</p>
-<ul>
-<li>SQL语句返回值类型。【完整的类名或者别名】</li>
-</ul>
-<p>parameterType</p>
-<ul>
-<li>传入SQL语句的参数类型 。【Map】</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/07/09/Mybatis/MyBatis-CRUD%E6%93%8D%E4%BD%9C/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mybatis/MyBatis-IDEA" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/08/Mybatis/MyBatis-IDEA/"
-    >MyBatis-介绍</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/07/08/Mybatis/MyBatis-IDEA/" class="article-date">
-  <time datetime="2019-07-08T09:14:27.000Z" itemprop="datePublished">2019-07-08</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MyBatis-IDEA"><a href="#MyBatis-IDEA" class="headerlink" title="MyBatis IDEA"></a>MyBatis IDEA</h1><h2 id="Mybatis简介"><a href="#Mybatis简介" class="headerlink" title="Mybatis简介"></a>Mybatis简介</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200208170945.png" alt=""></p>
-<p>环境说明：</p>
-<ul>
-<li><p>jdk 8 +</p>
-</li>
-<li><p>MySQL 5.7.19</p>
-</li>
-<li><p>maven-3.6.0</p>
-</li>
-<li><p>IDEA</p>
-</li>
-</ul>
-<p> 学习前需要掌握：</p>
-<ul>
-<li>JDBC</li>
-<li>MySQL</li>
-<li>Java 基础</li>
-<li>Maven</li>
-<li>Junit</li>
-</ul>
-<p><a href="https://mybatis.org/mybatis-3/" target="_blank" rel="noopener">MyBatis官方文档</a></p>
-<p><a href="https://github.com/mybatis/mybatis-3" target="_blank" rel="noopener">Github官网</a></p>
-      
-      <a class="article-more-link" href="/2019/07/08/Mybatis/MyBatis-IDEA/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-033" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/15/Leetcode/Leetcode-033/"
-    >Leetcode-033</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/06/15/Leetcode/Leetcode-033/" class="article-date">
-  <time datetime="2019-06-15T07:52:53.000Z" itemprop="datePublished">2019-06-15</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-033-Search-in-Rotated-Sorted-Array"><a href="#Leecode-033-Search-in-Rotated-Sorted-Array" class="headerlink" title="Leecode-033 [Search in Rotated Sorted Array]"></a>Leecode-033 [<strong>Search in Rotated Sorted Array</strong>]</h1><h2 id="思路：二分法查找"><a href="#思路：二分法查找" class="headerlink" title="思路：二分法查找"></a>思路：二分法查找</h2><p><strong>Solution：binary search</strong></p>
-<ul>
-<li><p>需要的参数</p>
-<ul>
-<li>start 初始化为0</li>
-<li>end  初始化为length-1</li>
-<li>mid  初始化为start + (end-start)/2</li>
-</ul>
-</li>
-<li><p>分以下三种情况进行查找</p>
-<ul>
-<li>第一种情况：target = mid</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200217214041.png" alt=""></p>
-      
-      <a class="article-more-link" href="/2019/06/15/Leetcode/Leetcode-033/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-032" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/12/Leetcode/Leetcode-032/"
-    >Leetcode-032</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/06/12/Leetcode/Leetcode-032/" class="article-date">
-  <time datetime="2019-06-12T07:52:53.000Z" itemprop="datePublished">2019-06-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-032-Longest-Valid-Parentheses"><a href="#Leecode-032-Longest-Valid-Parentheses" class="headerlink" title="Leecode-032 [Longest Valid Parentheses]"></a>Leecode-032 [Longest Valid Parentheses]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：stack</strong></p>
-<ul>
-<li>leftmost:  指定最左侧的边界–&gt;初始值为-1</li>
-<li>stack：初始为空</li>
-<li>idx:     每个括号的索引</li>
-<li>原则：遇到正括号就push,反括号就pop</li>
-<li>max:   计算最大长度（反括号的index减去最上层的正括号的index）<ul>
-<li>[如果遇到反括号，pop之后stack为空，那么长度 = 当前idx - leftmost]</li>
-<li>[如果遇到反括号，pop之前stack为空，那么leftmost = 当前 idx, 长度就是当前idx-leftmost]</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/06/12/Leetcode/Leetcode-032/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/6/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/8/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/6/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/8/">下一页</a>
   </nav>
   
 </section>
