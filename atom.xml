@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2020-03-26T12:20:33.902Z</updated>
+  <updated>2020-03-28T08:42:47.693Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Python-02-函数</title>
+    <link href="http://zhuuu.work/2020/03/28/Python/Python-02-%E5%87%BD%E6%95%B0/"/>
+    <id>http://zhuuu.work/2020/03/28/Python/Python-02-%E5%87%BD%E6%95%B0/</id>
+    <published>2020-03-28T09:02:24.000Z</published>
+    <updated>2020-03-28T08:42:47.693Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Python-02-函数"><a href="#Python-02-函数" class="headerlink" title="Python-02-函数"></a>Python-02-函数</h1><h2 id="1-数学中的函数"><a href="#1-数学中的函数" class="headerlink" title="1. 数学中的函数"></a>1. 数学中的函数</h2><p>我们知道圆的面积计算公式为：</p><p>S = πr2</p><p>当我们知道半径<code>r</code>的值时，就可以根据公式计算出面积。假设我们需要计算3个不同大小的圆的面积：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">r1 &#x3D; 12.34</span><br><span class="line">r2 &#x3D; 9.08</span><br><span class="line">r3 &#x3D; 73.1</span><br><span class="line">s1 &#x3D; 3.14 * r1 * r1</span><br><span class="line">s2 &#x3D; 3.14 * r2 * r2</span><br><span class="line">s3 &#x3D; 3.14 * r3 * r3</span><br></pre></td></tr></table></figure><p>当代码出现有规律的重复的时候，你就需要当心了，每次写<code>3.14 * x * x</code>不仅很麻烦，而且，如果要把<code>3.14</code>改成<code>3.14159265359</code>的时候，得全部替换。</p><p>有了函数，我们就不再每次写<code>s = 3.14 * x * x</code>，而是写成更有意义的函数调用<code>s = area_of_circle(x)</code>，而函数<code>area_of_circle</code>本身只需要写一次，就可以多次调用。</p><p>基本上所有的高级语言都支持函数，Python也不例外。Python不但能非常灵活地定义函数，而且本身内置了很多有用的函数，可以直接调用。</p><a id="more"></a><h3 id="1-1-抽象"><a href="#1-1-抽象" class="headerlink" title="1.1 抽象"></a>1.1 抽象</h3><p>抽象是数学中非常常见的概念。举个例子：</p><p>计算数列的和，比如：<code>1 + 2 + 3 + ... + 100</code>，写起来十分不方便，于是数学家发明了求和符号∑，可以把<code>1 + 2 + 3 + ... + 100</code>记作：</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200328162615.png" alt=""></p><p>这种抽象记法非常强大，因为我们看到 ∑ 就可以理解成求和，而不是还原成低级的加法运算。</p><p>而且，这种抽象记法是可扩展的，比如：</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200328162630.png" alt=""></p><p>(1 x 1 + 1) + (2 x 2 + 1) + (3 x 3 + 1) + … + (100 x 100 + 1)</p><p>可见，借助抽象，我们才能不关心底层的具体计算过程，而直接在更高的层次上思考问题。</p><p>写计算机程序也是一样，函数就是最基本的一种<strong>代码抽象的方式。</strong></p><h2 id="2-函数的调用"><a href="#2-函数的调用" class="headerlink" title="2. 函数的调用"></a>2. 函数的调用</h2><p>Python<strong>内置了很多有用的函数</strong>，我们可以直接调用。</p><p>要调用一个函数，需要知道函数的名称和参数，比如求绝对值的函数<code>abs</code>，只有一个参数。可以直接从Python的官方网站查看文档：</p><p><a href="https://docs.python.org/3/library/functions.html" target="_blank" rel="noopener">https://docs.python.org/3/library/functions.html</a></p><p>调用<code>abs</code>函数：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>abs(<span class="number">100</span>)</span><br><span class="line"><span class="number">100</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>abs(<span class="number">-20</span>)</span><br><span class="line"><span class="number">20</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>abs(<span class="number">12.34</span>)</span><br><span class="line"><span class="number">12.34</span></span><br></pre></td></tr></table></figure><p>调用函数的时候，如果传入的参数数量不对，会报<code>TypeError</code>的错误，并且Python会明确地告诉你：<code>abs()</code>有且仅有1个参数，但给出了两个：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>abs(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: abs() takes exactly one argument (<span class="number">2</span> given)</span><br></pre></td></tr></table></figure><p>如果传入的参数数量是对的，但参数类型不能被函数所接受，也会报<code>TypeError</code>的错误，并且给出错误信息：<code>str</code>是错误的参数类型：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>abs(<span class="string">'a'</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: bad operand type <span class="keyword">for</span> abs(): <span class="string">'str'</span></span><br></pre></td></tr></table></figure><p>而<code>max</code>函数<code>max()</code>可以接收任意多个参数，并返回最大的那个：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>max(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>max(<span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">-5</span>)</span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure><h3 id="2-1-数据类型转换"><a href="#2-1-数据类型转换" class="headerlink" title="2.1 数据类型转换"></a>2.1 数据类型转换</h3><p>Python内置的常用函数还包括数据类型转换函数，比如<code>int()</code>函数可以把其他数据类型转换为整数：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="string">'123'</span>)</span><br><span class="line"><span class="number">123</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>int(<span class="number">12.34</span>)</span><br><span class="line"><span class="number">12</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>float(<span class="string">'12.34'</span>)</span><br><span class="line"><span class="number">12.34</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>str(<span class="number">1.23</span>)</span><br><span class="line"><span class="string">'1.23'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>str(<span class="number">100</span>)</span><br><span class="line"><span class="string">'100'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>bool(<span class="number">1</span>)</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>bool(<span class="string">''</span>)</span><br><span class="line"><span class="literal">False</span></span><br></pre></td></tr></table></figure><p>函数名其实就是指向一个函数对象的引用，完全可以把函数名赋给一个变量，相当于给这个函数起了一个“别名”：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = abs <span class="comment"># 变量a指向abs函数</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a(<span class="number">-1</span>) <span class="comment"># 所以也可以通过a调用abs函数</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure><h2 id="3-函数的定义"><a href="#3-函数的定义" class="headerlink" title="3. 函数的定义"></a>3. 函数的定义</h2><p>​    在Python中，定义一个函数要使用<code>def</code>语句，依次写出函数名、括号、括号中的参数和冒号<code>:</code>，然后，在缩进块中编写函数体，函数的返回值用<code>return</code>语句返回。</p><p>我们以自定义一个求绝对值的<code>my_abs</code>函数为例：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_abs</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> x &gt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> -x</span><br></pre></td></tr></table></figure><p>请注意，函数体内部的语句在执行时，<strong>一旦执行到<code>return</code>时，函数就执行完毕，并将结果返回。</strong>因此，函数内部通过条件判断和循环可以实现非常复杂的逻辑。</p><p><strong>如果没有<code>return</code>语句，函数执行完毕后也会返回结果，只是结果为<code>None</code>。</strong><code>return None</code>可以简写为<code>return</code>。</p><h3 id="3-1-空函数"><a href="#3-1-空函数" class="headerlink" title="3.1 空函数"></a>3.1 空函数</h3><p>​    如果想定义一个什么事也不做的空函数，可以用<code>pass</code>语句：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nop</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure><p><code>pass</code>语句什么都不做，那有什么用？实际上<code>pass</code>可以用来作为占位符，比如现在还没想好怎么写函数的代码，就可以先放一个<code>pass</code>，让代码能运行起来。</p><p><code>pass</code>还可以用在其他语句里，比如：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> age &gt;= <span class="number">18</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure><p>缺少了<code>pass</code>，代码运行就会有语法错误。</p><h3 id="3-2-参数检查"><a href="#3-2-参数检查" class="headerlink" title="3.2 参数检查"></a>3.2 参数检查</h3><p>调用函数时，如果参数个数不对，Python解释器会自动检查出来，并抛出<code>TypeError</code>：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>my_abs(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: my_abs() takes <span class="number">1</span> positional argument but <span class="number">2</span> were given</span><br></pre></td></tr></table></figure><p>但是如果参数类型不对，Python解释器就无法帮我们检查。试试<code>my_abs</code>和内置函数<code>abs</code>的差别：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>my_abs(<span class="string">'A'</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">2</span>, <span class="keyword">in</span> my_abs</span><br><span class="line">TypeError: unorderable types: str() &gt;= int()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>abs(<span class="string">'A'</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">TypeError: bad operand type <span class="keyword">for</span> abs(): <span class="string">'str'</span></span><br></pre></td></tr></table></figure><p>当传入了不恰当的参数时，内置函数<code>abs</code>会检查出参数错误，而我们定义的<code>my_abs</code>没有参数检查，会导致<code>if</code>语句出错，出错信息和<code>abs</code>不一样。所以，这个函数定义不够完善。</p><p>让我们修改一下<code>my_abs</code>的定义，对参数类型做检查，只允许整数和浮点数类型的参数。数据类型检查可以用内置函数<code>isinstance()</code>实现：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_abs</span><span class="params">(x)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> isinstance(x, (int, float)):</span><br><span class="line">        <span class="keyword">raise</span> TypeError(<span class="string">'bad operand type'</span>)</span><br><span class="line">    <span class="keyword">if</span> x &gt;= <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> -x</span><br></pre></td></tr></table></figure><p>添加了参数检查后，如果传入错误的参数类型，函数就可以抛出一个错误：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>my_abs(<span class="string">'A'</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">3</span>, <span class="keyword">in</span> my_abs</span><br><span class="line">TypeError: bad operand type</span><br></pre></td></tr></table></figure><h3 id="3-3-返回多个值"><a href="#3-3-返回多个值" class="headerlink" title="3.3 返回多个值"></a>3.3 返回多个值</h3><p>比如在游戏中经常需要从一个点移动到另一个点，给出坐标、位移和角度，就可以计算出新的坐标：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">move</span><span class="params">(x, y, step, angle=<span class="number">0</span>)</span>:</span></span><br><span class="line">    nx = x + step * math.cos(angle)</span><br><span class="line">    ny = y - step * math.sin(angle)</span><br><span class="line">    <span class="keyword">return</span> nx, ny</span><br></pre></td></tr></table></figure><p><code>import math</code>语句表示导入<code>math</code>包，并允许后续代码引用<code>math</code>包里的<code>sin</code>、<code>cos</code>等函数。</p><p>然后，我们就可以同时获得返回值：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>x, y = move(<span class="number">100</span>, <span class="number">100</span>, <span class="number">60</span>, math.pi / <span class="number">6</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(x, y)</span><br><span class="line"><span class="number">151.96152422706632</span> <span class="number">70.0</span></span><br></pre></td></tr></table></figure><p>但其实这只是一种假象，Python函数返回的仍然是单一值：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>r = move(<span class="number">100</span>, <span class="number">100</span>, <span class="number">60</span>, math.pi / <span class="number">6</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(r)</span><br><span class="line">(<span class="number">151.96152422706632</span>, <span class="number">70.0</span>)</span><br></pre></td></tr></table></figure><p> 函数返回值原来是一个tuple!但是，在语法上，返回一个tuple可以省略括号，如果用多个变量同时接受一个tuple,按位置付给对应的值，所以，Python的函数返回多值其实就是一个tuple。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Python-02-函数&quot;&gt;&lt;a href=&quot;#Python-02-函数&quot; class=&quot;headerlink&quot; title=&quot;Python-02-函数&quot;&gt;&lt;/a&gt;Python-02-函数&lt;/h1&gt;&lt;h2 id=&quot;1-数学中的函数&quot;&gt;&lt;a href=&quot;#1-数学中的函数&quot; class=&quot;headerlink&quot; title=&quot;1. 数学中的函数&quot;&gt;&lt;/a&gt;1. 数学中的函数&lt;/h2&gt;&lt;p&gt;我们知道圆的面积计算公式为：&lt;/p&gt;
+&lt;p&gt;S = πr2&lt;/p&gt;
+&lt;p&gt;当我们知道半径&lt;code&gt;r&lt;/code&gt;的值时，就可以根据公式计算出面积。假设我们需要计算3个不同大小的圆的面积：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;r1 &amp;#x3D; 12.34&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;r2 &amp;#x3D; 9.08&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;r3 &amp;#x3D; 73.1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;s1 &amp;#x3D; 3.14 * r1 * r1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;s2 &amp;#x3D; 3.14 * r2 * r2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;s3 &amp;#x3D; 3.14 * r3 * r3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;当代码出现有规律的重复的时候，你就需要当心了，每次写&lt;code&gt;3.14 * x * x&lt;/code&gt;不仅很麻烦，而且，如果要把&lt;code&gt;3.14&lt;/code&gt;改成&lt;code&gt;3.14159265359&lt;/code&gt;的时候，得全部替换。&lt;/p&gt;
+&lt;p&gt;有了函数，我们就不再每次写&lt;code&gt;s = 3.14 * x * x&lt;/code&gt;，而是写成更有意义的函数调用&lt;code&gt;s = area_of_circle(x)&lt;/code&gt;，而函数&lt;code&gt;area_of_circle&lt;/code&gt;本身只需要写一次，就可以多次调用。&lt;/p&gt;
+&lt;p&gt;基本上所有的高级语言都支持函数，Python也不例外。Python不但能非常灵活地定义函数，而且本身内置了很多有用的函数，可以直接调用。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Python" scheme="http://zhuuu.work/tags/Python/"/>
+    
+  </entry>
   
   <entry>
     <title>SpringBoot-04-JSR303校验和多环境切换</title>
@@ -2439,6 +2467,46 @@
   </entry>
   
   <entry>
+    <title>Leetcode-021</title>
+    <link href="http://zhuuu.work/2019/05/25/Leetcode/Leetcode-021/"/>
+    <id>http://zhuuu.work/2019/05/25/Leetcode/Leetcode-021/</id>
+    <published>2019-05-25T07:52:53.000Z</published>
+    <updated>2020-02-18T08:23:30.347Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leecode-021-Merge-Two-Sorted-Lists"><a href="#Leecode-021-Merge-Two-Sorted-Lists" class="headerlink" title="Leecode-021 [Merge Two Sorted Lists]"></a>Leecode-021 [Merge Two Sorted Lists]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：遍历，判断链表值的大小</strong></p><ul><li>需要的参数：<ul><li>l1指向第一个链表</li><li>l2指向第二个链表</li><li>curr节点，dummy节点 （初始化为空节点）</li></ul></li><li>步骤：<ul><li>首先把curr节点指向dummy</li><li>如果l1和l2节点不为空的情况下<ul><li>如果l1的值比l2小，那么curr指向l1, 并且l1向后移一位</li><li>如果l1的值比l2大,   那么curr指向l2, 并且l2向后移一位</li><li>curr再向后移动一位</li></ul></li><li>如果l1或者l2出现一个为空了，那么 curr就指向不为空的那个</li></ul></li></ul><a id="more"></a><h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution：判断链表值的大小</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * public class ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeTwoLists</span><span class="params">(ListNode l1, ListNode l2)</span> </span>&#123;</span><br><span class="line">        ListNode dummy = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode curr  = dummy;</span><br><span class="line">        <span class="keyword">while</span>(l1 != <span class="keyword">null</span> &amp;&amp; l2 != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(l1.val &lt; l2.val)&#123;</span><br><span class="line">                curr.next = l1;</span><br><span class="line">                l1 = l1.next;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                curr.next = l2;</span><br><span class="line">                l2 = l2.next;</span><br><span class="line">            &#125;</span><br><span class="line">            curr = curr.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(l1 == <span class="keyword">null</span>) curr.next = l2;</span><br><span class="line">        <span class="keyword">if</span>(l2 == <span class="keyword">null</span>) curr.next = l1;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : 判断链表值的大小</strong></p><ul><li>需要的参数：<ul><li>l1指向第一个链表</li><li>l2指向第二个链表</li><li>curr节点，dummy节点 （初始化为空节点）</li></ul></li><li>步骤：<ul><li>首先把curr节点指向dummy</li><li>如果l1和l2节点不为空的情况下<ul><li>如果l1的值比l2小，那么curr指向l1, 并且l1向后移一位</li><li>如果l1的值比l2大,   那么curr指向l2, 并且l2向后移一位</li><li>curr再向后移动一位</li></ul></li><li>如果l1或者l2出现一个为空了，那么 curr就指向不为空的那个</li></ul></li></ul><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mergeTwoLists</span><span class="params">(self, l1: ListNode, l2: ListNode)</span> -&gt; ListNode:</span></span><br><span class="line">        curr = dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">while</span> l1 <span class="keyword">and</span> l2:</span><br><span class="line">            <span class="keyword">if</span> l1.val &lt; l2.val:</span><br><span class="line">                curr.next=l1</span><br><span class="line">                l1=l1.next</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                curr.next=l2</span><br><span class="line">                l2=l2.next</span><br><span class="line">            curr=curr.next</span><br><span class="line">        curr.next =l1 <span class="keyword">or</span> l2</span><br><span class="line">        <span class="keyword">return</span> dummy.next</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leecode-021-Merge-Two-Sorted-Lists&quot;&gt;&lt;a href=&quot;#Leecode-021-Merge-Two-Sorted-Lists&quot; class=&quot;headerlink&quot; title=&quot;Leecode-021 [Merge Two Sorted Lists]&quot;&gt;&lt;/a&gt;Leecode-021 [Merge Two Sorted Lists]&lt;/h1&gt;&lt;h2 id=&quot;思路：&quot;&gt;&lt;a href=&quot;#思路：&quot; class=&quot;headerlink&quot; title=&quot;思路：&quot;&gt;&lt;/a&gt;思路：&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Solution：遍历，判断链表值的大小&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;需要的参数：&lt;ul&gt;
+&lt;li&gt;l1指向第一个链表&lt;/li&gt;
+&lt;li&gt;l2指向第二个链表&lt;/li&gt;
+&lt;li&gt;curr节点，dummy节点 （初始化为空节点）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;步骤：&lt;ul&gt;
+&lt;li&gt;首先把curr节点指向dummy&lt;/li&gt;
+&lt;li&gt;如果l1和l2节点不为空的情况下&lt;ul&gt;
+&lt;li&gt;如果l1的值比l2小，那么curr指向l1, 并且l1向后移一位&lt;/li&gt;
+&lt;li&gt;如果l1的值比l2大,   那么curr指向l2, 并且l2向后移一位&lt;/li&gt;
+&lt;li&gt;curr再向后移动一位&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;如果l1或者l2出现一个为空了，那么 curr就指向不为空的那个&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Leetcode-023</title>
     <link href="http://zhuuu.work/2019/05/25/Leetcode/Leetcode-023-%E5%90%88%E5%B9%B6k%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/"/>
     <id>http://zhuuu.work/2019/05/25/Leetcode/Leetcode-023-%E5%90%88%E5%B9%B6k%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/</id>
@@ -2476,46 +2544,6 @@
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
       <category term="堆" scheme="http://zhuuu.work/tags/%E5%A0%86/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Leetcode-021</title>
-    <link href="http://zhuuu.work/2019/05/25/Leetcode/Leetcode-021/"/>
-    <id>http://zhuuu.work/2019/05/25/Leetcode/Leetcode-021/</id>
-    <published>2019-05-25T07:52:53.000Z</published>
-    <updated>2020-02-18T08:23:30.347Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Leecode-021-Merge-Two-Sorted-Lists"><a href="#Leecode-021-Merge-Two-Sorted-Lists" class="headerlink" title="Leecode-021 [Merge Two Sorted Lists]"></a>Leecode-021 [Merge Two Sorted Lists]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：遍历，判断链表值的大小</strong></p><ul><li>需要的参数：<ul><li>l1指向第一个链表</li><li>l2指向第二个链表</li><li>curr节点，dummy节点 （初始化为空节点）</li></ul></li><li>步骤：<ul><li>首先把curr节点指向dummy</li><li>如果l1和l2节点不为空的情况下<ul><li>如果l1的值比l2小，那么curr指向l1, 并且l1向后移一位</li><li>如果l1的值比l2大,   那么curr指向l2, 并且l2向后移一位</li><li>curr再向后移动一位</li></ul></li><li>如果l1或者l2出现一个为空了，那么 curr就指向不为空的那个</li></ul></li></ul><a id="more"></a><h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution：判断链表值的大小</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * public class ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeTwoLists</span><span class="params">(ListNode l1, ListNode l2)</span> </span>&#123;</span><br><span class="line">        ListNode dummy = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        ListNode curr  = dummy;</span><br><span class="line">        <span class="keyword">while</span>(l1 != <span class="keyword">null</span> &amp;&amp; l2 != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(l1.val &lt; l2.val)&#123;</span><br><span class="line">                curr.next = l1;</span><br><span class="line">                l1 = l1.next;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                curr.next = l2;</span><br><span class="line">                l2 = l2.next;</span><br><span class="line">            &#125;</span><br><span class="line">            curr = curr.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(l1 == <span class="keyword">null</span>) curr.next = l2;</span><br><span class="line">        <span class="keyword">if</span>(l2 == <span class="keyword">null</span>) curr.next = l1;</span><br><span class="line">        <span class="keyword">return</span> dummy.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : 判断链表值的大小</strong></p><ul><li>需要的参数：<ul><li>l1指向第一个链表</li><li>l2指向第二个链表</li><li>curr节点，dummy节点 （初始化为空节点）</li></ul></li><li>步骤：<ul><li>首先把curr节点指向dummy</li><li>如果l1和l2节点不为空的情况下<ul><li>如果l1的值比l2小，那么curr指向l1, 并且l1向后移一位</li><li>如果l1的值比l2大,   那么curr指向l2, 并且l2向后移一位</li><li>curr再向后移动一位</li></ul></li><li>如果l1或者l2出现一个为空了，那么 curr就指向不为空的那个</li></ul></li></ul><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">mergeTwoLists</span><span class="params">(self, l1: ListNode, l2: ListNode)</span> -&gt; ListNode:</span></span><br><span class="line">        curr = dummy = ListNode(<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">while</span> l1 <span class="keyword">and</span> l2:</span><br><span class="line">            <span class="keyword">if</span> l1.val &lt; l2.val:</span><br><span class="line">                curr.next=l1</span><br><span class="line">                l1=l1.next</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                curr.next=l2</span><br><span class="line">                l2=l2.next</span><br><span class="line">            curr=curr.next</span><br><span class="line">        curr.next =l1 <span class="keyword">or</span> l2</span><br><span class="line">        <span class="keyword">return</span> dummy.next</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Leecode-021-Merge-Two-Sorted-Lists&quot;&gt;&lt;a href=&quot;#Leecode-021-Merge-Two-Sorted-Lists&quot; class=&quot;headerlink&quot; title=&quot;Leecode-021 [Merge Two Sorted Lists]&quot;&gt;&lt;/a&gt;Leecode-021 [Merge Two Sorted Lists]&lt;/h1&gt;&lt;h2 id=&quot;思路：&quot;&gt;&lt;a href=&quot;#思路：&quot; class=&quot;headerlink&quot; title=&quot;思路：&quot;&gt;&lt;/a&gt;思路：&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Solution：遍历，判断链表值的大小&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;需要的参数：&lt;ul&gt;
-&lt;li&gt;l1指向第一个链表&lt;/li&gt;
-&lt;li&gt;l2指向第二个链表&lt;/li&gt;
-&lt;li&gt;curr节点，dummy节点 （初始化为空节点）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;步骤：&lt;ul&gt;
-&lt;li&gt;首先把curr节点指向dummy&lt;/li&gt;
-&lt;li&gt;如果l1和l2节点不为空的情况下&lt;ul&gt;
-&lt;li&gt;如果l1的值比l2小，那么curr指向l1, 并且l1向后移一位&lt;/li&gt;
-&lt;li&gt;如果l1的值比l2大,   那么curr指向l2, 并且l2向后移一位&lt;/li&gt;
-&lt;li&gt;curr再向后移动一位&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;如果l1或者l2出现一个为空了，那么 curr就指向不为空的那个&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
   </entry>
   
@@ -2604,9 +2632,9 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
   </entry>
   
@@ -2648,23 +2676,6 @@
   </entry>
   
   <entry>
-    <title>Mysql 视图</title>
-    <link href="http://zhuuu.work/2019/02/21/Mysql/Mysql%E8%A7%86%E5%9B%BE/"/>
-    <id>http://zhuuu.work/2019/02/21/Mysql/Mysql%E8%A7%86%E5%9B%BE/</id>
-    <published>2019-02-21T08:02:27.000Z</published>
-    <updated>2020-02-26T14:25:07.201Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-    
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Mysql 索引</title>
     <link href="http://zhuuu.work/2019/02/21/Mysql/Mysql%E7%B4%A2%E5%BC%95/"/>
     <id>http://zhuuu.work/2019/02/21/Mysql/Mysql%E7%B4%A2%E5%BC%95/</id>
@@ -2690,6 +2701,23 @@
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
       <category term="索引" scheme="http://zhuuu.work/tags/%E7%B4%A2%E5%BC%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mysql 视图</title>
+    <link href="http://zhuuu.work/2019/02/21/Mysql/Mysql%E8%A7%86%E5%9B%BE/"/>
+    <id>http://zhuuu.work/2019/02/21/Mysql/Mysql%E8%A7%86%E5%9B%BE/</id>
+    <published>2019-02-21T08:02:27.000Z</published>
+    <updated>2020-02-26T14:25:07.201Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
   </entry>
   
