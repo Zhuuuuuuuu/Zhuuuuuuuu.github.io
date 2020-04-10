@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Leetcode-151-翻转字符串里的单词</title>
+    <url>/2020/04/10/Leetcode/Leetcode-151-%E7%BF%BB%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%87%8C%E7%9A%84%E5%8D%95%E8%AF%8D/</url>
+    <content><![CDATA[<h1 id="Leetcode-151-Reverse-Words-in-a-String"><a href="#Leetcode-151-Reverse-Words-in-a-String" class="headerlink" title="Leetcode-151-Reverse Words in a String"></a>Leetcode-151-<a href="https://leetcode-cn.com/problems/reverse-words-in-a-string/" target="_blank" rel="noopener">Reverse Words in a String</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>题目描述：</strong></p>
+<p>翻转字符串里面的单词</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: &quot;the sky is blue&quot;</span><br><span class="line">Output: &quot;blue is sky the&quot;</span><br><span class="line"></span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: &quot;  hello world!  &quot;</span><br><span class="line">Output: &quot;world! hello&quot;</span><br><span class="line">Explanation: Your reversed string should not contain leading or trailing spaces.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: &quot;a good   example&quot;</span><br><span class="line">Output: &quot;example good a&quot;</span><br><span class="line">Explanation: You need to reduce multiple spaces between two words to a single space in the reversed string.</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p><strong>Solution1：双指针</strong></p>
+<p>分为以下三部分：</p>
+<ul>
+<li>翻转整个数组</li>
+<li>翻转每个单词</li>
+<li>去除单词前后空格</li>
+</ul>
+<p><strong>Solution2:使用自带的库</strong></p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">reverseWords</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">char</span>[] arr_s = s.toCharArray();</span><br><span class="line">        <span class="keyword">int</span> n = arr_s.length;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 翻转整个数组</span></span><br><span class="line">        reverse(arr_s,<span class="number">0</span>,n-<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 翻转每个单词</span></span><br><span class="line">        word_reverse(arr_s,n);</span><br><span class="line">        <span class="comment">// 去除多余空格</span></span><br><span class="line">        <span class="keyword">return</span> clean_space(arr_s,n);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">reverse</span><span class="params">(<span class="keyword">char</span>[] arr_s,<span class="keyword">int</span> i,<span class="keyword">int</span> j)</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; j)&#123;</span><br><span class="line">            <span class="comment">// 交换前后单词顺序</span></span><br><span class="line">            <span class="keyword">char</span> t = arr_s[i];</span><br><span class="line">            arr_s[i++] = arr_s[j];</span><br><span class="line">            arr_s[j--] = t;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">word_reverse</span><span class="params">(<span class="keyword">char</span>[] arr_s, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (j &lt; n) &#123;</span><br><span class="line">            <span class="comment">// 找到第一个首字母(如果这个单词是以空格开头)</span></span><br><span class="line">            <span class="keyword">while</span> (i &lt; n &amp;&amp; arr_s[i] == <span class="string">' '</span>) &#123;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            j = i;</span><br><span class="line">            <span class="comment">// 一直遍历到这个单词末位置</span></span><br><span class="line">            <span class="keyword">while</span> (j &lt; n &amp;&amp; arr_s[j] != <span class="string">' '</span>) &#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            reverse(arr_s, i, j - <span class="number">1</span>);</span><br><span class="line">            i = j;  <span class="comment">// 刷新i的位置，继续遍历</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 双指针去掉空格</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">clean_space</span><span class="params">(<span class="keyword">char</span>[] arr_s,<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(j &lt; n)&#123;</span><br><span class="line">            <span class="comment">// 去掉前面的空格</span></span><br><span class="line">            <span class="keyword">while</span> (j &lt; n &amp;&amp; arr_s[j] == <span class="string">' '</span>) j++;</span><br><span class="line">            <span class="comment">// 排除单词的长度</span></span><br><span class="line">            <span class="keyword">while</span> (j &lt; n &amp;&amp; arr_s[j] != <span class="string">' '</span>) arr_s[i++] = arr_s[j++];</span><br><span class="line">            <span class="comment">// 单词结束还需要去除后面空格</span></span><br><span class="line">            <span class="keyword">while</span> (j &lt; n &amp;&amp; arr_s[j] == <span class="string">' '</span>) j++;</span><br><span class="line">            <span class="keyword">if</span> (j &lt; n) arr_s[i++] = <span class="string">' '</span>;      </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String(arr_s).substring(<span class="number">0</span>,i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">reverseWords</span><span class="params">(String s)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 去掉空格（运用正则表达式）</span></span><br><span class="line">        String[] words = s.trim().split(<span class="string">" +"</span>);</span><br><span class="line">        <span class="comment">// 翻转字符</span></span><br><span class="line">        Collections.reverse(Arrays.asList(words));</span><br><span class="line">        <span class="comment">// 返回字符串结果</span></span><br><span class="line">        <span class="keyword">return</span> String.join(<span class="string">" "</span>,words);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>双指针</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-面试题01.07-旋转矩阵</title>
     <url>/2020/04/08/Leetcode/Leetcode-%E9%9D%A2%E8%AF%95%E9%A2%9801.07-%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/</url>
     <content><![CDATA[<h1 id="Leecode-面试题-01-07-Rotate-Matrix-LCCI"><a href="#Leecode-面试题-01-07-Rotate-Matrix-LCCI" class="headerlink" title="Leecode-面试题 01.07. Rotate Matrix LCCI"></a>Leecode-<a href="https://leetcode-cn.com/problems/rotate-matrix-lcci/" target="_blank" rel="noopener">面试题 01.07. Rotate Matrix LCCI</a></h1><h2 id="思路：对称旋转"><a href="#思路：对称旋转" class="headerlink" title="思路：对称旋转"></a>思路：对称旋转</h2><p><strong>题目描述</strong></p>
@@ -233,6 +270,266 @@
       <tags>
         <tag>数据库</tag>
         <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot-18-dubbo+zookeeper</title>
+    <url>/2020/04/06/SpringBoot/SpringBoot-18-dubbo+zookeeper/</url>
+    <content><![CDATA[<h1 id="SpringBoot-18-dubbo-zookeeper"><a href="#SpringBoot-18-dubbo-zookeeper" class="headerlink" title="SpringBoot-18-dubbo+zookeeper"></a>SpringBoot-18-dubbo+zookeeper</h1><h2 id="1-什么是分布式系统"><a href="#1-什么是分布式系统" class="headerlink" title="1. 什么是分布式系统"></a>1. 什么是分布式系统</h2><p><strong>在《分布式系统原理与泛型》一书中有如下定义：</strong></p>
+<p><strong>“分布式系统是若干独立计算机的集合，这些计算机对于用户来说就像单个相关系统”</strong></p>
+<a id="more"></a>
+
+<p><strong>分布式系统是由一组通过网络进行通信，为了完成共同任务而协调工作的计算机节点组成的系统。</strong></p>
+<p>分布式系统的出现是为了用廉价的，普通的机器完成单个计算机无法完成的计算，存储任务。其目的是利用更多的机器，处理更多的数据。</p>
+<p>分布式系统是建立在网络之上的软件系统。</p>
+<p><strong>注意事项：</strong></p>
+<p>首先需要明确的是，只有当<strong>单个节点的处理能力</strong>无法满足日益增长的计算、存储任务的时候，且硬件的提升（加内存、加磁盘、使用更好的CPU）高昂到得不偿失的时候，应用程序也不能进一步优化的时候，我们<strong>才需要考虑分布式系统</strong>。</p>
+<p>因为，<strong>分布式系统要解决的问题本身就是和单机系统一样的</strong></p>
+<p>而<strong>由于分布式系统多节点、通过网络通信的拓扑结构</strong>，会引入很多单机系统没有的问题，为了解决这些问题<strong>又会引入更多的机制、协议，带来更多的问题</strong>。</p>
+<h2 id="2-系统架构的演进"><a href="#2-系统架构的演进" class="headerlink" title="2. 系统架构的演进"></a>2. 系统架构的演进</h2><h3 id="2-1-单一应用架构"><a href="#2-1-单一应用架构" class="headerlink" title="2.1 单一应用架构"></a>2.1 单一应用架构</h3><p>当网站流量很小时，<strong>只需要一个应用，就能将所有的功能都部署在一起，</strong>以减少部署节点和成本。此时，用于简化增加改查的<strong>数据访问架构（ORM）</strong>是关键。</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410110006.png" alt=""></p>
+<p>适用于小型网站，小型管理系统，将所有功能都部署到一个功能里，简单易用。</p>
+<p><strong>缺点：</strong></p>
+<p>1、性能扩展比较难</p>
+<p>2、协同开发问题</p>
+<p>3、不利于升级维护</p>
+<h3 id="2-2-垂直应用架构"><a href="#2-2-垂直应用架构" class="headerlink" title="2.2 垂直应用架构"></a>2.2 垂直应用架构</h3><p>当网站访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆分成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架（MVC）是关键。</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410110339.png" alt=""></p>
+<p>优点：</p>
+<ul>
+<li>系统拆分实现了流量的分单</li>
+<li>可以针对不同的横块进行优化</li>
+<li>方便横向扩展，负载均衡，容错率提高</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>系统之间相互独立，会出现很多的重复开发，影响开发的效率</li>
+</ul>
+<h3 id="2-3-分布式服务架构"><a href="#2-3-分布式服务架构" class="headerlink" title="2.3 分布式服务架构"></a>2.3 分布式服务架构</h3><p>当垂直应用越来越多时候，应用之间交互不可避免，<strong>将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心</strong>，使得前端应用能快速的响应多变的市场需求。此时，用于提高业务复用及整合的<strong>分布式框架(RPC)是关键。</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410110634.png" alt=""></p>
+<p>优点：</p>
+<ul>
+<li>将基础服务进行了抽取，系统间相互调用，提高了代码的复用和开发的效率</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>系统间的耦合度提高，关系复杂，难以维护</li>
+</ul>
+<h3 id="2-4-流动计算架构"><a href="#2-4-流动计算架构" class="headerlink" title="2.4 流动计算架构"></a>2.4 流动计算架构</h3><p>当服务越来愈多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需要增加一个调度中心（基于访问压力实施管理集群容量，提高集群的利用效率。）此时，<strong>用于提高机器利用率的资源调度和治理中心(SOA)是关键</strong>（Service-Oriented Architecture）面向服务的架构</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410110929.png" alt=""></p>
+<p>阿里巴巴内部目前使用的框架：HSF（好舒服），是dubbo的升级版</p>
+<p>以前出现了什么问题？</p>
+<ul>
+<li>服务越来越多，需要管理每个服务的地址</li>
+<li>调用关系错综复杂，难以理清依赖关系</li>
+<li>服务过多，服务状态难以管理，无法根据服务情况动态管理</li>
+</ul>
+<p><strong>服务治理要做什么？</strong></p>
+<ul>
+<li>服务注册中心，实现服务自动注册和发现，无需人为记录服务地址</li>
+<li>服务自动订阅，服务列表自动推送，服务调用透明化，无需关心依赖关系。</li>
+<li>动态监控服务状态和监控报告，人为控制服务状态。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>服务之间会有依赖关系，一旦某个环节出错影响比较大</li>
+<li>服务关系复杂，运维，测试部署困难，不符合DevOps思想</li>
+</ul>
+<h3 id="2-5-微服务"><a href="#2-5-微服务" class="headerlink" title="2.5 微服务"></a>2.5 微服务</h3><p>前面说的SOA，英文翻译过来是面向服务的编程。微服务，似乎也是服务，都是对系统进行拆分。因此两者非常容易混淆，但其实却有一些差别：</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>SOA</th>
+<th>微服务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>组件大小</td>
+<td>大块业务逻辑</td>
+<td>单独任务或小块业务逻辑</td>
+</tr>
+<tr>
+<td>耦合</td>
+<td>通常松耦合</td>
+<td>总是松耦合</td>
+</tr>
+<tr>
+<td>公司架构</td>
+<td>任何类型</td>
+<td>小型、专注于功能交叉团队</td>
+</tr>
+<tr>
+<td>管理</td>
+<td>着重中央管理</td>
+<td>着重分散管理</td>
+</tr>
+<tr>
+<td>目标</td>
+<td>确保应用能够交互操作</td>
+<td>执行新功能、快速拓展开发团队</td>
+</tr>
+</tbody></table>
+<p><strong>微服务特点：</strong></p>
+<p><strong>1.通过服务实现组件化</strong></p>
+<p>开发者不再需要协调其它服务部署对本服务的影响。</p>
+<p><strong>2.按业务能力来划分服务和开发团队</strong></p>
+<p>开发者可以自由选择开发技术，提供 API 服务</p>
+<p><strong>3.去中心化</strong></p>
+<p>每个微服务有自己私有的数据库持久化业务数据<br>每个微服务只能访问自己的数据库，而不能访问其它服务的数据库<br>某些业务场景下，需要在一个事务中更新多个数据库。这种情况也不能直接访问其它微服务的数据库，而是通过对于微服务进行操作。<br>数据的去中心化，进一步降低了微服务之间的耦合度，不同服务可以采用不同的数据库技术（SQL、NoSQL等）。在复杂的业务场景下，如果包含多个微服务，通常在客户端或者中间层（网关）处理。</p>
+<p><strong>4.基础设施自动化（devops、自动化部署）</strong></p>
+<p>的Java EE部署架构，通过展现层打包WARs，业务层划分到JARs最后部署为EAR一个大包，而微服务则打开了这个黑盒子，把应用拆分成为一个一个的单个服务，应用Docker技术，不依赖任何服务器和数据模型，是一个全栈应用，可以通过自动化方式独立部署，每个服务运行在自己的进程中，通过轻量的通讯机制联系，经常是基于HTTP资源API，这些服务基于业务能力构建，能实现集中化管理（因为服务太多啦，不集中管理就无法DevOps啦）。</p>
+<h2 id="3-Dubbo环境搭建"><a href="#3-Dubbo环境搭建" class="headerlink" title="3. Dubbo环境搭建"></a>3. Dubbo环境搭建</h2><ul>
+<li>Apache Dubbo |ˈdʌbəʊ| 是一款高性能、轻量级的开源Java RPC框架</li>
+<li>提供三大核心功能<ul>
+<li>面向接口的远程调用方法</li>
+<li>智能容错</li>
+<li>负载均衡</li>
+<li>服务自动注册和发现</li>
+</ul>
+</li>
+</ul>
+<p>dubbo官网 <a href="http://dubbo.apache.org/zh-cn/index.html" target="_blank" rel="noopener">http://dubbo.apache.org/zh-cn/index.html</a></p>
+<h3 id="3-1-Dubbo-基本概念"><a href="#3-1-Dubbo-基本概念" class="headerlink" title="3.1 Dubbo 基本概念"></a>3.1 Dubbo 基本概念</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410112138.png" alt=""></p>
+<p><strong>服务提供者</strong>（Provider）：暴露服务的服务提供方，服务提供者在启动时，向注册中心注册自己提供的服务。</p>
+<p><strong>服务消费者</strong>（Consumer）：调用远程服务的服务消费方，服务消费者在启动时，向注册中心订阅自己所需的服务，服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。</p>
+<p><strong>注册中心</strong>（Registry）：注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者</p>
+<p><strong>监控中心</strong>（Monitor）：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心</p>
+<p><strong>调用关系说明：</strong></p>
+<p><strong>服务容器负责启动</strong>，加载，运行服务提供者。</p>
+<p>服务<strong>提供者</strong>在启动时，向注册中心注册自己提供的服务。</p>
+<p>服务<strong>消费者</strong>在启动时，向注册中心订阅自己所需的服务。</p>
+<p><strong>注册中心</strong>返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者</p>
+<p><strong>服务消费者</strong>，从提供者地址列表中，基于<strong>软负载均衡算法</strong>，选一台提供者进行调用，如果调用失败，再选另一台调用</p>
+<p>服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到<strong>监控中心</strong>。</p>
+<h3 id="3-2-Zookeeper-安装"><a href="#3-2-Zookeeper-安装" class="headerlink" title="3.2 Zookeeper 安装"></a>3.2 Zookeeper 安装</h3><ol>
+<li><strong>下载zookeeper ：解压zookeeper</strong>  <a href="https://zookeeper.apache.org/releases.html" target="_blank" rel="noopener">https://zookeeper.apache.org/releases.html</a></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410112557.png" alt=""></p>
+<ol start="2">
+<li><strong>运行/bin/zkServer.cmd ，初次运行会报错，没有zoo.cfg配置文件；</strong></li>
+</ol>
+<p>可能遇到问题：<strong>闪退 !</strong></p>
+<p>解决方案：编辑zkServer.cmd文件末尾添加pause 。这样运行出错就不会退出，会提示错误信息，方便找到原因。</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410112644.png" alt=""></p>
+<ol start="3">
+<li><strong>修改zoo.cfg配置文件</strong></li>
+</ol>
+<p>将conf文件夹下面的zoo_sample.cfg复制一份改名为zoo.cfg即可。</p>
+<p>注意几个重要位置：</p>
+<p>dataDir=./  临时数据存储的目录（可写相对路径）</p>
+<p>clientPort=2181  zookeeper的端口号</p>
+<p>修改完成后再次启动zookeeper</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410112809.png" alt=""></p>
+<ol start="4">
+<li>使用zkCli.cmd测试</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410112906.png" alt=""></p>
+<p>ls /：列出zookeeper根下保存的所有节点</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[zk: 127.0.0.1:2181(CONNECTED) 0] ls &#x2F;</span><br><span class="line">[dubbo,zookeeper]</span><br><span class="line"></span><br><span class="line">create -e &#x2F;zhuuu 123   创建一个zhuuu节点，值为123</span><br><span class="line">get &#x2F;zhuuu             获取&#x2F;zhuuu节点的值</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410113210.png" alt=""></p>
+<h3 id="3-3-dubbo-admin-安装"><a href="#3-3-dubbo-admin-安装" class="headerlink" title="3.3 dubbo-admin 安装"></a>3.3 dubbo-admin 安装</h3><p>dubbo本身并不是一个服务软件。它其实就是一个jar包，能够帮你的java程序连接到zookeeper，并利用zookeeper消费、提供服务。</p>
+<p>但是为了让用户更好的管理监控众多的dubbo服务，官方提供了一个可视化的监控程序dubbo-admin，不过这个监控即使不装也不影响使用。</p>
+<ol>
+<li><strong>下载dubbo-admin</strong></li>
+</ol>
+<p><a href="https://github.com/apache/dubbo-admin/tree/master" target="_blank" rel="noopener">https://github.com/apache/dubbo-admin/tree/master</a></p>
+<ol start="2">
+<li><strong>解压进入目录</strong></li>
+</ol>
+<p>修改 dubbo-admin\src\main\resources \application.properties 指定zookeeper地址</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410113512.png" alt=""></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">server.port</span>=<span class="string">7001</span></span><br><span class="line"><span class="meta">spring.velocity.cache</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">spring.velocity.charset</span>=<span class="string">UTF-8</span></span><br><span class="line"><span class="meta">spring.velocity.layout-url</span>=<span class="string">/templates/default.vm</span></span><br><span class="line"><span class="meta">spring.messages.fallback-to-system-locale</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n/message</span></span><br><span class="line"><span class="meta">spring.root.password</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.guest.password</span>=<span class="string">guest</span></span><br><span class="line"></span><br><span class="line"><span class="meta">dubbo.registry.address</span>=<span class="string">zookeeper://127.0.0.1:2181</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>在项目目录下</strong>打包dubbo-admin</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mvn clean package -Dmaven.test.skip&#x3D;true</span><br></pre></td></tr></table></figure>
+
+<p><strong>第一次打包的过程有点慢，需要耐心等待！直到成功！</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410113636.png" alt=""></p>
+<p><strong>打包完成后会产生一个jar包</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410113644.png" alt=""></p>
+<ol start="4">
+<li><strong>执行 dubbo-admin\target 下的dubbo-admin-0.0.1-SNAPSHOT.jar</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">java -jar dubbo-admin-0.0.1-SNAPSHOT.jar</span><br></pre></td></tr></table></figure>
+
+<p>【注意：zookeeper的服务一定要打开！】</p>
+<p>执行完毕，我们去访问一下 <a href="http://localhost:7001/" target="_blank" rel="noopener">http://localhost:7001/</a> ， 这时候我们需要输入登录账户和密码 默认的root-root；</p>
+<p>登录成功后，查看界面</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410113945.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410114010.png" alt=""></p>
+<h2 id="4-SpringBoot-Dubbo-zookeeper"><a href="#4-SpringBoot-Dubbo-zookeeper" class="headerlink" title="4. SpringBoot + Dubbo + zookeeper"></a>4. SpringBoot + Dubbo + zookeeper</h2><p><strong>测试环境搭建：</strong></p>
+<p><strong>1. 启动zookeeper ！</strong></p>
+<p><strong>2. IDEA创建一个空项目；</strong></p>
+<p><strong>3.创建一个模块，实现服务提供者：provider-server ， 选择web依赖即可</strong></p>
+<p><strong>4.项目创建完毕，我们写一个服务，比如卖票的服务；</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410142551.png" alt=""></p>
+<h3 id="4-1-服务提供者"><a href="#4-1-服务提供者" class="headerlink" title="4.1 服务提供者"></a>4.1 服务提供者</h3><ol>
+<li>导入依赖 </li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- Dubbo Spring Boot Starter --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.dubbo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>zookeeper的包我们去maven仓库下载，zkclient；</strong></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/com.github.sgroschupf/zkclient --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.sgroschupf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zkclient<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>【新版的坑】zookeeper及其依赖包，解决日志冲突，还需要剔除日志依赖；</strong></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 引入zookeeper --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.12.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-recipes<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.12.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.14<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--排除这个slf4j-log4j12--&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>编写接口</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">TicketService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTicket</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>编写实现类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.dubbo.config.annotation.Service;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">// zookeeper: 服务注册与发现</span></span><br><span class="line"><span class="meta">@Service</span> <span class="comment">//将服务发布出去</span></span><br><span class="line"><span class="meta">@Component</span> <span class="comment">//放在容器中</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TicketServiceImpl</span> <span class="keyword">implements</span> <span class="title">TicketService</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTicket</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"朱酱酱的个人学习门票"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>在配置文件中配置dubbo相关属性！</li>
+</ol>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment">#当前应用名字</span></span><br><span class="line"><span class="meta">dubbo.application.name</span>=<span class="string">provider-server</span></span><br><span class="line"><span class="comment">#注册中心地址</span></span><br><span class="line"><span class="meta">dubbo.registry.address</span>=<span class="string">zookeeper://127.0.0.1:2181</span></span><br><span class="line"><span class="comment">#扫描指定包下服务</span></span><br><span class="line"><span class="meta">dubbo.scan.base-packages</span>=<span class="string">com.kuang.provider.service</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>逻辑理解 ：应用启动起来，dubbo就会扫描指定的包下带有@component注解的服务，将它发布在指定的注册中心中！</strong></p>
+<h3 id="4-2-服务消费者"><a href="#4-2-服务消费者" class="headerlink" title="4.2 服务消费者"></a>4.2 服务消费者</h3><ol>
+<li><strong>导入依赖，和之前的依赖一样；</strong></li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--dubbo--&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- Dubbo Spring Boot Starter --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.dubbo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dubbo-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--zookeeper--&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/com.github.sgroschupf/zkclient --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.sgroschupf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zkclient<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 引入zookeeper --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-framework<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.12.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.curator<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>curator-recipes<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.12.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.zookeeper<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>zookeeper<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.14<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--排除这个slf4j-log4j12--&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>配置参数properties</li>
+</ol>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment">#当前应用名字</span></span><br><span class="line"><span class="meta">dubbo.application.name</span>=<span class="string">consumer-server</span></span><br><span class="line"><span class="comment">#注册中心地址</span></span><br><span class="line"><span class="meta">dubbo.registry.address</span>=<span class="string">zookeeper://127.0.0.1:2181</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>本来正常步骤是需要将服务提供者的接口打包，然后用pom文件导入，我们这里使用简单的方式，直接将服务的接口拿过来，路径必须保证正确，即和服务提供者相同；</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410143253.png" alt=""></p>
+<ol start="4">
+<li>完善消费者的服务类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.dubbo.config.annotation.Reference;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span>  <span class="comment">// 与provider不同，这里是放到spring容器中</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 想拿到票provider-server提供的票,要去注册中心拿到服务</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Reference</span>  <span class="comment">// dubbo引用  (pom坐标，定义路径相同的接口名)</span></span><br><span class="line">    TicketService ticketService;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">buyTicket</span><span class="params">()</span></span>&#123;</span><br><span class="line">        String ticket = ticketService.getTicket();</span><br><span class="line">        System.out.println(<span class="string">"在注册中心拿到=》"</span>+ ticket);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>测试类编写</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.zhuuu.service.UserService;</span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.Test;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConsumerServerApplicationTests</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        userService.buyTicket();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-3-启动测试"><a href="#4-3-启动测试" class="headerlink" title="4.3 启动测试"></a>4.3 启动测试</h3><p><strong>1. 开启zookeeper</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410143629.png" alt=""></p>
+<p><strong>2. 打开dubbo-admin实现监控【可以不用做】</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410143657.png" alt=""><strong>3. 开启服务者</strong></p>
+<p><strong>4.开启消费者</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200410143758.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+        <tag>RPC</tag>
       </tags>
   </entry>
   <entry>
@@ -2868,6 +3165,98 @@
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot-01-HelloWorld</title>
+    <url>/2020/03/23/SpringBoot/SpringBoot-01-HelloWorld/</url>
+    <content><![CDATA[<h1 id="SpringBoot-01-HelloWorld"><a href="#SpringBoot-01-HelloWorld" class="headerlink" title="SpringBoot-01-HelloWorld"></a>SpringBoot-01-HelloWorld</h1><h2 id="1-SpringBoot简介"><a href="#1-SpringBoot简介" class="headerlink" title="1. SpringBoot简介"></a>1. SpringBoot简介</h2><h3 id="1-1-回顾什么是Spring"><a href="#1-1-回顾什么是Spring" class="headerlink" title="1.1 回顾什么是Spring"></a>1.1 回顾什么是Spring</h3><p>Spring是一个开源框架，2003 年兴起的一个轻量级的Java 开发框架，作者：Rod Johnson  。</p>
+<p><strong>Spring是为了解决企业级应用开发的复杂性而创建的，简化开发</strong></p>
+<a id="more"></a>
+
+<h3 id="1-2-Spring是如何简化Java开发的"><a href="#1-2-Spring是如何简化Java开发的" class="headerlink" title="1.2 Spring是如何简化Java开发的"></a>1.2 Spring是如何简化Java开发的</h3><p>为了降低Java开发的复杂性，Spring采用了以下四种关键策略：</p>
+<ol>
+<li>基于pojo的轻量级和最小侵入性编程，所有东西都是Bean.</li>
+<li>通过IOC，依赖注入（DI）和面向接口实现松耦合；</li>
+<li>基于切面（AOP）和管理进行声明式编程；</li>
+<li>通过切合和模板减少样式代码，RedisTemplate，xxxTemplate；</li>
+</ol>
+<h3 id="1-3-什么是SpringBoot"><a href="#1-3-什么是SpringBoot" class="headerlink" title="1.3 什么是SpringBoot"></a>1.3 什么是SpringBoot</h3><p>​    开发一个web应用，从最初开始接触Servlet结合Tomcat, 跑出一个Hello Wolrld程序，是要经历特别多的步骤；后来就用了框架Struts，再后来是SpringMVC，到了现在的SpringBoot，过一两年又会有其他web框架出现；</p>
+<p>​    言归正传，什么是SpringBoot呢，就是一个javaweb的开发框架，和SpringMVC类似，对比其他javaweb框架的好处，官方说是简化开发，约定大于配置，  you can “just run”，能迅速的开发web应用，几行代码开发一个http接口。</p>
+<p>​    所有的技术框架的发展似乎都遵循了一条主线规律：从一个复杂应用场景 衍生 一种规范框架，人们只需要进行各种配置而不需要自己去实现它，这时候强大的配置功能成了优点；发展到一定程度之后，人们根据实际生产应用情况，选取其中实用功能和设计精华，重构出一些轻量级的框架；之后为了提高开发效率，嫌弃原先的各类配置过于麻烦，于是开始提倡“约定大于配置”，进而衍生出一些一站式的解决方案。</p>
+<p>​    是的这就是Java企业级应用-&gt;J2EE-&gt;spring-&gt;springboot的过程。</p>
+<p>​    随着 Spring 不断的发展，涉及的领域越来越多，项目整合开发需要配合各种各样的文件，慢慢变得不那么易用简单，违背了最初的理念，甚至人称配置地狱。Spring Boot 正是在这样的一个背景下被抽象出来的开发框架，目的为了让大家更容易的使用 Spring 、更容易的集成各种常用的中间件、开源软件；</p>
+<p>​    Spring Boot 基于 Spring 开发，Spirng Boot 本身并不提供 Spring 框架的核心特性以及扩展功能，只是用于快速、敏捷地开发新一代基于 Spring 框架的应用程序。也就是说，它并不是用来替代 Spring 的解决方案，而是和 Spring 框架紧密结合用于提升 Spring 开发者体验的工具。SpringBoot以<strong>约定大于配置的核心思想</strong>，默认帮我们进行了很多设置，多数Spring Boot应用只需要很少的Spring配置。同时它继承了大量常用的第三方库配置（例如 Redis、MongoDB、Jpa、RabbitMQ、Quartz 等等），Spring Boot 应用中这些第三方库几乎可以零配置的开箱即用。</p>
+<p>​    简单来说就是SpringBoot其实不是什么新的框架，它默认配置了很多框架的使用方式，就想maven整合了所有jar包，spring boot整合了所有的框架。</p>
+<p>​    Spring Boot出生名门，从一开始就站在一个比较高的气垫，又经过这几年的发展，生态足够完美，SpringBoot已经当之无愧的成为Java领域最热门的技术。</p>
+<p><strong>Spring Boot的主要优点：</strong></p>
+<ul>
+<li>为所有Spring开发者更快的入门</li>
+<li>开箱即用，提供各种默认配置来简化项目配置</li>
+<li>内嵌式容器简化Web项目</li>
+<li>没有冗余代码生成和XML配置的要求。</li>
+</ul>
+<h3 id="1-4-微服务"><a href="#1-4-微服务" class="headerlink" title="1.4 微服务"></a>1.4 微服务</h3><p>微服务论文地址：<a href="https://martinfowler.com/articles/microservices.html" target="_blank" rel="noopener">https://martinfowler.com/articles/microservices.html</a></p>
+<p>微服务论文中文翻译版地址： <a href="https://www.jianshu.com/p/d32b053e86e1" target="_blank" rel="noopener">https://www.jianshu.com/p/d32b053e86e1</a></p>
+<p>中文防挂链接： <a href="https://blog.csdn.net/weixin_42236165/article/details/92979025" target="_blank" rel="noopener">https://blog.csdn.net/weixin_42236165/article/details/92979025</a></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324092504.png" alt=""></p>
+<h2 id="2-Hello-World"><a href="#2-Hello-World" class="headerlink" title="2. Hello,World"></a>2. Hello,World</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><p>​    学习如何快速的创建一个Spring Boot应用，并且实现一个简单的Http请求处理。通过这个例子对Spring Boot有一个初步的了解，并体验其结构简单、开发快速的特性。</p>
+<p>我的环境准备：</p>
+<ul>
+<li>java version “1.8.0_181”</li>
+<li>Maven-3.6.1</li>
+<li>SpringBoot 2.x 最新版</li>
+</ul>
+<p>开发工具：</p>
+<ul>
+<li>IDEA</li>
+</ul>
+<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
+<p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<h4 id="2-2-1-项目创建方式一"><a href="#2-2-1-项目创建方式一" class="headerlink" title="2.2.1 项目创建方式一"></a>2.2.1 项目创建方式一</h4><p> <strong>项目创建方式一：</strong>使用Spring Initializr 的 Web页面创建项目</p>
+<p>1、打开  <a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<p>2、填写项目信息</p>
+<p>3、点击”Generate Project“按钮生成项目；下载此项目</p>
+<p>4、解压项目包，并用IDEA以Maven项目导入，一路下一步即可，直到项目导入完毕。</p>
+<p>5、如果是第一次使用，可能速度会比较慢，包比较多、需要耐心等待一切就绪。</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090429.png" alt=""></p>
+<h4 id="2-2-2-项目创建方式二"><a href="#2-2-2-项目创建方式二" class="headerlink" title="2.2.2  项目创建方式二"></a>2.2.2  项目创建方式二</h4><p><strong>项目创建方式二</strong>：使用 IDEA 直接创建项目</p>
+<p>1、创建一个新项目</p>
+<p>2、选择spring initalizr ， 可以看到默认就是去官网的快速构建工具那里实现</p>
+<p>3、填写项目信息</p>
+<p>4、选择初始化的组件（初学勾选 Web 即可）</p>
+<p>5、填写项目路径</p>
+<p>6、等待项目构建成功</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090921.png" alt=""></p>
+<h3 id="2-3-项目结构分析"><a href="#2-3-项目结构分析" class="headerlink" title="2.3 项目结构分析"></a>2.3 项目结构分析</h3><p>通过上面步骤完成了基础项目的创建。就会自动生成以下文件。</p>
+<ul>
+<li>程序的主启动类</li>
+<li>一个application.properties配置文件</li>
+<li>一个测试类</li>
+<li>一个pom.xml</li>
+</ul>
+<h4 id="2-3-1-pom-xml-分析"><a href="#2-3-1-pom-xml-分析" class="headerlink" title="2.3.1 pom.xml 分析"></a>2.3.1 pom.xml 分析</h4><p>打开pom.xml，看看Spring Boot项目的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 父依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web场景启动器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- springboot单元测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 剔除依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 打包插件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-编写一个http接口"><a href="#2-4-编写一个http接口" class="headerlink" title="2.4 编写一个http接口"></a>2.4 编写一个http接口</h3><ol>
+<li><p>在主程序的同级目录下，新建一个controller包，<strong>一定要在同级目录下，否则识别不到</strong></p>
+</li>
+<li><p>在包中新建一个HelloController类</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>编写完毕后，从主程序启动项目，浏览器发起请求，看页面返回；控制台输出了 Tomcat 访问的端口号！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092020.png" alt=""></p>
+<h2 id="3-彩蛋"><a href="#3-彩蛋" class="headerlink" title="3. 彩蛋"></a>3. 彩蛋</h2><p>​    如何更改启动时显示的字符拼成的字母，SpringBoot呢？也就是 banner 图案；</p>
+<p>​    只需一步：到项目下的 resources 目录下新建一个banner.txt 即可。</p>
+<p>​    图案可以到：<a href="https://www.bootschool.net/ascii" target="_blank" rel="noopener">https://www.bootschool.net/ascii</a> 这个网站生成，然后拷贝到文件中即可！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092125.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python-01-快速入门</title>
     <url>/2020/03/23/Python/Python-01-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<h1 id="Python-教程"><a href="#Python-教程" class="headerlink" title="Python 教程"></a>Python 教程</h1><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324143127.jpg" alt=""></p>
@@ -3189,98 +3578,6 @@
       </tags>
   </entry>
   <entry>
-    <title>SpringBoot-01-HelloWorld</title>
-    <url>/2020/03/23/SpringBoot/SpringBoot-01-HelloWorld/</url>
-    <content><![CDATA[<h1 id="SpringBoot-01-HelloWorld"><a href="#SpringBoot-01-HelloWorld" class="headerlink" title="SpringBoot-01-HelloWorld"></a>SpringBoot-01-HelloWorld</h1><h2 id="1-SpringBoot简介"><a href="#1-SpringBoot简介" class="headerlink" title="1. SpringBoot简介"></a>1. SpringBoot简介</h2><h3 id="1-1-回顾什么是Spring"><a href="#1-1-回顾什么是Spring" class="headerlink" title="1.1 回顾什么是Spring"></a>1.1 回顾什么是Spring</h3><p>Spring是一个开源框架，2003 年兴起的一个轻量级的Java 开发框架，作者：Rod Johnson  。</p>
-<p><strong>Spring是为了解决企业级应用开发的复杂性而创建的，简化开发</strong></p>
-<a id="more"></a>
-
-<h3 id="1-2-Spring是如何简化Java开发的"><a href="#1-2-Spring是如何简化Java开发的" class="headerlink" title="1.2 Spring是如何简化Java开发的"></a>1.2 Spring是如何简化Java开发的</h3><p>为了降低Java开发的复杂性，Spring采用了以下四种关键策略：</p>
-<ol>
-<li>基于pojo的轻量级和最小侵入性编程，所有东西都是Bean.</li>
-<li>通过IOC，依赖注入（DI）和面向接口实现松耦合；</li>
-<li>基于切面（AOP）和管理进行声明式编程；</li>
-<li>通过切合和模板减少样式代码，RedisTemplate，xxxTemplate；</li>
-</ol>
-<h3 id="1-3-什么是SpringBoot"><a href="#1-3-什么是SpringBoot" class="headerlink" title="1.3 什么是SpringBoot"></a>1.3 什么是SpringBoot</h3><p>​    开发一个web应用，从最初开始接触Servlet结合Tomcat, 跑出一个Hello Wolrld程序，是要经历特别多的步骤；后来就用了框架Struts，再后来是SpringMVC，到了现在的SpringBoot，过一两年又会有其他web框架出现；</p>
-<p>​    言归正传，什么是SpringBoot呢，就是一个javaweb的开发框架，和SpringMVC类似，对比其他javaweb框架的好处，官方说是简化开发，约定大于配置，  you can “just run”，能迅速的开发web应用，几行代码开发一个http接口。</p>
-<p>​    所有的技术框架的发展似乎都遵循了一条主线规律：从一个复杂应用场景 衍生 一种规范框架，人们只需要进行各种配置而不需要自己去实现它，这时候强大的配置功能成了优点；发展到一定程度之后，人们根据实际生产应用情况，选取其中实用功能和设计精华，重构出一些轻量级的框架；之后为了提高开发效率，嫌弃原先的各类配置过于麻烦，于是开始提倡“约定大于配置”，进而衍生出一些一站式的解决方案。</p>
-<p>​    是的这就是Java企业级应用-&gt;J2EE-&gt;spring-&gt;springboot的过程。</p>
-<p>​    随着 Spring 不断的发展，涉及的领域越来越多，项目整合开发需要配合各种各样的文件，慢慢变得不那么易用简单，违背了最初的理念，甚至人称配置地狱。Spring Boot 正是在这样的一个背景下被抽象出来的开发框架，目的为了让大家更容易的使用 Spring 、更容易的集成各种常用的中间件、开源软件；</p>
-<p>​    Spring Boot 基于 Spring 开发，Spirng Boot 本身并不提供 Spring 框架的核心特性以及扩展功能，只是用于快速、敏捷地开发新一代基于 Spring 框架的应用程序。也就是说，它并不是用来替代 Spring 的解决方案，而是和 Spring 框架紧密结合用于提升 Spring 开发者体验的工具。SpringBoot以<strong>约定大于配置的核心思想</strong>，默认帮我们进行了很多设置，多数Spring Boot应用只需要很少的Spring配置。同时它继承了大量常用的第三方库配置（例如 Redis、MongoDB、Jpa、RabbitMQ、Quartz 等等），Spring Boot 应用中这些第三方库几乎可以零配置的开箱即用。</p>
-<p>​    简单来说就是SpringBoot其实不是什么新的框架，它默认配置了很多框架的使用方式，就想maven整合了所有jar包，spring boot整合了所有的框架。</p>
-<p>​    Spring Boot出生名门，从一开始就站在一个比较高的气垫，又经过这几年的发展，生态足够完美，SpringBoot已经当之无愧的成为Java领域最热门的技术。</p>
-<p><strong>Spring Boot的主要优点：</strong></p>
-<ul>
-<li>为所有Spring开发者更快的入门</li>
-<li>开箱即用，提供各种默认配置来简化项目配置</li>
-<li>内嵌式容器简化Web项目</li>
-<li>没有冗余代码生成和XML配置的要求。</li>
-</ul>
-<h3 id="1-4-微服务"><a href="#1-4-微服务" class="headerlink" title="1.4 微服务"></a>1.4 微服务</h3><p>微服务论文地址：<a href="https://martinfowler.com/articles/microservices.html" target="_blank" rel="noopener">https://martinfowler.com/articles/microservices.html</a></p>
-<p>微服务论文中文翻译版地址： <a href="https://www.jianshu.com/p/d32b053e86e1" target="_blank" rel="noopener">https://www.jianshu.com/p/d32b053e86e1</a></p>
-<p>中文防挂链接： <a href="https://blog.csdn.net/weixin_42236165/article/details/92979025" target="_blank" rel="noopener">https://blog.csdn.net/weixin_42236165/article/details/92979025</a></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324092504.png" alt=""></p>
-<h2 id="2-Hello-World"><a href="#2-Hello-World" class="headerlink" title="2. Hello,World"></a>2. Hello,World</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><p>​    学习如何快速的创建一个Spring Boot应用，并且实现一个简单的Http请求处理。通过这个例子对Spring Boot有一个初步的了解，并体验其结构简单、开发快速的特性。</p>
-<p>我的环境准备：</p>
-<ul>
-<li>java version “1.8.0_181”</li>
-<li>Maven-3.6.1</li>
-<li>SpringBoot 2.x 最新版</li>
-</ul>
-<p>开发工具：</p>
-<ul>
-<li>IDEA</li>
-</ul>
-<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
-<p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
-<h4 id="2-2-1-项目创建方式一"><a href="#2-2-1-项目创建方式一" class="headerlink" title="2.2.1 项目创建方式一"></a>2.2.1 项目创建方式一</h4><p> <strong>项目创建方式一：</strong>使用Spring Initializr 的 Web页面创建项目</p>
-<p>1、打开  <a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
-<p>2、填写项目信息</p>
-<p>3、点击”Generate Project“按钮生成项目；下载此项目</p>
-<p>4、解压项目包，并用IDEA以Maven项目导入，一路下一步即可，直到项目导入完毕。</p>
-<p>5、如果是第一次使用，可能速度会比较慢，包比较多、需要耐心等待一切就绪。</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090429.png" alt=""></p>
-<h4 id="2-2-2-项目创建方式二"><a href="#2-2-2-项目创建方式二" class="headerlink" title="2.2.2  项目创建方式二"></a>2.2.2  项目创建方式二</h4><p><strong>项目创建方式二</strong>：使用 IDEA 直接创建项目</p>
-<p>1、创建一个新项目</p>
-<p>2、选择spring initalizr ， 可以看到默认就是去官网的快速构建工具那里实现</p>
-<p>3、填写项目信息</p>
-<p>4、选择初始化的组件（初学勾选 Web 即可）</p>
-<p>5、填写项目路径</p>
-<p>6、等待项目构建成功</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090921.png" alt=""></p>
-<h3 id="2-3-项目结构分析"><a href="#2-3-项目结构分析" class="headerlink" title="2.3 项目结构分析"></a>2.3 项目结构分析</h3><p>通过上面步骤完成了基础项目的创建。就会自动生成以下文件。</p>
-<ul>
-<li>程序的主启动类</li>
-<li>一个application.properties配置文件</li>
-<li>一个测试类</li>
-<li>一个pom.xml</li>
-</ul>
-<h4 id="2-3-1-pom-xml-分析"><a href="#2-3-1-pom-xml-分析" class="headerlink" title="2.3.1 pom.xml 分析"></a>2.3.1 pom.xml 分析</h4><p>打开pom.xml，看看Spring Boot项目的依赖：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 父依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web场景启动器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- springboot单元测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 剔除依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 打包插件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-4-编写一个http接口"><a href="#2-4-编写一个http接口" class="headerlink" title="2.4 编写一个http接口"></a>2.4 编写一个http接口</h3><ol>
-<li><p>在主程序的同级目录下，新建一个controller包，<strong>一定要在同级目录下，否则识别不到</strong></p>
-</li>
-<li><p>在包中新建一个HelloController类</p>
-</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>编写完毕后，从主程序启动项目，浏览器发起请求，看页面返回；控制台输出了 Tomcat 访问的端口号！</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092020.png" alt=""></p>
-<h2 id="3-彩蛋"><a href="#3-彩蛋" class="headerlink" title="3. 彩蛋"></a>3. 彩蛋</h2><p>​    如何更改启动时显示的字符拼成的字母，SpringBoot呢？也就是 banner 图案；</p>
-<p>​    只需一步：到项目下的 resources 目录下新建一个banner.txt 即可。</p>
-<p>​    图案可以到：<a href="https://www.bootschool.net/ascii" target="_blank" rel="noopener">https://www.bootschool.net/ascii</a> 这个网站生成，然后拷贝到文件中即可！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092125.png" alt=""></p>
-]]></content>
-      <tags>
-        <tag>SpringBoot</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Leetcode-876</title>
     <url>/2020/03/22/Leetcode/Leetcode-876-%E9%93%BE%E8%A1%A8%E7%9A%84%E4%B8%AD%E9%97%B4%E8%8A%82%E7%82%B9/</url>
     <content><![CDATA[<h1 id="Leecode-876-Middle-of-the-Linked-List"><a href="#Leecode-876-Middle-of-the-Linked-List" class="headerlink" title="Leecode-876 Middle of the Linked List"></a>Leecode-876 <a href="https://leetcode-cn.com/problems/middle-of-the-linked-list/" target="_blank" rel="noopener">Middle of the Linked List</a></h1><h2 id="思路：快慢指针"><a href="#思路：快慢指针" class="headerlink" title="思路：快慢指针"></a>思路：快慢指针</h2><p><strong>题目描述</strong></p>
@@ -3433,62 +3730,6 @@
   </entry>
   <entry>
     <title>Leetcode-365</title>
-    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
-    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
-<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
-<p>只允许以下操作：</p>
-<ul>
-<li>装满任意一个水壶</li>
-<li>清空任意一个水壶</li>
-<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
-</ul>
-<p><strong>Solution：</strong></p>
-<ul>
-<li>DFS</li>
-<li>裴蜀定理</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
-<a id="more"></a>
-
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
-<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
-<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
-<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
-<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
-<p><strong>Solution : 裴蜀定理</strong></p>
-<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
-<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
-<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
-<ul>
-<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
-</li>
-<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
-</li>
-<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
-</li>
-</ul>
-<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
-<p>​                                                    <strong>ax+by=z</strong></p>
-<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-        <tag>春招每日一题</tag>
-        <tag>深度优先搜索</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-365</title>
     <url>/2020/03/20/Leetcode/Leetcode-365-%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
 <p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
@@ -3550,6 +3791,62 @@
         <tag>春招每日一题</tag>
         <tag>深度优先搜索</tag>
         <tag>广度优先搜索</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-365</title>
+    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
+    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
+<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
+<p>只允许以下操作：</p>
+<ul>
+<li>装满任意一个水壶</li>
+<li>清空任意一个水壶</li>
+<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
+</ul>
+<p><strong>Solution：</strong></p>
+<ul>
+<li>DFS</li>
+<li>裴蜀定理</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
+<a id="more"></a>
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
+<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
+<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
+<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
+<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
+<p><strong>Solution : 裴蜀定理</strong></p>
+<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
+<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
+<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
+<ul>
+<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
+</li>
+<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
+</li>
+<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
+</li>
+</ul>
+<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
+<p>​                                                    <strong>ax+by=z</strong></p>
+<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>春招每日一题</tag>
+        <tag>深度优先搜索</tag>
       </tags>
   </entry>
   <entry>
@@ -7040,6 +7337,39 @@
       </tags>
   </entry>
   <entry>
+    <title>云服务器-Tomcat配置</title>
+    <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-Tomcat%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h1 id="云服务器-Tomcat配置"><a href="#云服务器-Tomcat配置" class="headerlink" title="云服务器-Tomcat配置"></a>云服务器-Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
+<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
+<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
+</li>
+<li><p>如果JDK已经配置好,</p>
+<ul>
+<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
+<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
+<p>如果出现Tomcat的主页,即安装成功,</p>
+<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
+<p><strong>回答：</strong></p>
+<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
+<p>使用下面的命令即可</p>
+<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
+<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
+<p><strong>回答：</strong></p>
+<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
+<p>tail -f catalina.out</p>
+]]></content>
+      <tags>
+        <tag>Tomcat</tag>
+        <tag>云服务器开发环境</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>云服务器-JDK配置</title>
     <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-JDK%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<h1 id="云服务器-JDK配置"><a href="#云服务器-JDK配置" class="headerlink" title="云服务器-JDK配置"></a>云服务器-JDK配置</h1><h2 id="1-JDK下载"><a href="#1-JDK下载" class="headerlink" title="1. JDK下载"></a>1. JDK下载</h2><ul>
@@ -7076,41 +7406,8 @@
 
 ]]></content>
       <tags>
+        <tag>云服务器开发环境</tag>
         <tag>JDK</tag>
-        <tag>云服务器开发环境</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>云服务器-Tomcat配置</title>
-    <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-Tomcat%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<h1 id="云服务器-Tomcat配置"><a href="#云服务器-Tomcat配置" class="headerlink" title="云服务器-Tomcat配置"></a>云服务器-Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
-<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
-<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
-</li>
-<li><p>如果JDK已经配置好,</p>
-<ul>
-<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
-<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
-<p>如果出现Tomcat的主页,即安装成功,</p>
-<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
-<p><strong>回答：</strong></p>
-<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
-<p>使用下面的命令即可</p>
-<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
-<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
-<p><strong>回答：</strong></p>
-<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
-<p>tail -f catalina.out</p>
-]]></content>
-      <tags>
-        <tag>云服务器开发环境</tag>
-        <tag>Tomcat</tag>
       </tags>
   </entry>
   <entry>
