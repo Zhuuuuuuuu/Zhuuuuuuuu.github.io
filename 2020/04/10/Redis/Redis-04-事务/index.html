@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">4字</span>
+            <span class="post-count">574字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">2分钟</span>
         </span>
     </span>
 </div>
@@ -99,7 +99,55 @@
       
 
       
-      <h1 id="Redis-04-事务"><a href="#Redis-04-事务" class="headerlink" title="Redis-04-事务"></a>Redis-04-事务</h1>
+      <h1 id="Redis-04-事务"><a href="#Redis-04-事务" class="headerlink" title="Redis-04-事务"></a>Redis-04-事务</h1><p><strong>Redis单条命令是保证原子性的，但是事务不保证原子性！</strong></p>
+<p><strong>所有的命令在事务中，并没有直接被执行！只有发起执行命令的时候才会执行！（Exec）</strong></p>
+<p><strong>Redis事务没有隔离级别的概念</strong></p>
+<p>一个事务中的所有命令都会被序列化，在序列执行的过程中，会按照顺序执行！</p>
+<ul>
+<li>一次性</li>
+<li>顺序性</li>
+<li>排他性</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### Redis事务本质：一组命令的集合</span></span><br><span class="line">--- 队列 <span class="built_in">set</span> <span class="built_in">set</span> <span class="built_in">set</span> 执行 ---</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+
+
+<p><strong>Redis事务分为三个阶段：</strong></p>
+<ul>
+<li>开启事务（MULTI -）</li>
+<li>命令入队（………….）</li>
+<li>执行事务（Exec）</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; MULTI   <span class="comment">## 开启事务</span></span><br><span class="line">OK</span><br><span class="line"><span class="comment">## 命令入队</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 v1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; get k2</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k3 v3</span><br><span class="line">QUEUED</span><br><span class="line"><span class="comment">## 执行事务</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">exec</span></span><br><span class="line">1) OK</span><br><span class="line">2) OK</span><br><span class="line">3) <span class="string">"v2"</span></span><br><span class="line">4) OK</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>放弃事务</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi <span class="comment">## 开启事务</span></span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 v1 </span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k4 v4</span><br><span class="line">QUEUED</span><br><span class="line"></span><br><span class="line"><span class="comment">## 取消事务</span></span><br><span class="line">127.0.0.1:6379&gt; discard</span><br><span class="line">OK</span><br><span class="line"><span class="comment">## 事务队列中的命令都不会被执行</span></span><br><span class="line">127.0.0.1:6379&gt; get k4</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>编译型异常（代码有问题！）</strong></p>
+<ul>
+<li><strong>事务中所有的命令都不会被执行</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 v1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k3 v3</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; getset k3</span><br><span class="line">(error) ERR wrong number of arguments <span class="keyword">for</span> <span class="string">'getset'</span> <span class="built_in">command</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k4 v4</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k5 v5</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">exec</span>  <span class="comment">## 执行事务报错</span></span><br><span class="line">(error) EXECABORT Transaction discarded because of previous errors.</span><br><span class="line">127.0.0.1:6379&gt; get k5  <span class="comment">## 所有的命令都不会被执行</span></span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>运行时异常（1/0)</strong></p>
+<ul>
+<li><strong>如果事务队列中存在语法性错误，那么执行命令的时候，其他命令是依旧可以正常执行的！（错误命令抛出异常）</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 <span class="string">"v1"</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; incr k1 <span class="comment">## 执行的时候会失败</span></span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k3 v3</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; get k3</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">exec</span> <span class="comment">## 其他命令是依旧可以正常执行的</span></span><br><span class="line">1) (error) ERR value is not an <span class="built_in">integer</span> or out of range   <span class="comment">## 虽然第一条命令报错了</span></span><br><span class="line">2) OK</span><br><span class="line">3) OK</span><br><span class="line">4) <span class="string">"v3"</span></span><br></pre></td></tr></table></figure>
+
+
+
+
       
       <!-- reward -->
       
