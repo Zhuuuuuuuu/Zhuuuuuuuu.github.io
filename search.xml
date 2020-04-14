@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Redis-07-SpringBoot整合</title>
+    <url>/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/</url>
+    <content><![CDATA[<h1 id="Redis-07-SpringBoot整合"><a href="#Redis-07-SpringBoot整合" class="headerlink" title="Redis-07-SpringBoot整合"></a>Redis-07-SpringBoot整合</h1><p>SpringBoot 操作数据： Spring-data (jpa,jdbc,mongodb,redis)</p>
+<h2 id="1-整合测试"><a href="#1-整合测试" class="headerlink" title="1. 整合测试"></a>1. 整合测试</h2><ol>
+<li>新建SpringBoot项目</li>
+</ol>
+<p>勾上Starter即可</p>
+<p><strong>说明：在SpringBoot2.x之后，Jredis被替换成了lettuce</strong></p>
+<p><strong>JRedis: 采用的是直连，是不安全的如果想要避免不安全的，使用jedis pool 连接池！(BIO)</strong></p>
+<p><strong>lettuce:采用netty，实例可以在多个线程中共享，不存在线程不安全的情况！可以减少线程数量（NIO）</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/N%288VW%28%60V%29XL6DKR1N3TJVL1.png" alt=""></p>
+<a id="more"></a>
+
+<p><strong>源码分析：</strong></p>
+<p>可以查看RedisAutoConfigure.java和 RedisProperties.java</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>(proxyBeanMethods = <span class="keyword">false</span>)</span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(RedisOperations<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">EnableConfigurationProperties</span>(<span class="title">RedisProperties</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">Import</span>(</span>&#123; LettuceConnectionConfiguration<span class="class">.<span class="keyword">class</span>, <span class="title">JedisConnectionConfiguration</span>.<span class="title">class</span> &#125;)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">RedisAutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">    <span class="comment">// 我们可以自己定义RedisTemplate</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"redisTemplate"</span>) </span><br><span class="line">	<span class="function"><span class="keyword">public</span> RedisTemplate&lt;Object, Object&gt; <span class="title">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> UnknownHostException </span>&#123;</span><br><span class="line">        <span class="comment">// 默认的没有过多的设置,redis对象都是需要序列化的</span></span><br><span class="line">        <span class="comment">// 两个泛型都是object，需要强制转换</span></span><br><span class="line">		RedisTemplate&lt;Object, Object&gt; template = <span class="keyword">new</span> RedisTemplate&lt;&gt;();</span><br><span class="line">		template.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">		<span class="keyword">return</span> template;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="comment">// 由于String类型是最常用的，所以自己单独提出一个Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> StringRedisTemplate <span class="title">stringRedisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> UnknownHostException </span>&#123;</span><br><span class="line">		StringRedisTemplate template = <span class="keyword">new</span> StringRedisTemplate();</span><br><span class="line">		template.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">		<span class="keyword">return</span> template;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>编写配置</li>
+</ol>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 导入配置</span></span><br><span class="line"><span class="meta">spring.redis.host</span>=<span class="string">39.106.171.56</span></span><br><span class="line"><span class="meta">spring.redis.port</span>=<span class="string">6379</span></span><br><span class="line"><span class="meta">spring.redis.password</span>=<span class="string">123456</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>测试类中测试链接</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.Test;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.connection.RedisConnection;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Redis02SpringbootApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 操作各大数据类型</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForList();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForGeo();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForHash();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForValue();</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取链接</span></span><br><span class="line">        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();</span><br><span class="line">        connection.flushAll();</span><br><span class="line">        connection.flushDb();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">"mykey"</span>,<span class="string">"zhuuu"</span>);</span><br><span class="line">        System.out.println(redisTemplate.opsForValue().get(<span class="string">"mykey"</span>));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>序列化配置：</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/GLB%7E3%248%24VQRQ0C1AE7G%40%60UX.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis-06-Jedis</title>
     <url>/2020/04/12/Redis/Redis-06-JRedis/</url>
     <content><![CDATA[<h1 id="Redis-06-Jedis"><a href="#Redis-06-Jedis" class="headerlink" title="Redis-06-Jedis"></a>Redis-06-Jedis</h1><h2 id="1-Jedis概述"><a href="#1-Jedis概述" class="headerlink" title="1. Jedis概述"></a>1. Jedis概述</h2><p>Jedis是Redis官网推荐的java连接开发工具！ </p>
@@ -38,7 +74,7 @@
 <ol start="3">
 <li>测试连接</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.Jedis;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestPing</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. new Jedis对象</span></span><br><span class="line">        Jedis jedis = <span class="keyword">new</span> Jedis(<span class="string">"ip地址"</span>,<span class="number">6379</span>);</span><br><span class="line">        jedis.auth(<span class="string">"123456"</span>);</span><br><span class="line">        <span class="comment">// 2. jedis所有的命令就是我们之前学习的所有指令！</span></span><br><span class="line">        System.out.println(jedis.ping());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.Jedis;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestPing</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. new Jedis对象</span></span><br><span class="line">        Jedis jedis = <span class="keyword">new</span> Jedis(<span class="string">"服务器ip地址"</span>,<span class="number">6379</span>);</span><br><span class="line">        jedis.auth(<span class="string">"123456"</span>);</span><br><span class="line">        <span class="comment">// 2. jedis所有的命令就是我们之前学习的所有指令！</span></span><br><span class="line">        System.out.println(jedis.ping());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -109,7 +145,7 @@
 </ul>
 <h2 id="2-乐观锁"><a href="#2-乐观锁" class="headerlink" title="2. 乐观锁"></a>2. 乐观锁</h2><ul>
 <li>很乐观，认为什么时候都不会出现问题，所以不会上锁</li>
-<li>更新数据的时候判断一下，在此期间是否有人修改过这个数据 （mysql–version）</li>
+<li><strong>更新数据的时候判断一下，在此期间是否有人修改过这个数据 （mysql–version）</strong></li>
 </ul>
 <a id="more"></a>
 
@@ -124,7 +160,7 @@
 <p><strong>测试多线程修改值，使用watch可以当做redis乐观锁操作！</strong></p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### 线程1</span></span><br><span class="line">127.0.0.1:6379&gt; watch money</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby money 10</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; INCRBY out 10</span><br><span class="line">QUEUED</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### 线程2 </span></span><br><span class="line">127.0.0.1:6379&gt; get money</span><br><span class="line"><span class="string">"80"</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> monty 1000</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### 线程2 </span></span><br><span class="line">127.0.0.1:6379&gt; get money</span><br><span class="line"><span class="string">"80"</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> money 1000</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
 
 <p>结果：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### 线程1</span></span><br><span class="line">127.0.0.1:6379&gt; watch money</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby money 10</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; incrby out 10</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">exec</span>  <span class="comment">### 执行之前，另外一个线程修改了值，就会导致事务执行失败</span></span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
@@ -133,7 +169,7 @@
 
 <p><strong>解决问题：</strong></p>
 <p>若果修改失败，获取最新的值就好</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; UNWATCH  <span class="comment">## 1. 解锁</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch money  <span class="comment">## 2. 重新获取锁</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby money 1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; INCRBY money 1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">exec</span>     <span class="comment">## 3. 执行（比对监视的值是否发生了变化，如果没有变化，那么可以执行成功，如果变化了就执行失败）</span></span><br><span class="line">1) (<span class="built_in">integer</span>) 999</span><br><span class="line">2) (<span class="built_in">integer</span>) 1000</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; UNWATCH  <span class="comment">## 1. 解锁</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch money  <span class="comment">## 2. 重新获取锁</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; decrby money 1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; INCRBY out 1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">exec</span>     <span class="comment">## 3. 执行（比对监视的值是否发生了变化，如果没有变化，那么可以执行成功，如果变化了就执行失败）</span></span><br><span class="line">1) (<span class="built_in">integer</span>) 999</span><br><span class="line">2) (<span class="built_in">integer</span>) 1000</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>
@@ -250,6 +286,15 @@
       <tags>
         <tag>数据库</tag>
         <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>算法读书笔记-02-排序</title>
+    <url>/2020/04/10/Algorithm/%E7%AE%97%E6%B3%95%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-02-%E6%8E%92%E5%BA%8F/</url>
+    <content><![CDATA[<h1 id="算法读书笔记-02-排序"><a href="#算法读书笔记-02-排序" class="headerlink" title="算法读书笔记-02-排序"></a>算法读书笔记-02-排序</h1>]]></content>
+      <tags>
+        <tag>算法</tag>
+        <tag>读书笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -442,150 +487,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Redis-02-入门与使用</title>
-    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
-<li><strong>Redis是什么？</strong></li>
-</ol>
-<ul>
-<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
-</li>
-<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
-</li>
-<li><p>也被称之为结构化数据库！</p>
-</li>
-</ul>
-<ol start="2">
-<li><strong>Redis能做什么？</strong></li>
-</ol>
-<ul>
-<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
-<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
-<a id="more"></a>
-
-<ol>
-<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
-<li>效率高，可以用于告诉缓存</li>
-<li>发布订阅系统</li>
-<li>地图信息分析</li>
-<li>计时器，计数器（浏览量！）</li>
-<li>……</li>
-</ol>
-<ol start="3">
-<li><strong>Redis特性</strong></li>
-</ol>
-<ul>
-<li>多样的数据类型</li>
-<li>持久化</li>
-<li>集群</li>
-<li>事务</li>
-</ul>
-<p>…….</p>
-<ol start="4">
-<li><strong>需要的工具</strong></li>
-</ol>
-<ul>
-<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
-<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
-</ul>
-<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
-<li>下载并上传到服务器</li>
-</ol>
-<p>官网下载：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
-<ol start="2">
-<li>解压压缩包（程序/opt目录下）</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
-<ol start="3">
-<li>进入解压后的文件，可以看到redis.conf</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
-<ol start="4">
-<li>确保有gcc环境并安装</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
-<ol start="5">
-<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
-<ol start="6">
-<li><strong>将redis配置文件复制到当前目录下</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
-
-<ol start="7">
-<li>redis默认不是后台启动，修改配置文件！</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
-<ol start="8">
-<li><strong>通过制定的配置文件启动redis服务</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
-<ol start="9">
-<li>测试redis连接（使用redis-cli进行连接）</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
-<ol start="10">
-<li>查看redis进程与连接</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
-<ol start="11">
-<li>如何关闭redis服务</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
-<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
-<p>简单测试一下：（100个并发连接，100000条请求）</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
-<li><p>默认有16个数据库（默认使用第0个）</p>
-<ul>
-<li>可以使用select切换数据库</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<p><strong>思考redis 为什么是6379?</strong></p>
-<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
-<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
-<ul>
-<li><strong>Redis是单线程的</strong><ul>
-<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
-<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
-<li>为什么<strong>单线程</strong>还这么快？<ul>
-<li>Redis是C语言写的，这个不比Memecache差</li>
-<li>高性能的服务器不一定是多线程的</li>
-<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redis-03-数据类型</title>
     <url>/2020/04/07/Redis/Redis-03-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[<h1 id="Redis-03-数据类型"><a href="#Redis-03-数据类型" class="headerlink" title="Redis-03-数据类型"></a>Redis-03-数据类型</h1><h2 id="1-五大数据类型"><a href="#1-五大数据类型" class="headerlink" title="1. 五大数据类型"></a>1. 五大数据类型</h2><h3 id="key"><a href="#key" class="headerlink" title="key"></a>key</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>  key value	     设置key value</span><br><span class="line">keys *                查看所有的key</span><br><span class="line">exists key 		     判断当前的key是否存在</span><br><span class="line">expire key seconds	 设置过期时间</span><br><span class="line">get    key			获得key的值</span><br><span class="line">ttl    key			查看当前key的剩余过期时间</span><br><span class="line"><span class="built_in">type</span>   key			查看当前key的一个类型</span><br></pre></td></tr></table></figure>
@@ -755,6 +656,150 @@
 <p>统计操作：统计打卡的天数</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bitcount sign</span><br><span class="line">(integer) 2</span><br></pre></td></tr></table></figure>
 
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis-02-入门与使用</title>
+    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
+<li><strong>Redis是什么？</strong></li>
+</ol>
+<ul>
+<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
+</li>
+<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
+</li>
+<li><p>也被称之为结构化数据库！</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Redis能做什么？</strong></li>
+</ol>
+<ul>
+<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
+<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
+<a id="more"></a>
+
+<ol>
+<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
+<li>效率高，可以用于告诉缓存</li>
+<li>发布订阅系统</li>
+<li>地图信息分析</li>
+<li>计时器，计数器（浏览量！）</li>
+<li>……</li>
+</ol>
+<ol start="3">
+<li><strong>Redis特性</strong></li>
+</ol>
+<ul>
+<li>多样的数据类型</li>
+<li>持久化</li>
+<li>集群</li>
+<li>事务</li>
+</ul>
+<p>…….</p>
+<ol start="4">
+<li><strong>需要的工具</strong></li>
+</ol>
+<ul>
+<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
+<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
+</ul>
+<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
+<li>下载并上传到服务器</li>
+</ol>
+<p>官网下载：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
+<ol start="2">
+<li>解压压缩包（程序/opt目录下）</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
+<ol start="3">
+<li>进入解压后的文件，可以看到redis.conf</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
+<ol start="4">
+<li>确保有gcc环境并安装</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
+<ol start="5">
+<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
+<ol start="6">
+<li><strong>将redis配置文件复制到当前目录下</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>redis默认不是后台启动，修改配置文件！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
+<ol start="8">
+<li><strong>通过制定的配置文件启动redis服务</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
+<ol start="9">
+<li>测试redis连接（使用redis-cli进行连接）</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
+<ol start="10">
+<li>查看redis进程与连接</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
+<ol start="11">
+<li>如何关闭redis服务</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
+<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
+<p>简单测试一下：（100个并发连接，100000条请求）</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
+<li><p>默认有16个数据库（默认使用第0个）</p>
+<ul>
+<li>可以使用select切换数据库</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p><strong>思考redis 为什么是6379?</strong></p>
+<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
+<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
+<ul>
+<li><strong>Redis是单线程的</strong><ul>
+<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
+<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
+<li>为什么<strong>单线程</strong>还这么快？<ul>
+<li>Redis是C语言写的，这个不比Memecache差</li>
+<li>高性能的服务器不一定是多线程的</li>
+<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 ]]></content>
       <tags>
         <tag>数据库</tag>
@@ -2659,83 +2704,6 @@
       </tags>
   </entry>
   <entry>
-    <title>SpringBoot-09-页面国际化</title>
-    <url>/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/</url>
-    <content><![CDATA[<h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><p>​    有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</p>
-<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><p>​    先在IDEA中统一设置properties的编码问题！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
-<a id="more"></a>
-
-<p>​    编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></p>
-<h2 id="2-配置文件编写"><a href="#2-配置文件编写" class="headerlink" title="2. 配置文件编写"></a>2. 配置文件编写</h2><ol>
-<li><p>在resources资源文件下新建一个i18n目录，存放国际化配置文件</p>
-</li>
-<li><p>建立一个login.properties文件，还有一个login_zh_CN.properties；发现idea自动识别了国际化操作，文件夹变了！</p>
-</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085838.png" alt=""></p>
-<ol start="3">
-<li>可以继续新建 一个文件</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090009.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090045.png" alt=""></p>
-<ol start="4">
-<li>接下来，我们就来编写配置，看到idea下面有另外一个视图：</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090208.png" alt=""></p>
-<p>这个视图我们点击 + 号就可以直接添加属性了；我们新建一个login.tip，可以看到边上有三个文件框可以输入</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090252.png" alt=""></p>
-<p>添加一下首页的内容！</p>
-<p>然后依次添加其他页面内容即可！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090340.png" alt=""></p>
-<p>然后去查看我们的配置文件；</p>
-<p><strong>login.properties ：默认</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码 </span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
-
-<p><strong>英文：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;Sign in</span><br><span class="line">login.password&#x3D;Password</span><br><span class="line">login.remember&#x3D;Remeber me</span><br><span class="line">login.tip&#x3D;Please sign in</span><br><span class="line">login.username&#x3D;User</span><br></pre></td></tr></table></figure>
-
-<p><strong>中文：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码</span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
-
-<p><strong>OK，配置文件步骤搞定！</strong></p>
-<h2 id="3-配置文件生效"><a href="#3-配置文件生效" class="headerlink" title="3. 配置文件生效"></a>3. 配置文件生效</h2><p>​    去看一下<strong>SpringBoot对国际化的自动配置</strong>！<strong>这里又涉及到一个类：MessageSourceAutoConfiguration</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageSource <span class="title">messageSource</span><span class="params">(MessageSourceProperties properties)</span> </span>&#123;</span><br><span class="line">    ResourceBundleMessageSource messageSource = <span class="keyword">new</span> ResourceBundleMessageSource();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasText(properties.getBasename())) &#123;</span><br><span class="line">        messageSource.setBasenames(StringUtils</span><br><span class="line">                                   .commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename())));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (properties.getEncoding() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setDefaultEncoding(properties.getEncoding().name());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());</span><br><span class="line">    Duration cacheDuration = properties.getCacheDuration();</span><br><span class="line">    <span class="keyword">if</span> (cacheDuration != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setCacheMillis(cacheDuration.toMillis());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());</span><br><span class="line">    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());</span><br><span class="line">    <span class="keyword">return</span> messageSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>真实 的情况是放在了i18n目录下，所以我们要去配置这个messages的路径；</strong></p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n.login</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-配置页面国际化值"><a href="#4-配置页面国际化值" class="headerlink" title="4. 配置页面国际化值"></a>4. 配置页面国际化值</h2><p>​    页面如果想要获取国际化的值，查看Thymeleaf的文档，找到message取值操作位#{…},我们去页面编写测试下：</p>
-<p>IDEA还有提示，非常智能的！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091044.png" alt=""></p>
-<p>​    可以去启动项目，访问一下，发现已经自动识别为中文的了！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091143.png" alt=""></p>
-<p><strong>但是我们想要更好！可以根据按钮自动切换中文英文！</strong></p>
-<h2 id="5-配置自动切换国际化值"><a href="#5-配置自动切换国际化值" class="headerlink" title="5. 配置自动切换国际化值"></a>5. 配置自动切换国际化值</h2><p>​    在Spring中有一个国际化的Locale（区域信息对象）；里面有个叫做LocaleResolver（获取区域信息对象）的解析器！</p>
-<p>​    去我们webmvc自动配置文件，寻找一下！看到SpringBoot默认配置：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"spring.mvc"</span>, name = <span class="string">"locale"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 容器中没有就自己配，有的话就是获取用户的配置</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FixedLocaleResolver(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//接收头国际化分解</span></span><br><span class="line">    AcceptHeaderLocaleResolver localeResolver = <span class="keyword">new</span> AcceptHeaderLocaleResolver();</span><br><span class="line">    localeResolver.setDefaultLocale(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    <span class="keyword">return</span> localeResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    AcceptHeaderLocaleResolver 这个类中有一个方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    Locale defaultLocale = getDefaultLocale();</span><br><span class="line">    <span class="comment">//默认就是根据请求头带来的区域信息获取locale进行国际化</span></span><br><span class="line">    <span class="keyword">if</span> (defaultLocale != <span class="keyword">null</span> &amp;&amp; request.getHeader(<span class="string">"Accept-Language"</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale requestLocale = request.getLocale();</span><br><span class="line">    List&lt;Locale&gt; supportedLocales = getSupportedLocales();</span><br><span class="line">    <span class="keyword">if</span> (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) &#123;</span><br><span class="line">        <span class="keyword">return</span> requestLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale supportedLocale = findSupportedLocale(request, supportedLocales);</span><br><span class="line">    <span class="keyword">if</span> (supportedLocale != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> supportedLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (defaultLocale != <span class="keyword">null</span> ? defaultLocale : requestLocale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    那假如我们现在想点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！</p>
-<p>​    我们去自己写一个自己的LocaleResolver，可以在链接上携带区域信息！</p>
-<p>​    <strong>修改一下前端页面的跳转连接：</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='zh_CN')&#125;"</span>&gt;</span>中文<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='en_US')&#125;"</span>&gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>然后编写一个处理的组建类！</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.LocaleResolver;</span><br><span class="line"><span class="keyword">import</span> org.thymeleaf.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Locale;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLocaleResolver</span> <span class="keyword">implements</span> <span class="title">LocaleResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">//解析请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取请求中的语言参数</span></span><br><span class="line">        String language = request.getParameter(<span class="string">"l"</span>);</span><br><span class="line"></span><br><span class="line">        Locale locale = Locale.getDefault(); <span class="comment">//如果没有就使用默认的</span></span><br><span class="line">        <span class="comment">//如果请求的链接携带了国际化的参数</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(language))&#123;</span><br><span class="line">            <span class="comment">//zh_CN</span></span><br><span class="line">            String[] split = language.split(<span class="string">"_"</span>);</span><br><span class="line">            <span class="comment">//国家，地区</span></span><br><span class="line">            locale = <span class="keyword">new</span> Locale(split[<span class="number">0</span>], split[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> locale;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLocale</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Locale locale)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>为了让我们的区域化信息能够生效，我们需要再配置一下这个组件！在我们自己的MvcConofig下添加bean；</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义的国际化组件就生效了</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MyLocaleResolver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>重启项目，来访问一下，发现点击按钮可以实现成功切换！搞定收工！</strong></p>
-]]></content>
-      <tags>
-        <tag>SpringBoot</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SpringBoot-10-项目实战</title>
     <url>/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/</url>
     <content><![CDATA[<h1 id="SpringBoot-10-项目实战"><a href="#SpringBoot-10-项目实战" class="headerlink" title="SpringBoot-10-项目实战"></a>SpringBoot-10-项目实战</h1><h2 id="1-项目简介"><a href="#1-项目简介" class="headerlink" title="1. 项目简介"></a>1. 项目简介</h2><p>​    该项目整合了CRUD实现员工管理案例，将MyBatis整合到原项目中，加入了数据库，添加了日期选项控件</p>
@@ -2916,6 +2884,83 @@
 </ol>
 <figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span> <span class="attr">xmlns:th</span>=<span class="string">"http://www.thymeleaf.org"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Type"</span> <span class="attr">content</span>=<span class="string">"text/html; charset=UTF-8"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1, shrink-to-fit=no"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"description"</span> <span class="attr">content</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"author"</span> <span class="attr">content</span>=<span class="string">""</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">title</span>&gt;</span>Dashboard Template for Bootstrap<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- Bootstrap core CSS --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">link</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/css/bootstrap.min.css&#125;"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">&lt;!-- Custom styles for this template --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">link</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/css/dashboard.css&#125;"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">style</span> <span class="attr">type</span>=<span class="string">"text/css"</span>&gt;</span></span><br><span class="line"><span class="css">			<span class="comment">/* Chart.js */</span></span></span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="keyword">@-webkit-keyframes</span> chartjs-render-animation &#123;</span></span><br><span class="line">				from &#123;</span><br><span class="line"><span class="css">					<span class="selector-tag">opacity</span>: 0<span class="selector-class">.99</span></span></span><br><span class="line">				&#125;</span><br><span class="line">				to &#123;</span><br><span class="line">					opacity: 1</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="keyword">@keyframes</span> chartjs-render-animation &#123;</span></span><br><span class="line">				from &#123;</span><br><span class="line"><span class="css">					<span class="selector-tag">opacity</span>: 0<span class="selector-class">.99</span></span></span><br><span class="line">				&#125;</span><br><span class="line">				to &#123;</span><br><span class="line">					opacity: 1</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="selector-class">.chartjs-render-monitor</span> &#123;</span></span><br><span class="line"><span class="css">				<span class="selector-tag">-webkit-animation</span>: <span class="selector-tag">chartjs-render-animation</span> 0<span class="selector-class">.001s</span>;</span></span><br><span class="line"><span class="css">				<span class="selector-tag">animation</span>: <span class="selector-tag">chartjs-render-animation</span> 0<span class="selector-class">.001s</span>;</span></span><br><span class="line">			&#125;</span><br><span class="line">		<span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">th:replace</span>=<span class="string">"~&#123;common/commons::topbar&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container-fluid"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">div</span> <span class="attr">th:replace</span>=<span class="string">"~&#123;common/commons::sidebar(active='list.html')&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">				<span class="tag">&lt;<span class="name">main</span> <span class="attr">role</span>=<span class="string">"main"</span> <span class="attr">class</span>=<span class="string">"col-md-9 ml-sm-auto col-lg-10 pt-3 px-4"</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">h2</span>&gt;</span>修改员工信息<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">form</span> <span class="attr">th:action</span>=<span class="string">"@&#123;/updateEmp&#125;"</span> <span class="attr">method</span>=<span class="string">"post"</span> &gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"id"</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.id&#125;"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>姓名<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"employeeName"</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control "</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.employeeName&#125;"</span> &gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>邮箱<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"email"</span> <span class="attr">type</span>=<span class="string">"email"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.email&#125;"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>性别<span class="tag">&lt;/<span class="name">label</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-check form-check-inline"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">"form-check-input"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">name</span>=<span class="string">"gender"</span> <span class="attr">value</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">									   <span class="attr">th:checked</span>=<span class="string">"$&#123;emp.gender==1&#125;"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">label</span> <span class="attr">class</span>=<span class="string">"form-check-label"</span>&gt;</span>男<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-check form-check-inline"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">"form-check-input"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">name</span>=<span class="string">"gender"</span> <span class="attr">value</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">									   <span class="attr">th:checked</span>=<span class="string">"$&#123;emp.gender==0&#125;"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">label</span> <span class="attr">class</span>=<span class="string">"form-check-label"</span>&gt;</span>女<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>部门<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="comment">&lt;!--提交的是部门的ID--&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">select</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">name</span>=<span class="string">"departmentId"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">option</span> <span class="attr">th:selected</span>=<span class="string">"$&#123;dept.id == emp.departmentId&#125;"</span> <span class="attr">th:each</span>=<span class="string">"dept:$&#123;departments&#125;"</span></span></span><br><span class="line"><span class="tag">										<span class="attr">th:text</span>=<span class="string">"$&#123;dept.departmentName&#125;"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;dept.id&#125;"</span>&gt;</span>1</span><br><span class="line">								<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>时间<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"date"</span> <span class="attr">type</span>=<span class="string">"text"</span>  <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;#dates.format(emp.date,'yyyy-MM-dd')&#125;"</span> <span class="attr">id</span>=<span class="string">"dateFormat"</span> <span class="attr">autocomplete</span>=<span class="string">"off"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot-09-页面国际化</title>
+    <url>/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/</url>
+    <content><![CDATA[<h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><p>​    有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</p>
+<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><p>​    先在IDEA中统一设置properties的编码问题！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
+<a id="more"></a>
+
+<p>​    编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></p>
+<h2 id="2-配置文件编写"><a href="#2-配置文件编写" class="headerlink" title="2. 配置文件编写"></a>2. 配置文件编写</h2><ol>
+<li><p>在resources资源文件下新建一个i18n目录，存放国际化配置文件</p>
+</li>
+<li><p>建立一个login.properties文件，还有一个login_zh_CN.properties；发现idea自动识别了国际化操作，文件夹变了！</p>
+</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085838.png" alt=""></p>
+<ol start="3">
+<li>可以继续新建 一个文件</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090009.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090045.png" alt=""></p>
+<ol start="4">
+<li>接下来，我们就来编写配置，看到idea下面有另外一个视图：</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090208.png" alt=""></p>
+<p>这个视图我们点击 + 号就可以直接添加属性了；我们新建一个login.tip，可以看到边上有三个文件框可以输入</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090252.png" alt=""></p>
+<p>添加一下首页的内容！</p>
+<p>然后依次添加其他页面内容即可！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090340.png" alt=""></p>
+<p>然后去查看我们的配置文件；</p>
+<p><strong>login.properties ：默认</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码 </span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
+
+<p><strong>英文：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;Sign in</span><br><span class="line">login.password&#x3D;Password</span><br><span class="line">login.remember&#x3D;Remeber me</span><br><span class="line">login.tip&#x3D;Please sign in</span><br><span class="line">login.username&#x3D;User</span><br></pre></td></tr></table></figure>
+
+<p><strong>中文：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码</span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
+
+<p><strong>OK，配置文件步骤搞定！</strong></p>
+<h2 id="3-配置文件生效"><a href="#3-配置文件生效" class="headerlink" title="3. 配置文件生效"></a>3. 配置文件生效</h2><p>​    去看一下<strong>SpringBoot对国际化的自动配置</strong>！<strong>这里又涉及到一个类：MessageSourceAutoConfiguration</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageSource <span class="title">messageSource</span><span class="params">(MessageSourceProperties properties)</span> </span>&#123;</span><br><span class="line">    ResourceBundleMessageSource messageSource = <span class="keyword">new</span> ResourceBundleMessageSource();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasText(properties.getBasename())) &#123;</span><br><span class="line">        messageSource.setBasenames(StringUtils</span><br><span class="line">                                   .commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename())));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (properties.getEncoding() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setDefaultEncoding(properties.getEncoding().name());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());</span><br><span class="line">    Duration cacheDuration = properties.getCacheDuration();</span><br><span class="line">    <span class="keyword">if</span> (cacheDuration != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setCacheMillis(cacheDuration.toMillis());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());</span><br><span class="line">    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());</span><br><span class="line">    <span class="keyword">return</span> messageSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>真实 的情况是放在了i18n目录下，所以我们要去配置这个messages的路径；</strong></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n.login</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-配置页面国际化值"><a href="#4-配置页面国际化值" class="headerlink" title="4. 配置页面国际化值"></a>4. 配置页面国际化值</h2><p>​    页面如果想要获取国际化的值，查看Thymeleaf的文档，找到message取值操作位#{…},我们去页面编写测试下：</p>
+<p>IDEA还有提示，非常智能的！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091044.png" alt=""></p>
+<p>​    可以去启动项目，访问一下，发现已经自动识别为中文的了！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091143.png" alt=""></p>
+<p><strong>但是我们想要更好！可以根据按钮自动切换中文英文！</strong></p>
+<h2 id="5-配置自动切换国际化值"><a href="#5-配置自动切换国际化值" class="headerlink" title="5. 配置自动切换国际化值"></a>5. 配置自动切换国际化值</h2><p>​    在Spring中有一个国际化的Locale（区域信息对象）；里面有个叫做LocaleResolver（获取区域信息对象）的解析器！</p>
+<p>​    去我们webmvc自动配置文件，寻找一下！看到SpringBoot默认配置：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"spring.mvc"</span>, name = <span class="string">"locale"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 容器中没有就自己配，有的话就是获取用户的配置</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FixedLocaleResolver(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//接收头国际化分解</span></span><br><span class="line">    AcceptHeaderLocaleResolver localeResolver = <span class="keyword">new</span> AcceptHeaderLocaleResolver();</span><br><span class="line">    localeResolver.setDefaultLocale(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    <span class="keyword">return</span> localeResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    AcceptHeaderLocaleResolver 这个类中有一个方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    Locale defaultLocale = getDefaultLocale();</span><br><span class="line">    <span class="comment">//默认就是根据请求头带来的区域信息获取locale进行国际化</span></span><br><span class="line">    <span class="keyword">if</span> (defaultLocale != <span class="keyword">null</span> &amp;&amp; request.getHeader(<span class="string">"Accept-Language"</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale requestLocale = request.getLocale();</span><br><span class="line">    List&lt;Locale&gt; supportedLocales = getSupportedLocales();</span><br><span class="line">    <span class="keyword">if</span> (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) &#123;</span><br><span class="line">        <span class="keyword">return</span> requestLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale supportedLocale = findSupportedLocale(request, supportedLocales);</span><br><span class="line">    <span class="keyword">if</span> (supportedLocale != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> supportedLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (defaultLocale != <span class="keyword">null</span> ? defaultLocale : requestLocale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    那假如我们现在想点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！</p>
+<p>​    我们去自己写一个自己的LocaleResolver，可以在链接上携带区域信息！</p>
+<p>​    <strong>修改一下前端页面的跳转连接：</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='zh_CN')&#125;"</span>&gt;</span>中文<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='en_US')&#125;"</span>&gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>然后编写一个处理的组建类！</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.LocaleResolver;</span><br><span class="line"><span class="keyword">import</span> org.thymeleaf.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Locale;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLocaleResolver</span> <span class="keyword">implements</span> <span class="title">LocaleResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">//解析请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取请求中的语言参数</span></span><br><span class="line">        String language = request.getParameter(<span class="string">"l"</span>);</span><br><span class="line"></span><br><span class="line">        Locale locale = Locale.getDefault(); <span class="comment">//如果没有就使用默认的</span></span><br><span class="line">        <span class="comment">//如果请求的链接携带了国际化的参数</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(language))&#123;</span><br><span class="line">            <span class="comment">//zh_CN</span></span><br><span class="line">            String[] split = language.split(<span class="string">"_"</span>);</span><br><span class="line">            <span class="comment">//国家，地区</span></span><br><span class="line">            locale = <span class="keyword">new</span> Locale(split[<span class="number">0</span>], split[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> locale;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLocale</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Locale locale)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>为了让我们的区域化信息能够生效，我们需要再配置一下这个组件！在我们自己的MvcConofig下添加bean；</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义的国际化组件就生效了</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MyLocaleResolver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>重启项目，来访问一下，发现点击按钮可以实现成功切换！搞定收工！</strong></p>
 ]]></content>
       <tags>
         <tag>SpringBoot</tag>
@@ -4673,58 +4718,6 @@
       </tags>
   </entry>
   <entry>
-    <title>JavaScript-流程控制</title>
-    <url>/2020/03/17/Webfront/JavaScript/JavaScript-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/</url>
-    <content><![CDATA[<h1 id="JavaScript-流程控制"><a href="#JavaScript-流程控制" class="headerlink" title="JavaScript-流程控制"></a>JavaScript-流程控制</h1><h2 id="1-条件判断"><a href="#1-条件判断" class="headerlink" title="1. 条件判断"></a>1. 条件判断</h2><ul>
-<li>JavaScript使用if () { … } else { … }来进行条件判断。例如，根据年龄显示不同内容，可以用if语句实现如下：</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">20</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123; <span class="comment">// 如果age &gt;= 18为true，则执行if语句块</span></span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123; <span class="comment">// 否则执行else语句块</span></span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果还要更细致地判断条件，可以使用多个if…else…的组合：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123;</span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (age &gt;= <span class="number">6</span>) &#123;</span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    alert(<span class="string">'kid'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>if-else语句的执行特点是二选一，如果在多个if…else…语句中，如果某个条件成立，后面的将不再判断</strong></p>
-<h2 id="2-for-循环"><a href="#2-for-循环" class="headerlink" title="2. for 循环"></a>2. for 循环</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> i;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;=<span class="number">10000</span>; i++) &#123;</span><br><span class="line">    x = x + i;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 50005000</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>i=1 这是初始条件，将变量i置为1；</li>
-<li>i&lt;=10000 这是判断条件，满足时就继续循环，不满足就退出循环；</li>
-<li>i++ 这是每次循环后的递增条件，由于每次循环后变量i都会加1，因此它终将在若干次循环后不满足判断条件i&lt;=10000而退出循环。</li>
-</ul>
-<p><strong>for循环最常用的地方是利用索引来遍历数组：</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [<span class="string">'Apple'</span>, <span class="string">'Google'</span>, <span class="string">'Microsoft'</span>];</span><br><span class="line"><span class="keyword">var</span> i, x;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;arr.length; i++) &#123;</span><br><span class="line">    x = arr[i];</span><br><span class="line">    <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>for循环的3个条件都是可以省略的，如果没有退出循环的判断条件，就必须使用break语句退出循环，否则就是死循环：</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (;;) &#123; <span class="comment">// 将无限循环下去</span></span><br><span class="line">    <span class="keyword">if</span> (x &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// 通过if判断来退出循环</span></span><br><span class="line">    &#125;</span><br><span class="line">    x ++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出结果：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200319144935.png" alt=""></p>
-<p><strong>for循环的一个变体是for … in循环，它可以把一个对象的所有属性依次循环出来：</strong></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">    name: <span class="string">'Jack'</span>,</span><br><span class="line">    age: <span class="number">20</span>,</span><br><span class="line">    city: <span class="string">'Beijing'</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> o) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key); <span class="comment">// 'name', 'age', 'city'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-while-循环"><a href="#3-while-循环" class="headerlink" title="3. while 循环"></a>3. while 循环</h2><p><strong>for循环之外的条件判断</strong></p>
-<ul>
-<li>for循环在已知循环的初始和结束条件时非常有用。而上述忽略了条件的for循环容易让人看不清循环的逻辑，此时用while循环更佳。</li>
-<li>while循环只有一个判断条件，条件满足，就不断循环，条件不满足时则退出循环。比如我们要计算100以内所有奇数之和，可以用while循环实现：</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> n = <span class="number">99</span>;</span><br><span class="line"><span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    x = x + n;</span><br><span class="line">    n = n - <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 2500</span></span><br></pre></td></tr></table></figure>
-
-<p>最后一种循环是do { … } while()循环，它和while循环的唯一区别在于，不是在每次循环开始的时候判断条件，而是在每次循环完成的时候判断条件：至少 执行一次!</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> n = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    n = n + <span class="number">1</span>;</span><br><span class="line">&#125; <span class="keyword">while</span> (n &lt; <span class="number">100</span>);</span><br><span class="line">n; <span class="comment">// 100</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>在编写循环代码时，务必小心编写初始条件和判断条件，尤其是边界值。</p>
-</li>
-<li><p>同时也要避免死循环的产生!</p>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>前端</tag>
-        <tag>JavaScript</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>JavaScript-函数、标准对象</title>
     <url>/2020/03/17/Webfront/JavaScript/JavaScript-%E5%87%BD%E6%95%B0%E5%92%8C%E5%AF%B9%E8%B1%A1/</url>
     <content><![CDATA[<h1 id="JavaScript-函数、标准对象"><a href="#JavaScript-函数、标准对象" class="headerlink" title="JavaScript-函数、标准对象"></a>JavaScript-函数、标准对象</h1><h2 id="1-函数"><a href="#1-函数" class="headerlink" title="1. 函数"></a>1. 函数</h2><h3 id="1-定义函数"><a href="#1-定义函数" class="headerlink" title="1. 定义函数"></a>1. 定义函数</h3><ul>
@@ -4865,6 +4858,58 @@
 <h3 id="7-3-原型链"><a href="#7-3-原型链" class="headerlink" title="7.3 原型链"></a>7.3 原型链</h3><p>在JavaScript中，每个函数都有一个prototype属性，这个属性指向函数的原型对象。</p>
 <p>所以 Object.prototype.<strong>proto</strong> 的值为 null 跟 Object.prototype 没有原型，其实表达了一个意思。</p>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200320205542.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>前端</tag>
+        <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript-流程控制</title>
+    <url>/2020/03/17/Webfront/JavaScript/JavaScript-%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6/</url>
+    <content><![CDATA[<h1 id="JavaScript-流程控制"><a href="#JavaScript-流程控制" class="headerlink" title="JavaScript-流程控制"></a>JavaScript-流程控制</h1><h2 id="1-条件判断"><a href="#1-条件判断" class="headerlink" title="1. 条件判断"></a>1. 条件判断</h2><ul>
+<li>JavaScript使用if () { … } else { … }来进行条件判断。例如，根据年龄显示不同内容，可以用if语句实现如下：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">20</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123; <span class="comment">// 如果age &gt;= 18为true，则执行if语句块</span></span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123; <span class="comment">// 否则执行else语句块</span></span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果还要更细致地判断条件，可以使用多个if…else…的组合：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> age = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span>) &#123;</span><br><span class="line">    alert(<span class="string">'adult'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (age &gt;= <span class="number">6</span>) &#123;</span><br><span class="line">    alert(<span class="string">'teenager'</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    alert(<span class="string">'kid'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>if-else语句的执行特点是二选一，如果在多个if…else…语句中，如果某个条件成立，后面的将不再判断</strong></p>
+<h2 id="2-for-循环"><a href="#2-for-循环" class="headerlink" title="2. for 循环"></a>2. for 循环</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> i;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">1</span>; i&lt;=<span class="number">10000</span>; i++) &#123;</span><br><span class="line">    x = x + i;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 50005000</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>i=1 这是初始条件，将变量i置为1；</li>
+<li>i&lt;=10000 这是判断条件，满足时就继续循环，不满足就退出循环；</li>
+<li>i++ 这是每次循环后的递增条件，由于每次循环后变量i都会加1，因此它终将在若干次循环后不满足判断条件i&lt;=10000而退出循环。</li>
+</ul>
+<p><strong>for循环最常用的地方是利用索引来遍历数组：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [<span class="string">'Apple'</span>, <span class="string">'Google'</span>, <span class="string">'Microsoft'</span>];</span><br><span class="line"><span class="keyword">var</span> i, x;</span><br><span class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;arr.length; i++) &#123;</span><br><span class="line">    x = arr[i];</span><br><span class="line">    <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>for循环的3个条件都是可以省略的，如果没有退出循环的判断条件，就必须使用break语句退出循环，否则就是死循环：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (;;) &#123; <span class="comment">// 将无限循环下去</span></span><br><span class="line">    <span class="keyword">if</span> (x &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span>; <span class="comment">// 通过if判断来退出循环</span></span><br><span class="line">    &#125;</span><br><span class="line">    x ++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200319144935.png" alt=""></p>
+<p><strong>for循环的一个变体是for … in循环，它可以把一个对象的所有属性依次循环出来：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">    name: <span class="string">'Jack'</span>,</span><br><span class="line">    age: <span class="number">20</span>,</span><br><span class="line">    city: <span class="string">'Beijing'</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> o) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key); <span class="comment">// 'name', 'age', 'city'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-while-循环"><a href="#3-while-循环" class="headerlink" title="3. while 循环"></a>3. while 循环</h2><p><strong>for循环之外的条件判断</strong></p>
+<ul>
+<li>for循环在已知循环的初始和结束条件时非常有用。而上述忽略了条件的for循环容易让人看不清循环的逻辑，此时用while循环更佳。</li>
+<li>while循环只有一个判断条件，条件满足，就不断循环，条件不满足时则退出循环。比如我们要计算100以内所有奇数之和，可以用while循环实现：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> n = <span class="number">99</span>;</span><br><span class="line"><span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    x = x + n;</span><br><span class="line">    n = n - <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line">x; <span class="comment">// 2500</span></span><br></pre></td></tr></table></figure>
+
+<p>最后一种循环是do { … } while()循环，它和while循环的唯一区别在于，不是在每次循环开始的时候判断条件，而是在每次循环完成的时候判断条件：至少 执行一次!</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> n = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    n = n + <span class="number">1</span>;</span><br><span class="line">&#125; <span class="keyword">while</span> (n &lt; <span class="number">100</span>);</span><br><span class="line">n; <span class="comment">// 100</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在编写循环代码时，务必小心编写初始条件和判断条件，尤其是边界值。</p>
+</li>
+<li><p>同时也要避免死循环的产生!</p>
+</li>
+</ul>
 ]]></content>
       <tags>
         <tag>前端</tag>
@@ -7636,8 +7681,8 @@
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>Synchronized</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -9810,8 +9855,8 @@
 <h3 id="6-3-Druid"><a href="#6-3-Druid" class="headerlink" title="6.3 Druid"></a>6.3 Druid</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200304213756.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>JDBC</tag>
         <tag>数据库</tag>
+        <tag>JDBC</tag>
       </tags>
   </entry>
   <entry>
@@ -11618,42 +11663,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Leetcode-032</title>
-    <url>/2019/06/12/Leetcode/Leetcode-032/</url>
-    <content><![CDATA[<h1 id="Leecode-032-Longest-Valid-Parentheses"><a href="#Leecode-032-Longest-Valid-Parentheses" class="headerlink" title="Leecode-032 [Longest Valid Parentheses]"></a>Leecode-032 [Longest Valid Parentheses]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：stack</strong></p>
-<ul>
-<li>leftmost:  指定最左侧的边界–&gt;初始值为-1</li>
-<li>stack：初始为空</li>
-<li>idx:     每个括号的索引</li>
-<li>原则：遇到正括号就push,反括号就pop</li>
-<li>max:   计算最大长度（反括号的index减去最上层的正括号的index）<ul>
-<li>[如果遇到反括号，pop之后stack为空，那么长度 = 当前idx - leftmost]</li>
-<li>[如果遇到反括号，pop之前stack为空，那么leftmost = 当前 idx, 长度就是当前idx-leftmost]</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-
-
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution：stack</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> leftmost = -<span class="number">1</span>;</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i) == <span class="string">'('</span>)&#123; <span class="comment">//遇到正括号就push</span></span><br><span class="line">                stack.push(i);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123; <span class="comment">//if  反括号就pop</span></span><br><span class="line">                <span class="keyword">if</span>(stack.isEmpty())&#123; <span class="comment">//当前stack为空，更新leftmost</span></span><br><span class="line">                    leftmost = i;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">int</span> j = stack.pop(); <span class="comment">//pop出正括号的index</span></span><br><span class="line">                    <span class="keyword">if</span>(stack.isEmpty()) max = Math.max(max,i-leftmost); <span class="comment">//pop出来之后为空</span></span><br><span class="line">                    <span class="keyword">else</span> max = Math.max(max,i-stack.peek()); <span class="comment">//pop出来之后不为空</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :同思路python版本</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">longestValidParentheses</span><span class="params">(self, s: str)</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        n = len(s)</span><br><span class="line">        max_Parentheses = <span class="number">0</span></span><br><span class="line">        leftmost = <span class="number">-1</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">            <span class="keyword">if</span> s[i] == <span class="string">'('</span>:</span><br><span class="line">                stack.append(i)</span><br><span class="line">            <span class="keyword">else</span>: <span class="comment">#if )</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> stack:</span><br><span class="line">                    leftmost = i</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    j = stack.pop()</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">not</span> stack: max_Parentheses = max(max_Parentheses,i-leftmost)</span><br><span class="line">                    <span class="keyword">else</span>: max_Parentheses = max(max_Parentheses,i-stack[<span class="number">-1</span>])</span><br><span class="line">        <span class="keyword">return</span> max_Parentheses</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Leetcode-082</title>
     <url>/2019/06/12/Leetcode/Leetcode-082/</url>
     <content><![CDATA[<h1 id="Leecode-082-Remove-Duplicates-from-Sorted-List-II"><a href="#Leecode-082-Remove-Duplicates-from-Sorted-List-II" class="headerlink" title="Leecode-082 Remove Duplicates from Sorted List II"></a>Leecode-082 <a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/" target="_blank" rel="noopener">Remove Duplicates from Sorted List II</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>题目描述</strong></p>
@@ -11784,6 +11793,42 @@
       </tags>
   </entry>
   <entry>
+    <title>Leetcode-032</title>
+    <url>/2019/06/12/Leetcode/Leetcode-032/</url>
+    <content><![CDATA[<h1 id="Leecode-032-Longest-Valid-Parentheses"><a href="#Leecode-032-Longest-Valid-Parentheses" class="headerlink" title="Leecode-032 [Longest Valid Parentheses]"></a>Leecode-032 [Longest Valid Parentheses]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：stack</strong></p>
+<ul>
+<li>leftmost:  指定最左侧的边界–&gt;初始值为-1</li>
+<li>stack：初始为空</li>
+<li>idx:     每个括号的索引</li>
+<li>原则：遇到正括号就push,反括号就pop</li>
+<li>max:   计算最大长度（反括号的index减去最上层的正括号的index）<ul>
+<li>[如果遇到反括号，pop之后stack为空，那么长度 = 当前idx - leftmost]</li>
+<li>[如果遇到反括号，pop之前stack为空，那么leftmost = 当前 idx, 长度就是当前idx-leftmost]</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution：stack</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> leftmost = -<span class="number">1</span>;</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i) == <span class="string">'('</span>)&#123; <span class="comment">//遇到正括号就push</span></span><br><span class="line">                stack.push(i);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123; <span class="comment">//if  反括号就pop</span></span><br><span class="line">                <span class="keyword">if</span>(stack.isEmpty())&#123; <span class="comment">//当前stack为空，更新leftmost</span></span><br><span class="line">                    leftmost = i;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">int</span> j = stack.pop(); <span class="comment">//pop出正括号的index</span></span><br><span class="line">                    <span class="keyword">if</span>(stack.isEmpty()) max = Math.max(max,i-leftmost); <span class="comment">//pop出来之后为空</span></span><br><span class="line">                    <span class="keyword">else</span> max = Math.max(max,i-stack.peek()); <span class="comment">//pop出来之后不为空</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :同思路python版本</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">longestValidParentheses</span><span class="params">(self, s: str)</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        n = len(s)</span><br><span class="line">        max_Parentheses = <span class="number">0</span></span><br><span class="line">        leftmost = <span class="number">-1</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">            <span class="keyword">if</span> s[i] == <span class="string">'('</span>:</span><br><span class="line">                stack.append(i)</span><br><span class="line">            <span class="keyword">else</span>: <span class="comment">#if )</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> stack:</span><br><span class="line">                    leftmost = i</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    j = stack.pop()</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">not</span> stack: max_Parentheses = max(max_Parentheses,i-leftmost)</span><br><span class="line">                    <span class="keyword">else</span>: max_Parentheses = max(max_Parentheses,i-stack[<span class="number">-1</span>])</span><br><span class="line">        <span class="keyword">return</span> max_Parentheses</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-021</title>
     <url>/2019/05/25/Leetcode/Leetcode-021/</url>
     <content><![CDATA[<h1 id="Leecode-021-Merge-Two-Sorted-Lists"><a href="#Leecode-021-Merge-Two-Sorted-Lists" class="headerlink" title="Leecode-021 [Merge Two Sorted Lists]"></a>Leecode-021 [Merge Two Sorted Lists]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：遍历，判断链表值的大小</strong></p>
@@ -11841,7 +11886,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Leetcode-023</title>
+    <title>Leetcode-023-合并K个有序链表</title>
     <url>/2019/05/25/Leetcode/Leetcode-023-%E5%90%88%E5%B9%B6k%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/</url>
     <content><![CDATA[<h1 id="Leecode-023-Merge-k-Sorted-Lists"><a href="#Leecode-023-Merge-k-Sorted-Lists" class="headerlink" title="Leecode-023 Merge k Sorted Lists"></a>Leecode-023 <a href="https://leetcode-cn.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener">Merge k Sorted Lists</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：堆</strong></p>
 <h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution : 利用Comparator接口和PriorityQueue</strong></p>
@@ -12016,8 +12061,8 @@
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12047,8 +12092,8 @@
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12056,8 +12101,8 @@
     <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
     <content><![CDATA[]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12127,8 +12172,8 @@
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12191,8 +12236,8 @@
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12221,8 +12266,8 @@
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12412,8 +12457,8 @@ SELECT studentno,studentname FROM student;
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12545,8 +12590,8 @@ SELECT studentno,studentname FROM student;
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12682,8 +12727,8 @@ SELECT studentno,studentname FROM student;
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -12762,8 +12807,8 @@ SELECT studentno,studentname FROM student;
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200210160123.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
