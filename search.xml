@@ -1,35 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Redis-07-SpringBoot整合</title>
-    <url>/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/</url>
-    <content><![CDATA[<h1 id="Redis-07-SpringBoot整合"><a href="#Redis-07-SpringBoot整合" class="headerlink" title="Redis-07-SpringBoot整合"></a>Redis-07-SpringBoot整合</h1><p>SpringBoot 操作数据： Spring-data (jpa,jdbc,mongodb,redis)</p>
-<h2 id="1-整合测试"><a href="#1-整合测试" class="headerlink" title="1. 整合测试"></a>1. 整合测试</h2><ol>
-<li>新建SpringBoot项目</li>
-</ol>
-<p>勾上Starter即可</p>
-<p><strong>说明：在SpringBoot2.x之后，Jredis被替换成了lettuce</strong></p>
-<p><strong>JRedis: 采用的是直连，是不安全的如果想要避免不安全的，使用jedis pool 连接池！(BIO)</strong></p>
-<p><strong>lettuce:采用netty，实例可以在多个线程中共享，不存在线程不安全的情况！可以减少线程数量（NIO）</strong></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/N%288VW%28%60V%29XL6DKR1N3TJVL1.png" alt=""></p>
+    <title>Redis-09-持久化</title>
+    <url>/2020/04/14/Redis/Redis-09-%E6%8C%81%E4%B9%85%E5%8C%96/</url>
+    <content><![CDATA[<h1 id="Redis-09-持久化"><a href="#Redis-09-持久化" class="headerlink" title="Redis-09-持久化"></a>Redis-09-持久化</h1><h2 id="1-RDB"><a href="#1-RDB" class="headerlink" title="1. RDB"></a>1. RDB</h2><p><strong>参考博客</strong>：<a href="https://www.cnblogs.com/ysocean/p/9114268.html#_label0" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/9114268.html#_label0</a></p>
+<h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221658610.png" alt="mark"></p>
+<p>RDB是Redis用来进行持久化的一种方式，是把当前内存中的数据集快照写入磁盘，也就是 Snapshot 快照（数据库中所有键值对数据）。</p>
+<p>恢复时是将快照文件直接读到内存里。</p>
+<p>默认情况下是RDB，一般情况不需要修改配置</p>
+<p>有时候在公司里，会将rdb文件进行备份</p>
 <a id="more"></a>
 
-<p><strong>源码分析：</strong></p>
-<p>可以查看RedisAutoConfigure.java和 RedisProperties.java</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>(proxyBeanMethods = <span class="keyword">false</span>)</span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(RedisOperations<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">EnableConfigurationProperties</span>(<span class="title">RedisProperties</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">Import</span>(</span>&#123; LettuceConnectionConfiguration<span class="class">.<span class="keyword">class</span>, <span class="title">JedisConnectionConfiguration</span>.<span class="title">class</span> &#125;)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">RedisAutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">    <span class="comment">// 我们可以自己定义RedisTemplate</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"redisTemplate"</span>) </span><br><span class="line">	<span class="function"><span class="keyword">public</span> RedisTemplate&lt;Object, Object&gt; <span class="title">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> UnknownHostException </span>&#123;</span><br><span class="line">        <span class="comment">// 默认的没有过多的设置,redis对象都是需要序列化的</span></span><br><span class="line">        <span class="comment">// 两个泛型都是object，需要强制转换</span></span><br><span class="line">		RedisTemplate&lt;Object, Object&gt; template = <span class="keyword">new</span> RedisTemplate&lt;&gt;();</span><br><span class="line">		template.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">		<span class="keyword">return</span> template;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="comment">// 由于String类型是最常用的，所以自己单独提出一个Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> StringRedisTemplate <span class="title">stringRedisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> UnknownHostException </span>&#123;</span><br><span class="line">		StringRedisTemplate template = <span class="keyword">new</span> StringRedisTemplate();</span><br><span class="line">		template.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">		<span class="keyword">return</span> template;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>优点：</strong></p>
+<p><strong>RDB比AOF更加的高效</strong></p>
+<p><strong>适合大规模的数据恢复</strong></p>
+<p><strong>对数据的完整性要求不高</strong></p>
+<p><strong>缺点：</strong></p>
+<p><strong>最后一次持久化可能会宕机，导致数据丢失</strong></p>
+<p><strong>fork进程的时候，会占用一定的内存空间</strong></p>
+<h3 id="1-2-触发机制"><a href="#1-2-触发机制" class="headerlink" title="1.2 触发机制"></a>1.2 触发机制</h3><p><strong>rdb保存的是dump.rdb文件</strong></p>
+<p>RDB 有两种触发方式，分别是自动触发和手动触发。</p>
+<ol>
+<li><strong>自动触发</strong></li>
+</ol>
+<p>在 redis.conf 配置文件中的 SNAPSHOTTING 下</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/220823830.png" alt="mark"></p>
+<p>　　<strong>①、save：</strong>这里是用来配置触发 Redis的 RDB 持久化条件，也就是什么时候将内存中的数据保存到硬盘。比如“save m n”。表示m秒内数据集存在n次修改时，自动触发bgsave（这个命令下面会介绍，手动触发RDB持久化的命令）</p>
+<p>　　默认如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">save 900 1：表示900 秒内如果至少有 1 个 key 的值变化，则保存</span><br><span class="line">save 300 10：表示300 秒内如果至少有 10 个 key 的值变化，则保存</span><br><span class="line">save 60 10000：表示60 秒内如果至少有 10000 个 key 的值变化，则保存</span><br></pre></td></tr></table></figure>
 
+<p>　　　　<strong>当然如果你只是用Redis的缓存功能，不需要持久化，那么你可以注释掉所有的 save 行来停用保存功能。可以直接一个空字符串来实现停用：save “”</strong></p>
+<p>　　<strong>②、stop-writes-on-bgsave-error ：</strong>默认值为yes。当启用了RDB且最后一次后台保存数据失败，Redis是否停止接收数据。这会让用户意识到数据没有正确持久化到磁盘上，否则没有人会注意到灾难（disaster）发生了。如果Redis重启了，那么又可以重新开始接收数据了</p>
+<p>　　<strong>③、rdbcompression ；</strong>默认值是yes。对于存储到磁盘中的快照，可以设置是否进行压缩存储。如果是的话，redis会采用LZF算法进行压缩。如果你不想消耗CPU来进行压缩的话，可以设置为关闭此功能，但是存储在磁盘上的快照会比较大。</p>
+<p>　　<strong>④、rdbchecksum ：</strong>默认值是yes。在存储快照后，我们还可以让redis使用CRC64算法来进行数据校验，但是这样做会增加大约10%的性能消耗，如果希望获取到最大的性能提升，可以关闭此功能。</p>
+<p>　　<strong>⑤、dbfilename ：</strong>设置快照的文件名，默认是 dump.rdb</p>
+<p>　　<strong>⑥、dir：</strong>设置快照文件的存放路径，这个配置项一定是个目录，而不能是文件名。默认是和当前配置文件保存在同一目录。</p>
+<p>　　也就是说通过在配置文件中配置的 save 方式，当实际操作满足该配置形式时就会进行 RDB 持久化，将当前的内存快照保存在 dir 配置的目录中，文件名由配置的 dbfilename 决定。</p>
 <ol start="2">
-<li>编写配置</li>
+<li><strong>手动触发</strong></li>
 </ol>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 导入配置</span></span><br><span class="line"><span class="meta">spring.redis.host</span>=<span class="string">39.106.171.56</span></span><br><span class="line"><span class="meta">spring.redis.port</span>=<span class="string">6379</span></span><br><span class="line"><span class="meta">spring.redis.password</span>=<span class="string">123456</span></span><br></pre></td></tr></table></figure>
+<p>　　手动触发Redis进行RDB持久化的命令有两种：</p>
+<p>　　1、save</p>
+<p>　　该命令会阻塞当前Redis服务器，执行save命令期间，Redis不能处理其他命令，直到RDB过程完成为止。</p>
+<p>　　显然该命令对于内存比较大的实例会造成长时间阻塞，这是致命的缺陷，为了解决此问题，Redis提供了第二种方式。</p>
+<p>　　2、bgsave</p>
+<p>　　执行该命令时，Redis会在后台异步进行快照操作，快照同时还可以响应客户端请求。具体操作是Redis进程执行fork操作创建子进程，RDB持久化过程由子进程负责，完成后自动结束。阻塞只发生在fork阶段，一般时间很短。</p>
+<p>　　<strong>基本上 Redis 内部所有的RDB操作都是采用 bgsave 命令。</strong></p>
+<p>　　<strong>ps:执行执行 flushall 命令，也会产生dump.rdb文件，但里面是空的.</strong></p>
+<h3 id="1-3-恢复RDB"><a href="#1-3-恢复RDB" class="headerlink" title="1.3 恢复RDB"></a>1.3 恢复RDB</h3><p>将备份文件 (dump.rdb) 移动到 redis 安装目录并启动服务即可，redis就会自动加载文件数据至内存了。Redis 服务器在载入 RDB 文件期间，会一直处于阻塞状态，直到载入工作完成为止。</p>
+<p>获取 redis 的安装目录可以使用 config get dir 命令</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221418783.png" alt="mark"></p>
+<p>载入的标识是如下命令：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221439368.png" alt="mark"></p>
+<h3 id="1-4-停止使用RDB持久化"><a href="#1-4-停止使用RDB持久化" class="headerlink" title="1.4 停止使用RDB持久化"></a>1.4 停止使用RDB持久化</h3><p>有些情况下，我们只想利用Redis的缓存功能，并不像使用 Redis 的持久化功能，那么这时候我们最好停掉 RDB 持久化。可以通过上面讲的在配置文件 redis.conf 中，可以注释掉所有的 save 行来停用保存功能或者直接一个空字符串来实现停用：save “”</p>
+<p>　　也可以通过命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">redis-cli config set save &#96;&#96;&quot; &quot;</span><br></pre></td></tr></table></figure>
 
-<ol start="3">
-<li>测试类中测试链接</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.Test;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.connection.RedisConnection;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Redis02SpringbootApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 操作各大数据类型</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForList();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForGeo();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForHash();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForValue();</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取链接</span></span><br><span class="line">        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();</span><br><span class="line">        connection.flushAll();</span><br><span class="line">        connection.flushDb();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">"mykey"</span>,<span class="string">"zhuuu"</span>);</span><br><span class="line">        System.out.println(redisTemplate.opsForValue().get(<span class="string">"mykey"</span>));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><strong>序列化配置：</strong></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/GLB%7E3%248%24VQRQ0C1AE7G%40%60UX.png" alt=""></p>
+
+
+
+<h3 id="1-5-缺点和优点"><a href="#1-5-缺点和优点" class="headerlink" title="1.5 缺点和优点"></a>1.5 缺点和优点</h3><p>　①、优势</p>
+<p>　　1.RDB是一个非常紧凑(compact)的文件，它保存了redis 在某个时间点上的数据集。这种文件非常适合用于进行备份和灾难恢复。</p>
+<p>　　2.生成RDB文件的时候，redis主进程会fork()一个子进程来处理所有保存工作，主进程不需要进行任何磁盘IO操作。</p>
+<p>　　3.RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。</p>
+<p>　　②、劣势</p>
+<p>　　1、RDB方式数据没办法做到实时持久化/秒级持久化。因为bgsave每次运行都要执行fork操作创建子进程，属于重量级操作，如果不采用压缩算法(内存中的数据被克隆了一份，大致2倍的膨胀性需要考虑)，频繁执行成本过高(影响性能)</p>
+<p>　　2、RDB文件使用特定二进制格式保存，Redis版本演进过程中有多个格式的RDB版本，存在老版本Redis服务无法兼容新版RDB格式的问题(版本不兼容)</p>
+<p>　　3、在一定间隔时间做一次备份，所以如果redis意外down掉的话，就会丢失最后一次快照后的所有修改(数据有丢失)</p>
+<h2 id="2-AOF"><a href="#2-AOF" class="headerlink" title="2. AOF"></a>2. AOF</h2><p><strong>参考博客</strong>：<a href="https://www.cnblogs.com/ysocean/p/9114267.html" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/9114267.html</a></p>
+<h3 id="2-1-简介"><a href="#2-1-简介" class="headerlink" title="2.1 简介"></a>2.1 简介</h3><p> <strong>AOF(Append Only File)</strong></p>
+<p>以日志的形式将我们的所有命令都记录下来，history，恢复的时候就把这个文件全部重新执行一遍！</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/222040363.png" alt="mark"></p>
+<p><strong>AOF保存的是appendonly.aof文件</strong></p>
+<p>比如对于如下命令：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/222415585.png" alt="mark"></p>
+<p>RDB 持久化方式就是将 str1,str2,str3 这三个键值对保存到 RDB文件中，而 AOF 持久化则是将执行的 set,sadd,lpush 三个命令保存到 AOF 文件中。</p>
+<h3 id="2-2-AOF配置"><a href="#2-2-AOF配置" class="headerlink" title="2.2 AOF配置"></a>2.2 AOF配置</h3><p>在 redis.conf 配置文件的 APPEND ONLY MODE 下：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/222521402.png" alt="mark"></p>
+<p>　　①<strong>appendonly</strong>：默认值为no，也就是说<strong>redis 默认使用的是rdb方式持久化，</strong>如果想要开启 AOF 持久化方式，需要将 appendonly 修改为 yes。</p>
+<p>　　②<strong>appendfilename</strong> ：aof文件名，默认是”appendonly.aof”</p>
+<p>　　③<strong>appendfsync：</strong>aof持久化策略的配置；</p>
+<p>　　　　　　no表示不执行fsync，由操作系统保证数据同步到磁盘，速度最快，但是不太安全；</p>
+<p>　　　　　　always表示每次写入都执行fsync，以保证数据同步到磁盘，效率很低；</p>
+<p>　　　　　　everysec表示每秒执行一次fsync，可能会导致丢失这1s数据。通常选择 everysec ，兼顾安全性和效率。</p>
+<p>　　④、no-appendfsync-on-rewrite：在aof重写或者写入rdb文件的时候，会执行大量IO，此时对于everysec和always的aof模式来说，执行fsync会造成阻塞过长时间，no-appendfsync-on-rewrite字段设置为默认设置为no。如果对延迟要求很高的应用，这个字段可以设置为yes，否则还是设置为no，这样对持久化特性来说这是更安全的选择。  设置为yes表示rewrite期间对新写操作不fsync,暂时存在内存中,等rewrite完成后再写入，默认为no，建议yes。Linux的默认fsync策略是30秒。可能丢失30秒数据。默认值为no。</p>
+<p>　　⑤、auto-aof-rewrite-percentage：默认值为100。aof自动重写配置，当目前aof文件大小超过上一次重写的aof文件大小的百分之多少进行重写，即当aof文件增长到一定大小的时候，Redis能够调用bgrewriteaof对日志文件进行重写。当前AOF文件大小是上次日志重写得到AOF文件大小的二倍（设置为100）时，自动启动新的日志重写过程。</p>
+<p>　　⑥、auto-aof-rewrite-min-size：64mb。设置允许重写的最小aof文件大小，避免了达到约定百分比但尺寸仍然很小的情况还要重写。</p>
+<p>　　⑦、aof-load-truncated：aof文件可能在尾部是不完整的，当redis启动的时候，aof文件的数据被载入内存。重启可能发生在redis所在的主机操作系统宕机后，尤其在ext4文件系统没有加上data=ordered选项，出现这种现象 redis宕机或者异常终止不会造成尾部不完整现象，可以选择让redis退出，或者导入尽可能多的数据。如果选择的是yes，当截断的aof文件被导入的时候，会自动发布一个log给客户端然后load。如果是no，用户必须手动redis-check-aof修复AOF文件才可以。默认值为 yes。</p>
+<h3 id="2-3-开启AOF"><a href="#2-3-开启AOF" class="headerlink" title="2.3 开启AOF"></a>2.3 开启AOF</h3><p>将 redis.conf 的 appendonly 配置改为 yes 即可。</p>
+<p>AOF 保存文件的位置和 RDB 保存文件的位置一样，都是通过 redis.conf 配置文件的 dir 配置：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/222732004.png" alt="mark"></p>
+<p>可以通过 config get dir 命令获取保存的路径。</p>
+<h3 id="2-4-文件恢复"><a href="#2-4-文件恢复" class="headerlink" title="2.4 文件恢复"></a>2.4 文件恢复</h3><p>重启 Redis 之后就会进行 AOF 文件的载入。</p>
+<p>异常修复命令：redis-check-aof –fix 进行修复</p>
+<h3 id="2-5-重写"><a href="#2-5-重写" class="headerlink" title="2.5 重写"></a>2.5 重写</h3><p>由于AOF持久化是Redis不断将写命令记录到 AOF 文件中，随着Redis不断的进行，AOF 的文件会越来越大，文件越大，占用服务器内存越大以及 AOF 恢复要求时间越长。为了解决这个问题，Redis新增了重写机制，当AOF文件的大小超过所设定的阈值时，Redis就会启动AOF文件的内容压缩，只保留可以恢复数据的最小指令集。可以使用命令 bgrewriteaof 来重新。</p>
+<p>比如对于如下命令：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/223227881.png" alt="mark"></p>
+<p>如果不进行 AOF 文件重写，那么 AOF 文件将保存四条 SADD 命令，如果使用AOF 重写，那么AOF 文件中将只会保留下面一条命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sadd animals ``<span class="string">"dog"</span>` `<span class="string">"tiger"</span>` `<span class="string">"panda"</span>` `<span class="string">"lion"</span>` `<span class="string">"cat"</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>也就是说 AOF 文件重写并不是对原文件进行重新整理，而是直接读取服务器现有的键值对，然后用一条命令去代替之前记录这个键值对的多条命令，生成一个新的文件后去替换原来的 AOF 文件。</strong></p>
+<p>AOF 文件重写触发机制：通过 redis.conf 配置文件中的 auto-aof-rewrite-percentage：默认值为100，以及auto-aof-rewrite-min-size：64mb 配置，也就是说默认Redis会记录上次重写时的AOF大小，<strong>默认配置是当AOF文件大小是上次rewrite后大小的一倍且文件大于64M时触发。</strong></p>
+<p>这里再提一下，我们知道 Redis 是单线程工作，如果 重写 AOF 需要比较长的时间，那么在重写 AOF 期间，Redis将长时间无法处理其他的命令，这显然是不能忍受的。Redis为了克服这个问题，<strong>解决办法是将 AOF 重写程序放到子程序中进行</strong>，这样有两个好处：</p>
+<p>①、子进程进行 AOF 重写期间，服务器进程（父进程）可以继续处理其他命令。</p>
+<p>②、子进程带有父进程的数据副本，使用子进程而不是线程，可以在避免使用锁的情况下，保证数据的安全性。</p>
+<p><strong>使用子进程解决了上面的问题，但是新问题也产生了：因为子进程在进行 AOF 重写期间，服务器进程依然在处理其它命令，这新的命令有可能也对数据库进行了修改操作，使得当前数据库状态和重写后的 AOF 文件状态不一致。</strong></p>
+<p>为了解决这个数据状态不一致的问题，Redis 服务器设置了一个 AOF 重写缓冲区，这个缓冲区是在创建子进程后开始使用，当Redis服务器执行一个写命令之后，就会将这个写命令也发送到 AOF 重写缓冲区。当子进程完成 AOF 重写之后，就会给父进程发送一个信号，父进程接收此信号后，就会调用函数将 AOF 重写缓冲区的内容都写到新的 AOF 文件中。</p>
+<p>这样将 AOF 重写对服务器造成的影响降到了最低。</p>
+<h3 id="2-6-缺点和优点"><a href="#2-6-缺点和优点" class="headerlink" title="2.6 缺点和优点"></a>2.6 缺点和优点</h3><p>　　优点：</p>
+<p>　　①、AOF 持久化的方法提供了多种的同步频率，即使使用默认的同步频率每秒同步一次，Redis 最多也就丢失 1 秒的数据而已。</p>
+<p>　　②、AOF 文件使用 Redis 命令追加的形式来构造，因此，即使 Redis 只能向 AOF 文件写入命令的片断，使用 redis-check-aof 工具也很容易修正 AOF 文件。</p>
+<p>　　③、AOF 文件的格式可读性较强，这也为使用者提供了更灵活的处理方式。例如，如果我们不小心错用了 FLUSHALL 命令，在重写还没进行时，我们可以手工将最后的 FLUSHALL 命令去掉，然后再使用 AOF 来恢复数据。</p>
+<p>　　缺点：</p>
+<p>　　①、对于具有相同数据的的 Redis，AOF 文件通常会比 RDF 文件体积更大。</p>
+<p>　　②、虽然 AOF 提供了多种同步的频率，默认情况下，每秒同步一次的频率也具有较高的性能。但在 Redis 的负载较高时，RDB 比 AOF 具好更好的性能保证。</p>
+<p>　　③、RDB 使用快照的形式来持久化整个 Redis 数据，而 AOF 只是将每次执行的命令追加到 AOF 文件中，因此从理论上说，RDB 比 AOF 方式更健壮。官方文档也指出，AOF 的确也存在一些 BUG，这些 BUG 在 RDB 没有存在。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>​    那么对于 AOF 和 RDB 两种持久化方式，我们应该如何选择呢？</p>
+<p>　如果可以忍受一小段时间内数据的丢失，毫无疑问使用 RDB 是最好的，定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，而且使用 RDB 还可以避免 AOF 一些隐藏的 bug；否则就使用 AOF 重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。Redis后期官方可能都有将两种持久化方式整合为一种持久化模型。</p>
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis-08-Conf</title>
+    <url>/2020/04/14/Redis/Redis-08-Conf/</url>
+    <content><![CDATA[<h1 id="Redis-08-Conf"><a href="#Redis-08-Conf" class="headerlink" title="Redis-08-Conf"></a>Redis-08-Conf</h1><p><strong>打开redis.conf文件</strong></p>
+<h2 id="1-单位"><a href="#1-单位" class="headerlink" title="1. 单位"></a>1. 单位</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/video/O_H3%28%29%7B221WX%7E9UE3%28HY452.png" alt=""></p>
+<a id="more"></a>
+
+<h2 id="2-包含配置文件"><a href="#2-包含配置文件" class="headerlink" title="2. 包含配置文件"></a>2. 包含配置文件</h2><p>绑定IP</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/210956149.png" alt="mark"></p>
+<h2 id="3-通用设置"><a href="#3-通用设置" class="headerlink" title="3. 通用设置"></a>3. 通用设置</h2><p>Daemonize 后台开启</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211044791.png" alt="mark"></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 打印日志</span></span><br><span class="line"><span class="comment"># Specify the server verbosity level.</span></span><br><span class="line"><span class="comment"># This can be one of:</span></span><br><span class="line"><span class="comment"># debug (a lot of information, useful for development/testing)</span></span><br><span class="line"><span class="comment"># verbose (many rarely useful info, but not a mess like the debug level)</span></span><br><span class="line"><span class="comment"># notice (moderately verbose, what you want in production probably)</span></span><br><span class="line"><span class="comment"># warning (only very important / critical messages are logged)</span></span><br><span class="line">loglevel notice  <span class="comment">## 日志等级</span></span><br><span class="line">logfile <span class="string">""</span>       <span class="comment">## 日志的位置</span></span><br><span class="line">database 16      <span class="comment">## 默认16个数据库</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-快照"><a href="#4-快照" class="headerlink" title="4. 快照"></a>4. 快照</h2><p>持久化，在规定的时间内，执行了多少次操作，则会持久化到文件</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211415183.png" alt="mark"></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 如果900s内，如果至少有一个key进行了修改，就进行持久化操作</span></span><br><span class="line"><span class="comment">## 如果300s内，如果至少有十个key进行了修改，就进行持久化操作</span></span><br><span class="line"><span class="comment">## 如果60s内，如果至少有10000个key进行了修改，就进行持久化操作</span></span><br><span class="line"></span><br><span class="line">stop-writes-on-bgsave-error yes  <span class="comment">## 出错了继续工作</span></span><br><span class="line">rdbcompression yes               <span class="comment">## 是否压缩rbd文件</span></span><br><span class="line">rdbchecksum yes                  <span class="comment">## 错误校验检查</span></span><br><span class="line">dir ./						   <span class="comment">## rdb保存位置</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-主从复制"><a href="#5-主从复制" class="headerlink" title="5. 主从复制"></a>5. 主从复制</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211727064.png" alt="mark"></p>
+<h2 id="6-设置密码"><a href="#6-设置密码" class="headerlink" title="6. 设置密码"></a>6. 设置密码</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211804660.png" alt="mark"></p>
+<h2 id="7-客户端"><a href="#7-客户端" class="headerlink" title="7. 客户端"></a>7. 客户端</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211900418.png" alt="mark"></p>
+<h2 id="8-内存配置"><a href="#8-内存配置" class="headerlink" title="8. 内存配置"></a>8. 内存配置</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211925424.png" alt="mark"></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># maxmemory-policy noeviction (redis设置过期key六种方式)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 设置方式   </span></span><br><span class="line">config <span class="built_in">set</span> maxmemory-policy volatile-lru </span><br><span class="line"></span><br><span class="line">maxmemory-policy 六种方式</span><br><span class="line">1、volatile-lru：只对设置了过期时间的key进行LRU（默认值） </span><br><span class="line"></span><br><span class="line">2、allkeys-lru ： 删除lru算法的key   </span><br><span class="line"></span><br><span class="line">3、volatile-random：随机删除即将过期key   </span><br><span class="line"></span><br><span class="line">4、allkeys-random：随机删除   </span><br><span class="line"></span><br><span class="line">5、volatile-ttl ： 删除即将过期的   </span><br><span class="line"></span><br><span class="line">6、noeviction ： 永不过期，返回错误</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="9-AOF配置"><a href="#9-AOF配置" class="headerlink" title="9. AOF配置"></a>9. AOF配置</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/212203402.png" alt="mark"></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 默认是使用rdb 不适用aof</span></span><br><span class="line">appendonly no</span><br><span class="line"><span class="comment">## 文件名</span></span><br><span class="line">appendfilename <span class="string">"appendonly.aof"</span></span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
         <tag>数据库</tag>
@@ -130,6 +254,106 @@
 
 <p>输出结果如下：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java.lang.ArithmeticException: / by zero</span><br><span class="line">	at com.zhuuu.TestTransication.main(TestTransication.java:<span class="number">26</span>)</span><br><span class="line"><span class="keyword">null</span></span><br><span class="line"><span class="keyword">null</span></span><br><span class="line"></span><br><span class="line">Process finished with exit code <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis-07-SpringBoot整合</title>
+    <url>/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/</url>
+    <content><![CDATA[<h1 id="Redis-07-SpringBoot整合"><a href="#Redis-07-SpringBoot整合" class="headerlink" title="Redis-07-SpringBoot整合"></a>Redis-07-SpringBoot整合</h1><p>SpringBoot 操作数据： Spring-data (jpa,jdbc,mongodb,redis)</p>
+<a id="more"></a>
+
+<h2 id="1-整合测试"><a href="#1-整合测试" class="headerlink" title="1. 整合测试"></a>1. 整合测试</h2><ol>
+<li>新建SpringBoot项目</li>
+</ol>
+<p>勾上Starter即可</p>
+<p><strong>说明：在SpringBoot2.x之后，Jredis被替换成了lettuce</strong></p>
+<p><strong>JRedis: 采用的是直连，是不安全的如果想要避免不安全的，使用jedis pool 连接池！(BIO)</strong></p>
+<p><strong>lettuce:采用netty，实例可以在多个线程中共享，不存在线程不安全的情况！可以减少线程数量（NIO）</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/N%288VW%28%60V%29XL6DKR1N3TJVL1.png" alt=""></p>
+<p><strong>源码分析：</strong></p>
+<p>可以查看RedisAutoConfigure.java和 RedisProperties.java</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span>(proxyBeanMethods = <span class="keyword">false</span>)</span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(RedisOperations<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">EnableConfigurationProperties</span>(<span class="title">RedisProperties</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">Import</span>(</span>&#123; LettuceConnectionConfiguration<span class="class">.<span class="keyword">class</span>, <span class="title">JedisConnectionConfiguration</span>.<span class="title">class</span> &#125;)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">RedisAutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">    <span class="comment">// 我们可以自己定义RedisTemplate</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"redisTemplate"</span>) </span><br><span class="line">	<span class="function"><span class="keyword">public</span> RedisTemplate&lt;Object, Object&gt; <span class="title">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> UnknownHostException </span>&#123;</span><br><span class="line">        <span class="comment">// 默认的没有过多的设置,redis对象都是需要序列化的</span></span><br><span class="line">        <span class="comment">// 两个泛型都是object，需要强制转换</span></span><br><span class="line">		RedisTemplate&lt;Object, Object&gt; template = <span class="keyword">new</span> RedisTemplate&lt;&gt;();</span><br><span class="line">		template.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">		<span class="keyword">return</span> template;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="comment">// 由于String类型是最常用的，所以自己单独提出一个Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> StringRedisTemplate <span class="title">stringRedisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> UnknownHostException </span>&#123;</span><br><span class="line">		StringRedisTemplate template = <span class="keyword">new</span> StringRedisTemplate();</span><br><span class="line">		template.setConnectionFactory(redisConnectionFactory);</span><br><span class="line">		<span class="keyword">return</span> template;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>编写配置</li>
+</ol>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 导入配置</span></span><br><span class="line"><span class="meta">spring.redis.host</span>=<span class="string">39.106.171.56</span></span><br><span class="line"><span class="meta">spring.redis.port</span>=<span class="string">6379</span></span><br><span class="line"><span class="meta">spring.redis.password</span>=<span class="string">123456</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>测试类中测试链接</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.Test;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.connection.RedisConnection;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Redis02SpringbootApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 操作各大数据类型</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForList();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForGeo();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForHash();</span></span><br><span class="line"><span class="comment">//        redisTemplate.opsForValue();</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取链接</span></span><br><span class="line">        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();</span><br><span class="line">        connection.flushAll();</span><br><span class="line">        connection.flushDb();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">"mykey"</span>,<span class="string">"zhuuu"</span>);</span><br><span class="line">        System.out.println(redisTemplate.opsForValue().get(<span class="string">"mykey"</span>));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>序列化配置：</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/GLB%7E3%248%24VQRQ0C1AE7G%40%60UX.png" alt=""></p>
+<h2 id="2-测试序列化"><a href="#2-测试序列化" class="headerlink" title="2. 测试序列化"></a>2. 测试序列化</h2><p><strong>json测试</strong></p>
+<ol>
+<li>新建一个pojo/User.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.NoArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">    <span class="comment">// 真实的对象一般都使用json来传递对象</span></span><br><span class="line">    User user = <span class="keyword">new</span> User(<span class="string">"朱酱酱"</span>, <span class="number">3</span>);</span><br><span class="line">    String jsonUser = <span class="keyword">new</span> ObjectMapper().writeValueAsString(user);</span><br><span class="line"></span><br><span class="line">    redisTemplate.opsForValue().set(<span class="string">"user"</span>,jsonUser);</span><br><span class="line">    System.out.println(redisTemplate.opsForValue().get(<span class="string">"user"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>远程结果显示：(控制台乱码)</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) <span class="string">"\xac\xed\x00\x05t\x00\x05mykey"</span></span><br><span class="line">2) <span class="string">"\xac\xed\x00\x05t\x00\x04user"</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>接下来是对象测试:</strong></p>
+<ol>
+<li>测试类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User(<span class="string">"朱酱酱"</span>, <span class="number">3</span>);</span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">"user"</span>,user);</span><br><span class="line">        System.out.println(redisTemplate.opsForValue().get(<span class="string">"user"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果显示报错：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">org.springframework.data.redis.serializer.SerializationException: Cannot serialize; nested exception is org.springframework.core.serializer.support.SerializationFailedException: Failed to serialize object using DefaultSerializer; nested exception is java.lang.IllegalArgumentException: DefaultSerializer requires a Serializable payload but received an object of <span class="built_in">type</span> [com.zhuuu.pojo.User]</span><br><span class="line"></span><br><span class="line">	at org.springframework.data.redis.serializer.JdkSerializationRedisSerializer.serialize(JdkSerializationRedisSerializer.java:96)</span><br></pre></td></tr></table></figure>
+
+<p><strong>对象序列化正确方式</strong></p>
+<ol>
+<li>pojo/User.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.NoArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>测试类同上</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User(<span class="string">"朱酱酱"</span>, <span class="number">3</span>);</span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">"user"</span>,user);</span><br><span class="line">        System.out.println(redisTemplate.opsForValue().get(<span class="string">"user"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果显示：正常传输</strong></p>
+<p><strong>此时Redis默认序列化时会使用JDK序列化器，使得Redis中的key和value值不可读。我们可以改造RedisTemplate，配置自定义序列化器取代默认。</strong></p>
+<h3 id="2-1-编写自己的Config"><a href="#2-1-编写自己的Config" class="headerlink" title="2.1 编写自己的Config"></a>2.1 编写自己的Config</h3><p>参考博客：<a href="https://blog.csdn.net/weixin_41657493/article/details/92851382" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41657493/article/details/92851382</a></p>
+<p><strong>固定模板 拿来就用</strong></p>
+<ol>
+<li>新建config/RedisConfig.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.JsonAutoDetect;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.annotation.PropertyAccessor;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.connection.RedisConnectionFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.serializer.StringRedisSerializer;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisConfig</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 固定的模板，拿来就用</span></span><br><span class="line">    <span class="comment">// 编写我们自己的RedisTemplate</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RedisTemplate <span class="title">redisTemplate</span><span class="params">(RedisConnectionFactory redisConnectionFactory)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 为了开发方便一般直接使用&lt;String,Object&gt;</span></span><br><span class="line">        RedisTemplate&lt;String, Object&gt; redisTemplate = <span class="keyword">new</span> RedisTemplate&lt;String, Object&gt;();</span><br><span class="line">        redisTemplate.setConnectionFactory(redisConnectionFactory);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// json序列化配置使用jackson。</span></span><br><span class="line">        Jackson2JsonRedisSerializer jsonRedisSerializer = <span class="keyword">new</span> Jackson2JsonRedisSerializer(Object<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        ObjectMapper om = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);</span><br><span class="line">        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);</span><br><span class="line">        jsonRedisSerializer.setObjectMapper(om);</span><br><span class="line">        redisTemplate.setKeySerializer(jsonRedisSerializer);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// String的序列化</span></span><br><span class="line">        StringRedisSerializer stringRedisSerializer = <span class="keyword">new</span> StringRedisSerializer();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// key采用String的序列化方式</span></span><br><span class="line">        redisTemplate.setKeySerializer(stringRedisSerializer);</span><br><span class="line">        <span class="comment">// hash的key也采用String方式序列化</span></span><br><span class="line">        redisTemplate.setHashKeySerializer(stringRedisSerializer);</span><br><span class="line">        <span class="comment">// value的序列化方式采用jackson</span></span><br><span class="line">        redisTemplate.setValueSerializer(jsonRedisSerializer);</span><br><span class="line">        <span class="comment">// hash value采用jackson序列化方式</span></span><br><span class="line">        redisTemplate.setHashValueSerializer(jsonRedisSerializer);</span><br><span class="line">        redisTemplate.afterPropertiesSet();</span><br><span class="line">        <span class="keyword">return</span> redisTemplate;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>测试类测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Redis02SpringbootApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Qualifier</span>(<span class="string">"redisTemplate"</span>)</span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line">        </span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> <span class="keyword">throws</span> JsonProcessingException </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User(<span class="string">"朱酱酱"</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">        redisTemplate.opsForValue().set(<span class="string">"user"</span>,user);</span><br><span class="line">        System.out.println(redisTemplate.opsForValue().get(<span class="string">"user"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看结果：乱码解除</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) <span class="string">"user"</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-RedisUtils工具类"><a href="#3-RedisUtils工具类" class="headerlink" title="3. RedisUtils工具类"></a>3. RedisUtils工具类</h2><p><strong>在真实的开发中，一般都可以在公司看到自己封装的Utils(这里是RedisUtils)</strong></p>
+<ol>
+<li>RedisUtils.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Utils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Collection;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Redis工具类，使用之前请确保RedisTemplate成功注入</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String,Object&gt; redisTemplate;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设置有效时间</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeout 超时时间</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> unit 时间单位</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true=设置成功；false=设置失败</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">expire</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> <span class="keyword">long</span> timeout, <span class="keyword">final</span> TimeUnit unit)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        Boolean ret = redisTemplate.expire(key, timeout, unit);</span><br><span class="line">        <span class="keyword">return</span> ret != <span class="keyword">null</span> &amp;&amp; ret;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除单个key</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true=删除成功；false=删除失败</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">del</span><span class="params">(<span class="keyword">final</span> String key)</span> </span>&#123;</span><br><span class="line">        Boolean ret = redisTemplate.delete(key);</span><br><span class="line">        <span class="keyword">return</span> ret != <span class="keyword">null</span> &amp;&amp; ret;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除多个key</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> keys 键集合</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 成功删除的个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">long</span> <span class="title">del</span><span class="params">(<span class="keyword">final</span> Collection&lt;String&gt; keys)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        Long ret = redisTemplate.delete(keys);</span><br><span class="line">        <span class="keyword">return</span> ret == <span class="keyword">null</span> ? <span class="number">0</span> : ret;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存入普通对象</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> value 值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Object value)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        redisTemplate.opsForValue().set(key, value, <span class="number">1</span>, TimeUnit.MINUTES);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 存储普通对象操作</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 存入普通对象</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> value 值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeout 有效期，单位秒</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Object value, <span class="keyword">final</span> <span class="keyword">long</span> timeout)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取普通对象</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 对象</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  Object <span class="title">get</span><span class="params">(<span class="keyword">final</span> String key)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> redisTemplate.opsForValue().get(key);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 存储Hash操作</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往Hash中存入数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> hKey Hash键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> value 值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">hPut</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> String hKey, <span class="keyword">final</span> Object value)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        redisTemplate.opsForHash().put(key, hKey, value);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往Hash中存入多个数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> values Hash键值对</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">hPutAll</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Map&lt;String, Object&gt; values)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        redisTemplate.opsForHash().putAll(key, values);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取Hash中的数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> hKey Hash键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> Hash中的对象</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  Object <span class="title">hGet</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> String hKey)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> redisTemplate.opsForHash().get(key, hKey);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取多个Hash中的数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> hKeys Hash键集合</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> Hash对象集合</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  List&lt;Object&gt; <span class="title">hMultiGet</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Collection&lt;Object&gt; hKeys)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> redisTemplate.opsForHash().multiGet(key, hKeys);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 存储Set相关操作</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往Set中存入数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> values 值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 存入的个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">long</span> <span class="title">sSet</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Object... values)</span> </span>&#123;</span><br><span class="line">        Long count = redisTemplate.opsForSet().add(key, values);</span><br><span class="line">        <span class="keyword">return</span> count == <span class="keyword">null</span> ? <span class="number">0</span> : count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除Set中的数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> values 值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 移除的个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">long</span> <span class="title">sDel</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Object... values)</span> </span>&#123;</span><br><span class="line">        Long count = redisTemplate.opsForSet().remove(key, values);</span><br><span class="line">        <span class="keyword">return</span> count == <span class="keyword">null</span> ? <span class="number">0</span> : count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 存储List相关操作</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往List中存入数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> value 数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 存入的个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">long</span> <span class="title">lPush</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Object value)</span> </span>&#123;</span><br><span class="line">        Long count = redisTemplate.opsForList().rightPush(key, value);</span><br><span class="line">        <span class="keyword">return</span> count == <span class="keyword">null</span> ? <span class="number">0</span> : count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往List中存入多个数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> values 多个数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 存入的个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">long</span> <span class="title">lPushAll</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Collection&lt;Object&gt; values)</span> </span>&#123;</span><br><span class="line">        Long count = redisTemplate.opsForList().rightPushAll(key, values);</span><br><span class="line">        <span class="keyword">return</span> count == <span class="keyword">null</span> ? <span class="number">0</span> : count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往List中存入多个数据</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> values 多个数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 存入的个数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">long</span> <span class="title">lPushAll</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> Object... values)</span> </span>&#123;</span><br><span class="line">        Long count = redisTemplate.opsForList().rightPushAll(key, values);</span><br><span class="line">        <span class="keyword">return</span> count == <span class="keyword">null</span> ? <span class="number">0</span> : count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从List中获取begin到end之间的元素</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key Redis键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> start 开始位置</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> end 结束位置（start=0，end=-1表示获取全部元素）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> List对象</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  List&lt;Object&gt; <span class="title">lGet</span><span class="params">(<span class="keyword">final</span> String key, <span class="keyword">final</span> <span class="keyword">int</span> start, <span class="keyword">final</span> <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> redisTemplate.opsForList().range(key, start, end);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>测试类测试Utils</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonProcessingException;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.Utils.RedisUtils;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.Test;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Qualifier;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.connection.RedisConnection;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.redis.core.RedisTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Redis02SpringbootApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Qualifier</span>(<span class="string">"redisTemplate"</span>)</span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisUtils redisUtils;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testUtils</span><span class="params">()</span></span>&#123;</span><br><span class="line">        redisUtils.set(<span class="string">"mykey"</span>,<span class="string">"zhuuu"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>
@@ -2704,6 +2928,83 @@
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot-09-页面国际化</title>
+    <url>/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/</url>
+    <content><![CDATA[<h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><p>​    有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</p>
+<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><p>​    先在IDEA中统一设置properties的编码问题！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
+<a id="more"></a>
+
+<p>​    编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></p>
+<h2 id="2-配置文件编写"><a href="#2-配置文件编写" class="headerlink" title="2. 配置文件编写"></a>2. 配置文件编写</h2><ol>
+<li><p>在resources资源文件下新建一个i18n目录，存放国际化配置文件</p>
+</li>
+<li><p>建立一个login.properties文件，还有一个login_zh_CN.properties；发现idea自动识别了国际化操作，文件夹变了！</p>
+</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085838.png" alt=""></p>
+<ol start="3">
+<li>可以继续新建 一个文件</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090009.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090045.png" alt=""></p>
+<ol start="4">
+<li>接下来，我们就来编写配置，看到idea下面有另外一个视图：</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090208.png" alt=""></p>
+<p>这个视图我们点击 + 号就可以直接添加属性了；我们新建一个login.tip，可以看到边上有三个文件框可以输入</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090252.png" alt=""></p>
+<p>添加一下首页的内容！</p>
+<p>然后依次添加其他页面内容即可！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090340.png" alt=""></p>
+<p>然后去查看我们的配置文件；</p>
+<p><strong>login.properties ：默认</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码 </span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
+
+<p><strong>英文：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;Sign in</span><br><span class="line">login.password&#x3D;Password</span><br><span class="line">login.remember&#x3D;Remeber me</span><br><span class="line">login.tip&#x3D;Please sign in</span><br><span class="line">login.username&#x3D;User</span><br></pre></td></tr></table></figure>
+
+<p><strong>中文：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码</span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
+
+<p><strong>OK，配置文件步骤搞定！</strong></p>
+<h2 id="3-配置文件生效"><a href="#3-配置文件生效" class="headerlink" title="3. 配置文件生效"></a>3. 配置文件生效</h2><p>​    去看一下<strong>SpringBoot对国际化的自动配置</strong>！<strong>这里又涉及到一个类：MessageSourceAutoConfiguration</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageSource <span class="title">messageSource</span><span class="params">(MessageSourceProperties properties)</span> </span>&#123;</span><br><span class="line">    ResourceBundleMessageSource messageSource = <span class="keyword">new</span> ResourceBundleMessageSource();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasText(properties.getBasename())) &#123;</span><br><span class="line">        messageSource.setBasenames(StringUtils</span><br><span class="line">                                   .commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename())));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (properties.getEncoding() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setDefaultEncoding(properties.getEncoding().name());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());</span><br><span class="line">    Duration cacheDuration = properties.getCacheDuration();</span><br><span class="line">    <span class="keyword">if</span> (cacheDuration != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setCacheMillis(cacheDuration.toMillis());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());</span><br><span class="line">    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());</span><br><span class="line">    <span class="keyword">return</span> messageSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>真实 的情况是放在了i18n目录下，所以我们要去配置这个messages的路径；</strong></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n.login</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-配置页面国际化值"><a href="#4-配置页面国际化值" class="headerlink" title="4. 配置页面国际化值"></a>4. 配置页面国际化值</h2><p>​    页面如果想要获取国际化的值，查看Thymeleaf的文档，找到message取值操作位#{…},我们去页面编写测试下：</p>
+<p>IDEA还有提示，非常智能的！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091044.png" alt=""></p>
+<p>​    可以去启动项目，访问一下，发现已经自动识别为中文的了！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091143.png" alt=""></p>
+<p><strong>但是我们想要更好！可以根据按钮自动切换中文英文！</strong></p>
+<h2 id="5-配置自动切换国际化值"><a href="#5-配置自动切换国际化值" class="headerlink" title="5. 配置自动切换国际化值"></a>5. 配置自动切换国际化值</h2><p>​    在Spring中有一个国际化的Locale（区域信息对象）；里面有个叫做LocaleResolver（获取区域信息对象）的解析器！</p>
+<p>​    去我们webmvc自动配置文件，寻找一下！看到SpringBoot默认配置：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"spring.mvc"</span>, name = <span class="string">"locale"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 容器中没有就自己配，有的话就是获取用户的配置</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FixedLocaleResolver(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//接收头国际化分解</span></span><br><span class="line">    AcceptHeaderLocaleResolver localeResolver = <span class="keyword">new</span> AcceptHeaderLocaleResolver();</span><br><span class="line">    localeResolver.setDefaultLocale(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    <span class="keyword">return</span> localeResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    AcceptHeaderLocaleResolver 这个类中有一个方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    Locale defaultLocale = getDefaultLocale();</span><br><span class="line">    <span class="comment">//默认就是根据请求头带来的区域信息获取locale进行国际化</span></span><br><span class="line">    <span class="keyword">if</span> (defaultLocale != <span class="keyword">null</span> &amp;&amp; request.getHeader(<span class="string">"Accept-Language"</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale requestLocale = request.getLocale();</span><br><span class="line">    List&lt;Locale&gt; supportedLocales = getSupportedLocales();</span><br><span class="line">    <span class="keyword">if</span> (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) &#123;</span><br><span class="line">        <span class="keyword">return</span> requestLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale supportedLocale = findSupportedLocale(request, supportedLocales);</span><br><span class="line">    <span class="keyword">if</span> (supportedLocale != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> supportedLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (defaultLocale != <span class="keyword">null</span> ? defaultLocale : requestLocale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    那假如我们现在想点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！</p>
+<p>​    我们去自己写一个自己的LocaleResolver，可以在链接上携带区域信息！</p>
+<p>​    <strong>修改一下前端页面的跳转连接：</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='zh_CN')&#125;"</span>&gt;</span>中文<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='en_US')&#125;"</span>&gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>然后编写一个处理的组建类！</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.LocaleResolver;</span><br><span class="line"><span class="keyword">import</span> org.thymeleaf.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Locale;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLocaleResolver</span> <span class="keyword">implements</span> <span class="title">LocaleResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">//解析请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取请求中的语言参数</span></span><br><span class="line">        String language = request.getParameter(<span class="string">"l"</span>);</span><br><span class="line"></span><br><span class="line">        Locale locale = Locale.getDefault(); <span class="comment">//如果没有就使用默认的</span></span><br><span class="line">        <span class="comment">//如果请求的链接携带了国际化的参数</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(language))&#123;</span><br><span class="line">            <span class="comment">//zh_CN</span></span><br><span class="line">            String[] split = language.split(<span class="string">"_"</span>);</span><br><span class="line">            <span class="comment">//国家，地区</span></span><br><span class="line">            locale = <span class="keyword">new</span> Locale(split[<span class="number">0</span>], split[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> locale;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLocale</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Locale locale)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>为了让我们的区域化信息能够生效，我们需要再配置一下这个组件！在我们自己的MvcConofig下添加bean；</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义的国际化组件就生效了</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MyLocaleResolver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>重启项目，来访问一下，发现点击按钮可以实现成功切换！搞定收工！</strong></p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SpringBoot-10-项目实战</title>
     <url>/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/</url>
     <content><![CDATA[<h1 id="SpringBoot-10-项目实战"><a href="#SpringBoot-10-项目实战" class="headerlink" title="SpringBoot-10-项目实战"></a>SpringBoot-10-项目实战</h1><h2 id="1-项目简介"><a href="#1-项目简介" class="headerlink" title="1. 项目简介"></a>1. 项目简介</h2><p>​    该项目整合了CRUD实现员工管理案例，将MyBatis整合到原项目中，加入了数据库，添加了日期选项控件</p>
@@ -2884,83 +3185,6 @@
 </ol>
 <figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span> <span class="attr">xmlns:th</span>=<span class="string">"http://www.thymeleaf.org"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Type"</span> <span class="attr">content</span>=<span class="string">"text/html; charset=UTF-8"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1, shrink-to-fit=no"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"description"</span> <span class="attr">content</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"author"</span> <span class="attr">content</span>=<span class="string">""</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">title</span>&gt;</span>Dashboard Template for Bootstrap<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- Bootstrap core CSS --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">link</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/css/bootstrap.min.css&#125;"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">&lt;!-- Custom styles for this template --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">link</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/css/dashboard.css&#125;"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">style</span> <span class="attr">type</span>=<span class="string">"text/css"</span>&gt;</span></span><br><span class="line"><span class="css">			<span class="comment">/* Chart.js */</span></span></span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="keyword">@-webkit-keyframes</span> chartjs-render-animation &#123;</span></span><br><span class="line">				from &#123;</span><br><span class="line"><span class="css">					<span class="selector-tag">opacity</span>: 0<span class="selector-class">.99</span></span></span><br><span class="line">				&#125;</span><br><span class="line">				to &#123;</span><br><span class="line">					opacity: 1</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="keyword">@keyframes</span> chartjs-render-animation &#123;</span></span><br><span class="line">				from &#123;</span><br><span class="line"><span class="css">					<span class="selector-tag">opacity</span>: 0<span class="selector-class">.99</span></span></span><br><span class="line">				&#125;</span><br><span class="line">				to &#123;</span><br><span class="line">					opacity: 1</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="selector-class">.chartjs-render-monitor</span> &#123;</span></span><br><span class="line"><span class="css">				<span class="selector-tag">-webkit-animation</span>: <span class="selector-tag">chartjs-render-animation</span> 0<span class="selector-class">.001s</span>;</span></span><br><span class="line"><span class="css">				<span class="selector-tag">animation</span>: <span class="selector-tag">chartjs-render-animation</span> 0<span class="selector-class">.001s</span>;</span></span><br><span class="line">			&#125;</span><br><span class="line">		<span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">th:replace</span>=<span class="string">"~&#123;common/commons::topbar&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container-fluid"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">div</span> <span class="attr">th:replace</span>=<span class="string">"~&#123;common/commons::sidebar(active='list.html')&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">				<span class="tag">&lt;<span class="name">main</span> <span class="attr">role</span>=<span class="string">"main"</span> <span class="attr">class</span>=<span class="string">"col-md-9 ml-sm-auto col-lg-10 pt-3 px-4"</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">h2</span>&gt;</span>修改员工信息<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">form</span> <span class="attr">th:action</span>=<span class="string">"@&#123;/updateEmp&#125;"</span> <span class="attr">method</span>=<span class="string">"post"</span> &gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"id"</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.id&#125;"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>姓名<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"employeeName"</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control "</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.employeeName&#125;"</span> &gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>邮箱<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"email"</span> <span class="attr">type</span>=<span class="string">"email"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.email&#125;"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>性别<span class="tag">&lt;/<span class="name">label</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-check form-check-inline"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">"form-check-input"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">name</span>=<span class="string">"gender"</span> <span class="attr">value</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">									   <span class="attr">th:checked</span>=<span class="string">"$&#123;emp.gender==1&#125;"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">label</span> <span class="attr">class</span>=<span class="string">"form-check-label"</span>&gt;</span>男<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-check form-check-inline"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">"form-check-input"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">name</span>=<span class="string">"gender"</span> <span class="attr">value</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">									   <span class="attr">th:checked</span>=<span class="string">"$&#123;emp.gender==0&#125;"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">label</span> <span class="attr">class</span>=<span class="string">"form-check-label"</span>&gt;</span>女<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>部门<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="comment">&lt;!--提交的是部门的ID--&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">select</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">name</span>=<span class="string">"departmentId"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">option</span> <span class="attr">th:selected</span>=<span class="string">"$&#123;dept.id == emp.departmentId&#125;"</span> <span class="attr">th:each</span>=<span class="string">"dept:$&#123;departments&#125;"</span></span></span><br><span class="line"><span class="tag">										<span class="attr">th:text</span>=<span class="string">"$&#123;dept.departmentName&#125;"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;dept.id&#125;"</span>&gt;</span>1</span><br><span class="line">								<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>时间<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"date"</span> <span class="attr">type</span>=<span class="string">"text"</span>  <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;#dates.format(emp.date,'yyyy-MM-dd')&#125;"</span> <span class="attr">id</span>=<span class="string">"dateFormat"</span> <span class="attr">autocomplete</span>=<span class="string">"off"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-]]></content>
-      <tags>
-        <tag>SpringBoot</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot-09-页面国际化</title>
-    <url>/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/</url>
-    <content><![CDATA[<h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><p>​    有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</p>
-<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><p>​    先在IDEA中统一设置properties的编码问题！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
-<a id="more"></a>
-
-<p>​    编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></p>
-<h2 id="2-配置文件编写"><a href="#2-配置文件编写" class="headerlink" title="2. 配置文件编写"></a>2. 配置文件编写</h2><ol>
-<li><p>在resources资源文件下新建一个i18n目录，存放国际化配置文件</p>
-</li>
-<li><p>建立一个login.properties文件，还有一个login_zh_CN.properties；发现idea自动识别了国际化操作，文件夹变了！</p>
-</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085838.png" alt=""></p>
-<ol start="3">
-<li>可以继续新建 一个文件</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090009.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090045.png" alt=""></p>
-<ol start="4">
-<li>接下来，我们就来编写配置，看到idea下面有另外一个视图：</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090208.png" alt=""></p>
-<p>这个视图我们点击 + 号就可以直接添加属性了；我们新建一个login.tip，可以看到边上有三个文件框可以输入</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090252.png" alt=""></p>
-<p>添加一下首页的内容！</p>
-<p>然后依次添加其他页面内容即可！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090340.png" alt=""></p>
-<p>然后去查看我们的配置文件；</p>
-<p><strong>login.properties ：默认</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码 </span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
-
-<p><strong>英文：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;Sign in</span><br><span class="line">login.password&#x3D;Password</span><br><span class="line">login.remember&#x3D;Remeber me</span><br><span class="line">login.tip&#x3D;Please sign in</span><br><span class="line">login.username&#x3D;User</span><br></pre></td></tr></table></figure>
-
-<p><strong>中文：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码</span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
-
-<p><strong>OK，配置文件步骤搞定！</strong></p>
-<h2 id="3-配置文件生效"><a href="#3-配置文件生效" class="headerlink" title="3. 配置文件生效"></a>3. 配置文件生效</h2><p>​    去看一下<strong>SpringBoot对国际化的自动配置</strong>！<strong>这里又涉及到一个类：MessageSourceAutoConfiguration</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageSource <span class="title">messageSource</span><span class="params">(MessageSourceProperties properties)</span> </span>&#123;</span><br><span class="line">    ResourceBundleMessageSource messageSource = <span class="keyword">new</span> ResourceBundleMessageSource();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasText(properties.getBasename())) &#123;</span><br><span class="line">        messageSource.setBasenames(StringUtils</span><br><span class="line">                                   .commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename())));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (properties.getEncoding() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setDefaultEncoding(properties.getEncoding().name());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());</span><br><span class="line">    Duration cacheDuration = properties.getCacheDuration();</span><br><span class="line">    <span class="keyword">if</span> (cacheDuration != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setCacheMillis(cacheDuration.toMillis());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());</span><br><span class="line">    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());</span><br><span class="line">    <span class="keyword">return</span> messageSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>真实 的情况是放在了i18n目录下，所以我们要去配置这个messages的路径；</strong></p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n.login</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-配置页面国际化值"><a href="#4-配置页面国际化值" class="headerlink" title="4. 配置页面国际化值"></a>4. 配置页面国际化值</h2><p>​    页面如果想要获取国际化的值，查看Thymeleaf的文档，找到message取值操作位#{…},我们去页面编写测试下：</p>
-<p>IDEA还有提示，非常智能的！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091044.png" alt=""></p>
-<p>​    可以去启动项目，访问一下，发现已经自动识别为中文的了！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091143.png" alt=""></p>
-<p><strong>但是我们想要更好！可以根据按钮自动切换中文英文！</strong></p>
-<h2 id="5-配置自动切换国际化值"><a href="#5-配置自动切换国际化值" class="headerlink" title="5. 配置自动切换国际化值"></a>5. 配置自动切换国际化值</h2><p>​    在Spring中有一个国际化的Locale（区域信息对象）；里面有个叫做LocaleResolver（获取区域信息对象）的解析器！</p>
-<p>​    去我们webmvc自动配置文件，寻找一下！看到SpringBoot默认配置：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"spring.mvc"</span>, name = <span class="string">"locale"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 容器中没有就自己配，有的话就是获取用户的配置</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FixedLocaleResolver(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//接收头国际化分解</span></span><br><span class="line">    AcceptHeaderLocaleResolver localeResolver = <span class="keyword">new</span> AcceptHeaderLocaleResolver();</span><br><span class="line">    localeResolver.setDefaultLocale(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    <span class="keyword">return</span> localeResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    AcceptHeaderLocaleResolver 这个类中有一个方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    Locale defaultLocale = getDefaultLocale();</span><br><span class="line">    <span class="comment">//默认就是根据请求头带来的区域信息获取locale进行国际化</span></span><br><span class="line">    <span class="keyword">if</span> (defaultLocale != <span class="keyword">null</span> &amp;&amp; request.getHeader(<span class="string">"Accept-Language"</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale requestLocale = request.getLocale();</span><br><span class="line">    List&lt;Locale&gt; supportedLocales = getSupportedLocales();</span><br><span class="line">    <span class="keyword">if</span> (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) &#123;</span><br><span class="line">        <span class="keyword">return</span> requestLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale supportedLocale = findSupportedLocale(request, supportedLocales);</span><br><span class="line">    <span class="keyword">if</span> (supportedLocale != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> supportedLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (defaultLocale != <span class="keyword">null</span> ? defaultLocale : requestLocale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    那假如我们现在想点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！</p>
-<p>​    我们去自己写一个自己的LocaleResolver，可以在链接上携带区域信息！</p>
-<p>​    <strong>修改一下前端页面的跳转连接：</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='zh_CN')&#125;"</span>&gt;</span>中文<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='en_US')&#125;"</span>&gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>然后编写一个处理的组建类！</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.LocaleResolver;</span><br><span class="line"><span class="keyword">import</span> org.thymeleaf.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Locale;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLocaleResolver</span> <span class="keyword">implements</span> <span class="title">LocaleResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">//解析请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取请求中的语言参数</span></span><br><span class="line">        String language = request.getParameter(<span class="string">"l"</span>);</span><br><span class="line"></span><br><span class="line">        Locale locale = Locale.getDefault(); <span class="comment">//如果没有就使用默认的</span></span><br><span class="line">        <span class="comment">//如果请求的链接携带了国际化的参数</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(language))&#123;</span><br><span class="line">            <span class="comment">//zh_CN</span></span><br><span class="line">            String[] split = language.split(<span class="string">"_"</span>);</span><br><span class="line">            <span class="comment">//国家，地区</span></span><br><span class="line">            locale = <span class="keyword">new</span> Locale(split[<span class="number">0</span>], split[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> locale;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLocale</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Locale locale)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>为了让我们的区域化信息能够生效，我们需要再配置一下这个组件！在我们自己的MvcConofig下添加bean；</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义的国际化组件就生效了</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MyLocaleResolver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>重启项目，来访问一下，发现点击按钮可以实现成功切换！搞定收工！</strong></p>
 ]]></content>
       <tags>
         <tag>SpringBoot</tag>
@@ -3699,6 +3923,98 @@
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot-01-HelloWorld</title>
+    <url>/2020/03/23/SpringBoot/SpringBoot-01-HelloWorld/</url>
+    <content><![CDATA[<h1 id="SpringBoot-01-HelloWorld"><a href="#SpringBoot-01-HelloWorld" class="headerlink" title="SpringBoot-01-HelloWorld"></a>SpringBoot-01-HelloWorld</h1><h2 id="1-SpringBoot简介"><a href="#1-SpringBoot简介" class="headerlink" title="1. SpringBoot简介"></a>1. SpringBoot简介</h2><h3 id="1-1-回顾什么是Spring"><a href="#1-1-回顾什么是Spring" class="headerlink" title="1.1 回顾什么是Spring"></a>1.1 回顾什么是Spring</h3><p>Spring是一个开源框架，2003 年兴起的一个轻量级的Java 开发框架，作者：Rod Johnson  。</p>
+<p><strong>Spring是为了解决企业级应用开发的复杂性而创建的，简化开发</strong></p>
+<a id="more"></a>
+
+<h3 id="1-2-Spring是如何简化Java开发的"><a href="#1-2-Spring是如何简化Java开发的" class="headerlink" title="1.2 Spring是如何简化Java开发的"></a>1.2 Spring是如何简化Java开发的</h3><p>为了降低Java开发的复杂性，Spring采用了以下四种关键策略：</p>
+<ol>
+<li>基于pojo的轻量级和最小侵入性编程，所有东西都是Bean.</li>
+<li>通过IOC，依赖注入（DI）和面向接口实现松耦合；</li>
+<li>基于切面（AOP）和管理进行声明式编程；</li>
+<li>通过切合和模板减少样式代码，RedisTemplate，xxxTemplate；</li>
+</ol>
+<h3 id="1-3-什么是SpringBoot"><a href="#1-3-什么是SpringBoot" class="headerlink" title="1.3 什么是SpringBoot"></a>1.3 什么是SpringBoot</h3><p>​    开发一个web应用，从最初开始接触Servlet结合Tomcat, 跑出一个Hello Wolrld程序，是要经历特别多的步骤；后来就用了框架Struts，再后来是SpringMVC，到了现在的SpringBoot，过一两年又会有其他web框架出现；</p>
+<p>​    言归正传，什么是SpringBoot呢，就是一个javaweb的开发框架，和SpringMVC类似，对比其他javaweb框架的好处，官方说是简化开发，约定大于配置，  you can “just run”，能迅速的开发web应用，几行代码开发一个http接口。</p>
+<p>​    所有的技术框架的发展似乎都遵循了一条主线规律：从一个复杂应用场景 衍生 一种规范框架，人们只需要进行各种配置而不需要自己去实现它，这时候强大的配置功能成了优点；发展到一定程度之后，人们根据实际生产应用情况，选取其中实用功能和设计精华，重构出一些轻量级的框架；之后为了提高开发效率，嫌弃原先的各类配置过于麻烦，于是开始提倡“约定大于配置”，进而衍生出一些一站式的解决方案。</p>
+<p>​    是的这就是Java企业级应用-&gt;J2EE-&gt;spring-&gt;springboot的过程。</p>
+<p>​    随着 Spring 不断的发展，涉及的领域越来越多，项目整合开发需要配合各种各样的文件，慢慢变得不那么易用简单，违背了最初的理念，甚至人称配置地狱。Spring Boot 正是在这样的一个背景下被抽象出来的开发框架，目的为了让大家更容易的使用 Spring 、更容易的集成各种常用的中间件、开源软件；</p>
+<p>​    Spring Boot 基于 Spring 开发，Spirng Boot 本身并不提供 Spring 框架的核心特性以及扩展功能，只是用于快速、敏捷地开发新一代基于 Spring 框架的应用程序。也就是说，它并不是用来替代 Spring 的解决方案，而是和 Spring 框架紧密结合用于提升 Spring 开发者体验的工具。SpringBoot以<strong>约定大于配置的核心思想</strong>，默认帮我们进行了很多设置，多数Spring Boot应用只需要很少的Spring配置。同时它继承了大量常用的第三方库配置（例如 Redis、MongoDB、Jpa、RabbitMQ、Quartz 等等），Spring Boot 应用中这些第三方库几乎可以零配置的开箱即用。</p>
+<p>​    简单来说就是SpringBoot其实不是什么新的框架，它默认配置了很多框架的使用方式，就想maven整合了所有jar包，spring boot整合了所有的框架。</p>
+<p>​    Spring Boot出生名门，从一开始就站在一个比较高的气垫，又经过这几年的发展，生态足够完美，SpringBoot已经当之无愧的成为Java领域最热门的技术。</p>
+<p><strong>Spring Boot的主要优点：</strong></p>
+<ul>
+<li>为所有Spring开发者更快的入门</li>
+<li>开箱即用，提供各种默认配置来简化项目配置</li>
+<li>内嵌式容器简化Web项目</li>
+<li>没有冗余代码生成和XML配置的要求。</li>
+</ul>
+<h3 id="1-4-微服务"><a href="#1-4-微服务" class="headerlink" title="1.4 微服务"></a>1.4 微服务</h3><p>微服务论文地址：<a href="https://martinfowler.com/articles/microservices.html" target="_blank" rel="noopener">https://martinfowler.com/articles/microservices.html</a></p>
+<p>微服务论文中文翻译版地址： <a href="https://www.jianshu.com/p/d32b053e86e1" target="_blank" rel="noopener">https://www.jianshu.com/p/d32b053e86e1</a></p>
+<p>中文防挂链接： <a href="https://blog.csdn.net/weixin_42236165/article/details/92979025" target="_blank" rel="noopener">https://blog.csdn.net/weixin_42236165/article/details/92979025</a></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324092504.png" alt=""></p>
+<h2 id="2-Hello-World"><a href="#2-Hello-World" class="headerlink" title="2. Hello,World"></a>2. Hello,World</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><p>​    学习如何快速的创建一个Spring Boot应用，并且实现一个简单的Http请求处理。通过这个例子对Spring Boot有一个初步的了解，并体验其结构简单、开发快速的特性。</p>
+<p>我的环境准备：</p>
+<ul>
+<li>java version “1.8.0_181”</li>
+<li>Maven-3.6.1</li>
+<li>SpringBoot 2.x 最新版</li>
+</ul>
+<p>开发工具：</p>
+<ul>
+<li>IDEA</li>
+</ul>
+<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
+<p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<h4 id="2-2-1-项目创建方式一"><a href="#2-2-1-项目创建方式一" class="headerlink" title="2.2.1 项目创建方式一"></a>2.2.1 项目创建方式一</h4><p> <strong>项目创建方式一：</strong>使用Spring Initializr 的 Web页面创建项目</p>
+<p>1、打开  <a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<p>2、填写项目信息</p>
+<p>3、点击”Generate Project“按钮生成项目；下载此项目</p>
+<p>4、解压项目包，并用IDEA以Maven项目导入，一路下一步即可，直到项目导入完毕。</p>
+<p>5、如果是第一次使用，可能速度会比较慢，包比较多、需要耐心等待一切就绪。</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090429.png" alt=""></p>
+<h4 id="2-2-2-项目创建方式二"><a href="#2-2-2-项目创建方式二" class="headerlink" title="2.2.2  项目创建方式二"></a>2.2.2  项目创建方式二</h4><p><strong>项目创建方式二</strong>：使用 IDEA 直接创建项目</p>
+<p>1、创建一个新项目</p>
+<p>2、选择spring initalizr ， 可以看到默认就是去官网的快速构建工具那里实现</p>
+<p>3、填写项目信息</p>
+<p>4、选择初始化的组件（初学勾选 Web 即可）</p>
+<p>5、填写项目路径</p>
+<p>6、等待项目构建成功</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090921.png" alt=""></p>
+<h3 id="2-3-项目结构分析"><a href="#2-3-项目结构分析" class="headerlink" title="2.3 项目结构分析"></a>2.3 项目结构分析</h3><p>通过上面步骤完成了基础项目的创建。就会自动生成以下文件。</p>
+<ul>
+<li>程序的主启动类</li>
+<li>一个application.properties配置文件</li>
+<li>一个测试类</li>
+<li>一个pom.xml</li>
+</ul>
+<h4 id="2-3-1-pom-xml-分析"><a href="#2-3-1-pom-xml-分析" class="headerlink" title="2.3.1 pom.xml 分析"></a>2.3.1 pom.xml 分析</h4><p>打开pom.xml，看看Spring Boot项目的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 父依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web场景启动器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- springboot单元测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 剔除依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 打包插件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-编写一个http接口"><a href="#2-4-编写一个http接口" class="headerlink" title="2.4 编写一个http接口"></a>2.4 编写一个http接口</h3><ol>
+<li><p>在主程序的同级目录下，新建一个controller包，<strong>一定要在同级目录下，否则识别不到</strong></p>
+</li>
+<li><p>在包中新建一个HelloController类</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>编写完毕后，从主程序启动项目，浏览器发起请求，看页面返回；控制台输出了 Tomcat 访问的端口号！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092020.png" alt=""></p>
+<h2 id="3-彩蛋"><a href="#3-彩蛋" class="headerlink" title="3. 彩蛋"></a>3. 彩蛋</h2><p>​    如何更改启动时显示的字符拼成的字母，SpringBoot呢？也就是 banner 图案；</p>
+<p>​    只需一步：到项目下的 resources 目录下新建一个banner.txt 即可。</p>
+<p>​    图案可以到：<a href="https://www.bootschool.net/ascii" target="_blank" rel="noopener">https://www.bootschool.net/ascii</a> 这个网站生成，然后拷贝到文件中即可！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092125.png" alt=""></p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Python-01-快速入门</title>
     <url>/2020/03/23/Python/Python-01-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/</url>
     <content><![CDATA[<h1 id="Python-教程"><a href="#Python-教程" class="headerlink" title="Python 教程"></a>Python 教程</h1><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324143127.jpg" alt=""></p>
@@ -4017,98 +4333,6 @@
 ]]></content>
       <tags>
         <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot-01-HelloWorld</title>
-    <url>/2020/03/23/SpringBoot/SpringBoot-01-HelloWorld/</url>
-    <content><![CDATA[<h1 id="SpringBoot-01-HelloWorld"><a href="#SpringBoot-01-HelloWorld" class="headerlink" title="SpringBoot-01-HelloWorld"></a>SpringBoot-01-HelloWorld</h1><h2 id="1-SpringBoot简介"><a href="#1-SpringBoot简介" class="headerlink" title="1. SpringBoot简介"></a>1. SpringBoot简介</h2><h3 id="1-1-回顾什么是Spring"><a href="#1-1-回顾什么是Spring" class="headerlink" title="1.1 回顾什么是Spring"></a>1.1 回顾什么是Spring</h3><p>Spring是一个开源框架，2003 年兴起的一个轻量级的Java 开发框架，作者：Rod Johnson  。</p>
-<p><strong>Spring是为了解决企业级应用开发的复杂性而创建的，简化开发</strong></p>
-<a id="more"></a>
-
-<h3 id="1-2-Spring是如何简化Java开发的"><a href="#1-2-Spring是如何简化Java开发的" class="headerlink" title="1.2 Spring是如何简化Java开发的"></a>1.2 Spring是如何简化Java开发的</h3><p>为了降低Java开发的复杂性，Spring采用了以下四种关键策略：</p>
-<ol>
-<li>基于pojo的轻量级和最小侵入性编程，所有东西都是Bean.</li>
-<li>通过IOC，依赖注入（DI）和面向接口实现松耦合；</li>
-<li>基于切面（AOP）和管理进行声明式编程；</li>
-<li>通过切合和模板减少样式代码，RedisTemplate，xxxTemplate；</li>
-</ol>
-<h3 id="1-3-什么是SpringBoot"><a href="#1-3-什么是SpringBoot" class="headerlink" title="1.3 什么是SpringBoot"></a>1.3 什么是SpringBoot</h3><p>​    开发一个web应用，从最初开始接触Servlet结合Tomcat, 跑出一个Hello Wolrld程序，是要经历特别多的步骤；后来就用了框架Struts，再后来是SpringMVC，到了现在的SpringBoot，过一两年又会有其他web框架出现；</p>
-<p>​    言归正传，什么是SpringBoot呢，就是一个javaweb的开发框架，和SpringMVC类似，对比其他javaweb框架的好处，官方说是简化开发，约定大于配置，  you can “just run”，能迅速的开发web应用，几行代码开发一个http接口。</p>
-<p>​    所有的技术框架的发展似乎都遵循了一条主线规律：从一个复杂应用场景 衍生 一种规范框架，人们只需要进行各种配置而不需要自己去实现它，这时候强大的配置功能成了优点；发展到一定程度之后，人们根据实际生产应用情况，选取其中实用功能和设计精华，重构出一些轻量级的框架；之后为了提高开发效率，嫌弃原先的各类配置过于麻烦，于是开始提倡“约定大于配置”，进而衍生出一些一站式的解决方案。</p>
-<p>​    是的这就是Java企业级应用-&gt;J2EE-&gt;spring-&gt;springboot的过程。</p>
-<p>​    随着 Spring 不断的发展，涉及的领域越来越多，项目整合开发需要配合各种各样的文件，慢慢变得不那么易用简单，违背了最初的理念，甚至人称配置地狱。Spring Boot 正是在这样的一个背景下被抽象出来的开发框架，目的为了让大家更容易的使用 Spring 、更容易的集成各种常用的中间件、开源软件；</p>
-<p>​    Spring Boot 基于 Spring 开发，Spirng Boot 本身并不提供 Spring 框架的核心特性以及扩展功能，只是用于快速、敏捷地开发新一代基于 Spring 框架的应用程序。也就是说，它并不是用来替代 Spring 的解决方案，而是和 Spring 框架紧密结合用于提升 Spring 开发者体验的工具。SpringBoot以<strong>约定大于配置的核心思想</strong>，默认帮我们进行了很多设置，多数Spring Boot应用只需要很少的Spring配置。同时它继承了大量常用的第三方库配置（例如 Redis、MongoDB、Jpa、RabbitMQ、Quartz 等等），Spring Boot 应用中这些第三方库几乎可以零配置的开箱即用。</p>
-<p>​    简单来说就是SpringBoot其实不是什么新的框架，它默认配置了很多框架的使用方式，就想maven整合了所有jar包，spring boot整合了所有的框架。</p>
-<p>​    Spring Boot出生名门，从一开始就站在一个比较高的气垫，又经过这几年的发展，生态足够完美，SpringBoot已经当之无愧的成为Java领域最热门的技术。</p>
-<p><strong>Spring Boot的主要优点：</strong></p>
-<ul>
-<li>为所有Spring开发者更快的入门</li>
-<li>开箱即用，提供各种默认配置来简化项目配置</li>
-<li>内嵌式容器简化Web项目</li>
-<li>没有冗余代码生成和XML配置的要求。</li>
-</ul>
-<h3 id="1-4-微服务"><a href="#1-4-微服务" class="headerlink" title="1.4 微服务"></a>1.4 微服务</h3><p>微服务论文地址：<a href="https://martinfowler.com/articles/microservices.html" target="_blank" rel="noopener">https://martinfowler.com/articles/microservices.html</a></p>
-<p>微服务论文中文翻译版地址： <a href="https://www.jianshu.com/p/d32b053e86e1" target="_blank" rel="noopener">https://www.jianshu.com/p/d32b053e86e1</a></p>
-<p>中文防挂链接： <a href="https://blog.csdn.net/weixin_42236165/article/details/92979025" target="_blank" rel="noopener">https://blog.csdn.net/weixin_42236165/article/details/92979025</a></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200324092504.png" alt=""></p>
-<h2 id="2-Hello-World"><a href="#2-Hello-World" class="headerlink" title="2. Hello,World"></a>2. Hello,World</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><p>​    学习如何快速的创建一个Spring Boot应用，并且实现一个简单的Http请求处理。通过这个例子对Spring Boot有一个初步的了解，并体验其结构简单、开发快速的特性。</p>
-<p>我的环境准备：</p>
-<ul>
-<li>java version “1.8.0_181”</li>
-<li>Maven-3.6.1</li>
-<li>SpringBoot 2.x 最新版</li>
-</ul>
-<p>开发工具：</p>
-<ul>
-<li>IDEA</li>
-</ul>
-<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
-<p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
-<h4 id="2-2-1-项目创建方式一"><a href="#2-2-1-项目创建方式一" class="headerlink" title="2.2.1 项目创建方式一"></a>2.2.1 项目创建方式一</h4><p> <strong>项目创建方式一：</strong>使用Spring Initializr 的 Web页面创建项目</p>
-<p>1、打开  <a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
-<p>2、填写项目信息</p>
-<p>3、点击”Generate Project“按钮生成项目；下载此项目</p>
-<p>4、解压项目包，并用IDEA以Maven项目导入，一路下一步即可，直到项目导入完毕。</p>
-<p>5、如果是第一次使用，可能速度会比较慢，包比较多、需要耐心等待一切就绪。</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090429.png" alt=""></p>
-<h4 id="2-2-2-项目创建方式二"><a href="#2-2-2-项目创建方式二" class="headerlink" title="2.2.2  项目创建方式二"></a>2.2.2  项目创建方式二</h4><p><strong>项目创建方式二</strong>：使用 IDEA 直接创建项目</p>
-<p>1、创建一个新项目</p>
-<p>2、选择spring initalizr ， 可以看到默认就是去官网的快速构建工具那里实现</p>
-<p>3、填写项目信息</p>
-<p>4、选择初始化的组件（初学勾选 Web 即可）</p>
-<p>5、填写项目路径</p>
-<p>6、等待项目构建成功</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090921.png" alt=""></p>
-<h3 id="2-3-项目结构分析"><a href="#2-3-项目结构分析" class="headerlink" title="2.3 项目结构分析"></a>2.3 项目结构分析</h3><p>通过上面步骤完成了基础项目的创建。就会自动生成以下文件。</p>
-<ul>
-<li>程序的主启动类</li>
-<li>一个application.properties配置文件</li>
-<li>一个测试类</li>
-<li>一个pom.xml</li>
-</ul>
-<h4 id="2-3-1-pom-xml-分析"><a href="#2-3-1-pom-xml-分析" class="headerlink" title="2.3.1 pom.xml 分析"></a>2.3.1 pom.xml 分析</h4><p>打开pom.xml，看看Spring Boot项目的依赖：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 父依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web场景启动器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- springboot单元测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 剔除依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 打包插件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-4-编写一个http接口"><a href="#2-4-编写一个http接口" class="headerlink" title="2.4 编写一个http接口"></a>2.4 编写一个http接口</h3><ol>
-<li><p>在主程序的同级目录下，新建一个controller包，<strong>一定要在同级目录下，否则识别不到</strong></p>
-</li>
-<li><p>在包中新建一个HelloController类</p>
-</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>编写完毕后，从主程序启动项目，浏览器发起请求，看页面返回；控制台输出了 Tomcat 访问的端口号！</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092020.png" alt=""></p>
-<h2 id="3-彩蛋"><a href="#3-彩蛋" class="headerlink" title="3. 彩蛋"></a>3. 彩蛋</h2><p>​    如何更改启动时显示的字符拼成的字母，SpringBoot呢？也就是 banner 图案；</p>
-<p>​    只需一步：到项目下的 resources 目录下新建一个banner.txt 即可。</p>
-<p>​    图案可以到：<a href="https://www.bootschool.net/ascii" target="_blank" rel="noopener">https://www.bootschool.net/ascii</a> 这个网站生成，然后拷贝到文件中即可！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325092125.png" alt=""></p>
-]]></content>
-      <tags>
-        <tag>SpringBoot</tag>
       </tags>
   </entry>
   <entry>
@@ -4617,8 +4841,8 @@
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200319143734.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>前端</tag>
         <tag>UI</tag>
+        <tag>前端</tag>
       </tags>
   </entry>
   <entry>
@@ -7681,8 +7905,8 @@
 
 ]]></content>
       <tags>
-        <tag>Synchronized</tag>
         <tag>多线程</tag>
+        <tag>Synchronized</tag>
       </tags>
   </entry>
   <entry>
@@ -10247,8 +10471,8 @@
 <p><strong>透明度：opacity:0~1.0</strong></p>
 <h2 id="7-动画"><a href="#7-动画" class="headerlink" title="7. 动画"></a>7. 动画</h2>]]></content>
       <tags>
-        <tag>CSS</tag>
         <tag>前端</tag>
+        <tag>CSS</tag>
       </tags>
   </entry>
   <entry>
@@ -11663,6 +11887,42 @@
       </tags>
   </entry>
   <entry>
+    <title>Leetcode-032</title>
+    <url>/2019/06/12/Leetcode/Leetcode-032/</url>
+    <content><![CDATA[<h1 id="Leecode-032-Longest-Valid-Parentheses"><a href="#Leecode-032-Longest-Valid-Parentheses" class="headerlink" title="Leecode-032 [Longest Valid Parentheses]"></a>Leecode-032 [Longest Valid Parentheses]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：stack</strong></p>
+<ul>
+<li>leftmost:  指定最左侧的边界–&gt;初始值为-1</li>
+<li>stack：初始为空</li>
+<li>idx:     每个括号的索引</li>
+<li>原则：遇到正括号就push,反括号就pop</li>
+<li>max:   计算最大长度（反括号的index减去最上层的正括号的index）<ul>
+<li>[如果遇到反括号，pop之后stack为空，那么长度 = 当前idx - leftmost]</li>
+<li>[如果遇到反括号，pop之前stack为空，那么leftmost = 当前 idx, 长度就是当前idx-leftmost]</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution：stack</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> leftmost = -<span class="number">1</span>;</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i) == <span class="string">'('</span>)&#123; <span class="comment">//遇到正括号就push</span></span><br><span class="line">                stack.push(i);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123; <span class="comment">//if  反括号就pop</span></span><br><span class="line">                <span class="keyword">if</span>(stack.isEmpty())&#123; <span class="comment">//当前stack为空，更新leftmost</span></span><br><span class="line">                    leftmost = i;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">int</span> j = stack.pop(); <span class="comment">//pop出正括号的index</span></span><br><span class="line">                    <span class="keyword">if</span>(stack.isEmpty()) max = Math.max(max,i-leftmost); <span class="comment">//pop出来之后为空</span></span><br><span class="line">                    <span class="keyword">else</span> max = Math.max(max,i-stack.peek()); <span class="comment">//pop出来之后不为空</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :同思路python版本</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">longestValidParentheses</span><span class="params">(self, s: str)</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        n = len(s)</span><br><span class="line">        max_Parentheses = <span class="number">0</span></span><br><span class="line">        leftmost = <span class="number">-1</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">            <span class="keyword">if</span> s[i] == <span class="string">'('</span>:</span><br><span class="line">                stack.append(i)</span><br><span class="line">            <span class="keyword">else</span>: <span class="comment">#if )</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> stack:</span><br><span class="line">                    leftmost = i</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    j = stack.pop()</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">not</span> stack: max_Parentheses = max(max_Parentheses,i-leftmost)</span><br><span class="line">                    <span class="keyword">else</span>: max_Parentheses = max(max_Parentheses,i-stack[<span class="number">-1</span>])</span><br><span class="line">        <span class="keyword">return</span> max_Parentheses</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-082</title>
     <url>/2019/06/12/Leetcode/Leetcode-082/</url>
     <content><![CDATA[<h1 id="Leecode-082-Remove-Duplicates-from-Sorted-List-II"><a href="#Leecode-082-Remove-Duplicates-from-Sorted-List-II" class="headerlink" title="Leecode-082 Remove Duplicates from Sorted List II"></a>Leecode-082 <a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/" target="_blank" rel="noopener">Remove Duplicates from Sorted List II</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>题目描述</strong></p>
@@ -11790,42 +12050,6 @@
       <tags>
         <tag>Leetcode</tag>
         <tag>双指针</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-032</title>
-    <url>/2019/06/12/Leetcode/Leetcode-032/</url>
-    <content><![CDATA[<h1 id="Leecode-032-Longest-Valid-Parentheses"><a href="#Leecode-032-Longest-Valid-Parentheses" class="headerlink" title="Leecode-032 [Longest Valid Parentheses]"></a>Leecode-032 [Longest Valid Parentheses]</h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：stack</strong></p>
-<ul>
-<li>leftmost:  指定最左侧的边界–&gt;初始值为-1</li>
-<li>stack：初始为空</li>
-<li>idx:     每个括号的索引</li>
-<li>原则：遇到正括号就push,反括号就pop</li>
-<li>max:   计算最大长度（反括号的index减去最上层的正括号的index）<ul>
-<li>[如果遇到反括号，pop之后stack为空，那么长度 = 当前idx - leftmost]</li>
-<li>[如果遇到反括号，pop之前stack为空，那么leftmost = 当前 idx, 长度就是当前idx-leftmost]</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-
-
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution：stack</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> leftmost = -<span class="number">1</span>;</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> Stack&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n; i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i) == <span class="string">'('</span>)&#123; <span class="comment">//遇到正括号就push</span></span><br><span class="line">                stack.push(i);</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123; <span class="comment">//if  反括号就pop</span></span><br><span class="line">                <span class="keyword">if</span>(stack.isEmpty())&#123; <span class="comment">//当前stack为空，更新leftmost</span></span><br><span class="line">                    leftmost = i;</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">int</span> j = stack.pop(); <span class="comment">//pop出正括号的index</span></span><br><span class="line">                    <span class="keyword">if</span>(stack.isEmpty()) max = Math.max(max,i-leftmost); <span class="comment">//pop出来之后为空</span></span><br><span class="line">                    <span class="keyword">else</span> max = Math.max(max,i-stack.peek()); <span class="comment">//pop出来之后不为空</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :同思路python版本</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">longestValidParentheses</span><span class="params">(self, s: str)</span> -&gt; int:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        n = len(s)</span><br><span class="line">        max_Parentheses = <span class="number">0</span></span><br><span class="line">        leftmost = <span class="number">-1</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">            <span class="keyword">if</span> s[i] == <span class="string">'('</span>:</span><br><span class="line">                stack.append(i)</span><br><span class="line">            <span class="keyword">else</span>: <span class="comment">#if )</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> stack:</span><br><span class="line">                    leftmost = i</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    j = stack.pop()</span><br><span class="line">                    <span class="keyword">if</span> <span class="keyword">not</span> stack: max_Parentheses = max(max_Parentheses,i-leftmost)</span><br><span class="line">                    <span class="keyword">else</span>: max_Parentheses = max(max_Parentheses,i-stack[<span class="number">-1</span>])</span><br><span class="line">        <span class="keyword">return</span> max_Parentheses</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
       </tags>
   </entry>
   <entry>
@@ -12097,15 +12321,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Mysql-视图</title>
-    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>Mysql</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mysql-索引</title>
     <url>/2019/02/21/Mysql/Mysql-%E7%B4%A2%E5%BC%95/</url>
     <content><![CDATA[<h1 id="Mysql-索引"><a href="#Mysql-索引" class="headerlink" title="Mysql 索引"></a>Mysql 索引</h1><h2 id="1-索引的作用"><a href="#1-索引的作用" class="headerlink" title="1. 索引的作用"></a>1. 索引的作用</h2><ul>
@@ -12171,6 +12386,15 @@
 <li>索引一般应该加载查找条件的字段上</li>
 </ul>
 ]]></content>
+      <tags>
+        <tag>Mysql</tag>
+        <tag>数据库</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mysql-视图</title>
+    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
+    <content><![CDATA[]]></content>
       <tags>
         <tag>Mysql</tag>
         <tag>数据库</tag>
