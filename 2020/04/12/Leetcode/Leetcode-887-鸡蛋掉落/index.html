@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">437字</span>
+            <span class="post-count">2.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">10分钟</span>
         </span>
     </span>
 </div>
@@ -125,7 +125,7 @@
 </li>
 </ul>
 <h2 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a><strong>动态规划</strong></h2><ul>
-<li><p>显然这种最优化的问题，只问结果，不问过程，就是用【动态规划】去求解。</p>
+<li><p>显然这种<strong>最优化</strong>的问题，只问结果，不问过程，就是用【动态规划】去求解。</p>
 </li>
 <li><p>动态规划，可以认为是一种打表格的方法（定义来自《算法导论》）。</p>
 </li>
@@ -134,14 +134,67 @@
 <li><p>但是动态规划给我们另一种思路，可以从一个问题最初的样子去考虑它是如何一步一步得到最终的结果。</p>
 </li>
 </ul>
-<h2 id="详细题解"><a href="#详细题解" class="headerlink" title="详细题解"></a>详细题解</h2><h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>「动态规划」的两个思考方向：</strong></p>
+<ul>
+<li><strong>自顶向下求解</strong>，称之为「记忆化递归」：初学的时候，建议先写「记忆化递归」的代码，然后把代码改成「自底向上」的「递推」求解；</li>
+<li><strong>自底向上求解</strong>，称之为「递推」或者就叫「动态规划」：在基础的「动态规划」问题里，绝大多数都可以从这个角度入手，做多了以后建议先从这个角度先思考，实在难以解决再考虑「记忆化递归」。</li>
+</ul>
+<h2 id="详细题解"><a href="#详细题解" class="headerlink" title="详细题解"></a>详细题解</h2><h3 id="第-1-步：定义状态"><a href="#第-1-步：定义状态" class="headerlink" title="第 1 步：定义状态"></a>第 1 步：定义状态</h3><p><strong>dp[i] [j]：一共有 i 层楼梯（注意：这里 i 不表示高度）的情况下，使用 j 个鸡蛋的最少实验的次数。</strong></p>
+<p>说明：</p>
+<ul>
+<li>i 表示的是楼层的大小，不是高度（第几层）的意思，例如楼层区间 [8, 9, 10] 的大小为 3。</li>
+<li>j 表示可以使用的鸡蛋的个数，它是约束条件。<br>第一个维度最先容易想到的是表示楼层的高度，这个定义的调整是在状态转移的过程中完成的。因为如果通过实验知道了鸡蛋的 F 值在高度区间 [8, 9, 10] 里，这个时候只有 1 枚鸡蛋，显然需要做 3 次实验，和区间的大小是相关的。</li>
+</ul>
+<h3 id="第2步：推导转移方程"><a href="#第2步：推导转移方程" class="headerlink" title="第2步：推导转移方程"></a>第2步：推导转移方程</h3><p>推导状态转移方程经常做的事情是「分类讨论」</p>
+<p>这里「分类讨论」的依据就是，在指定的层数里扔下鸡蛋，根据这个鸡蛋是否破碎，就把问题拆分成了两个子问题。</p>
+<ul>
+<li><strong>如果鸡蛋破碎</strong>，测试 F 值的实验就得在 k 层以下做（不包括 k 层），这里已经使用了一个鸡蛋，因此测出 F 值的最少实验次数是：dp[k - 1] [j - 1]；</li>
+<li><strong>如果鸡蛋完好</strong>，测试 F 值的实验就得在 k 层以上做（不包括 k 层），这里这个鸡蛋还能使用，因此测出 F 值的最少实验次数是：dp[i - k] [j]，例如总共 8 层，在第 5 层扔下去没有破碎，则需要在 [6, 7, 8] 层继续做实验，因此区间的大小就是 8 - 5 = 3。</li>
+</ul>
+<ul>
+<li><p>最坏情况下，是这两个子问题的较大者</p>
+</li>
+<li><p>由于在第 <code>k</code> 层扔下鸡蛋算作一次实验，<code>k</code> 的值在【1，k】</p>
+</li>
+<li><p>因此：</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200416/085931341.png" alt="mark"></p>
+<p><strong>解释：</strong></p>
+<p><strong>由于丢那一个鸡蛋需要记录一次操作，所以末尾要加上 1；</strong><br><strong>每一个新值的计算，都参考了比它行数少，列数少的值，这些值一定是之前已经计算出来的，这样的过程就叫做「状态转移」。</strong></p>
+<h3 id="第3步：考虑初始化"><a href="#第3步：考虑初始化" class="headerlink" title="第3步：考虑初始化"></a>第3步：考虑初始化</h3><ul>
+<li><p>一般而言，需要 <code>0</code> 这个状态的值，这里 <code>0</code> 层楼和 <code>0</code> 个鸡蛋是需要考虑进去的，它们的值会被后来的值所参考，并且也比较容易得到。</p>
+</li>
+<li><p>因此表格需要N+1行，K+1列</p>
+</li>
+<li><p>由于 <code>F</code> 值不会超过最大楼层的高度，要求的是最小值，<strong>因此初始化的时候，可以叫表格的单元格值设置成一个很大的数</strong>，但是这个数肯定也不会超过当前考虑的楼层的高度。</p>
+<ul>
+<li>第0行：楼层为0 的时候，不管鸡蛋个数多少，都测试不出鸡蛋的 <code>F</code> 值，故全为 0；</li>
+<li>第1行：楼层为1：如果0个鸡蛋，丢0次；一个鸡蛋，丢一次</li>
+<li>第0列：鸡蛋个数为 0 的时候，不管楼层为多少，也测试不出鸡蛋的 <code>F</code> 值，故全为 0，虽然不符合题意，但是这个值有效，它在后面的计算中会被用到；</li>
+<li>第1列：鸡蛋个数为 1 的时候，这是一种极端情况，要试出 <code>F</code> 值，最少次数就等于楼层高度；</li>
+</ul>
+</li>
+</ul>
+<h3 id="第-4-步：考虑输出"><a href="#第-4-步：考虑输出" class="headerlink" title="第 4 步：考虑输出"></a>第 4 步：考虑输出</h3><p><strong>输出就是表格的最后一个单元格的值 <code>dp[N][K]</code>。</strong></p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">superEggDrop</span><span class="params">(<span class="keyword">int</span> K, <span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// dp[i][j]：一共有 i 层楼梯的情况下，使用 j 个鸡蛋的最少实验的次数</span></span><br><span class="line">        <span class="comment">// 注意：</span></span><br><span class="line">        <span class="comment">// 1、i 表示的是楼层的大小，不是第几层的意思，例如楼层区间 [8, 9, 10] 的大小为 3，这一点是在状态转移的过程中调整的定义</span></span><br><span class="line">        <span class="comment">// 2、j 表示可以使用的鸡蛋的个数，它是约束条件，我个人习惯放在后面的维度，表示消除后效性的意思</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 0 个楼层和 0 个鸡蛋的情况都需要算上去，虽然没有实际的意义，但是作为递推的起点，被其它状态值所参考</span></span><br><span class="line">        <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[N + <span class="number">1</span>][K + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 由于求的是最小值，因此初始化的时候赋值为一个较大的数，9999 或者 i 都可以</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            Arrays.fill(dp[i], i);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 初始化：填写下标为 0、1 的行和下标为 0、1 的列</span></span><br><span class="line">        <span class="comment">// 第 0 行：楼层为 0 的时候，不管鸡蛋个数多少，都测试不出鸡蛋的 F 值，故全为 0</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= K; j++) &#123;</span><br><span class="line">            dp[<span class="number">0</span>][j] = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第 1 行：楼层为 1 的时候，0 个鸡蛋的时候，扔 0 次，1 个以及 1 个鸡蛋以上只需要扔 1 次</span></span><br><span class="line">        dp[<span class="number">1</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= K; j++) &#123;</span><br><span class="line">            dp[<span class="number">1</span>][j] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第 0 列：鸡蛋个数为 0 的时候，不管楼层为多少，也测试不出鸡蛋的 F 值，故全为 0</span></span><br><span class="line">        <span class="comment">// 第 1 列：鸡蛋个数为 1 的时候，这是一种极端情况，要试出 F 值，最少次数就等于楼层高度（想想复杂度的定义）</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">            dp[i][<span class="number">1</span>] = i;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从第 2 行，第 2 列开始填表</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">2</span>; j &lt;= K; j++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> k = <span class="number">1</span>; k &lt;= i; k++) &#123;</span><br><span class="line">                    <span class="comment">// 碎了，就需要往低层继续扔：层数少 1 ，鸡蛋也少 1</span></span><br><span class="line">                    <span class="comment">// 不碎，就需要往高层继续扔：层数是当前层到最高层的距离差，鸡蛋数量不少</span></span><br><span class="line">                    <span class="comment">// 两种情况都做了一次尝试，所以加 1</span></span><br><span class="line">                    dp[i][j] = Math.min(dp[i][j], Math.max(dp[k - <span class="number">1</span>][j - <span class="number">1</span>], dp[i - k][j]) + <span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[N][K];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
-
-
-
-
+<p><strong>复杂度分析</strong>：</p>
+<ul>
+<li>时间复杂度：O(N^2 K)，三层 <code>for</code> 循环，每层循环都是线性的；</li>
+<li>空间复杂度：O(NK)，表格的大小。</li>
+</ul>
+<p><strong>上面算法没问题，但因为力扣自己的问题，接下来要做一些时间复杂度的优化</strong></p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>这里需要盯着「状态转移方程」看：</p>
+<p>「状态转移方程」里最外层的变量是 <code>k</code>，它枚举了扔下鸡蛋的楼层的高度，这里它是自变量，将其余的 <code>i</code> 和 <code>j</code> 视为常数：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200416/085931341.png" alt="mark"></p>
+<ul>
+<li>dp[k - 1] [j - 1]：根据语义，k 增大的时候，楼层大小越大，它的值就越大；</li>
+<li>dp[i - k] [j]：根据语义，k 增大的时候，楼层大小越小，它的值就越小。</li>
+</ul>
+<p>也就是找到使得 dp[i - k] [j] &lt;= dp[k - i] [j - 1] 最大的那个 k 值即可。这里使用二分查找算法。关键在于 dp[i - k] [j] &gt; dp[k - i] [j - 1] 的时候，k 一定不是我们要找的，根据这一点写出二分的代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">superEggDrop</span><span class="params">(<span class="keyword">int</span> K, <span class="keyword">int</span> N)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// dp[i][j]：一共有 i 层楼梯的情况下，使用 j 个鸡蛋的最少仍的次数</span></span><br><span class="line">        <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[N + <span class="number">1</span>][K + <span class="number">1</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 初始化</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            Arrays.fill(dp[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt;= K; j++) &#123;</span><br><span class="line">            dp[<span class="number">0</span>][j] = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        dp[<span class="number">1</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= K; j++) &#123;</span><br><span class="line">            dp[<span class="number">1</span>][j] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">            dp[i][<span class="number">1</span>] = i;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 开始递推</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i &lt;= N; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">2</span>; j &lt;= K; j++) &#123;</span><br><span class="line">                <span class="comment">// 在区间 [1, i] 里确定一个最优值</span></span><br><span class="line">                <span class="keyword">int</span> left = <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">int</span> right = i;</span><br><span class="line">                <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">                    <span class="comment">// 找 dp[k - 1][j - 1] &lt;= dp[i - mid][j] 的最大值 k</span></span><br><span class="line">                    <span class="keyword">int</span> mid = left + (right - left + <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">int</span> breakCount = dp[mid - <span class="number">1</span>][j - <span class="number">1</span>];</span><br><span class="line">                    <span class="keyword">int</span> notBreakCount = dp[i - mid][j];</span><br><span class="line">                    <span class="keyword">if</span> (breakCount &gt; notBreakCount) &#123;</span><br><span class="line">                        <span class="comment">// 排除法（减治思想）写对二分见第 35 题，先想什么时候不是解</span></span><br><span class="line">                        <span class="comment">// 严格大于的时候一定不是解，此时 mid 一定不是解</span></span><br><span class="line">                        <span class="comment">// 下一轮搜索区间是 [left, mid - 1]</span></span><br><span class="line">                        right = mid - <span class="number">1</span>;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// 这个区间一定是上一个区间的反面，即 [mid, right]</span></span><br><span class="line">                        <span class="comment">// 注意这个时候取中间数要上取整，int mid = left + (right - left + 1) / 2;</span></span><br><span class="line">                        left = mid;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// left 这个下标就是最优的 k 值，把它代入转移方程 Math.max(dp[k - 1][j - 1], dp[i - k][j]) + 1) 即可</span></span><br><span class="line">                dp[i][j] = Math.max(dp[left - <span class="number">1</span>][j - <span class="number">1</span>], dp[i - left][j]) + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[N][K];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
