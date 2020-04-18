@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Redis-08-Conf |  朱酱酱的学习博客
+    Leetcode-011-盛水最多的容器 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-Redis/Redis-08-Conf" class="article article-type-post" itemscope
+  <article id="post-Leetcode/Leetcode-011-盛水最多的容器" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Redis-08-Conf
+  Leetcode-011-盛水最多的容器
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/14/Redis/Redis-08-Conf/" class="article-date">
-  <time datetime="2020-04-14T12:02:24.000Z" itemprop="datePublished">2020-04-14</time>
+      <a href="/2020/04/18/Leetcode/Leetcode-011-%E7%9B%9B%E6%B0%B4%E6%9C%80%E5%A4%9A%E7%9A%84%E5%AE%B9%E5%99%A8/" class="article-date">
+  <time datetime="2020-04-18T11:52:53.000Z" itemprop="datePublished">2020-04-18</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">382字</span>
+            <span class="post-count">557字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">2分钟</span>
         </span>
     </span>
 </div>
@@ -99,32 +99,43 @@
       
 
       
-      <h1 id="Redis-08-Conf"><a href="#Redis-08-Conf" class="headerlink" title="Redis-08-Conf"></a>Redis-08-Conf</h1><p><strong>打开redis.conf文件</strong></p>
-<h2 id="1-单位"><a href="#1-单位" class="headerlink" title="1. 单位"></a>1. 单位</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/video/O_H3%28%29%7B221WX%7E9UE3%28HY452.png" alt=""></p>
+      <h1 id="Leecode-011Container-With-Most-Water"><a href="#Leecode-011Container-With-Most-Water" class="headerlink" title="Leecode-011Container With Most Water"></a>Leecode-011<a href="https://leetcode-cn.com/problems/container-with-most-water/" target="_blank" rel="noopener">Container With Most Water</a></h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>在范围内找出两条直线（组成一个面积最大的区域也就是盛水的容积）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/193156410.png" alt="mark"></p>
 <a id="more"></a>
 
-<h2 id="2-包含配置文件"><a href="#2-包含配置文件" class="headerlink" title="2. 包含配置文件"></a>2. 包含配置文件</h2><p>绑定IP</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/210956149.png" alt="mark"></p>
-<h2 id="3-通用设置"><a href="#3-通用设置" class="headerlink" title="3. 通用设置"></a>3. 通用设置</h2><p>Daemonize 后台开启</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211044791.png" alt="mark"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 打印日志</span></span><br><span class="line"><span class="comment"># Specify the server verbosity level.</span></span><br><span class="line"><span class="comment"># This can be one of:</span></span><br><span class="line"><span class="comment"># debug (a lot of information, useful for development/testing)</span></span><br><span class="line"><span class="comment"># verbose (many rarely useful info, but not a mess like the debug level)</span></span><br><span class="line"><span class="comment"># notice (moderately verbose, what you want in production probably)</span></span><br><span class="line"><span class="comment"># warning (only very important / critical messages are logged)</span></span><br><span class="line">loglevel notice  <span class="comment">## 日志等级</span></span><br><span class="line">logfile <span class="string">""</span>       <span class="comment">## 日志的位置</span></span><br><span class="line">database 16      <span class="comment">## 默认16个数据库</span></span><br></pre></td></tr></table></figure>
+<p><strong>Solution：分三种情况分析</strong></p>
+<ul>
+<li>左指针对应高度 &gt; 右指针对应高度  （结果：右指针左移，这样右指针才能找到比当前大的高度）</li>
+<li>左指针对应高度 &lt; 右指针对应高度     (结果：左指针右移，这样左指针才能找到比当前大的高度)</li>
+<li>左指针对应高度 = 右指针对应高度   （结果： 左右指针同时移动一位 即右指针左移，左指针右移）</li>
+</ul>
+<p><strong>下面举例子说明：</strong></p>
+<p>首先用area记录下当前的最大盛水容积</p>
+<p>我们<strong>采用[2,1,3,4] 作为举例</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/194756640.png" alt="mark"></p>
+<p>如下图所示：</p>
+<ul>
+<li>首先left指针初始为0，right初始为最后一个元素</li>
+<li>其次，<strong>在图中我们可以明显看出（无论怎么移动右指针，容积只会是变小的；只有移动left，容积才有可能变大），所以我们可以得出结论（要移动left和right之间最小的那个，也就是一开始说明的两种情况）。此时最大的容积为2*3=6</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/194940920.png" alt="mark"></p>
+<ul>
+<li><p>最后，对于左指针和右指针对应高度相等的情况（<strong>数组高度为[2,1,3,2]</strong>）</p>
+<p>如下图所示：</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/195607508.png" alt="mark"></p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxArea</span><span class="params">(<span class="keyword">int</span>[] height)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(height ==<span class="keyword">null</span> || height.length &lt; <span class="number">2</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// 初始化left,right和area</span></span><br><span class="line">        <span class="keyword">int</span> area = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> right = height.length -<span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 左指针索引小于右指针时</span></span><br><span class="line">        <span class="keyword">while</span>(left&lt;right)&#123;</span><br><span class="line">            <span class="comment">// 更新面积</span></span><br><span class="line">            area = Math.max(area,(right-left)*Math.min(height[left],height[right]));</span><br><span class="line">            <span class="comment">// 移动规则</span></span><br><span class="line">            <span class="comment">// 左指针对应高度 &gt; 右指针对应高度  （结果：右指针左移，这样右指针才能找到比当前大的高度）</span></span><br><span class="line">            <span class="keyword">if</span>(height[left] &gt; height[right]) right --;</span><br><span class="line">            <span class="comment">// 左指针对应高度 &lt; 右指针对应高度     (结果：左指针右移，这样左指针才能找到比当前大的高度)</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (height[left] &lt; height[right]) left ++;</span><br><span class="line">            <span class="comment">// 左指针对应高度 = 右指针对应高度   （结果： 左右指针同时移动一位 即右指针左移，左指针右移）</span></span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                left++;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> area;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="4-快照"><a href="#4-快照" class="headerlink" title="4. 快照"></a>4. 快照</h2><p>持久化，在规定的时间内，执行了多少次操作，则会持久化到文件</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211415183.png" alt="mark"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 如果900s内，如果至少有一个key进行了修改，就进行持久化操作</span></span><br><span class="line"><span class="comment">## 如果300s内，如果至少有十个key进行了修改，就进行持久化操作</span></span><br><span class="line"><span class="comment">## 如果60s内，如果至少有10000个key进行了修改，就进行持久化操作</span></span><br><span class="line"></span><br><span class="line">stop-writes-on-bgsave-error yes  <span class="comment">## 出错了继续工作</span></span><br><span class="line">rdbcompression yes               <span class="comment">## 是否压缩rbd文件</span></span><br><span class="line">rdbchecksum yes                  <span class="comment">## 错误校验检查</span></span><br><span class="line">dir ./						   <span class="comment">## rdb保存位置</span></span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="5-主从复制"><a href="#5-主从复制" class="headerlink" title="5. 主从复制"></a>5. 主从复制</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211727064.png" alt="mark"></p>
-<h2 id="6-设置密码"><a href="#6-设置密码" class="headerlink" title="6. 设置密码"></a>6. 设置密码</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211804660.png" alt="mark"></p>
-<h2 id="7-客户端"><a href="#7-客户端" class="headerlink" title="7. 客户端"></a>7. 客户端</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211900418.png" alt="mark"></p>
-<h2 id="8-内存配置"><a href="#8-内存配置" class="headerlink" title="8. 内存配置"></a>8. 内存配置</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/211925424.png" alt="mark"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># maxmemory-policy noeviction (redis设置过期key六种方式)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 设置方式   </span></span><br><span class="line">config <span class="built_in">set</span> maxmemory-policy volatile-lru </span><br><span class="line"></span><br><span class="line">maxmemory-policy 六种方式</span><br><span class="line">1、volatile-lru：只对设置了过期时间的key进行LRU（默认值） </span><br><span class="line"></span><br><span class="line">2、allkeys-lru ： 删除lru算法的key   </span><br><span class="line"></span><br><span class="line">3、volatile-random：随机删除即将过期key   </span><br><span class="line"></span><br><span class="line">4、allkeys-random：随机删除   </span><br><span class="line"></span><br><span class="line">5、volatile-ttl ： 删除即将过期的   </span><br><span class="line"></span><br><span class="line">6、noeviction ： 永不过期，返回错误</span><br></pre></td></tr></table></figure>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
-
-<h2 id="9-AOF配置"><a href="#9-AOF配置" class="headerlink" title="9. AOF配置"></a>9. AOF配置</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/212203402.png" alt="mark"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 默认是使用rdb 不适用aof</span></span><br><span class="line">appendonly no</span><br><span class="line"><span class="comment">## 文件名</span></span><br><span class="line">appendfilename <span class="string">"appendonly.aof"</span></span><br></pre></td></tr></table></figure>
 
 
       
@@ -193,14 +204,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/04/14/Redis/Redis-08-Conf/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/04/18/Leetcode/Leetcode-011-%E7%9B%9B%E6%B0%B4%E6%9C%80%E5%A4%9A%E7%9A%84%E5%AE%B9%E5%99%A8/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
 
 
     </footer>
@@ -211,19 +222,10 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/04/14/Redis/Redis-09-%E6%8C%81%E4%B9%85%E5%8C%96/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Redis-09-持久化
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/" class="article-nav-link">
+      <a href="/2020/04/18/JUC/JUC-03-%E5%85%AB%E9%94%81%E7%8E%B0%E8%B1%A1/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Redis-07-SpringBoot整合</div>
+        <div class="article-nav-title">JUC-03-八锁现象</div>
       </a>
     
   </nav>
