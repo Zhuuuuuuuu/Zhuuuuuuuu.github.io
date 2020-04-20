@@ -275,7 +275,7 @@
 <p>但是现实是存储的元素很难有这样的ID关键字，也就和难实现这种hashCode唯一算法，再者就算能实现，但是产生hashCode码是非常大的，这会超过Java所能表示的范围，很占用内存空间，所以也是不予考虑的。</p>
 <p><strong>二、hashCode 编写指导：</strong></p>
 <p>①、不同对象的hash码应该尽量不同，避免hash冲突，也就是算法获得的元素要尽量均匀分布。</p>
-<p>②、hash 值是一个 int 类型，在Java中占用 4 个字节，也就是 232 次方，要避免溢出。</p>
+<p>②、hash 值是一个 int 类型，在Java中占用 4 个字节，也就是 2的32 次方，要避免溢出。</p>
 <p>在 JDK 的 Integer类，Float 类，String 类等都重写了 hashCode 方法，我们自定义对象也可以参考这些类来写。</p>
 <p>下面是JDK String类的hashCode源码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h = hash;</span><br><span class="line">    <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">char</span> val[] = value;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">            h = <span class="number">31</span> * h + val[i];</span><br><span class="line">        &#125;</span><br><span class="line">        hash = h;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -294,7 +294,7 @@
 <h2 id="9-registerNatives-方法"><a href="#9-registerNatives-方法" class="headerlink" title="9. registerNatives() 方法"></a>9. registerNatives() 方法</h2><p>该方法在 Object 类中定义如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">registerNatives</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>这是一个本地方法，在native关键字中介绍，我们知道一个类定义了本地方法后，想要调用操作系统的实现，必须还要装在本地库，但是我们在Object.class类中具有很多本地方法，但是却没有看到本地库的载入代码。而且额这是用private关键字声明的，在类外面根本调用不了，我们接着我往下看关于这个方法类似源码：</p>
+<p>这是一个本地方法，在native关键字中介绍，我们知道一个类定义了本地方法后，想要调用操作系统的实现，必须还要装在本地库，但是我们在Object.class类中具有很多本地方法，但是却没有看到本地库的载入代码。而且这是用private关键字声明的，在类外面根本调用不了，我们接着我往下看关于这个方法类似源码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    registerNatives();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>看到上面的代码，这就明白了吧。静态代码块就是一个类在初始化过程中必定会执行的内容，所以在类加载的时候是会执行该方法的，通过该方法来注册本地方法。</p>
@@ -383,19 +383,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/" class="article-nav-link">
+      <a href="/2020/04/02/SpringBoot/SpringBoot-15-shiro/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Leetcode-1111-有效括号的长度
+            SpringBoot-15-Shiro
           
         </div>
       </a>
     
     
-      <a href="/2020/04/01/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-%E5%AE%9D%E5%A1%94%E6%90%AD%E5%BB%BA%E7%8E%AF%E5%A2%83/" class="article-nav-link">
+      <a href="/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">云服务器-环境搭建</div>
+        <div class="article-nav-title">Leetcode-020</div>
       </a>
     
   </nav>
