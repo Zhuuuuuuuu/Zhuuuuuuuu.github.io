@@ -1,6 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>通信原理笔记</title>
+    <url>/2020/04/21/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="1-时分复用TDM"><a href="#1-时分复用TDM" class="headerlink" title="1. 时分复用TDM"></a>1. 时分复用TDM</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p><strong>（书P9页）</strong></p>
+<p>传输多路信号有三种基本复用方式</p>
+<ul>
+<li>频分复用</li>
+<li>时分复用</li>
+<li>码分复用</li>
+<li>空分复用（了解即可）</li>
+</ul>
+<p>频分复用：用频谱搬移（<strong>调制</strong>）的方法使不同信号占据不同的频率范围</p>
+<p>时分复用：用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</p>
+<p>码分复用：用正交编码的方法分别携带不同的信号。</p>
+<p><strong>要想理解TDM，必须先要理解信源编码（抽样，量化，编码）</strong></p>
+<h2 id="1-2-信源编码"><a href="#1-2-信源编码" class="headerlink" title="1.2 信源编码"></a>1.2 信源编码</h2><p>信源编码两个基本的功能：（P279）</p>
+<ul>
+<li>压缩编码 ： 减少数据冗余，提高通信的有效性</li>
+<li>数字化（模/数转换）</li>
+</ul>
+<p><strong>为什么要数字化？（P006）</strong></p>
+<ul>
+<li>抗干扰能力强</li>
+<li>传输差错可控</li>
+<li>便于用DSP技术多数字信息进行处理。</li>
+<li>易于集成</li>
+<li>易于加密处理</li>
+</ul>
+<p><strong>数字化过程的步骤？（P279）</strong></p>
+<ul>
+<li>抽样</li>
+<li>量化</li>
+<li>编码</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/184218130.png" alt="mark"></p>
+<p>编码的方式：</p>
+<ul>
+<li><strong>PCM(重要)</strong></li>
+<li>DPCM</li>
+<li>Delta M</li>
+</ul>
+<h2 id="1-3-抽样"><a href="#1-3-抽样" class="headerlink" title="1.3 抽样"></a>1.3 抽样</h2><p><strong>低通抽样和带通抽样 这两种抽样都叫做理想抽样。</strong></p>
+<h3 id="1-3-1-低通模拟信号抽样定理（P280-282）"><a href="#1-3-1-低通模拟信号抽样定理（P280-282）" class="headerlink" title="1.3.1 低通模拟信号抽样定理（P280-282）"></a>1.3.1 低通模拟信号抽样定理（P280-282）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185305861.png" alt="mark"></p>
+<p>如上图所示，左边的是描述对模拟信号的抽样，抽样可以理解为对原始信号幅度等（时间）间隔进行采样。右边的是描述抽样后得到的频域信号。</p>
+<p><strong>那么抽样定理到底是什么呢？请看下图</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185725602.png" alt="mark"></p>
+<p>上图中<strong>fs</strong>是两个抽样点的频率间隔，通信最基本的要求就是没有干扰性，所以要求以fs为采样间隔的时候信号不能有重叠，所以fs &gt;= 2fh，即如下所示</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185944555.png" alt="mark"></p>
+<p>如果不满足这个间隔，信号将会发生混叠失真。</p>
+<p><strong>（这里先了解一下电话的抽样频率，后面讲PDH的时候会仔细在讲解。）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190320962.png" alt="mark"></p>
+<h3 id="1-3-2-带通信号的-抽样定理（P283）"><a href="#1-3-2-带通信号的-抽样定理（P283）" class="headerlink" title="1.3.2 带通信号的 抽样定理（P283）"></a>1.3.2 带通信号的 抽样定理（P283）</h3><ul>
+<li>如何分辨低通信号或者带通信号？</li>
+</ul>
+<p><strong>低通信号就是最低频率小于带宽</strong></p>
+<p><strong>反之带通信号就是最低频率大于带宽。</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190631762.png" alt="mark"></p>
+<p>那么既然有了低通抽样定理，为什么还需要单独要提出一个带通抽样定理呢？</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190838592.png" alt="mark"></p>
+<p>解答：在图中可以明显的看出 0 到 fL这个区间是没有信号的，如果使用低通抽样定理，那么势必在低频域范围会浪费抽样的频率，导致系统效率低下，所以才有了带通抽样定理（证明不做要求）</p>
+<h3 id="1-3-3-模拟脉冲调制-P285"><a href="#1-3-3-模拟脉冲调制-P285" class="headerlink" title="1.3.3 模拟脉冲调制(P285)"></a>1.3.3 模拟脉冲调制(P285)</h3><p>有以下三种模拟脉冲调制方式：</p>
+<ul>
+<li><strong>PAM：脉冲幅度调制(重要)</strong></li>
+<li>PPM:   脉冲宽度调制</li>
+<li>PPM：脉冲位置调制</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191516355.png" alt="mark"></p>
+<h3 id="1-3-4-实际抽样"><a href="#1-3-4-实际抽样" class="headerlink" title="1.3.4 实际抽样"></a>1.3.4 实际抽样</h3><p>上述低通抽样和带通抽样都叫做理想抽样（因为现实做不到这样的抽样）</p>
+<p><strong>那么什么是实际抽样呢？</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191651614.png" alt="mark"></p>
+<p>如上图所示：</p>
+<p>实际抽样使用一个有宽度的脉冲代替了箭头脉冲。</p>
+<p>理解完了上面实际抽样和理想抽样的区别，我们来看看两种实际抽样的方式。（了解即可）</p>
+<ul>
+<li>第一种：自然抽样PAM（幅度随原信号幅度改变）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192041205.png" alt="mark"></p>
+<ul>
+<li>第二种：平顶抽样PAM（每个样值脉冲顶部是平坦的）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192133992.png" alt="mark"></p>
+<h3 id="1-3-4-抽样小结"><a href="#1-3-4-抽样小结" class="headerlink" title="1.3.4 抽样小结"></a>1.3.4 抽样小结</h3><p><strong>抽样的本质：将取值连续，时间连续的模拟信号——&gt;取值仍然连续，但时间离散的PAM信号</strong></p>
+<p><strong>实际抽样的两种方式：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192327476.png" alt="mark"></p>
+<p><strong>理想抽样定理：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192354532.png" alt="mark"></p>
+<h2 id="1-4-量化"><a href="#1-4-量化" class="headerlink" title="1.4 量化"></a>1.4 量化</h2><p>量化就是对抽样信号后的幅度进行离散化。</p>
+<p>（本质：用有限个量化电平表示无限个抽样值）</p>
+<p>量化过程：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192543863.png" alt="mark"></p>
+<p>上图中：</p>
+<ul>
+<li>mi : 分层电平</li>
+<li>qi : 量化电平</li>
+<li>delta vi :量化间隔</li>
+</ul>
+<p>这里公式都不用去记（<strong>只要记得在同一个范围内的抽样电平都算做同一个值</strong>）</p>
+<p>例如（横轴上4Ts和6Ts对应的量化电平在同一个区间，所以都算做同一个）</p>
+<p>这样，无限个抽样值就变成了有限个量化信号值。（P287）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192856427.png" alt="mark"></p>
+<h3 id="1-4-1-均匀量化"><a href="#1-4-1-均匀量化" class="headerlink" title="1.4.1 均匀量化"></a>1.4.1 均匀量化</h3><p>设模拟抽样信号的取值范围在a和b之间，量化电平数数M，则在均匀量化时的量化间隔为：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193123555.png" alt="mark"></p>
+<p>所以每个量化分层的端点mi就是：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193157063.png" alt="mark"></p>
+<p>均匀量化了解到这里即可。</p>
+<h3 id="1-4-2-非均匀量化（重要）"><a href="#1-4-2-非均匀量化（重要）" class="headerlink" title="1.4.2 非均匀量化（重要）"></a>1.4.2 非均匀量化（重要）</h3><p>(P289)</p>
+<p>在非均匀量化时，量化间隔是随信号抽样值的不同而变化的，即信号抽样值小的时候，量化间隔delta v就小，量化间隔大的时候，量化间隔delta v就大。</p>
+<p><strong>本质是：在进行量化之前，先将信号抽样值压缩，再进行均匀量化。（这里了解即可）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193609945.png" alt="mark"></p>
+<p><strong>非均匀量化有两种标准：</strong></p>
+<p>（ITU:国际电信联盟制定的）</p>
+<ul>
+<li><strong>A律（中国用的）</strong></li>
+<li><strong>u律（不用看：北美 日本用的）</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193730135.png" alt="mark"></p>
+<h3 id="A律13折线（P292）"><a href="#A律13折线（P292）" class="headerlink" title="A律13折线（P292）"></a>A律13折线（P292）</h3><p>A律使用13折线来实现近似，这里A=87.6</p>
+<p><strong>规律：每次对半分（如下图  1/2  1/4  1/8……. 1/128）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193944014.png" alt="mark"></p>
+<p>上图仔细数数才8道折线，那么为什么叫做13折线？</p>
+<p>答案：看下图，因为负极性还有8条折线（其中把原点左边的4条折线近似合并成一条 因为这四条折线的斜率近似相等）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194255212.png" alt="mark"></p>
+<p>所以一共是 ： 8+8-3 = 13条折线</p>
+<h2 id="1-5-编码"><a href="#1-5-编码" class="headerlink" title="1.5 编码"></a>1.5 编码</h2><p><strong>1. PCM编码原理框图：</strong></p>
+<p>对于发送端而言：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194626823.png" alt="mark"></p>
+<p>对于接收端而言：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194717234.png" alt="mark"></p>
+<p><strong>2. 量化和编码的关系：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194746570.png" alt="mark"></p>
+<p><strong>那么PCM的本质就是把数字信号变成计算机能看得懂的0101二进制信号罢了。</strong></p>
+<p><strong>3. A律13折线的PCM编码（二进制编码规则）：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195007957.png" alt="mark"></p>
+<p>具体每位码代表什么呢？看下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195043795.png" alt="mark"></p>
+<p>那这里和13折线有什么关系？请看下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195318463.png" alt="mark"></p>
+<p>上图就是用13折线非均匀量化的规律，把量化间隔进行细分。</p>
+<p><strong>这里了解到这里即可。</strong></p>
+<h2 id="1-6-时分复用"><a href="#1-6-时分复用" class="headerlink" title="1.6 时分复用"></a>1.6 时分复用</h2><h3 id="1-6-1简介"><a href="#1-6-1简介" class="headerlink" title="1.6.1简介"></a>1.6.1简介</h3><ol>
+<li>时分复用TDM（Time Division Multiplexing）</li>
+</ol>
+<ul>
+<li>用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</li>
+<li><strong>主要用在电话上</strong></li>
+</ul>
+<p>学习了上面抽样定理之后，我们举个例子</p>
+<p>有两路信号 一路是 m1(t) 另外一路是m2(t)，同时对它们进行时间上的采样。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200143616.png" alt="mark"></p>
+<p>采样结果如下图所示：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200202524.png" alt="mark"></p>
+<p><strong>从图中可以明显看出，采样后的信号没有重叠。</strong></p>
+<h3 id="1-6-2-原理分析"><a href="#1-6-2-原理分析" class="headerlink" title="1.6.2 原理分析"></a>1.6.2 原理分析</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200313856.png" alt="mark"></p>
+<p>时分复用的特点就是将时间划分为上图（A B C D） 一段段等长的时间复用帧（Frame），每一个时分复用的用户在每一个TDM帧中占用固定序号的时隙。</p>
+<p>接下来以三路信号为例：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200502920.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200530262.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200537269.png" alt="mark"></p>
+<p>注意到上面三张图的区别了吗？</p>
+<p>答案：图中在<strong>发送端和接收端分别有一个机械旋转开关</strong>，他们以相同的抽样频率同步的旋转。<strong>在抽样定理中已经证明：时间上连续的信号可以用它的离散抽样进行标识，只要抽样速率足够的高。</strong>所以各路信号是断续的发送的，接收端会根据时隙进行还原。</p>
+<p>这里例子具体的话：</p>
+<p>时隙为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200831049.png" alt="mark"></p>
+<p>这样的话就可以扩展到n路信号：如下图所示</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200938276.png" alt="mark"></p>
+<p>相应的，时隙宽度变为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201023428.png" alt="mark"></p>
+<p>码元周期变为：<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201056540.png" alt="mark"></p>
+<h2 id="1-7-准同步数字体系"><a href="#1-7-准同步数字体系" class="headerlink" title="1.7 准同步数字体系"></a>1.7 准同步数字体系</h2><ol>
+<li>ITU制定了两种准同步数字体系</li>
+</ol>
+<ul>
+<li><strong>PCM30/32(A律)  重要：因为中国用的</strong>  </li>
+<li>PCM24路（u律） <strong>不用看</strong></li>
+</ul>
+<ol start="2">
+<li><strong>PCM的一次帧结构（重点）</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201346438.png" alt="mark"></p>
+<ul>
+<li><p>共有32路组成（有32个时隙  TS0  TS1 …… TS31）</p>
+</li>
+<li><p>每帧时间间隔为125us（即采样周期）</p>
+</li>
+<li><p>TS0 专门用于帧同步</p>
+</li>
+<li><p>TS16 专门用于传送信令</p>
+</li>
+<li><p>PCM的一次群比特率（2.048M/s = Ts *  256 = 125us * 8 * 32）(P311页)</p>
+</li>
+</ul>
+<ol start="3">
+<li>高次帧结构（E体系）</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201906231.png" alt="mark"></p>
+<p>规律： 四个PCM复用为新的一次群</p>
+<p>2.048 * 1 =   2.048Mbit/s      一次群</p>
+<p>2.048 * 4 = 8.448Mbit/s        二次群</p>
+<p>2.048 *  16 = 34.368Mbit/s  三次次群</p>
+]]></content>
+  </entry>
+  <entry>
     <title>JUC-04-线程安全集合类</title>
     <url>/2020/04/19/JUC/JUC-04-%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E9%9B%86%E5%90%88%E7%B1%BB/</url>
     <content><![CDATA[<h1 id="JUC-04-线程安全集合类"><a href="#JUC-04-线程安全集合类" class="headerlink" title="JUC-04-线程安全集合类"></a>JUC-04-线程安全集合类</h1><h2 id="1-List-不安全"><a href="#1-List-不安全" class="headerlink" title="1. List 不安全"></a>1. List 不安全</h2><p>先看一段代码:</p>
@@ -1328,6 +1527,150 @@
       </tags>
   </entry>
   <entry>
+    <title>Redis-02-入门与使用</title>
+    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
+<li><strong>Redis是什么？</strong></li>
+</ol>
+<ul>
+<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
+</li>
+<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
+</li>
+<li><p>也被称之为结构化数据库！</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Redis能做什么？</strong></li>
+</ol>
+<ul>
+<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
+<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
+<a id="more"></a>
+
+<ol>
+<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
+<li>效率高，可以用于告诉缓存</li>
+<li>发布订阅系统</li>
+<li>地图信息分析</li>
+<li>计时器，计数器（浏览量！）</li>
+<li>……</li>
+</ol>
+<ol start="3">
+<li><strong>Redis特性</strong></li>
+</ol>
+<ul>
+<li>多样的数据类型</li>
+<li>持久化</li>
+<li>集群</li>
+<li>事务</li>
+</ul>
+<p>…….</p>
+<ol start="4">
+<li><strong>需要的工具</strong></li>
+</ol>
+<ul>
+<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
+<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
+</ul>
+<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
+<li>下载并上传到服务器</li>
+</ol>
+<p>官网下载：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
+<ol start="2">
+<li>解压压缩包（程序/opt目录下）</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
+<ol start="3">
+<li>进入解压后的文件，可以看到redis.conf</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
+<ol start="4">
+<li>确保有gcc环境并安装</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
+<ol start="5">
+<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
+<ol start="6">
+<li><strong>将redis配置文件复制到当前目录下</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>redis默认不是后台启动，修改配置文件！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
+<ol start="8">
+<li><strong>通过制定的配置文件启动redis服务</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
+<ol start="9">
+<li>测试redis连接（使用redis-cli进行连接）</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
+<ol start="10">
+<li>查看redis进程与连接</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
+<ol start="11">
+<li>如何关闭redis服务</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
+<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
+<p>简单测试一下：（100个并发连接，100000条请求）</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
+<li><p>默认有16个数据库（默认使用第0个）</p>
+<ul>
+<li>可以使用select切换数据库</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p><strong>思考redis 为什么是6379?</strong></p>
+<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
+<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
+<ul>
+<li><strong>Redis是单线程的</strong><ul>
+<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
+<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
+<li>为什么<strong>单线程</strong>还这么快？<ul>
+<li>Redis是C语言写的，这个不比Memecache差</li>
+<li>高性能的服务器不一定是多线程的</li>
+<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis-03-数据类型</title>
     <url>/2020/04/07/Redis/Redis-03-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[<h1 id="Redis-03-数据类型"><a href="#Redis-03-数据类型" class="headerlink" title="Redis-03-数据类型"></a>Redis-03-数据类型</h1><h2 id="1-五大数据类型"><a href="#1-五大数据类型" class="headerlink" title="1. 五大数据类型"></a>1. 五大数据类型</h2><h3 id="key"><a href="#key" class="headerlink" title="key"></a>key</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>  key value	     设置key value</span><br><span class="line">keys *                查看所有的key</span><br><span class="line">exists key 		     判断当前的key是否存在</span><br><span class="line">expire key seconds	 设置过期时间</span><br><span class="line">get    key			获得key的值</span><br><span class="line">ttl    key			查看当前key的剩余过期时间</span><br><span class="line"><span class="built_in">type</span>   key			查看当前key的一个类型</span><br></pre></td></tr></table></figure>
@@ -1497,150 +1840,6 @@
 <p>统计操作：统计打卡的天数</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bitcount sign</span><br><span class="line">(integer) 2</span><br></pre></td></tr></table></figure>
 
-]]></content>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis-02-入门与使用</title>
-    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
-<li><strong>Redis是什么？</strong></li>
-</ol>
-<ul>
-<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
-</li>
-<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
-</li>
-<li><p>也被称之为结构化数据库！</p>
-</li>
-</ul>
-<ol start="2">
-<li><strong>Redis能做什么？</strong></li>
-</ol>
-<ul>
-<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
-<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
-<a id="more"></a>
-
-<ol>
-<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
-<li>效率高，可以用于告诉缓存</li>
-<li>发布订阅系统</li>
-<li>地图信息分析</li>
-<li>计时器，计数器（浏览量！）</li>
-<li>……</li>
-</ol>
-<ol start="3">
-<li><strong>Redis特性</strong></li>
-</ol>
-<ul>
-<li>多样的数据类型</li>
-<li>持久化</li>
-<li>集群</li>
-<li>事务</li>
-</ul>
-<p>…….</p>
-<ol start="4">
-<li><strong>需要的工具</strong></li>
-</ol>
-<ul>
-<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
-<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
-</ul>
-<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
-<li>下载并上传到服务器</li>
-</ol>
-<p>官网下载：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
-<ol start="2">
-<li>解压压缩包（程序/opt目录下）</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
-<ol start="3">
-<li>进入解压后的文件，可以看到redis.conf</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
-<ol start="4">
-<li>确保有gcc环境并安装</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
-<ol start="5">
-<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
-<ol start="6">
-<li><strong>将redis配置文件复制到当前目录下</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
-
-<ol start="7">
-<li>redis默认不是后台启动，修改配置文件！</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
-<ol start="8">
-<li><strong>通过制定的配置文件启动redis服务</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
-<ol start="9">
-<li>测试redis连接（使用redis-cli进行连接）</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
-<ol start="10">
-<li>查看redis进程与连接</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
-<ol start="11">
-<li>如何关闭redis服务</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
-<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
-<p>简单测试一下：（100个并发连接，100000条请求）</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
-<li><p>默认有16个数据库（默认使用第0个）</p>
-<ul>
-<li>可以使用select切换数据库</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<p><strong>思考redis 为什么是6379?</strong></p>
-<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
-<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
-<ul>
-<li><strong>Redis是单线程的</strong><ul>
-<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
-<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
-<li>为什么<strong>单线程</strong>还这么快？<ul>
-<li>Redis是C语言写的，这个不比Memecache差</li>
-<li>高性能的服务器不一定是多线程的</li>
-<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
 ]]></content>
       <tags>
         <tag>数据库</tag>
@@ -3065,6 +3264,89 @@
       </tags>
   </entry>
   <entry>
+    <title>Leetcode-020</title>
+    <url>/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/</url>
+    <content><![CDATA[<h1 id="Leecode-020-Valid-Parentheses"><a href="#Leecode-020-Valid-Parentheses" class="headerlink" title="Leecode-020 Valid Parentheses"></a>Leecode-020 <a href="https://leetcode-cn.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a>思路：辅助栈</h2><p><strong>题目描述</strong></p>
+<ul>
+<li><p>如果有一个‘(’对应就有一个‘）’</p>
+</li>
+<li><p>如果有一个‘{’对应就有一个‘}’</p>
+</li>
+<li><p>如果有一个‘[’对应就有一个‘]’</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: &quot;()&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: &quot;()[]&#123;&#125;&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: &quot;(]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: &quot;([)]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line">Input: &quot;&#123;[]&#125;&quot;</span><br><span class="line">Output: true</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p><strong>Solution：stack</strong></p>
+<ul>
+<li><p>如果字符串为空，直接返回true</p>
+</li>
+<li><p>先遍历一遍字符串</p>
+<ul>
+<li><p>如果有‘(’ 就把 ‘）’  push进栈</p>
+</li>
+<li><p>如果有‘{’ 就把 ‘}’    push进栈</p>
+</li>
+<li><p>如果有‘[’ 就把 ‘]’     push进栈</p>
+</li>
+<li><p>如果遇到一个闭括号，那么我们检查栈顶的元素。</p>
+<ul>
+<li>如果栈顶的元素是一个相同类型的左括号，那么我们将它从栈中弹出并继续处理</li>
+<li>否则，表达是无效</li>
+</ul>
+</li>
+<li><p>如果到最后剩下的栈中仍然有元素，那么表达式无效</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h2><p><strong>时间复杂度：O(n)，</strong>因为我们一次只遍历给定的字符串中的一个字符并在栈上进行 O(1)的推入和弹出操作。<br><strong>空间复杂度：O(n)，</strong>当我们将所有的开括号都推到栈上时以及在最糟糕的情况下，最终要把所有括号推到栈上。例如 ((((((((((。</p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s.isEmpty()) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        Stack&lt;Character&gt; stack = <span class="keyword">new</span> Stack&lt;Character&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">char</span> c:s.toCharArray())&#123;</span><br><span class="line">            <span class="keyword">if</span>(c == <span class="string">'('</span>) </span><br><span class="line">                stack.push(<span class="string">')'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'&#123;'</span>) </span><br><span class="line">                stack.push(<span class="string">'&#125;'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'['</span>) </span><br><span class="line">                stack.push(<span class="string">']'</span>);</span><br><span class="line">            <span class="comment">//如果和栈顶元素不相同</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(stack.isEmpty()||c!=stack.pop())  </span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果最后栈中无元素</span></span><br><span class="line">        <span class="keyword">if</span>(stack.empty())</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">isValid</span><span class="params">(self, s: str)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> s:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                stack.append(<span class="string">')'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'&#123;'</span>:</span><br><span class="line">                stack.append(<span class="string">'&#125;'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'['</span>:</span><br><span class="line">                stack.append(<span class="string">']'</span>)</span><br><span class="line">            <span class="comment"># 如果和栈顶元素类型不相同</span></span><br><span class="line">            <span class="keyword">elif</span>(stack==[] <span class="keyword">or</span> c!=stack.pop()):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="comment"># 如果最后栈中还存在元素</span></span><br><span class="line">        <span class="keyword">if</span> stack == []:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-1111-有效括号的长度</title>
+    <url>/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/</url>
+    <content><![CDATA[<h1 id="Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings"><a href="#Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings" class="headerlink" title="Leecode-1111 Maximum Nesting Depth of Two Valid Parentheses Strings"></a>Leecode-1111 <a href="https://leetcode-cn.com/problems/maximum-nesting-depth-of-two-valid-parentheses-strings/" target="_blank" rel="noopener">Maximum Nesting Depth of Two Valid Parentheses Strings</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a><strong>思路：辅助栈</strong></h2><p><strong>题目描述</strong></p>
+<p>有效括号的意思：一句话概括就是每个左括号都可以找到右括号与之配置。</p>
+<p>题面中的 depth 其实就是栈的最大深度。“你需要从中选出任意一组有效括号字符串 A 和 B，使 max(depth(A), depth(B)) 的可能取值最小”。这句话的意思就是想要A字符串和B字符串的depth尽可能的接近。（<strong>原因：每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的。所以只需要按照奇数偶数分配给A和B就行了）</strong></p>
+<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a><strong>复杂度分析</strong></h2><p>时间复杂度很明显是 O(n)的，空间复杂度也是 O(n)（如果算返回的变量的话）。</p>
+<a id="more"></a>
+
+<p><strong>Solution：栈</strong></p>
+<ul>
+<li>每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的</li>
+<li>所以只需要按照奇数偶数分配给A和B就行了</li>
+</ul>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] maxDepthAfterSplit(String seq) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> len = seq.length();</span><br><span class="line">        <span class="keyword">int</span>[] res = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 嵌套深度，栈的当前高度</span></span><br><span class="line">        <span class="keyword">int</span> depth = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在 Java 里，seq.charAt(i) 函数会做下标越界检查，</span></span><br><span class="line">        <span class="comment">// 因此先转换成字符数组是常见的做法</span></span><br><span class="line">        <span class="keyword">char</span>[] charArray = seq.toCharArray();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="comment">// 遍历到左括号，连续括号个数加 1，</span></span><br><span class="line">            <span class="keyword">if</span> (charArray[i] == <span class="string">'('</span>) &#123;</span><br><span class="line">                depth++;</span><br><span class="line">                <span class="comment">// % 2 也可以写成 &amp; 1，为了保证语义清楚，写 % 2</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 遍历到右括号，与当前栈顶左括号分在一组，因此先取模，再 --</span></span><br><span class="line">                <span class="comment">// 这一步希望大家多体会，很有意思</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">                depth--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">maxDepthAfterSplit</span><span class="params">(self, seq: str)</span> -&gt; List[int]:</span></span><br><span class="line">        ans = []</span><br><span class="line">        idx = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> seq:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                ans.append(idx &amp; <span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># if c == ')':</span></span><br><span class="line">                ans.append((idx + <span class="number">1</span>)&amp;<span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>春招每日一题</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JDK1.8源码-01-java.lang.Object</title>
     <url>/2020/04/01/jdk_SourceCode/JDK1.8-01-Object/</url>
     <content><![CDATA[<h1 id="JDK1-8源码-01-java-lang-Object"><a href="#JDK1-8源码-01-java-lang-Object" class="headerlink" title="JDK1.8源码-01-java.lang.Object"></a>JDK1.8源码-01-java.lang.Object</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><strong>首先介绍JDK所有类的基类–java.lang.Object。</strong></p>
@@ -3269,89 +3551,6 @@
 ]]></content>
       <tags>
         <tag>JDK源码分析</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-020</title>
-    <url>/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/</url>
-    <content><![CDATA[<h1 id="Leecode-020-Valid-Parentheses"><a href="#Leecode-020-Valid-Parentheses" class="headerlink" title="Leecode-020 Valid Parentheses"></a>Leecode-020 <a href="https://leetcode-cn.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a>思路：辅助栈</h2><p><strong>题目描述</strong></p>
-<ul>
-<li><p>如果有一个‘(’对应就有一个‘）’</p>
-</li>
-<li><p>如果有一个‘{’对应就有一个‘}’</p>
-</li>
-<li><p>如果有一个‘[’对应就有一个‘]’</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: &quot;()&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: &quot;()[]&#123;&#125;&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: &quot;(]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: &quot;([)]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line">Input: &quot;&#123;[]&#125;&quot;</span><br><span class="line">Output: true</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-
-<p><strong>Solution：stack</strong></p>
-<ul>
-<li><p>如果字符串为空，直接返回true</p>
-</li>
-<li><p>先遍历一遍字符串</p>
-<ul>
-<li><p>如果有‘(’ 就把 ‘）’  push进栈</p>
-</li>
-<li><p>如果有‘{’ 就把 ‘}’    push进栈</p>
-</li>
-<li><p>如果有‘[’ 就把 ‘]’     push进栈</p>
-</li>
-<li><p>如果遇到一个闭括号，那么我们检查栈顶的元素。</p>
-<ul>
-<li>如果栈顶的元素是一个相同类型的左括号，那么我们将它从栈中弹出并继续处理</li>
-<li>否则，表达是无效</li>
-</ul>
-</li>
-<li><p>如果到最后剩下的栈中仍然有元素，那么表达式无效</p>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h2><p><strong>时间复杂度：O(n)，</strong>因为我们一次只遍历给定的字符串中的一个字符并在栈上进行 O(1)的推入和弹出操作。<br><strong>空间复杂度：O(n)，</strong>当我们将所有的开括号都推到栈上时以及在最糟糕的情况下，最终要把所有括号推到栈上。例如 ((((((((((。</p>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s.isEmpty()) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        Stack&lt;Character&gt; stack = <span class="keyword">new</span> Stack&lt;Character&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">char</span> c:s.toCharArray())&#123;</span><br><span class="line">            <span class="keyword">if</span>(c == <span class="string">'('</span>) </span><br><span class="line">                stack.push(<span class="string">')'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'&#123;'</span>) </span><br><span class="line">                stack.push(<span class="string">'&#125;'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'['</span>) </span><br><span class="line">                stack.push(<span class="string">']'</span>);</span><br><span class="line">            <span class="comment">//如果和栈顶元素不相同</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(stack.isEmpty()||c!=stack.pop())  </span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果最后栈中无元素</span></span><br><span class="line">        <span class="keyword">if</span>(stack.empty())</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">isValid</span><span class="params">(self, s: str)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> s:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                stack.append(<span class="string">')'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'&#123;'</span>:</span><br><span class="line">                stack.append(<span class="string">'&#125;'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'['</span>:</span><br><span class="line">                stack.append(<span class="string">']'</span>)</span><br><span class="line">            <span class="comment"># 如果和栈顶元素类型不相同</span></span><br><span class="line">            <span class="keyword">elif</span>(stack==[] <span class="keyword">or</span> c!=stack.pop()):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="comment"># 如果最后栈中还存在元素</span></span><br><span class="line">        <span class="keyword">if</span> stack == []:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-1111-有效括号的长度</title>
-    <url>/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/</url>
-    <content><![CDATA[<h1 id="Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings"><a href="#Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings" class="headerlink" title="Leecode-1111 Maximum Nesting Depth of Two Valid Parentheses Strings"></a>Leecode-1111 <a href="https://leetcode-cn.com/problems/maximum-nesting-depth-of-two-valid-parentheses-strings/" target="_blank" rel="noopener">Maximum Nesting Depth of Two Valid Parentheses Strings</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a><strong>思路：辅助栈</strong></h2><p><strong>题目描述</strong></p>
-<p>有效括号的意思：一句话概括就是每个左括号都可以找到右括号与之配置。</p>
-<p>题面中的 depth 其实就是栈的最大深度。“你需要从中选出任意一组有效括号字符串 A 和 B，使 max(depth(A), depth(B)) 的可能取值最小”。这句话的意思就是想要A字符串和B字符串的depth尽可能的接近。（<strong>原因：每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的。所以只需要按照奇数偶数分配给A和B就行了）</strong></p>
-<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a><strong>复杂度分析</strong></h2><p>时间复杂度很明显是 O(n)的，空间复杂度也是 O(n)（如果算返回的变量的话）。</p>
-<a id="more"></a>
-
-<p><strong>Solution：栈</strong></p>
-<ul>
-<li>每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的</li>
-<li>所以只需要按照奇数偶数分配给A和B就行了</li>
-</ul>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] maxDepthAfterSplit(String seq) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> len = seq.length();</span><br><span class="line">        <span class="keyword">int</span>[] res = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 嵌套深度，栈的当前高度</span></span><br><span class="line">        <span class="keyword">int</span> depth = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在 Java 里，seq.charAt(i) 函数会做下标越界检查，</span></span><br><span class="line">        <span class="comment">// 因此先转换成字符数组是常见的做法</span></span><br><span class="line">        <span class="keyword">char</span>[] charArray = seq.toCharArray();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="comment">// 遍历到左括号，连续括号个数加 1，</span></span><br><span class="line">            <span class="keyword">if</span> (charArray[i] == <span class="string">'('</span>) &#123;</span><br><span class="line">                depth++;</span><br><span class="line">                <span class="comment">// % 2 也可以写成 &amp; 1，为了保证语义清楚，写 % 2</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 遍历到右括号，与当前栈顶左括号分在一组，因此先取模，再 --</span></span><br><span class="line">                <span class="comment">// 这一步希望大家多体会，很有意思</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">                depth--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">maxDepthAfterSplit</span><span class="params">(self, seq: str)</span> -&gt; List[int]:</span></span><br><span class="line">        ans = []</span><br><span class="line">        idx = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> seq:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                ans.append(idx &amp; <span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># if c == ')':</span></span><br><span class="line">                ans.append((idx + <span class="number">1</span>)&amp;<span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-        <tag>春招每日一题</tag>
       </tags>
   </entry>
   <entry>
@@ -5653,6 +5852,62 @@
   </entry>
   <entry>
     <title>Leetcode-365</title>
+    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
+    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
+<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
+<p>只允许以下操作：</p>
+<ul>
+<li>装满任意一个水壶</li>
+<li>清空任意一个水壶</li>
+<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
+</ul>
+<p><strong>Solution：</strong></p>
+<ul>
+<li>DFS</li>
+<li>裴蜀定理</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
+<a id="more"></a>
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
+<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
+<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
+<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
+<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
+<p><strong>Solution : 裴蜀定理</strong></p>
+<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
+<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
+<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
+<ul>
+<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
+</li>
+<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
+</li>
+<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
+</li>
+</ul>
+<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
+<p>​                                                    <strong>ax+by=z</strong></p>
+<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>春招每日一题</tag>
+        <tag>深度优先搜索</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-365</title>
     <url>/2020/03/20/Leetcode/Leetcode-365-%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
 <p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
@@ -5714,62 +5969,6 @@
         <tag>春招每日一题</tag>
         <tag>深度优先搜索</tag>
         <tag>广度优先搜索</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-365</title>
-    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
-    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
-<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
-<p>只允许以下操作：</p>
-<ul>
-<li>装满任意一个水壶</li>
-<li>清空任意一个水壶</li>
-<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
-</ul>
-<p><strong>Solution：</strong></p>
-<ul>
-<li>DFS</li>
-<li>裴蜀定理</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
-<a id="more"></a>
-
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
-<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
-<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
-<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
-<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
-<p><strong>Solution : 裴蜀定理</strong></p>
-<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
-<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
-<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
-<ul>
-<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
-</li>
-<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
-</li>
-<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
-</li>
-</ul>
-<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
-<p>​                                                    <strong>ax+by=z</strong></p>
-<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-        <tag>春招每日一题</tag>
-        <tag>深度优先搜索</tag>
       </tags>
   </entry>
   <entry>
@@ -9260,39 +9459,6 @@
       </tags>
   </entry>
   <entry>
-    <title>云服务器-Tomcat配置</title>
-    <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-Tomcat%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<h1 id="云服务器-Tomcat配置"><a href="#云服务器-Tomcat配置" class="headerlink" title="云服务器-Tomcat配置"></a>云服务器-Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
-<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
-<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
-</li>
-<li><p>如果JDK已经配置好,</p>
-<ul>
-<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
-<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
-<p>如果出现Tomcat的主页,即安装成功,</p>
-<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
-<p><strong>回答：</strong></p>
-<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
-<p>使用下面的命令即可</p>
-<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
-<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
-<p><strong>回答：</strong></p>
-<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
-<p>tail -f catalina.out</p>
-]]></content>
-      <tags>
-        <tag>云服务器开发环境</tag>
-        <tag>Tomcat</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>云服务器-JDK配置</title>
     <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-JDK%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<h1 id="云服务器-JDK配置"><a href="#云服务器-JDK配置" class="headerlink" title="云服务器-JDK配置"></a>云服务器-JDK配置</h1><h2 id="1-JDK下载"><a href="#1-JDK下载" class="headerlink" title="1. JDK下载"></a>1. JDK下载</h2><ul>
@@ -9331,6 +9497,39 @@
       <tags>
         <tag>云服务器开发环境</tag>
         <tag>JDK</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>云服务器-Tomcat配置</title>
+    <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-Tomcat%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h1 id="云服务器-Tomcat配置"><a href="#云服务器-Tomcat配置" class="headerlink" title="云服务器-Tomcat配置"></a>云服务器-Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
+<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
+<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
+</li>
+<li><p>如果JDK已经配置好,</p>
+<ul>
+<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
+<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
+<p>如果出现Tomcat的主页,即安装成功,</p>
+<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
+<p><strong>回答：</strong></p>
+<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
+<p>使用下面的命令即可</p>
+<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
+<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
+<p><strong>回答：</strong></p>
+<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
+<p>tail -f catalina.out</p>
+]]></content>
+      <tags>
+        <tag>云服务器开发环境</tag>
+        <tag>Tomcat</tag>
       </tags>
   </entry>
   <entry>
@@ -11312,8 +11511,8 @@
 <h3 id="6-3-Druid"><a href="#6-3-Druid" class="headerlink" title="6.3 Druid"></a>6.3 Druid</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200304213756.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>JDBC</tag>
         <tag>数据库</tag>
+        <tag>JDBC</tag>
       </tags>
   </entry>
   <entry>
@@ -13518,8 +13717,8 @@
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -13549,8 +13748,17 @@
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mysql-视图</title>
+    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -13620,17 +13828,8 @@
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mysql-视图</title>
-    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
-    <content><![CDATA[]]></content>
-      <tags>
         <tag>数据库</tag>
-        <tag>Mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -13693,8 +13892,8 @@
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -13723,8 +13922,8 @@
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -13914,8 +14113,8 @@ SELECT studentno,studentname FROM student;
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -14047,8 +14246,8 @@ SELECT studentno,studentname FROM student;
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -14184,8 +14383,8 @@ SELECT studentno,studentname FROM student;
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -14264,8 +14463,8 @@ SELECT studentno,studentname FROM student;
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200210160123.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
