@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    通信原理-11-差错控制编码 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Communication/通信原理笔记-11-差错控制编码" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  通信原理-11-差错控制编码
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/17/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-11-%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E7%BC%96%E7%A0%81/" class="article-date">
+  <time datetime="2020-04-17T03:02:24.000Z" itemprop="datePublished">2020-04-17</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="差错控制编码"><a href="#差错控制编码" class="headerlink" title="差错控制编码"></a>差错控制编码</h1><p><strong>目的：提高通信的可靠性</strong></p>
+<p>（原因：数字通信可能因为各种干扰（乘性，加性），使传送的数据流产生误码。）</p>
+<p>本质：是纠错编码，是一种<strong>信道编码</strong>。</p>
+<p>举个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">发送   0	0	1	1	1	0	0	0	1	0	0</span><br><span class="line">接受	 0	0	0	0	1	0	1	0	1	0	0</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>针对乘性干扰：采用均衡的措施（频域均衡，时域均衡）</li>
+<li><strong>针对加性干扰：合理选择调制方法/解调方法  ，增大发射功率。</strong></li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="1-信道分类"><a href="#1-信道分类" class="headerlink" title="1. 信道分类"></a>1. 信道分类</h2><p>==(P331第二段)==</p>
+<p>从差错控制角度看，按照加性干扰引起的错码分布规律的不同，信道可以分为三类</p>
+<ul>
+<li>随机信道（错码是随机出现的）</li>
+<li>突发信道（错码是成串出现的）</li>
+<li>混合信道</li>
+</ul>
+<h2 id="2-差错控制技术"><a href="#2-差错控制技术" class="headerlink" title="2. 差错控制技术"></a>2. 差错控制技术</h2><p>==P332==</p>
+<ul>
+<li><strong>检错重发（ARQ）</strong></li>
+<li>前向纠错   (FEC)</li>
+<li>反馈校验</li>
+<li>检错删除</li>
+</ul>
+<h3 id="2-1-停止等待ARQ"><a href="#2-1-停止等待ARQ" class="headerlink" title="2.1 停止等待ARQ"></a>2.1 停止等待ARQ</h3><ul>
+<li>ACK: 确认答复，再发送下一组数据</li>
+<li>NAK: 否认答复，有误-&gt;重新发送有错码组</li>
+<li>缺点：要等待</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/125716935.png" alt="mark"></p>
+<h3 id="2-2-拉后ARQ"><a href="#2-2-拉后ARQ" class="headerlink" title="2.2 拉后ARQ"></a>2.2 拉后ARQ</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/125940848.png" alt="mark"></p>
+<p>特点：</p>
+<ul>
+<li>不需要等待</li>
+<li>但是有错的时候，本来正确的码组也要被重发</li>
+</ul>
+<h3 id="2-3-选择重发ARQ"><a href="#2-3-选择重发ARQ" class="headerlink" title="2.3 选择重发ARQ"></a>2.3 选择重发ARQ</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/130044212.png" alt="mark"></p>
+<p><strong>特点：效率最高</strong></p>
+<h3 id="2-4-补充知识"><a href="#2-4-补充知识" class="headerlink" title="2.4 补充知识"></a>2.4 补充知识</h3><p>==P332==</p>
+<p><strong>一般来说，付出的代价越大，检错能力就越强。</strong></p>
+<p>这里所说的代价，就是指增加的监督码元的多少，它通常用多余度来衡量。</p>
+<p>例如：若编码序列中平均每两个信息码元就添加一个监督码元，则这种编码的多余度是1/3,或者说编码效率(<strong>码率</strong>)是2/3。</p>
+<p>设编码序列中信息码元数量是k，总码元数量是n，则<code>k/n</code>就是<strong>码率</strong>。而监督码元<code>(n-k)</code>和信息码元数量之比（n-k）/k 就做<strong>冗余度</strong>。</p>
+<p><strong>举个例子:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 未加入纠错码</span></span><br><span class="line">发送端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span></span><br><span class="line">接收端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">// 加入纠错码之后</span></span><br><span class="line">发送端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">1</span>  <span class="comment">// 7</span></span><br><span class="line">接收端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">1</span>  <span class="comment">// 7</span></span><br><span class="line">译码后： <span class="number">1</span>	<span class="number">0</span>		<span class="number">1</span>	<span class="number">0</span>		<span class="number">1</span>  <span class="comment">// 5</span></span><br><span class="line">     </span><br><span class="line">    </span><br><span class="line">总码元：   n = <span class="number">7</span></span><br><span class="line">信息码元： k = <span class="number">5</span></span><br><span class="line">码率：     k/n = <span class="number">5</span>/<span class="number">7</span></span><br><span class="line">冗余度：   <span class="number">1</span>-k/n = <span class="number">2</span>/<span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>本质：降低有效性来换取降低误码率，提高了可靠性</strong></p>
+<h2 id="3-分组码"><a href="#3-分组码" class="headerlink" title="3. 分组码"></a>3. 分组码</h2><p>==（书P334）==</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 状态1：没有冗余，不能发现任何错误</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">010</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line"><span class="number">100</span>  - &gt; 雪</span><br><span class="line"><span class="number">101</span>  - &gt; 霜</span><br><span class="line"><span class="number">110</span>  - &gt; 雾</span><br><span class="line"><span class="number">111</span>  - &gt; 雹</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态2：加入冗余，可以发现错误（加入1位冗余）</span></span><br><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">101</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 假设 000 发生了一位错码</span></span><br><span class="line"><span class="number">001</span> <span class="number">010</span> <span class="number">100</span> <span class="number">111</span>  <span class="comment">// 但这三种码都不存在：禁用码组（所以发现到了错误）</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">// 假设 000 发生了两位错码</span></span><br><span class="line"><span class="number">000</span> <span class="number">011</span> <span class="number">101</span> <span class="number">110</span>  <span class="comment">// 这三种码都存在：许可码组（发现不到错误）    </span></span><br><span class="line">    </span><br><span class="line">以上情况：只能检测错误，不能纠正错误</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/132954002.png" alt="mark"></p>
+<p>具体来看：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">00</span>  - &gt; 晴   信息位</span><br><span class="line"><span class="number">01</span>  - &gt; 云	信息位</span><br><span class="line"><span class="number">10</span>  - &gt; 阴	信息位</span><br><span class="line"><span class="number">11</span>  - &gt; 雨	信息位</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 加入监督位</span></span><br><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">00</span>	<span class="number">0</span>  - &gt; 晴</span><br><span class="line"><span class="number">01</span>	<span class="number">1</span>  - &gt; 云</span><br><span class="line"><span class="number">10</span>	<span class="number">1</span>  - &gt; 阴</span><br><span class="line"><span class="number">11</span>	<span class="number">0</span>  - &gt; 雨</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 分组码：把信息码进行分组，在每个码组后加上校验码，称为分组码。（另外一种纠错码组就叫做卷积码）</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>结构如图所示：==（P335）==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/132407891.png" alt="mark"></p>
+<h3 id="3-1-码重和码距"><a href="#3-1-码重和码距" class="headerlink" title="3.1 码重和码距"></a>3.1 码重和码距</h3><p>==P335==</p>
+<ul>
+<li><p>码长：码组中的码元个数</p>
+</li>
+<li><p>码重：码组中 1 的个数</p>
+</li>
+<li><p>码距：（汉明距离）两个码组中对应位上数字不同的位数叫做码组的距离</p>
+</li>
+<li><p>最小码距：某种编码中各个码组之间的距离的最小值</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">110</span></span><br><span class="line">码长 = <span class="number">3</span></span><br><span class="line">码重 = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="number">110</span>，<span class="number">011</span></span><br><span class="line">汉明距离 = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态2：加入冗余，可以发现错误（加入1位冗余）</span></span><br><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">101</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line">最小码距 = <span class="number">2</span> </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment">// 五种天气</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">101</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line"><span class="number">111</span>  - &gt; 雹</span><br><span class="line">最小码距 = <span class="number">2</span> </span><br><span class="line">    但是 这里有两组码距是<span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>结论</strong>： ==P336 (了解即可)==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/133725419.png" alt="mark"></p>
+<h2 id="4-简单的实用编码"><a href="#4-简单的实用编码" class="headerlink" title="4. 简单的实用编码"></a>4. 简单的实用编码</h2><p>==P337==</p>
+<ul>
+<li>奇偶校验码 （了解即可）</li>
+<li>二维奇偶监督码 （不用看）</li>
+<li>恒比码 （不用看）</li>
+<li>正反码（不用看）</li>
+</ul>
+<h3 id="4-1-奇偶校验码"><a href="#4-1-奇偶校验码" class="headerlink" title="4.1 奇偶校验码"></a>4.1 奇偶校验码</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/133920909.png" alt="mark"></p>
+<ul>
+<li>偶数监督码：无论信息位是多少，监督位只有一位，它使得码组中 1 的个数为偶数。</li>
+<li>奇数监督码：无论信息位是多少，监督位只有一位，它使得码组中 1 的个数为奇数。</li>
+</ul>
+<p><strong>纠错能力：只能检测奇数个错码，不能纠错。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 奇数监督码:检测错误</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">1</span>	<span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 偶数监督码:检测错误</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span>	<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-线性分组码"><a href="#5-线性分组码" class="headerlink" title="5. 线性分组码"></a>5. 线性分组码</h2><p>==P340==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/184327656.png" alt="mark"></p>
+<ul>
+<li><p>线性分组码：按照一组线性方程构成的（了解即可）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">T(X) = a(n-<span class="number">1</span>) * x^(n-<span class="number">1</span>) + a(n-<span class="number">2</span>) * x^(n-<span class="number">2</span>) + a(n-<span class="number">3</span>) * x^(n-<span class="number">3</span>) + ... + a(<span class="number">1</span>)x + a(<span class="number">0</span>)</span><br><span class="line">  码组 ： [<span class="number">1101001</span>] = x^<span class="number">6</span> + x^<span class="number">5</span> + x^<span class="number">3</span> + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>本质就是矩阵的相乘计算</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182006961.png" alt="mark"></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182843032.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182926270.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182950908.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/183026277.png" alt="mark"></p>
+<ul>
+<li><strong>汉明码：是一种能够纠正一位错码且编码效率较高的线性分组码。</strong><ul>
+<li><strong>最小码距：d = 3</strong>                     ==（P341）==</li>
+<li><strong>这种码能够纠正一个错码和检测两个错码（P341）</strong></li>
+</ul>
+</li>
+</ul>
+<p>一般来说，若码长为<code>n</code>,信息位数为<code>k</code>,则监督位数<code>r = n-k</code>。如果希望用r个监督位构造出r个监督关系式来表示一位错码的n种可能位置，要求：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/180036461.png" alt="mark"></p>
+<p><strong>线性分组码的性质</strong></p>
+<ul>
+<li>封闭性 ：   两个码组之间的距离必定是另外一个码组的重量（即“1”的个数）</li>
+<li>最小距离：最小距离就是码的最小重量</li>
+</ul>
+<h3 id="5-1-循环码"><a href="#5-1-循环码" class="headerlink" title="5.1 循环码"></a>5.1 循环码</h3><p>==p334==</p>
+<p><strong>循环码：具有循环性的线性分组码</strong>（了解即可）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/183700330.png" alt="mark"></p>
+<ul>
+<li>第2码组向左移动一位就变成了第3码组</li>
+<li>第3码组向左移动一位就变成了第6码组</li>
+<li><strong>特点：移动完之后本质其实还是自己的一个码组</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/184149656.png" alt="mark"></p>
+<h2 id="6-卷积码"><a href="#6-卷积码" class="headerlink" title="6. 卷积码"></a>6. 卷积码</h2><p><strong>卷积码：是一种非线性分组码，通常更适合用于前向纠错。</strong></p>
+<ul>
+<li>特点<ul>
+<li>线性分组码由这段时间中k比特输入信息有关。</li>
+<li>卷积码则不同，在编码时虽然也是跟k个信息位有关，但是还和前面的信息段有关。（看图秒懂）</li>
+</ul>
+</li>
+</ul>
+<p>下面这些公式不用看：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185601588.png" alt="mark"></p>
+<p><strong>原理方框图（了解一下即可）</strong>==(P355)==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185710781.png" alt="mark"></p>
+<p><strong>举例（n,k,m） = (3,1,2)</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185932361.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185941105.png" alt="mark"></p>
+<h3 id="6-1-卷积码的译码"><a href="#6-1-卷积码的译码" class="headerlink" title="6.1 卷积码的译码"></a>6.1 卷积码的译码</h3><p>==P364== (了解即可)</p>
+<ul>
+<li>代数解码<ul>
+<li>大数逻辑解码</li>
+</ul>
+</li>
+<li>概率解码<ul>
+<li>维特比解码</li>
+</ul>
+</li>
+</ul>
+<h2 id="7-新型纠错码"><a href="#7-新型纠错码" class="headerlink" title="7. 新型纠错码"></a>7. 新型纠错码</h2><h3 id="7-1-Turbo码"><a href="#7-1-Turbo码" class="headerlink" title="7.1 Turbo码"></a>7.1 Turbo码</h3><p>==p367==</p>
+<p>译码器在两个分量译码器之间进行迭代译码，分量译码器之间传递去掉正反馈的外信息，这样整个译码过程类似涡轮（Turbo）工作。因此，这个编码方法又被形象地称为Turbo码。Turbo码具有卓越的纠错性能，性能接近香农限，而且编译码的复杂度不高。</p>
+<h3 id="7-2-LDPC码"><a href="#7-2-LDPC码" class="headerlink" title="7.2 LDPC码"></a>7.2 LDPC码</h3><p>==P369==</p>
+<p> LDPC 是一组线性分组码。</p>
+<ul>
+<li>译码时间很长，适用于实时性要求不高的通信。</li>
+</ul>
+<h2 id="8-通信系统小结"><a href="#8-通信系统小结" class="headerlink" title="8. 通信系统小结"></a>8. 通信系统小结</h2><h3 id="8-1-提高系统有效性的方法"><a href="#8-1-提高系统有效性的方法" class="headerlink" title="8.1 提高系统有效性的方法"></a>8.1 提高系统有效性的方法</h3><ul>
+<li>信源编码 （第一章）</li>
+<li>理想低通系统（第六章）</li>
+<li>d-&gt;0的滚降系统（第六章）</li>
+<li>部分响应（第六章）</li>
+<li>多进制调制（第七章）</li>
+</ul>
+<h3 id="8-2-提高系统可靠性的方法"><a href="#8-2-提高系统可靠性的方法" class="headerlink" title="8.2 提高系统可靠性的方法"></a>8.2 提高系统可靠性的方法</h3><ul>
+<li>信道编码（第一章）</li>
+<li>调制（第五章）</li>
+<li>预加重和去加重（第五章）</li>
+<li>时域均衡（第六章）</li>
+<li>d-&gt;1的滚降系统（第六章）</li>
+<li>OFDM（第八章）</li>
+<li>扩频（第十二章）</li>
+</ul>
+<h3 id="8-3-改变信道带宽的方法"><a href="#8-3-改变信道带宽的方法" class="headerlink" title="8.3 改变信道带宽的方法"></a>8.3 改变信道带宽的方法</h3><ul>
+<li>调制</li>
+<li>滤波器</li>
+<li>扩频</li>
+</ul>
+<h3 id="8-4-通信产生离散谱的原因"><a href="#8-4-通信产生离散谱的原因" class="headerlink" title="8.4 通信产生离散谱的原因"></a>8.4 通信产生离散谱的原因</h3><ul>
+<li>时域信号有直流信号</li>
+<li>信号的周期性</li>
+<li>非线性调制</li>
+</ul>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/04/17/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-11-%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E7%BC%96%E7%A0%81/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/" rel="tag">通信原理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/04/17/JUC/JUC-01-%E7%AE%80%E4%BB%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JUC-01-简介
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/04/16/Redis/Redis-12-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Redis-12-缓存穿透和雪崩</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计者模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

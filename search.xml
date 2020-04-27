@@ -1,12 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>JUC-08-阻塞队列</title>
+    <url>/2020/04/26/JUC/JUC-08-%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<h1 id="JUC-08-阻塞队列"><a href="#JUC-08-阻塞队列" class="headerlink" title="JUC-08-阻塞队列"></a>JUC-08-阻塞队列</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/195357297.png" alt="mark"></p>
+<ul>
+<li>队列：先入先出的数据结构</li>
+<li>阻塞：写入阻塞和读取阻塞</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ul>
+<li><strong>jdk文档中的介绍</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/195542465.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/195517585.png" alt="mark"></p>
+<ul>
+<li><strong>BlockingQueue(一般用于线程池)</strong></li>
+</ul>
+<ul>
+<li><strong>Queue的家族结构如图所示</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/200347169.png" alt="mark"></p>
+<h2 id="2-四组API"><a href="#2-四组API" class="headerlink" title="2. 四组API"></a>2. 四组API</h2><ul>
+<li>抛出异常</li>
+<li>不会抛出异常</li>
+<li>阻塞等待</li>
+<li>超时等待</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>JUC</tag>
+        <tag>多线程</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JUC-07-读写锁</title>
     <url>/2020/04/25/JUC/JUC-07-%E8%AF%BB%E5%86%99%E9%94%81/</url>
     <content><![CDATA[<h1 id="JUC-07-读写锁"><a href="#JUC-07-读写锁" class="headerlink" title="JUC-07-读写锁"></a>JUC-07-读写锁</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200424/212424251.png" alt="mark"></p>
 <p><strong>读：可以被多个线程同时读</strong></p>
 <p><strong>写：只能有一个线程去写</strong></p>
-<a id="more"></a>]]></content>
+<a id="more"></a>
+
+
+
+<h2 id="2-代码测试"><a href="#2-代码测试" class="headerlink" title="2. 代码测试"></a>2. 代码测试</h2><h3 id="2-1-未加锁"><a href="#2-1-未加锁" class="headerlink" title="2.1 未加锁"></a>2.1 未加锁</h3><ol>
+<li>自定义缓存</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyCache</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Map&lt;String,Object&gt; map = <span class="keyword">new</span> HashMap&lt;String, Object&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存 ： 写</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(String key, Object value)</span></span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"写入"</span>+key);</span><br><span class="line">        map.put(key,value);</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"写入OK"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 取 : 写</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">get</span><span class="params">(String key)</span></span>&#123;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"读取"</span>+key);</span><br><span class="line">        Object o = map.get(key);</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"读取OK"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>多线程操作缓存</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReadWriteLockDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    自定义缓存</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyCache myCache = <span class="keyword">new</span> MyCache();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 写入</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">5</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = i;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                myCache.put(temp+<span class="string">""</span>,temp+<span class="string">""</span>);</span><br><span class="line">            &#125;,String.valueOf(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">5</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = i;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                myCache.get(temp+<span class="string">""</span>);</span><br><span class="line">            &#125;,String.valueOf(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种情况是有问题的：会有同时写入存在的情况</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/193954901.png" alt="mark"></p>
+<h3 id="2-2-加锁"><a href="#2-2-加锁" class="headerlink" title="2.2 加锁"></a>2.2 加锁</h3><p>加入一把读写锁</p>
+<ol>
+<li>自定义缓存</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyCache2</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Map&lt;String,Object&gt; map = <span class="keyword">new</span> HashMap&lt;String, Object&gt;();</span><br><span class="line">    <span class="comment">// 读写锁：更加细粒度的控制</span></span><br><span class="line">    <span class="keyword">private</span> ReadWriteLock readWriteLock = <span class="keyword">new</span> ReentrantReadWriteLock();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存 ： 写（只希望一个线程 去写）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(String key, Object value)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 写锁</span></span><br><span class="line">        readWriteLock.writeLock().lock();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"写入"</span>+key);</span><br><span class="line">            map.put(key,value);</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"写入OK"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            readWriteLock.writeLock().unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 取 : 写</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">get</span><span class="params">(String key)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读锁</span></span><br><span class="line">        readWriteLock.readLock().lock();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"读取"</span>+key);</span><br><span class="line">            Object o = map.get(key);</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"读取OK"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            readWriteLock.readLock().unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>多线程操作缓存</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReadWriteLockDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    自定义缓存</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyCache2 myCache2 = <span class="keyword">new</span> MyCache2();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 写入</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">5</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = i;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                myCache2.put(temp+<span class="string">""</span>,temp+<span class="string">""</span>);</span><br><span class="line">            &#125;,String.valueOf(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">5</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = i;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                myCache2.get(temp+<span class="string">""</span>);</span><br><span class="line">            &#125;,String.valueOf(i)).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：问题解决！！！</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/194718232.png" alt="mark"></p>
+<h2 id="3-小结"><a href="#3-小结" class="headerlink" title="3.小结"></a>3.小结</h2><ul>
+<li>读-读：可以共存</li>
+<li>读-写： 不能共存</li>
+<li>写-写： 不能共存</li>
+</ul>
+<p>独占锁：一次只能被一个线程占有（写锁）</p>
+<p>共享锁：多个线程可以同时占有（读锁）</p>
+]]></content>
       <tags>
         <tag>JUC</tag>
         <tag>多线程</tag>
@@ -80,205 +152,6 @@ semaphore.acquire()
         <tag>JUC</tag>
         <tag>多线程</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>通信原理笔记</title>
-    <url>/2020/04/21/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h1 id="1-时分复用TDM"><a href="#1-时分复用TDM" class="headerlink" title="1. 时分复用TDM"></a>1. 时分复用TDM</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p><strong>（书P9页）</strong></p>
-<p>传输多路信号有三种基本复用方式</p>
-<ul>
-<li>频分复用</li>
-<li>时分复用</li>
-<li>码分复用</li>
-<li>空分复用（了解即可）</li>
-</ul>
-<p>频分复用：用频谱搬移（<strong>调制</strong>）的方法使不同信号占据不同的频率范围</p>
-<p>时分复用：用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</p>
-<p>码分复用：用正交编码的方法分别携带不同的信号。</p>
-<p><strong>要想理解TDM，必须先要理解信源编码（抽样，量化，编码）</strong></p>
-<h2 id="1-2-信源编码"><a href="#1-2-信源编码" class="headerlink" title="1.2 信源编码"></a>1.2 信源编码</h2><p>信源编码两个基本的功能：（P279）</p>
-<ul>
-<li>压缩编码 ： 减少数据冗余，提高通信的有效性</li>
-<li>数字化（模/数转换）</li>
-</ul>
-<p><strong>为什么要数字化？（P006）</strong></p>
-<ul>
-<li>抗干扰能力强</li>
-<li>传输差错可控</li>
-<li>便于用DSP技术多数字信息进行处理。</li>
-<li>易于集成</li>
-<li>易于加密处理</li>
-</ul>
-<p><strong>数字化过程的步骤？（P279）</strong></p>
-<ul>
-<li>抽样</li>
-<li>量化</li>
-<li>编码</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/184218130.png" alt="mark"></p>
-<p>编码的方式：</p>
-<ul>
-<li><strong>PCM(重要)</strong></li>
-<li>DPCM</li>
-<li>Delta M</li>
-</ul>
-<h2 id="1-3-抽样"><a href="#1-3-抽样" class="headerlink" title="1.3 抽样"></a>1.3 抽样</h2><p><strong>低通抽样和带通抽样 这两种抽样都叫做理想抽样。</strong></p>
-<h3 id="1-3-1-低通模拟信号抽样定理（P280-282）"><a href="#1-3-1-低通模拟信号抽样定理（P280-282）" class="headerlink" title="1.3.1 低通模拟信号抽样定理（P280-282）"></a>1.3.1 低通模拟信号抽样定理（P280-282）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185305861.png" alt="mark"></p>
-<p>如上图所示，左边的是描述对模拟信号的抽样，抽样可以理解为对原始信号幅度等（时间）间隔进行采样。右边的是描述抽样后得到的频域信号。</p>
-<p><strong>那么抽样定理到底是什么呢？请看下图</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185725602.png" alt="mark"></p>
-<p>上图中<strong>fs</strong>是两个抽样点的频率间隔，通信最基本的要求就是没有干扰性，所以要求以fs为采样间隔的时候信号不能有重叠，所以fs &gt;= 2fh，即如下所示</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185944555.png" alt="mark"></p>
-<p>如果不满足这个间隔，信号将会发生混叠失真。</p>
-<p><strong>（这里先了解一下电话的抽样频率，后面讲PDH的时候会仔细在讲解。）</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190320962.png" alt="mark"></p>
-<h3 id="1-3-2-带通信号的-抽样定理（P283）"><a href="#1-3-2-带通信号的-抽样定理（P283）" class="headerlink" title="1.3.2 带通信号的 抽样定理（P283）"></a>1.3.2 带通信号的 抽样定理（P283）</h3><ul>
-<li>如何分辨低通信号或者带通信号？</li>
-</ul>
-<p><strong>低通信号就是最低频率小于带宽</strong></p>
-<p><strong>反之带通信号就是最低频率大于带宽。</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190631762.png" alt="mark"></p>
-<p>那么既然有了低通抽样定理，为什么还需要单独要提出一个带通抽样定理呢？</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190838592.png" alt="mark"></p>
-<p>解答：在图中可以明显的看出 0 到 fL这个区间是没有信号的，如果使用低通抽样定理，那么势必在低频域范围会浪费抽样的频率，导致系统效率低下，所以才有了带通抽样定理（证明不做要求）</p>
-<h3 id="1-3-3-模拟脉冲调制-P285"><a href="#1-3-3-模拟脉冲调制-P285" class="headerlink" title="1.3.3 模拟脉冲调制(P285)"></a>1.3.3 模拟脉冲调制(P285)</h3><p>有以下三种模拟脉冲调制方式：</p>
-<ul>
-<li><strong>PAM：脉冲幅度调制(重要)</strong></li>
-<li>PPM:   脉冲宽度调制</li>
-<li>PPM：脉冲位置调制</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191516355.png" alt="mark"></p>
-<h3 id="1-3-4-实际抽样"><a href="#1-3-4-实际抽样" class="headerlink" title="1.3.4 实际抽样"></a>1.3.4 实际抽样</h3><p>上述低通抽样和带通抽样都叫做理想抽样（因为现实做不到这样的抽样）</p>
-<p><strong>那么什么是实际抽样呢？</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191651614.png" alt="mark"></p>
-<p>如上图所示：</p>
-<p>实际抽样使用一个有宽度的脉冲代替了箭头脉冲。</p>
-<p>理解完了上面实际抽样和理想抽样的区别，我们来看看两种实际抽样的方式。（了解即可）</p>
-<ul>
-<li>第一种：自然抽样PAM（幅度随原信号幅度改变）</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192041205.png" alt="mark"></p>
-<ul>
-<li>第二种：平顶抽样PAM（每个样值脉冲顶部是平坦的）</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192133992.png" alt="mark"></p>
-<h3 id="1-3-4-抽样小结"><a href="#1-3-4-抽样小结" class="headerlink" title="1.3.4 抽样小结"></a>1.3.4 抽样小结</h3><p><strong>抽样的本质：将取值连续，时间连续的模拟信号——&gt;取值仍然连续，但时间离散的PAM信号</strong></p>
-<p><strong>实际抽样的两种方式：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192327476.png" alt="mark"></p>
-<p><strong>理想抽样定理：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192354532.png" alt="mark"></p>
-<h2 id="1-4-量化"><a href="#1-4-量化" class="headerlink" title="1.4 量化"></a>1.4 量化</h2><p>量化就是对抽样信号后的幅度进行离散化。</p>
-<p>（本质：用有限个量化电平表示无限个抽样值）</p>
-<p>量化过程：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192543863.png" alt="mark"></p>
-<p>上图中：</p>
-<ul>
-<li>mi : 分层电平</li>
-<li>qi : 量化电平</li>
-<li>delta vi :量化间隔</li>
-</ul>
-<p>这里公式都不用去记（<strong>只要记得在同一个范围内的抽样电平都算做同一个值</strong>）</p>
-<p>例如（横轴上4Ts和6Ts对应的量化电平在同一个区间，所以都算做同一个）</p>
-<p>这样，无限个抽样值就变成了有限个量化信号值。（P287）</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192856427.png" alt="mark"></p>
-<h3 id="1-4-1-均匀量化"><a href="#1-4-1-均匀量化" class="headerlink" title="1.4.1 均匀量化"></a>1.4.1 均匀量化</h3><p>设模拟抽样信号的取值范围在a和b之间，量化电平数数M，则在均匀量化时的量化间隔为：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193123555.png" alt="mark"></p>
-<p>所以每个量化分层的端点mi就是：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193157063.png" alt="mark"></p>
-<p>均匀量化了解到这里即可。</p>
-<h3 id="1-4-2-非均匀量化（重要）"><a href="#1-4-2-非均匀量化（重要）" class="headerlink" title="1.4.2 非均匀量化（重要）"></a>1.4.2 非均匀量化（重要）</h3><p>(P289)</p>
-<p>在非均匀量化时，量化间隔是随信号抽样值的不同而变化的，即信号抽样值小的时候，量化间隔delta v就小，量化间隔大的时候，量化间隔delta v就大。</p>
-<p><strong>本质是：在进行量化之前，先将信号抽样值压缩，再进行均匀量化。（这里了解即可）</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193609945.png" alt="mark"></p>
-<p><strong>非均匀量化有两种标准：</strong></p>
-<p>（ITU:国际电信联盟制定的）</p>
-<ul>
-<li><strong>A律（中国用的）</strong></li>
-<li><strong>u律（不用看：北美 日本用的）</strong></li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193730135.png" alt="mark"></p>
-<h3 id="A律13折线（P292）"><a href="#A律13折线（P292）" class="headerlink" title="A律13折线（P292）"></a>A律13折线（P292）</h3><p>A律使用13折线来实现近似，这里A=87.6</p>
-<p><strong>规律：每次对半分（如下图  1/2  1/4  1/8……. 1/128）</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193944014.png" alt="mark"></p>
-<p>上图仔细数数才8道折线，那么为什么叫做13折线？</p>
-<p>答案：看下图，因为负极性还有8条折线（其中把原点左边的4条折线近似合并成一条 因为这四条折线的斜率近似相等）</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194255212.png" alt="mark"></p>
-<p>所以一共是 ： 8+8-3 = 13条折线</p>
-<h2 id="1-5-编码"><a href="#1-5-编码" class="headerlink" title="1.5 编码"></a>1.5 编码</h2><p><strong>1. PCM编码原理框图：</strong></p>
-<p>对于发送端而言：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194626823.png" alt="mark"></p>
-<p>对于接收端而言：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194717234.png" alt="mark"></p>
-<p><strong>2. 量化和编码的关系：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194746570.png" alt="mark"></p>
-<p><strong>那么PCM的本质就是把数字信号变成计算机能看得懂的0101二进制信号罢了。</strong></p>
-<p><strong>3. A律13折线的PCM编码（二进制编码规则）：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195007957.png" alt="mark"></p>
-<p>具体每位码代表什么呢？看下图</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195043795.png" alt="mark"></p>
-<p>那这里和13折线有什么关系？请看下图</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195318463.png" alt="mark"></p>
-<p>上图就是用13折线非均匀量化的规律，把量化间隔进行细分。</p>
-<p><strong>这里了解到这里即可。</strong></p>
-<h2 id="1-6-时分复用"><a href="#1-6-时分复用" class="headerlink" title="1.6 时分复用"></a>1.6 时分复用</h2><h3 id="1-6-1简介"><a href="#1-6-1简介" class="headerlink" title="1.6.1简介"></a>1.6.1简介</h3><ol>
-<li>时分复用TDM（Time Division Multiplexing）</li>
-</ol>
-<ul>
-<li>用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</li>
-<li><strong>主要用在电话上</strong></li>
-</ul>
-<p>学习了上面抽样定理之后，我们举个例子</p>
-<p>有两路信号 一路是 m1(t) 另外一路是m2(t)，同时对它们进行时间上的采样。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200143616.png" alt="mark"></p>
-<p>采样结果如下图所示：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200202524.png" alt="mark"></p>
-<p><strong>从图中可以明显看出，采样后的信号没有重叠。</strong></p>
-<h3 id="1-6-2-原理分析"><a href="#1-6-2-原理分析" class="headerlink" title="1.6.2 原理分析"></a>1.6.2 原理分析</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200313856.png" alt="mark"></p>
-<p>时分复用的特点就是将时间划分为上图（A B C D） 一段段等长的时间复用帧（Frame），每一个时分复用的用户在每一个TDM帧中占用固定序号的时隙。</p>
-<p>接下来以三路信号为例：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200502920.png" alt="mark"></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200530262.png" alt="mark"></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200537269.png" alt="mark"></p>
-<p>注意到上面三张图的区别了吗？</p>
-<p>答案：图中在<strong>发送端和接收端分别有一个机械旋转开关</strong>，他们以相同的抽样频率同步的旋转。<strong>在抽样定理中已经证明：时间上连续的信号可以用它的离散抽样进行标识，只要抽样速率足够的高。</strong>所以各路信号是断续的发送的，接收端会根据时隙进行还原。</p>
-<p>这里例子具体的话：</p>
-<p>时隙为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200831049.png" alt="mark"></p>
-<p>这样的话就可以扩展到n路信号：如下图所示</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200938276.png" alt="mark"></p>
-<p>相应的，时隙宽度变为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201023428.png" alt="mark"></p>
-<p>码元周期变为：<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201056540.png" alt="mark"></p>
-<h2 id="1-7-准同步数字体系"><a href="#1-7-准同步数字体系" class="headerlink" title="1.7 准同步数字体系"></a>1.7 准同步数字体系</h2><ol>
-<li>ITU制定了两种准同步数字体系</li>
-</ol>
-<ul>
-<li><strong>PCM30/32(A律)  重要：因为中国用的</strong>  </li>
-<li>PCM24路（u律） <strong>不用看</strong></li>
-</ul>
-<ol start="2">
-<li><strong>PCM的一次帧结构（重点）</strong></li>
-</ol>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201346438.png" alt="mark"></p>
-<ul>
-<li><p>共有32路组成（有32个时隙  TS0  TS1 …… TS31）</p>
-</li>
-<li><p>每帧时间间隔为125us（即采样周期）</p>
-</li>
-<li><p>TS0 专门用于帧同步</p>
-</li>
-<li><p>TS16 专门用于传送信令</p>
-</li>
-<li><p>PCM的一次群比特率（2.048M/s = Ts *  256 = 125us * 8 * 32）(P311页)</p>
-</li>
-</ul>
-<ol start="3">
-<li>高次帧结构（E体系）</li>
-</ol>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201906231.png" alt="mark"></p>
-<p>规律： 四个PCM复用为新的一次群</p>
-<p>2.048 * 1 =   2.048Mbit/s      一次群</p>
-<p>2.048 * 4 = 8.448Mbit/s        二次群</p>
-<p>2.048 *  16 = 34.368Mbit/s  三次次群</p>
-]]></content>
   </entry>
   <entry>
     <title>JDK1.8源码-08-java.util.HashMap</title>
@@ -776,6 +649,212 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
+    <title>通信原理-11-差错控制编码</title>
+    <url>/2020/04/17/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-11-%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E7%BC%96%E7%A0%81/</url>
+    <content><![CDATA[<h1 id="差错控制编码"><a href="#差错控制编码" class="headerlink" title="差错控制编码"></a>差错控制编码</h1><p><strong>目的：提高通信的可靠性</strong></p>
+<p>（原因：数字通信可能因为各种干扰（乘性，加性），使传送的数据流产生误码。）</p>
+<p>本质：是纠错编码，是一种<strong>信道编码</strong>。</p>
+<p>举个例子：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">发送   0	0	1	1	1	0	0	0	1	0	0</span><br><span class="line">接受	 0	0	0	0	1	0	1	0	1	0	0</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>针对乘性干扰：采用均衡的措施（频域均衡，时域均衡）</li>
+<li><strong>针对加性干扰：合理选择调制方法/解调方法  ，增大发射功率。</strong></li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="1-信道分类"><a href="#1-信道分类" class="headerlink" title="1. 信道分类"></a>1. 信道分类</h2><p>==(P331第二段)==</p>
+<p>从差错控制角度看，按照加性干扰引起的错码分布规律的不同，信道可以分为三类</p>
+<ul>
+<li>随机信道（错码是随机出现的）</li>
+<li>突发信道（错码是成串出现的）</li>
+<li>混合信道</li>
+</ul>
+<h2 id="2-差错控制技术"><a href="#2-差错控制技术" class="headerlink" title="2. 差错控制技术"></a>2. 差错控制技术</h2><p>==P332==</p>
+<ul>
+<li><strong>检错重发（ARQ）</strong></li>
+<li>前向纠错   (FEC)</li>
+<li>反馈校验</li>
+<li>检错删除</li>
+</ul>
+<h3 id="2-1-停止等待ARQ"><a href="#2-1-停止等待ARQ" class="headerlink" title="2.1 停止等待ARQ"></a>2.1 停止等待ARQ</h3><ul>
+<li>ACK: 确认答复，再发送下一组数据</li>
+<li>NAK: 否认答复，有误-&gt;重新发送有错码组</li>
+<li>缺点：要等待</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/125716935.png" alt="mark"></p>
+<h3 id="2-2-拉后ARQ"><a href="#2-2-拉后ARQ" class="headerlink" title="2.2 拉后ARQ"></a>2.2 拉后ARQ</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/125940848.png" alt="mark"></p>
+<p>特点：</p>
+<ul>
+<li>不需要等待</li>
+<li>但是有错的时候，本来正确的码组也要被重发</li>
+</ul>
+<h3 id="2-3-选择重发ARQ"><a href="#2-3-选择重发ARQ" class="headerlink" title="2.3 选择重发ARQ"></a>2.3 选择重发ARQ</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/130044212.png" alt="mark"></p>
+<p><strong>特点：效率最高</strong></p>
+<h3 id="2-4-补充知识"><a href="#2-4-补充知识" class="headerlink" title="2.4 补充知识"></a>2.4 补充知识</h3><p>==P332==</p>
+<p><strong>一般来说，付出的代价越大，检错能力就越强。</strong></p>
+<p>这里所说的代价，就是指增加的监督码元的多少，它通常用多余度来衡量。</p>
+<p>例如：若编码序列中平均每两个信息码元就添加一个监督码元，则这种编码的多余度是1/3,或者说编码效率(<strong>码率</strong>)是2/3。</p>
+<p>设编码序列中信息码元数量是k，总码元数量是n，则<code>k/n</code>就是<strong>码率</strong>。而监督码元<code>(n-k)</code>和信息码元数量之比（n-k）/k 就做<strong>冗余度</strong>。</p>
+<p><strong>举个例子:</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 未加入纠错码</span></span><br><span class="line">发送端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span></span><br><span class="line">接收端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">// 加入纠错码之后</span></span><br><span class="line">发送端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">1</span>  <span class="comment">// 7</span></span><br><span class="line">接收端： <span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">1</span>  <span class="comment">// 7</span></span><br><span class="line">译码后： <span class="number">1</span>	<span class="number">0</span>		<span class="number">1</span>	<span class="number">0</span>		<span class="number">1</span>  <span class="comment">// 5</span></span><br><span class="line">     </span><br><span class="line">    </span><br><span class="line">总码元：   n = <span class="number">7</span></span><br><span class="line">信息码元： k = <span class="number">5</span></span><br><span class="line">码率：     k/n = <span class="number">5</span>/<span class="number">7</span></span><br><span class="line">冗余度：   <span class="number">1</span>-k/n = <span class="number">2</span>/<span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>本质：降低有效性来换取降低误码率，提高了可靠性</strong></p>
+<h2 id="3-分组码"><a href="#3-分组码" class="headerlink" title="3. 分组码"></a>3. 分组码</h2><p>==（书P334）==</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 状态1：没有冗余，不能发现任何错误</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">010</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line"><span class="number">100</span>  - &gt; 雪</span><br><span class="line"><span class="number">101</span>  - &gt; 霜</span><br><span class="line"><span class="number">110</span>  - &gt; 雾</span><br><span class="line"><span class="number">111</span>  - &gt; 雹</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态2：加入冗余，可以发现错误（加入1位冗余）</span></span><br><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">101</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 假设 000 发生了一位错码</span></span><br><span class="line"><span class="number">001</span> <span class="number">010</span> <span class="number">100</span> <span class="number">111</span>  <span class="comment">// 但这三种码都不存在：禁用码组（所以发现到了错误）</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">// 假设 000 发生了两位错码</span></span><br><span class="line"><span class="number">000</span> <span class="number">011</span> <span class="number">101</span> <span class="number">110</span>  <span class="comment">// 这三种码都存在：许可码组（发现不到错误）    </span></span><br><span class="line">    </span><br><span class="line">以上情况：只能检测错误，不能纠正错误</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/132954002.png" alt="mark"></p>
+<p>具体来看：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">00</span>  - &gt; 晴   信息位</span><br><span class="line"><span class="number">01</span>  - &gt; 云	信息位</span><br><span class="line"><span class="number">10</span>  - &gt; 阴	信息位</span><br><span class="line"><span class="number">11</span>  - &gt; 雨	信息位</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 加入监督位</span></span><br><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">00</span>	<span class="number">0</span>  - &gt; 晴</span><br><span class="line"><span class="number">01</span>	<span class="number">1</span>  - &gt; 云</span><br><span class="line"><span class="number">10</span>	<span class="number">1</span>  - &gt; 阴</span><br><span class="line"><span class="number">11</span>	<span class="number">0</span>  - &gt; 雨</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 分组码：把信息码进行分组，在每个码组后加上校验码，称为分组码。（另外一种纠错码组就叫做卷积码）</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>结构如图所示：==（P335）==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/132407891.png" alt="mark"></p>
+<h3 id="3-1-码重和码距"><a href="#3-1-码重和码距" class="headerlink" title="3.1 码重和码距"></a>3.1 码重和码距</h3><p>==P335==</p>
+<ul>
+<li><p>码长：码组中的码元个数</p>
+</li>
+<li><p>码重：码组中 1 的个数</p>
+</li>
+<li><p>码距：（汉明距离）两个码组中对应位上数字不同的位数叫做码组的距离</p>
+</li>
+<li><p>最小码距：某种编码中各个码组之间的距离的最小值</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="number">110</span></span><br><span class="line">码长 = <span class="number">3</span></span><br><span class="line">码重 = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="number">110</span>，<span class="number">011</span></span><br><span class="line">汉明距离 = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态2：加入冗余，可以发现错误（加入1位冗余）</span></span><br><span class="line"><span class="comment">// 四种天气</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">101</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line">最小码距 = <span class="number">2</span> </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment">// 五种天气</span></span><br><span class="line"><span class="number">000</span>  - &gt; 晴</span><br><span class="line"><span class="number">011</span>  - &gt; 云</span><br><span class="line"><span class="number">101</span>  - &gt; 阴</span><br><span class="line"><span class="number">110</span>  - &gt; 雨</span><br><span class="line"><span class="number">111</span>  - &gt; 雹</span><br><span class="line">最小码距 = <span class="number">2</span> </span><br><span class="line">    但是 这里有两组码距是<span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>结论</strong>： ==P336 (了解即可)==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/133725419.png" alt="mark"></p>
+<h2 id="4-简单的实用编码"><a href="#4-简单的实用编码" class="headerlink" title="4. 简单的实用编码"></a>4. 简单的实用编码</h2><p>==P337==</p>
+<ul>
+<li>奇偶校验码 （了解即可）</li>
+<li>二维奇偶监督码 （不用看）</li>
+<li>恒比码 （不用看）</li>
+<li>正反码（不用看）</li>
+</ul>
+<h3 id="4-1-奇偶校验码"><a href="#4-1-奇偶校验码" class="headerlink" title="4.1 奇偶校验码"></a>4.1 奇偶校验码</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/133920909.png" alt="mark"></p>
+<ul>
+<li>偶数监督码：无论信息位是多少，监督位只有一位，它使得码组中 1 的个数为偶数。</li>
+<li>奇数监督码：无论信息位是多少，监督位只有一位，它使得码组中 1 的个数为奇数。</li>
+</ul>
+<p><strong>纠错能力：只能检测奇数个错码，不能纠错。</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 奇数监督码:检测错误</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">1</span>	<span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 偶数监督码:检测错误</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span></span><br><span class="line"><span class="number">1</span>	<span class="number">0</span>	<span class="number">1</span>	<span class="number">0</span>	<span class="number">0</span>	<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-线性分组码"><a href="#5-线性分组码" class="headerlink" title="5. 线性分组码"></a>5. 线性分组码</h2><p>==P340==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/184327656.png" alt="mark"></p>
+<ul>
+<li><p>线性分组码：按照一组线性方程构成的（了解即可）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">T(X) = a(n-<span class="number">1</span>) * x^(n-<span class="number">1</span>) + a(n-<span class="number">2</span>) * x^(n-<span class="number">2</span>) + a(n-<span class="number">3</span>) * x^(n-<span class="number">3</span>) + ... + a(<span class="number">1</span>)x + a(<span class="number">0</span>)</span><br><span class="line">  码组 ： [<span class="number">1101001</span>] = x^<span class="number">6</span> + x^<span class="number">5</span> + x^<span class="number">3</span> + <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>本质就是矩阵的相乘计算</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182006961.png" alt="mark"></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182843032.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182926270.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/182950908.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/183026277.png" alt="mark"></p>
+<ul>
+<li><strong>汉明码：是一种能够纠正一位错码且编码效率较高的线性分组码。</strong><ul>
+<li><strong>最小码距：d = 3</strong>                     ==（P341）==</li>
+<li><strong>这种码能够纠正一个错码和检测两个错码（P341）</strong></li>
+</ul>
+</li>
+</ul>
+<p>一般来说，若码长为<code>n</code>,信息位数为<code>k</code>,则监督位数<code>r = n-k</code>。如果希望用r个监督位构造出r个监督关系式来表示一位错码的n种可能位置，要求：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/180036461.png" alt="mark"></p>
+<p><strong>线性分组码的性质</strong></p>
+<ul>
+<li>封闭性 ：   两个码组之间的距离必定是另外一个码组的重量（即“1”的个数）</li>
+<li>最小距离：最小距离就是码的最小重量</li>
+</ul>
+<h3 id="5-1-循环码"><a href="#5-1-循环码" class="headerlink" title="5.1 循环码"></a>5.1 循环码</h3><p>==p334==</p>
+<p><strong>循环码：具有循环性的线性分组码</strong>（了解即可）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/183700330.png" alt="mark"></p>
+<ul>
+<li>第2码组向左移动一位就变成了第3码组</li>
+<li>第3码组向左移动一位就变成了第6码组</li>
+<li><strong>特点：移动完之后本质其实还是自己的一个码组</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/184149656.png" alt="mark"></p>
+<h2 id="6-卷积码"><a href="#6-卷积码" class="headerlink" title="6. 卷积码"></a>6. 卷积码</h2><p><strong>卷积码：是一种非线性分组码，通常更适合用于前向纠错。</strong></p>
+<ul>
+<li>特点<ul>
+<li>线性分组码由这段时间中k比特输入信息有关。</li>
+<li>卷积码则不同，在编码时虽然也是跟k个信息位有关，但是还和前面的信息段有关。（看图秒懂）</li>
+</ul>
+</li>
+</ul>
+<p>下面这些公式不用看：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185601588.png" alt="mark"></p>
+<p><strong>原理方框图（了解一下即可）</strong>==(P355)==</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185710781.png" alt="mark"></p>
+<p><strong>举例（n,k,m） = (3,1,2)</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185932361.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/185941105.png" alt="mark"></p>
+<h3 id="6-1-卷积码的译码"><a href="#6-1-卷积码的译码" class="headerlink" title="6.1 卷积码的译码"></a>6.1 卷积码的译码</h3><p>==P364== (了解即可)</p>
+<ul>
+<li>代数解码<ul>
+<li>大数逻辑解码</li>
+</ul>
+</li>
+<li>概率解码<ul>
+<li>维特比解码</li>
+</ul>
+</li>
+</ul>
+<h2 id="7-新型纠错码"><a href="#7-新型纠错码" class="headerlink" title="7. 新型纠错码"></a>7. 新型纠错码</h2><h3 id="7-1-Turbo码"><a href="#7-1-Turbo码" class="headerlink" title="7.1 Turbo码"></a>7.1 Turbo码</h3><p>==p367==</p>
+<p>译码器在两个分量译码器之间进行迭代译码，分量译码器之间传递去掉正反馈的外信息，这样整个译码过程类似涡轮（Turbo）工作。因此，这个编码方法又被形象地称为Turbo码。Turbo码具有卓越的纠错性能，性能接近香农限，而且编译码的复杂度不高。</p>
+<h3 id="7-2-LDPC码"><a href="#7-2-LDPC码" class="headerlink" title="7.2 LDPC码"></a>7.2 LDPC码</h3><p>==P369==</p>
+<p> LDPC 是一组线性分组码。</p>
+<ul>
+<li>译码时间很长，适用于实时性要求不高的通信。</li>
+</ul>
+<h2 id="8-通信系统小结"><a href="#8-通信系统小结" class="headerlink" title="8. 通信系统小结"></a>8. 通信系统小结</h2><h3 id="8-1-提高系统有效性的方法"><a href="#8-1-提高系统有效性的方法" class="headerlink" title="8.1 提高系统有效性的方法"></a>8.1 提高系统有效性的方法</h3><ul>
+<li>信源编码 （第一章）</li>
+<li>理想低通系统（第六章）</li>
+<li>d-&gt;0的滚降系统（第六章）</li>
+<li>部分响应（第六章）</li>
+<li>多进制调制（第七章）</li>
+</ul>
+<h3 id="8-2-提高系统可靠性的方法"><a href="#8-2-提高系统可靠性的方法" class="headerlink" title="8.2 提高系统可靠性的方法"></a>8.2 提高系统可靠性的方法</h3><ul>
+<li>信道编码（第一章）</li>
+<li>调制（第五章）</li>
+<li>预加重和去加重（第五章）</li>
+<li>时域均衡（第六章）</li>
+<li>d-&gt;1的滚降系统（第六章）</li>
+<li>OFDM（第八章）</li>
+<li>扩频（第十二章）</li>
+</ul>
+<h3 id="8-3-改变信道带宽的方法"><a href="#8-3-改变信道带宽的方法" class="headerlink" title="8.3 改变信道带宽的方法"></a>8.3 改变信道带宽的方法</h3><ul>
+<li>调制</li>
+<li>滤波器</li>
+<li>扩频</li>
+</ul>
+<h3 id="8-4-通信产生离散谱的原因"><a href="#8-4-通信产生离散谱的原因" class="headerlink" title="8.4 通信产生离散谱的原因"></a>8.4 通信产生离散谱的原因</h3><ul>
+<li>时域信号有直流信号</li>
+<li>信号的周期性</li>
+<li>非线性调制</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>通信原理</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis-12-缓存穿透和雪崩</title>
     <url>/2020/04/16/Redis/Redis-12-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/</url>
     <content><![CDATA[<h1 id="Redis-12-缓存穿透和雪崩"><a href="#Redis-12-缓存穿透和雪崩" class="headerlink" title="Redis-12-缓存穿透和雪崩"></a>Redis-12-缓存穿透和雪崩</h1><p><strong>以下都是服务器的高可用问题</strong></p>
@@ -1007,6 +1086,211 @@ semaphore.acquire()
       <tags>
         <tag>数据库</tag>
         <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通信原理-10-信源编码</title>
+    <url>/2020/04/15/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-10-%E4%BF%A1%E6%BA%90%E7%BC%96%E7%A0%81/</url>
+    <content><![CDATA[<h1 id="1-时分复用TDM"><a href="#1-时分复用TDM" class="headerlink" title="1. 时分复用TDM"></a>1. 时分复用TDM</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p><strong>（书P9页）</strong></p>
+<p>传输多路信号有三种基本复用方式</p>
+<ul>
+<li>频分复用</li>
+<li>时分复用</li>
+<li>码分复用</li>
+<li>空分复用（了解即可）</li>
+</ul>
+<p>频分复用：用频谱搬移（<strong>调制</strong>）的方法使不同信号占据不同的频率范围</p>
+<p>时分复用：用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</p>
+<p>码分复用：用正交编码的方法分别携带不同的信号。</p>
+<p><strong>要想理解TDM，必须先要理解信源编码（抽样，量化，编码）</strong></p>
+<a id="more"></a>
+
+
+<h2 id="1-2-信源编码"><a href="#1-2-信源编码" class="headerlink" title="1.2 信源编码"></a>1.2 信源编码</h2><p>信源编码两个基本的功能：（P279）</p>
+<ul>
+<li>压缩编码 ： 减少数据冗余，提高通信的有效性</li>
+<li>数字化（模/数转换）</li>
+</ul>
+<p><strong>为什么要数字化？（P006）</strong></p>
+<ul>
+<li>抗干扰能力强</li>
+<li>传输差错可控</li>
+<li>便于用DSP技术多数字信息进行处理。</li>
+<li>易于集成</li>
+<li>易于加密处理</li>
+</ul>
+<p><strong>数字化过程的步骤？（P279）</strong></p>
+<ul>
+<li>抽样</li>
+<li>量化</li>
+<li>编码</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/184218130.png" alt="mark"></p>
+<p>编码的方式：</p>
+<ul>
+<li><strong>PCM(重要)</strong></li>
+<li>DPCM</li>
+<li>Delta M</li>
+</ul>
+<h2 id="1-3-抽样"><a href="#1-3-抽样" class="headerlink" title="1.3 抽样"></a>1.3 抽样</h2><p><strong>低通抽样和带通抽样 这两种抽样都叫做理想抽样。</strong></p>
+<h3 id="1-3-1-低通模拟信号抽样定理（P280-282）"><a href="#1-3-1-低通模拟信号抽样定理（P280-282）" class="headerlink" title="1.3.1 低通模拟信号抽样定理（P280-282）"></a>1.3.1 低通模拟信号抽样定理（P280-282）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185305861.png" alt="mark"></p>
+<p>如上图所示，左边的是描述对模拟信号的抽样，抽样可以理解为对原始信号幅度等（时间）间隔进行采样。右边的是描述抽样后得到的频域信号。</p>
+<p><strong>那么抽样定理到底是什么呢？请看下图</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185725602.png" alt="mark"></p>
+<p>上图中<strong>fs</strong>是两个抽样点的频率间隔，通信最基本的要求就是没有干扰性，所以要求以fs为采样间隔的时候信号不能有重叠，所以fs &gt;= 2fh，即如下所示</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185944555.png" alt="mark"></p>
+<p>如果不满足这个间隔，信号将会发生混叠失真。</p>
+<p><strong>（这里先了解一下电话的抽样频率，后面讲PDH的时候会仔细在讲解。）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190320962.png" alt="mark"></p>
+<h3 id="1-3-2-带通信号的-抽样定理（P283）"><a href="#1-3-2-带通信号的-抽样定理（P283）" class="headerlink" title="1.3.2 带通信号的 抽样定理（P283）"></a>1.3.2 带通信号的 抽样定理（P283）</h3><ul>
+<li>如何分辨低通信号或者带通信号？</li>
+</ul>
+<p><strong>低通信号就是最低频率小于带宽</strong></p>
+<p><strong>反之带通信号就是最低频率大于带宽。</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190631762.png" alt="mark"></p>
+<p>那么既然有了低通抽样定理，为什么还需要单独要提出一个带通抽样定理呢？</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190838592.png" alt="mark"></p>
+<p>解答：在图中可以明显的看出 0 到 fL这个区间是没有信号的，如果使用低通抽样定理，那么势必在低频域范围会浪费抽样的频率，导致系统效率低下，所以才有了带通抽样定理（证明不做要求）</p>
+<h3 id="1-3-3-模拟脉冲调制-P285"><a href="#1-3-3-模拟脉冲调制-P285" class="headerlink" title="1.3.3 模拟脉冲调制(P285)"></a>1.3.3 模拟脉冲调制(P285)</h3><p>有以下三种模拟脉冲调制方式：</p>
+<ul>
+<li><strong>PAM：脉冲幅度调制(重要)</strong></li>
+<li>PPM:   脉冲宽度调制</li>
+<li>PPM：脉冲位置调制</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191516355.png" alt="mark"></p>
+<h3 id="1-3-4-实际抽样"><a href="#1-3-4-实际抽样" class="headerlink" title="1.3.4 实际抽样"></a>1.3.4 实际抽样</h3><p>上述低通抽样和带通抽样都叫做理想抽样（因为现实做不到这样的抽样）</p>
+<p><strong>那么什么是实际抽样呢？</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191651614.png" alt="mark"></p>
+<p>如上图所示：</p>
+<p>实际抽样使用一个有宽度的脉冲代替了箭头脉冲。</p>
+<p>理解完了上面实际抽样和理想抽样的区别，我们来看看两种实际抽样的方式。（了解即可）</p>
+<ul>
+<li>第一种：自然抽样PAM（幅度随原信号幅度改变）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192041205.png" alt="mark"></p>
+<ul>
+<li>第二种：平顶抽样PAM（每个样值脉冲顶部是平坦的）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192133992.png" alt="mark"></p>
+<h3 id="1-3-4-抽样小结"><a href="#1-3-4-抽样小结" class="headerlink" title="1.3.4 抽样小结"></a>1.3.4 抽样小结</h3><p><strong>抽样的本质：将取值连续，时间连续的模拟信号——&gt;取值仍然连续，但时间离散的PAM信号</strong></p>
+<p><strong>实际抽样的两种方式：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192327476.png" alt="mark"></p>
+<p><strong>理想抽样定理：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192354532.png" alt="mark"></p>
+<h2 id="1-4-量化"><a href="#1-4-量化" class="headerlink" title="1.4 量化"></a>1.4 量化</h2><p>量化就是对抽样信号后的幅度进行离散化。</p>
+<p>（本质：用有限个量化电平表示无限个抽样值）</p>
+<p>量化过程：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192543863.png" alt="mark"></p>
+<p>上图中：</p>
+<ul>
+<li>mi : 分层电平</li>
+<li>qi : 量化电平</li>
+<li>delta vi :量化间隔</li>
+</ul>
+<p>这里公式都不用去记（<strong>只要记得在同一个范围内的抽样电平都算做同一个值</strong>）</p>
+<p>例如（横轴上4Ts和6Ts对应的量化电平在同一个区间，所以都算做同一个）</p>
+<p>这样，无限个抽样值就变成了有限个量化信号值。（P287）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192856427.png" alt="mark"></p>
+<h3 id="1-4-1-均匀量化"><a href="#1-4-1-均匀量化" class="headerlink" title="1.4.1 均匀量化"></a>1.4.1 均匀量化</h3><p>设模拟抽样信号的取值范围在a和b之间，量化电平数数M，则在均匀量化时的量化间隔为：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193123555.png" alt="mark"></p>
+<p>所以每个量化分层的端点mi就是：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193157063.png" alt="mark"></p>
+<p>均匀量化了解到这里即可。</p>
+<h3 id="1-4-2-非均匀量化（重要）"><a href="#1-4-2-非均匀量化（重要）" class="headerlink" title="1.4.2 非均匀量化（重要）"></a>1.4.2 非均匀量化（重要）</h3><p>(P289)</p>
+<p>在非均匀量化时，量化间隔是随信号抽样值的不同而变化的，即信号抽样值小的时候，量化间隔delta v就小，量化间隔大的时候，量化间隔delta v就大。</p>
+<p><strong>本质是：在进行量化之前，先将信号抽样值压缩，再进行均匀量化。（这里了解即可）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193609945.png" alt="mark"></p>
+<p><strong>非均匀量化有两种标准：</strong></p>
+<p>（ITU:国际电信联盟制定的）</p>
+<ul>
+<li><strong>A律（中国用的）</strong></li>
+<li><strong>u律（不用看：北美 日本用的）</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193730135.png" alt="mark"></p>
+<h3 id="A律13折线（P292）"><a href="#A律13折线（P292）" class="headerlink" title="A律13折线（P292）"></a>A律13折线（P292）</h3><p>A律使用13折线来实现近似，这里A=87.6</p>
+<p><strong>规律：每次对半分（如下图  1/2  1/4  1/8……. 1/128）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193944014.png" alt="mark"></p>
+<p>上图仔细数数才8道折线，那么为什么叫做13折线？</p>
+<p>答案：看下图，因为负极性还有8条折线（其中把原点左边的4条折线近似合并成一条 因为这四条折线的斜率近似相等）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194255212.png" alt="mark"></p>
+<p>所以一共是 ： 8+8-3 = 13条折线</p>
+<h2 id="1-5-编码"><a href="#1-5-编码" class="headerlink" title="1.5 编码"></a>1.5 编码</h2><p><strong>1. PCM编码原理框图：</strong></p>
+<p>对于发送端而言：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194626823.png" alt="mark"></p>
+<p>对于接收端而言：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194717234.png" alt="mark"></p>
+<p><strong>2. 量化和编码的关系：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194746570.png" alt="mark"></p>
+<p><strong>那么PCM的本质就是把数字信号变成计算机能看得懂的0101二进制信号罢了。</strong></p>
+<p><strong>3. A律13折线的PCM编码（二进制编码规则）：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195007957.png" alt="mark"></p>
+<p>具体每位码代表什么呢？看下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195043795.png" alt="mark"></p>
+<p>那这里和13折线有什么关系？请看下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195318463.png" alt="mark"></p>
+<p>上图就是用13折线非均匀量化的规律，把量化间隔进行细分。</p>
+<p><strong>这里了解到这里即可。</strong></p>
+<h2 id="1-6-时分复用"><a href="#1-6-时分复用" class="headerlink" title="1.6 时分复用"></a>1.6 时分复用</h2><h3 id="1-6-1简介"><a href="#1-6-1简介" class="headerlink" title="1.6.1简介"></a>1.6.1简介</h3><ol>
+<li>时分复用TDM（Time Division Multiplexing）</li>
+</ol>
+<ul>
+<li>用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</li>
+<li><strong>主要用在电话上</strong></li>
+</ul>
+<p>学习了上面抽样定理之后，我们举个例子</p>
+<p>有两路信号 一路是 m1(t) 另外一路是m2(t)，同时对它们进行时间上的采样。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200143616.png" alt="mark"></p>
+<p>采样结果如下图所示：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200202524.png" alt="mark"></p>
+<p><strong>从图中可以明显看出，采样后的信号没有重叠。</strong></p>
+<h3 id="1-6-2-原理分析"><a href="#1-6-2-原理分析" class="headerlink" title="1.6.2 原理分析"></a>1.6.2 原理分析</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200313856.png" alt="mark"></p>
+<p>时分复用的特点就是将时间划分为上图（A B C D） 一段段等长的时间复用帧（Frame），每一个时分复用的用户在每一个TDM帧中占用固定序号的时隙。</p>
+<p>接下来以三路信号为例：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200502920.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200530262.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200537269.png" alt="mark"></p>
+<p>注意到上面三张图的区别了吗？</p>
+<p>答案：图中在<strong>发送端和接收端分别有一个机械旋转开关</strong>，他们以相同的抽样频率同步的旋转。<strong>在抽样定理中已经证明：时间上连续的信号可以用它的离散抽样进行标识，只要抽样速率足够的高。</strong>所以各路信号是断续的发送的，接收端会根据时隙进行还原。</p>
+<p>这里例子具体的话：</p>
+<p>时隙为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200831049.png" alt="mark"></p>
+<p>这样的话就可以扩展到n路信号：如下图所示</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200938276.png" alt="mark"></p>
+<p>相应的，时隙宽度变为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201023428.png" alt="mark"></p>
+<p>码元周期变为：<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201056540.png" alt="mark"></p>
+<h2 id="1-7-准同步数字体系"><a href="#1-7-准同步数字体系" class="headerlink" title="1.7 准同步数字体系"></a>1.7 准同步数字体系</h2><ol>
+<li>ITU制定了两种准同步数字体系</li>
+</ol>
+<ul>
+<li><strong>PCM30/32(A律)  重要：因为中国用的</strong>  </li>
+<li>PCM24路（u律） <strong>不用看</strong></li>
+</ul>
+<ol start="2">
+<li><strong>PCM的一次帧结构（重点）</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201346438.png" alt="mark"></p>
+<ul>
+<li><p>共有32路组成（有32个时隙  TS0  TS1 …… TS31）</p>
+</li>
+<li><p>每帧时间间隔为125us（即采样周期）</p>
+</li>
+<li><p>TS0 专门用于帧同步</p>
+</li>
+<li><p>TS16 专门用于传送信令</p>
+</li>
+<li><p>PCM的一次群比特率（2.048M/s = Ts *  256 = 125us * 8 * 32）(P311页)</p>
+</li>
+</ul>
+<ol start="3">
+<li>高次帧结构（E体系）</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201906231.png" alt="mark"></p>
+<p>规律： 四个PCM复用为新的一次群</p>
+<p>2.048 * 1 =   2.048Mbit/s      一次群</p>
+<p>2.048 * 4 = 8.448Mbit/s        二次群</p>
+<p>2.048 *  16 = 34.368Mbit/s  三次次群</p>
+]]></content>
+      <tags>
+        <tag>通信原理</tag>
       </tags>
   </entry>
   <entry>
@@ -1576,9 +1860,9 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
-    <title>网络编程-01-</title>
-    <url>/2020/04/11/NetworkCoding/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-01-/</url>
-    <content><![CDATA[<h1 id="网络编程-01"><a href="#网络编程-01" class="headerlink" title="网络编程-01-"></a>网络编程-01-</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><h3 id="1-1-计算机网络"><a href="#1-1-计算机网络" class="headerlink" title="1.1 计算机网络"></a>1.1 计算机网络</h3><p>​    计算机网络是指将<a href="https://baike.baidu.com/item/地理" target="_blank" rel="noopener">地理</a>位置不同的具有独立功能的多台<a href="https://baike.baidu.com/item/计算机/140338" target="_blank" rel="noopener">计算机</a>及其外部设备，通过通信线路连接起来，在<a href="https://baike.baidu.com/item/网络操作系统/3997" target="_blank" rel="noopener">网络操作系统</a>，<a href="https://baike.baidu.com/item/网络管理软件/6579078" target="_blank" rel="noopener">网络管理软件</a>及<a href="https://baike.baidu.com/item/网络通信协议/4438611" target="_blank" rel="noopener">网络通信协议</a>的管理和协调下，实现<a href="https://baike.baidu.com/item/资源共享/233480" target="_blank" rel="noopener">资源共享</a>和信息传递的计算机系统。</p>
+    <title>网络编程</title>
+    <url>/2020/04/11/NetworkCoding/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="网络编程"><a href="#网络编程" class="headerlink" title="网络编程"></a>网络编程</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><h3 id="1-1-计算机网络"><a href="#1-1-计算机网络" class="headerlink" title="1.1 计算机网络"></a>1.1 计算机网络</h3><p>​    计算机网络是指将<a href="https://baike.baidu.com/item/地理" target="_blank" rel="noopener">地理</a>位置不同的具有独立功能的多台<a href="https://baike.baidu.com/item/计算机/140338" target="_blank" rel="noopener">计算机</a>及其外部设备，通过通信线路连接起来，在<a href="https://baike.baidu.com/item/网络操作系统/3997" target="_blank" rel="noopener">网络操作系统</a>，<a href="https://baike.baidu.com/item/网络管理软件/6579078" target="_blank" rel="noopener">网络管理软件</a>及<a href="https://baike.baidu.com/item/网络通信协议/4438611" target="_blank" rel="noopener">网络通信协议</a>的管理和协调下，实现<a href="https://baike.baidu.com/item/资源共享/233480" target="_blank" rel="noopener">资源共享</a>和信息传递的计算机系统。</p>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200411112327.png" alt=""></p>
 <a id="more"></a>
 
@@ -1616,14 +1900,92 @@ semaphore.acquire()
 <li>私网：（192.168.0.0）</li>
 </ul>
 </li>
-<li><p>ipv4/ipv6</p>
+<li><p>ipv4 / ipv6</p>
 <ul>
 <li>ipv4 : 4个字节组成   0-255  42亿</li>
-<li>ipv6:  128位   8个无符号整数！</li>
+<li>ipv6:  128位   8个无符号整数！(0-9,a-f)</li>
 </ul>
 </li>
 </ul>
-]]></content>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 举例</span></span><br><span class="line"><span class="number">2001.1</span>aaa<span class="number">.1</span>bbb<span class="number">.5888</span><span class="number">.7666</span><span class="number">.2</span>eeee<span class="number">.2f</span>ab</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-2-代码实现"><a href="#2-2-代码实现" class="headerlink" title="2.2 代码实现"></a>2.2 代码实现</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 测试ip</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.InetAddress;</span><br><span class="line"><span class="keyword">import</span> java.net.UnknownHostException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestIp</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 查询本机地址</span></span><br><span class="line">            InetAddress inet1 = InetAddress.getByName(<span class="string">"127.0.0.1"</span>);</span><br><span class="line">            System.out.println(inet1);</span><br><span class="line"></span><br><span class="line">            InetAddress inet2 = InetAddress.getByName(<span class="string">"localhost"</span>);</span><br><span class="line">            System.out.println(inet2);</span><br><span class="line"></span><br><span class="line">            InetAddress inet3 = InetAddress.getLocalHost();</span><br><span class="line">            System.out.println(inet3);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 查询网站的ip地址</span></span><br><span class="line">            InetAddress inet4 = InetAddress.getByName(<span class="string">"www.baidu.com"</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 常用方法</span></span><br><span class="line">            System.out.println(inet4.getAddress());  <span class="comment">// 返回byte数组 [B@74a14482</span></span><br><span class="line">            System.out.println(inet4.getCanonicalHostName()); <span class="comment">// 规范的名字</span></span><br><span class="line">            System.out.println(inet4.getHostAddress());     <span class="comment">// ip</span></span><br><span class="line">            System.out.println(inet4.getHostName());        <span class="comment">// 域名</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (UnknownHostException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-端口实现"><a href="#3-端口实现" class="headerlink" title="3. 端口实现"></a>3. 端口实现</h2><h3 id="3-1-概述"><a href="#3-1-概述" class="headerlink" title="3.1 概述"></a>3.1 概述</h3><p>端口表示计算机上的一个程序的进程：</p>
+<ul>
+<li>不同的进程有不同的端口号！用来区分软件</li>
+<li>按规定分0——65535</li>
+<li>TCP,UDP : 65535 * 2<ul>
+<li>TCP : 80</li>
+<li>UDP: 80</li>
+<li>TCP和UDP都可以占用80端口，但是在单个协议下，端口号不能冲突。</li>
+</ul>
+</li>
+<li>端口分类：<ul>
+<li>公有端口              （0-1023）<ul>
+<li>HTTP : 80</li>
+<li>HTTPS : 443</li>
+<li>FTP : 21</li>
+<li>Telnet: 23</li>
+</ul>
+</li>
+<li>程序注册端口：（1024–49151,分配用户或者程序）<ul>
+<li>Tomcat:8080</li>
+<li>MySql:3306</li>
+<li>Oracle:1521</li>
+</ul>
+</li>
+<li>动态私有：        （49152-65535）</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">netstat -ano <span class="comment"># 查看所有的窗口</span></span><br><span class="line">netstat -ano|findstr <span class="string">"8080"</span> <span class="comment"># 查看端口进程</span></span><br><span class="line">tasklist|findstr  <span class="string">"8080"</span>  <span class="comment"># 查看指定端口的进程</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-2-代码实现"><a href="#3-2-代码实现" class="headerlink" title="3.2 代码实现"></a>3.2 代码实现</h3><p><strong>使用socket类：InetSocketAddress</strong></p>
+<p><strong>源码如下：</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Creates a socket address where the IP address is the wildcard address</span></span><br><span class="line"><span class="comment"> * and the port number a specified value.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * A valid port value is between 0 and 65535.</span></span><br><span class="line"><span class="comment"> * A port number of &#123;<span class="doctag">@code</span> zero&#125; will let the system pick up an</span></span><br><span class="line"><span class="comment"> * ephemeral port in a &#123;<span class="doctag">@code</span> bind&#125; operation.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>   port    The port number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IllegalArgumentException if the port parameter is outside the specified</span></span><br><span class="line"><span class="comment"> * range of valid port values.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">InetSocketAddress</span><span class="params">(<span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(InetAddress.anyLocalAddress(), port);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Creates a socket address from an IP address and a port number.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * A valid port value is between 0 and 65535.</span></span><br><span class="line"><span class="comment"> * A port number of &#123;<span class="doctag">@code</span> zero&#125; will let the system pick up an</span></span><br><span class="line"><span class="comment"> * ephemeral port in a &#123;<span class="doctag">@code</span> bind&#125; operation.</span></span><br><span class="line"><span class="comment"> * &lt;P&gt;</span></span><br><span class="line"><span class="comment"> * A &#123;<span class="doctag">@code</span> null&#125; address will assign the &lt;i&gt;wildcard&lt;/i&gt; address.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>   addr    The IP address</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>   port    The port number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IllegalArgumentException if the port parameter is outside the specified</span></span><br><span class="line"><span class="comment"> * range of valid port values.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">InetSocketAddress</span><span class="params">(InetAddress addr, <span class="keyword">int</span> port)</span> </span>&#123;</span><br><span class="line">    holder = <span class="keyword">new</span> InetSocketAddressHolder(</span><br><span class="line">                    <span class="keyword">null</span>,</span><br><span class="line">                    addr == <span class="keyword">null</span> ? InetAddress.anyLocalAddress() : addr,</span><br><span class="line">                    checkPort(port));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.net.InetSocketAddress;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试端口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestSocket</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        InetSocketAddress socketAddress = <span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, <span class="number">8080</span>);</span><br><span class="line">        System.out.println(socketAddress);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        System.out.println(socketAddress.getAddress());  <span class="comment">// 返回ip地址</span></span><br><span class="line">        System.out.println(socketAddress.getHostName());  <span class="comment">// 返回端口</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-通信协议"><a href="#4-通信协议" class="headerlink" title="4. 通信协议"></a>4. 通信协议</h2><ul>
+<li><p><strong>TCP : 用户传输协议（打电话）</strong></p>
+<ul>
+<li>三次握手</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/112617612.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">A : 你瞅啥？</span><br><span class="line">B : 瞅你咋地</span><br><span class="line">A : 干一场！</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>四次挥手</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/112634436.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">A : 我要走了</span><br><span class="line">B : 你真的要走了吗？</span><br><span class="line">B : 你真的真的要走了吗？</span><br><span class="line">A : 我真的要走了</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>客户端/ 服务端</li>
+<li>建立连接</li>
+</ul>
+</li>
+<li><p><strong>UDP:  用户数据报协议（发短信）</strong></p>
+<ul>
+<li>客户端 / 服务端 ：（没有明确的界限）</li>
+<li>不建立连接</li>
+</ul>
+</li>
+<li><p><strong>IP ： 网络互连协议</strong></p>
+</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200411112327.png" alt=""></p>
+<h2 id="5-TCP-Java实现"><a href="#5-TCP-Java实现" class="headerlink" title="5. TCP (Java实现)"></a>5. TCP (Java实现)</h2>]]></content>
       <tags>
         <tag>网络编程</tag>
         <tag>计算机网络</tag>
@@ -6936,8 +7298,8 @@ semaphore.acquire()
 ]]></content>
       <tags>
         <tag>Leetcode</tag>
-        <tag>堆</tag>
         <tag>春招每日一题</tag>
+        <tag>堆</tag>
       </tags>
   </entry>
   <entry>
@@ -14443,6 +14805,15 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
+    <title>Mysql-视图</title>
+    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mysql-索引</title>
     <url>/2019/02/21/Mysql/Mysql-%E7%B4%A2%E5%BC%95/</url>
     <content><![CDATA[<h1 id="Mysql-索引"><a href="#Mysql-索引" class="headerlink" title="Mysql 索引"></a>Mysql 索引</h1><h2 id="1-索引的作用"><a href="#1-索引的作用" class="headerlink" title="1. 索引的作用"></a>1. 索引的作用</h2><ul>
@@ -14508,15 +14879,6 @@ semaphore.acquire()
 <li>索引一般应该加载查找条件的字段上</li>
 </ul>
 ]]></content>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Mysql</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mysql-视图</title>
-    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
-    <content><![CDATA[]]></content>
       <tags>
         <tag>数据库</tag>
         <tag>Mysql</tag>
