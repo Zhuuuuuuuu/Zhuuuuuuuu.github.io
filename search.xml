@@ -1885,6 +1885,150 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
+    <title>Redis-02-入门与使用</title>
+    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
+<li><strong>Redis是什么？</strong></li>
+</ol>
+<ul>
+<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
+</li>
+<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
+</li>
+<li><p>也被称之为结构化数据库！</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Redis能做什么？</strong></li>
+</ol>
+<ul>
+<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
+<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
+<a id="more"></a>
+
+<ol>
+<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
+<li>效率高，可以用于告诉缓存</li>
+<li>发布订阅系统</li>
+<li>地图信息分析</li>
+<li>计时器，计数器（浏览量！）</li>
+<li>……</li>
+</ol>
+<ol start="3">
+<li><strong>Redis特性</strong></li>
+</ol>
+<ul>
+<li>多样的数据类型</li>
+<li>持久化</li>
+<li>集群</li>
+<li>事务</li>
+</ul>
+<p>…….</p>
+<ol start="4">
+<li><strong>需要的工具</strong></li>
+</ol>
+<ul>
+<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
+<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
+</ul>
+<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
+<li>下载并上传到服务器</li>
+</ol>
+<p>官网下载：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
+<ol start="2">
+<li>解压压缩包（程序/opt目录下）</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
+<ol start="3">
+<li>进入解压后的文件，可以看到redis.conf</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
+<ol start="4">
+<li>确保有gcc环境并安装</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
+<ol start="5">
+<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
+<ol start="6">
+<li><strong>将redis配置文件复制到当前目录下</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>redis默认不是后台启动，修改配置文件！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
+<ol start="8">
+<li><strong>通过制定的配置文件启动redis服务</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
+<ol start="9">
+<li>测试redis连接（使用redis-cli进行连接）</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
+<ol start="10">
+<li>查看redis进程与连接</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
+<ol start="11">
+<li>如何关闭redis服务</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
+<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
+<p>简单测试一下：（100个并发连接，100000条请求）</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
+<li><p>默认有16个数据库（默认使用第0个）</p>
+<ul>
+<li>可以使用select切换数据库</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p><strong>思考redis 为什么是6379?</strong></p>
+<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
+<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
+<ul>
+<li><strong>Redis是单线程的</strong><ul>
+<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
+<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
+<li>为什么<strong>单线程</strong>还这么快？<ul>
+<li>Redis是C语言写的，这个不比Memecache差</li>
+<li>高性能的服务器不一定是多线程的</li>
+<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis-03-数据类型</title>
     <url>/2020/04/07/Redis/Redis-03-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[<h1 id="Redis-03-数据类型"><a href="#Redis-03-数据类型" class="headerlink" title="Redis-03-数据类型"></a>Redis-03-数据类型</h1><h2 id="1-五大数据类型"><a href="#1-五大数据类型" class="headerlink" title="1. 五大数据类型"></a>1. 五大数据类型</h2><h3 id="key"><a href="#key" class="headerlink" title="key"></a>key</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>  key value	     设置key value</span><br><span class="line">keys *                查看所有的key</span><br><span class="line">exists key 		     判断当前的key是否存在</span><br><span class="line">expire key seconds	 设置过期时间</span><br><span class="line">get    key			获得key的值</span><br><span class="line">ttl    key			查看当前key的剩余过期时间</span><br><span class="line"><span class="built_in">type</span>   key			查看当前key的一个类型</span><br></pre></td></tr></table></figure>
@@ -2054,150 +2198,6 @@ semaphore.acquire()
 <p>统计操作：统计打卡的天数</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bitcount sign</span><br><span class="line">(integer) 2</span><br></pre></td></tr></table></figure>
 
-]]></content>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis-02-入门与使用</title>
-    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
-<li><strong>Redis是什么？</strong></li>
-</ol>
-<ul>
-<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
-</li>
-<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
-</li>
-<li><p>也被称之为结构化数据库！</p>
-</li>
-</ul>
-<ol start="2">
-<li><strong>Redis能做什么？</strong></li>
-</ol>
-<ul>
-<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
-<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
-<a id="more"></a>
-
-<ol>
-<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
-<li>效率高，可以用于告诉缓存</li>
-<li>发布订阅系统</li>
-<li>地图信息分析</li>
-<li>计时器，计数器（浏览量！）</li>
-<li>……</li>
-</ol>
-<ol start="3">
-<li><strong>Redis特性</strong></li>
-</ol>
-<ul>
-<li>多样的数据类型</li>
-<li>持久化</li>
-<li>集群</li>
-<li>事务</li>
-</ul>
-<p>…….</p>
-<ol start="4">
-<li><strong>需要的工具</strong></li>
-</ol>
-<ul>
-<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
-<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
-</ul>
-<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
-<li>下载并上传到服务器</li>
-</ol>
-<p>官网下载：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
-<ol start="2">
-<li>解压压缩包（程序/opt目录下）</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
-<ol start="3">
-<li>进入解压后的文件，可以看到redis.conf</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
-<ol start="4">
-<li>确保有gcc环境并安装</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
-<ol start="5">
-<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
-<ol start="6">
-<li><strong>将redis配置文件复制到当前目录下</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
-
-<ol start="7">
-<li>redis默认不是后台启动，修改配置文件！</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
-<ol start="8">
-<li><strong>通过制定的配置文件启动redis服务</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
-<ol start="9">
-<li>测试redis连接（使用redis-cli进行连接）</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
-<ol start="10">
-<li>查看redis进程与连接</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
-<ol start="11">
-<li>如何关闭redis服务</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
-<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
-<p>简单测试一下：（100个并发连接，100000条请求）</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
-<li><p>默认有16个数据库（默认使用第0个）</p>
-<ul>
-<li>可以使用select切换数据库</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<p><strong>思考redis 为什么是6379?</strong></p>
-<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
-<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
-<ul>
-<li><strong>Redis是单线程的</strong><ul>
-<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
-<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
-<li>为什么<strong>单线程</strong>还这么快？<ul>
-<li>Redis是C语言写的，这个不比Memecache差</li>
-<li>高性能的服务器不一定是多线程的</li>
-<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
 ]]></content>
       <tags>
         <tag>数据库</tag>
@@ -3476,7 +3476,11 @@ semaphore.acquire()
 <ul>
 <li><strong>对象数据类型</strong></li>
 </ul>
-<p>该类型的数组进行排序可以实现Comparable接口，重写CompareTo方法进行排序。</p>
+<p><strong>该类型</strong>的数组进行排序可以实现Comparable接口，重写CompareTo方法进行排序。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 如String实现了Comparable&lt;String&gt;接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">String</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">Comparable</span>&lt;<span class="title">String</span>&gt;, <span class="title">CharSequence</span></span>&#123;</span><br><span class="line">    </span><br><span class="line">    	<span class="comment">// 重写了compareTo方法</span></span><br><span class="line">    	<span class="comment">// 具体对于compareTo方法请参考上一篇博客</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(String anotherString)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len1 = value.length;</span><br><span class="line">        <span class="keyword">int</span> len2 = anotherString.value.length;</span><br><span class="line">        <span class="keyword">int</span> lim = Math.min(len1, len2);</span><br><span class="line">        <span class="keyword">char</span> v1[] = value;</span><br><span class="line">        <span class="keyword">char</span> v2[] = anotherString.value;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> k = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (k &lt; lim) &#123;</span><br><span class="line">            <span class="keyword">char</span> c1 = v1[k];</span><br><span class="line">            <span class="keyword">char</span> c2 = v2[k];</span><br><span class="line">            <span class="keyword">if</span> (c1 != c2) &#123;</span><br><span class="line">                <span class="keyword">return</span> c1 - c2;</span><br><span class="line">            &#125;</span><br><span class="line">            k++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> len1 - len2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 引用数据类型</span></span><br><span class="line">String[] str = &#123;<span class="string">"a"</span>,<span class="string">"c"</span>,<span class="string">"f"</span>,<span class="string">"d"</span>,<span class="string">"b"</span>&#125;;</span><br><span class="line">Arrays.sort(str);</span><br><span class="line">System.out.println(Arrays.toString(str));  <span class="comment">// [a, b, c, d, f]</span></span><br></pre></td></tr></table></figure>
 
 <p>String类型实现了Comparable接口，内部的compareTo方法是按照字典码进行排序的。</p>
@@ -3497,8 +3501,64 @@ semaphore.acquire()
 
 
 <h2 id="4-copyOf"><a href="#4-copyOf" class="headerlink" title="4. copyOf"></a>4. copyOf</h2><p><strong>拷贝数组元素。底层采用System.arraycopy()实现，这是一个native方法。</strong></p>
+<p>src:源数组</p>
+<p>srcPos:源数组要复制的起始位置</p>
+<p>dest:目的数组</p>
+<p>destPos:目的数组放置的起始位置</p>
+<p>length:复制的长度</p>
+<p>注意：src 和 dest都必须是同类型或者可以进行转换类型的数组。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Copies the specified array, truncating or padding with zeros (if necessary)</span></span><br><span class="line"><span class="comment">    * so the copy has the specified length.  For all indices that are</span></span><br><span class="line"><span class="comment">    * valid in both the original array and the copy, the two arrays will</span></span><br><span class="line"><span class="comment">    * contain identical values.  For any indices that are valid in the</span></span><br><span class="line"><span class="comment">    * copy but not the original, the copy will contain &lt;tt&gt;0&lt;/tt&gt;.</span></span><br><span class="line"><span class="comment">    * Such indices will exist if and only if the specified length</span></span><br><span class="line"><span class="comment">    * is greater than that of the original array.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> original the array to be copied</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> newLength the length of the copy to be returned</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> a copy of the original array, truncated or padded with zeros</span></span><br><span class="line"><span class="comment">    *     to obtain the specified length</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> NegativeArraySizeException if &lt;tt&gt;newLength&lt;/tt&gt; is negative</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> NullPointerException if &lt;tt&gt;original&lt;/tt&gt; is null</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@since</span> 1.6</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// @param original 源数组</span></span><br><span class="line"><span class="comment">// @param newLength //返回新数组的长度</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span>[] copyOf(<span class="keyword">int</span>[] original, <span class="keyword">int</span> newLength) &#123;</span><br><span class="line">       <span class="comment">// copy是拷贝后的新数组（长度是newLength）</span></span><br><span class="line">       <span class="keyword">int</span>[] copy = <span class="keyword">new</span> <span class="keyword">int</span>[newLength];</span><br><span class="line">       <span class="comment">// 调用System.arraycopy方法</span></span><br><span class="line">       <span class="comment">// 传入参数长度是（原数组和新数组长度最短的那个）</span></span><br><span class="line">       System.arraycopy(original, <span class="number">0</span>, copy, <span class="number">0</span>,</span><br><span class="line">                        Math.min(original.length, newLength));</span><br><span class="line">       <span class="keyword">return</span> copy;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">arraycopy</span><span class="params">(Object src,  <span class="keyword">int</span>  srcPos,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       Object dest, <span class="keyword">int</span> destPos,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       <span class="keyword">int</span> length)</span></span>;</span><br></pre></td></tr></table></figure>
 
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] num1 = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;;</span><br><span class="line">    <span class="keyword">int</span>[] num2 = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">3</span>];</span><br><span class="line">    System.arraycopy(num1,<span class="number">0</span>,num2,<span class="number">0</span>,num1.length);</span><br><span class="line">    System.out.println(Arrays.toString(num2));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="5-equals-和-deepEquals"><a href="#5-equals-和-deepEquals" class="headerlink" title="5. equals 和 deepEquals"></a>5. equals 和 deepEquals</h2><h3 id="5-1-equals"><a href="#5-1-equals" class="headerlink" title="5.1 equals"></a>5.1 equals</h3><p>equals用来比较两个数组中对应位置的每个元素是否相等</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/095936799.png" alt="mark"></p>
+<p><strong>八种基本数据类型以及对象都能进行比较。</strong></p>
+<p>我们这里首先看看<strong>int类型的数组</strong>比较的源码实现。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns &lt;tt&gt;true&lt;/tt&gt; if the two specified arrays of ints are</span></span><br><span class="line"><span class="comment"> * &lt;i&gt;equal&lt;/i&gt; to one another.  Two arrays are considered equal if both</span></span><br><span class="line"><span class="comment"> * arrays contain the same number of elements, and all corresponding pairs</span></span><br><span class="line"><span class="comment"> * of elements in the two arrays are equal.  In other words, two arrays</span></span><br><span class="line"><span class="comment"> * are equal if they contain the same elements in the same order.  Also,</span></span><br><span class="line"><span class="comment"> * two array references are considered equal if both are &lt;tt&gt;null&lt;/tt&gt;.&lt;p&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a one array to be tested for equality</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a2 the other array to be tested for equality</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &lt;tt&gt;true&lt;/tt&gt; if the two arrays are equal</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span>[] a2)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 数组引用相等，则里面的元素一定相等</span></span><br><span class="line">    <span class="keyword">if</span> (a==a2)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="comment">// 两个数组其中一个是null,都返回false</span></span><br><span class="line">    <span class="keyword">if</span> (a==<span class="keyword">null</span> || a2==<span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 两个数组长度不相等，返回false</span></span><br><span class="line">    <span class="keyword">int</span> length = a.length;</span><br><span class="line">    <span class="keyword">if</span> (a2.length != length)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 通过for循环比较数组中每个元素是否相等</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;length; i++)</span><br><span class="line">        <span class="keyword">if</span> (a[i] != a2[i])</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>再看对象数组的比较：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns &lt;tt&gt;true&lt;/tt&gt; if the two specified arrays of Objects are</span></span><br><span class="line"><span class="comment"> * &lt;i&gt;equal&lt;/i&gt; to one another.  The two arrays are considered equal if</span></span><br><span class="line"><span class="comment"> * both arrays contain the same number of elements, and all corresponding</span></span><br><span class="line"><span class="comment"> * pairs of elements in the two arrays are equal.  Two objects &lt;tt&gt;e1&lt;/tt&gt;</span></span><br><span class="line"><span class="comment"> * and &lt;tt&gt;e2&lt;/tt&gt; are considered &lt;i&gt;equal&lt;/i&gt; if &lt;tt&gt;(e1==null ? e2==null</span></span><br><span class="line"><span class="comment"> * : e1.equals(e2))&lt;/tt&gt;.  In other words, the two arrays are equal if</span></span><br><span class="line"><span class="comment"> * they contain the same elements in the same order.  Also, two array</span></span><br><span class="line"><span class="comment"> * references are considered equal if both are &lt;tt&gt;null&lt;/tt&gt;.&lt;p&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a one array to be tested for equality</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a2 the other array to be tested for equality</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &lt;tt&gt;true&lt;/tt&gt; if the two arrays are equal</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object[] a, Object[] a2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (a==a2)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (a==<span class="keyword">null</span> || a2==<span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> length = a.length;</span><br><span class="line">    <span class="keyword">if</span> (a2.length != length)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;length; i++) &#123;</span><br><span class="line">        Object o1 = a[i];</span><br><span class="line">        Object o2 = a2[i];</span><br><span class="line">        <span class="keyword">if</span> (!(o1==<span class="keyword">null</span> ? o2==<span class="keyword">null</span> : o1.equals(o2)))</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基本上也是通过 equals 来判断。</p>
+<h3 id="5-2-deepEquals"><a href="#5-2-deepEquals" class="headerlink" title="5.2 deepEquals"></a>5.2 deepEquals</h3><p>也是用来比较两个数组的元素是否相等，不过deepEquals能够进行多维数组的比较，而且是任意层次的嵌套数组。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns &lt;tt&gt;true&lt;/tt&gt; if the two specified arrays are &lt;i&gt;deeply</span></span><br><span class="line"><span class="comment"> * equal&lt;/i&gt; to one another.  Unlike the &#123;<span class="doctag">@link</span> #equals(Object[],Object[])&#125;</span></span><br><span class="line"><span class="comment"> * method, this method is appropriate for use with nested arrays of</span></span><br><span class="line"><span class="comment"> * arbitrary depth.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;Two array references are considered deeply equal if both</span></span><br><span class="line"><span class="comment"> * are &lt;tt&gt;null&lt;/tt&gt;, or if they refer to arrays that contain the same</span></span><br><span class="line"><span class="comment"> * number of elements and all corresponding pairs of elements in the two</span></span><br><span class="line"><span class="comment"> * arrays are deeply equal.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;Two possibly &lt;tt&gt;null&lt;/tt&gt; elements &lt;tt&gt;e1&lt;/tt&gt; and &lt;tt&gt;e2&lt;/tt&gt; are</span></span><br><span class="line"><span class="comment"> * deeply equal if any of the following conditions hold:</span></span><br><span class="line"><span class="comment"> * &lt;ul&gt;</span></span><br><span class="line"><span class="comment"> *    &lt;li&gt; &lt;tt&gt;e1&lt;/tt&gt; and &lt;tt&gt;e2&lt;/tt&gt; are both arrays of object reference</span></span><br><span class="line"><span class="comment"> *         types, and &lt;tt&gt;Arrays.deepEquals(e1, e2) would return true&lt;/tt&gt;</span></span><br><span class="line"><span class="comment"> *    &lt;li&gt; &lt;tt&gt;e1&lt;/tt&gt; and &lt;tt&gt;e2&lt;/tt&gt; are arrays of the same primitive</span></span><br><span class="line"><span class="comment"> *         type, and the appropriate overloading of</span></span><br><span class="line"><span class="comment"> *         &lt;tt&gt;Arrays.equals(e1, e2)&lt;/tt&gt; would return true.</span></span><br><span class="line"><span class="comment"> *    &lt;li&gt; &lt;tt&gt;e1 == e2&lt;/tt&gt;</span></span><br><span class="line"><span class="comment"> *    &lt;li&gt; &lt;tt&gt;e1.equals(e2)&lt;/tt&gt; would return true.</span></span><br><span class="line"><span class="comment"> * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment"> * Note that this definition permits &lt;tt&gt;null&lt;/tt&gt; elements at any depth.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;If either of the specified arrays contain themselves as elements</span></span><br><span class="line"><span class="comment"> * either directly or indirectly through one or more levels of arrays,</span></span><br><span class="line"><span class="comment"> * the behavior of this method is undefined.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a1 one array to be tested for equality</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a2 the other array to be tested for equality</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &lt;tt&gt;true&lt;/tt&gt; if the two arrays are equal</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> #equals(Object[],Object[])</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> Objects#deepEquals(Object, Object)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.5</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">deepEquals</span><span class="params">(Object[] a1, Object[] a2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (a1 == a2)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (a1 == <span class="keyword">null</span> || a2==<span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">int</span> length = a1.length;</span><br><span class="line">    <span class="keyword">if</span> (a2.length != length)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        Object e1 = a1[i];</span><br><span class="line">        Object e2 = a2[i];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (e1 == e2)</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span> (e1 == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Figure out whether the two elements are equal</span></span><br><span class="line">        <span class="keyword">boolean</span> eq = deepEquals0(e1, e2);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!eq)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">deepEquals0</span><span class="params">(Object e1, Object e2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">assert</span> e1 != <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">boolean</span> eq;</span><br><span class="line">    <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> Object[] &amp;&amp; e2 <span class="keyword">instanceof</span> Object[])</span><br><span class="line">        eq = deepEquals ((Object[]) e1, (Object[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">byte</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">byte</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">byte</span>[]) e1, (<span class="keyword">byte</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">short</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">short</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">short</span>[]) e1, (<span class="keyword">short</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">int</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">int</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">int</span>[]) e1, (<span class="keyword">int</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">long</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">long</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">long</span>[]) e1, (<span class="keyword">long</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">char</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">char</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">char</span>[]) e1, (<span class="keyword">char</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">float</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">float</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">float</span>[]) e1, (<span class="keyword">float</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">double</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">double</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">double</span>[]) e1, (<span class="keyword">double</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (e1 <span class="keyword">instanceof</span> <span class="keyword">boolean</span>[] &amp;&amp; e2 <span class="keyword">instanceof</span> <span class="keyword">boolean</span>[])</span><br><span class="line">        eq = equals((<span class="keyword">boolean</span>[]) e1, (<span class="keyword">boolean</span>[]) e2);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        eq = e1.equals(e2);</span><br><span class="line">    <span class="keyword">return</span> eq;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    String[][] name1= &#123;&#123;<span class="string">"G"</span>,<span class="string">"A"</span>,<span class="string">"T"</span>&#125;,&#123;<span class="string">"Z"</span>,<span class="string">"h"</span>,<span class="string">"u"</span>,<span class="string">"u"</span>,<span class="string">"u"</span>&#125;&#125;;</span><br><span class="line">    String[][] name2= &#123;&#123;<span class="string">"G"</span>,<span class="string">"A"</span>,<span class="string">"T"</span>&#125;,&#123;<span class="string">"Z"</span>,<span class="string">"h"</span>,<span class="string">"u"</span>,<span class="string">"u"</span>,<span class="string">"u"</span>&#125;&#125;;</span><br><span class="line">    System.out.println(Arrays.equals(name1,name2));  <span class="comment">//false</span></span><br><span class="line">    System.out.println(Arrays.deepEquals(name1,name2));  <span class="comment">//true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-fill"><a href="#6-fill" class="headerlink" title="6. fill"></a>6. fill</h2><p>该系列的方法用于给数组复制，并能指定某个范围的赋值。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200427/100737684.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Assigns the specified int value to each element of the specified array</span></span><br><span class="line"><span class="comment">    * of ints.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> a the array to be filled</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> val the value to be stored in all elements of the array</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 给int数组所有元素赋值val</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, len = a.length; i &lt; len; i++)</span><br><span class="line">           a[i] = val;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Assigns the specified int value to each element of the specified</span></span><br><span class="line"><span class="comment">    * range of the specified array of ints.  The range to be filled</span></span><br><span class="line"><span class="comment">    * extends from index &lt;tt&gt;fromIndex&lt;/tt&gt;, inclusive, to index</span></span><br><span class="line"><span class="comment">    * &lt;tt&gt;toIndex&lt;/tt&gt;, exclusive.  (If &lt;tt&gt;fromIndex==toIndex&lt;/tt&gt;, the</span></span><br><span class="line"><span class="comment">    * range to be filled is empty.)</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> a the array to be filled</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> fromIndex the index of the first element (inclusive) to be</span></span><br><span class="line"><span class="comment">    *        filled with the specified value</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> toIndex the index of the last element (exclusive) to be</span></span><br><span class="line"><span class="comment">    *        filled with the specified value</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> val the value to be stored in all elements of the array</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> IllegalArgumentException if &lt;tt&gt;fromIndex &amp;gt; toIndex&lt;/tt&gt;</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> ArrayIndexOutOfBoundsException if &lt;tt&gt;fromIndex &amp;lt; 0&lt;/tt&gt; or</span></span><br><span class="line"><span class="comment">    *         &lt;tt&gt;toIndex &amp;gt; a.length&lt;/tt&gt;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 给int数组指定从fromIndex开始赋值到toIndex-1 (左闭右开)</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> fromIndex, <span class="keyword">int</span> toIndex, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">       rangeCheck(a.length, fromIndex, toIndex);</span><br><span class="line">       <span class="keyword">for</span> (<span class="keyword">int</span> i = fromIndex; i &lt; toIndex; i++)</span><br><span class="line">           a[i] = val;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 其中rangeCheck是检查范围是否正确</span></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Checks that &#123;<span class="doctag">@code</span> fromIndex&#125; and &#123;<span class="doctag">@code</span> toIndex&#125; are in</span></span><br><span class="line"><span class="comment">    * the range and throws an exception if they aren't.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">rangeCheck</span><span class="params">(<span class="keyword">int</span> arrayLength, <span class="keyword">int</span> fromIndex, <span class="keyword">int</span> toIndex)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (fromIndex &gt; toIndex) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</span><br><span class="line">                   <span class="string">"fromIndex("</span> + fromIndex + <span class="string">") &gt; toIndex("</span> + toIndex + <span class="string">")"</span>);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (fromIndex &lt; <span class="number">0</span>) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> ArrayIndexOutOfBoundsException(fromIndex);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (toIndex &gt; arrayLength) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> ArrayIndexOutOfBoundsException(toIndex);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="7-toString-和-deepToString"><a href="#7-toString-和-deepToString" class="headerlink" title="7. toString 和 deepToString"></a>7. toString 和 deepToString</h2><ul>
+<li>toString用来打印一维数组</li>
+<li>deepToString用来打印多层次嵌套的数组元素</li>
+</ul>
+<p><strong>toString源码如下：</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a string representation of the contents of the specified array.</span></span><br><span class="line"><span class="comment"> * The string representation consists of a list of the array's elements,</span></span><br><span class="line"><span class="comment"> * enclosed in square brackets (&lt;tt&gt;"[]"&lt;/tt&gt;).  Adjacent elements are</span></span><br><span class="line"><span class="comment"> * separated by the characters &lt;tt&gt;", "&lt;/tt&gt; (a comma followed by a</span></span><br><span class="line"><span class="comment"> * space).  Elements are converted to strings as by</span></span><br><span class="line"><span class="comment"> * &lt;tt&gt;String.valueOf(int)&lt;/tt&gt;.  Returns &lt;tt&gt;"null"&lt;/tt&gt; if &lt;tt&gt;a&lt;/tt&gt; is</span></span><br><span class="line"><span class="comment"> * &lt;tt&gt;null&lt;/tt&gt;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a the array whose string representation to return</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> a string representation of &lt;tt&gt;a&lt;/tt&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.5</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">toString</span><span class="params">(<span class="keyword">int</span>[] a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"null"</span>;</span><br><span class="line">    <span class="keyword">int</span> iMax = a.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (iMax == -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"[]"</span>;</span><br><span class="line"></span><br><span class="line">    StringBuilder b = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    b.append(<span class="string">'['</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; ; i++) &#123;</span><br><span class="line">        b.append(a[i]);</span><br><span class="line">        <span class="keyword">if</span> (i == iMax)</span><br><span class="line">            <span class="keyword">return</span> b.append(<span class="string">']'</span>).toString();</span><br><span class="line">        b.append(<span class="string">", "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>deepToString源码如下：</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a string representation of the "deep contents" of the specified</span></span><br><span class="line"><span class="comment"> * array.  If the array contains other arrays as elements, the string</span></span><br><span class="line"><span class="comment"> * representation contains their contents and so on.  This method is</span></span><br><span class="line"><span class="comment"> * designed for converting multidimensional arrays to strings.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;The string representation consists of a list of the array's</span></span><br><span class="line"><span class="comment"> * elements, enclosed in square brackets (&lt;tt&gt;"[]"&lt;/tt&gt;).  Adjacent</span></span><br><span class="line"><span class="comment"> * elements are separated by the characters &lt;tt&gt;", "&lt;/tt&gt; (a comma</span></span><br><span class="line"><span class="comment"> * followed by a space).  Elements are converted to strings as by</span></span><br><span class="line"><span class="comment"> * &lt;tt&gt;String.valueOf(Object)&lt;/tt&gt;, unless they are themselves</span></span><br><span class="line"><span class="comment"> * arrays.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;If an element &lt;tt&gt;e&lt;/tt&gt; is an array of a primitive type, it is</span></span><br><span class="line"><span class="comment"> * converted to a string as by invoking the appropriate overloading of</span></span><br><span class="line"><span class="comment"> * &lt;tt&gt;Arrays.toString(e)&lt;/tt&gt;.  If an element &lt;tt&gt;e&lt;/tt&gt; is an array of a</span></span><br><span class="line"><span class="comment"> * reference type, it is converted to a string as by invoking</span></span><br><span class="line"><span class="comment"> * this method recursively.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;To avoid infinite recursion, if the specified array contains itself</span></span><br><span class="line"><span class="comment"> * as an element, or contains an indirect reference to itself through one</span></span><br><span class="line"><span class="comment"> * or more levels of arrays, the self-reference is converted to the string</span></span><br><span class="line"><span class="comment"> * &lt;tt&gt;"[...]"&lt;/tt&gt;.  For example, an array containing only a reference</span></span><br><span class="line"><span class="comment"> * to itself would be rendered as &lt;tt&gt;"[[...]]"&lt;/tt&gt;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;This method returns &lt;tt&gt;"null"&lt;/tt&gt; if the specified array</span></span><br><span class="line"><span class="comment"> * is &lt;tt&gt;null&lt;/tt&gt;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> a the array whose string representation to return</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> a string representation of &lt;tt&gt;a&lt;/tt&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> #toString(Object[])</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.5</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">deepToString</span><span class="params">(Object[] a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"null"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> bufLen = <span class="number">20</span> * a.length;</span><br><span class="line">    <span class="keyword">if</span> (a.length != <span class="number">0</span> &amp;&amp; bufLen &lt;= <span class="number">0</span>)</span><br><span class="line">        bufLen = Integer.MAX_VALUE;</span><br><span class="line">    StringBuilder buf = <span class="keyword">new</span> StringBuilder(bufLen);</span><br><span class="line">    deepToString(a, buf, <span class="keyword">new</span> HashSet&lt;Object[]&gt;());</span><br><span class="line">    <span class="keyword">return</span> buf.toString();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deepToString</span><span class="params">(Object[] a, StringBuilder buf,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 Set&lt;Object[]&gt; dejaVu)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="keyword">null</span>) &#123;</span><br><span class="line">        buf.append(<span class="string">"null"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> iMax = a.length - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (iMax == -<span class="number">1</span>) &#123;</span><br><span class="line">        buf.append(<span class="string">"[]"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    dejaVu.add(a);</span><br><span class="line">    buf.append(<span class="string">'['</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; ; i++) &#123;</span><br><span class="line"></span><br><span class="line">        Object element = a[i];</span><br><span class="line">        <span class="keyword">if</span> (element == <span class="keyword">null</span>) &#123;</span><br><span class="line">            buf.append(<span class="string">"null"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Class&lt;?&gt; eClass = element.getClass();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (eClass.isArray()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (eClass == <span class="keyword">byte</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((byte[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">short</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((short[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">int</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((int[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">long</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((long[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">char</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((char[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">float</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((float[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">double</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((double[]) element));</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (eClass == <span class="keyword">boolean</span>[]<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line">                    buf.append(toString((boolean[]) element));</span><br><span class="line">                <span class="keyword">else</span> &#123; <span class="comment">// element is an array of object references</span></span><br><span class="line">                    <span class="keyword">if</span> (dejaVu.contains(element))</span><br><span class="line">                        buf.append(<span class="string">"[...]"</span>);</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                        deepToString((Object[])element, buf, dejaVu);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;  <span class="comment">// element is non-null and not an array</span></span><br><span class="line">                buf.append(element.toString());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i == iMax)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        buf.append(<span class="string">", "</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    buf.append(<span class="string">']'</span>);</span><br><span class="line">    dejaVu.remove(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>参考文档：</strong><a href="https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html</a></p>
 ]]></content>
       <tags>
         <tag>JDK源码分析</tag>
@@ -14383,15 +14443,6 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
-    <title>Mysql-视图</title>
-    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Mysql</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mysql-索引</title>
     <url>/2019/02/21/Mysql/Mysql-%E7%B4%A2%E5%BC%95/</url>
     <content><![CDATA[<h1 id="Mysql-索引"><a href="#Mysql-索引" class="headerlink" title="Mysql 索引"></a>Mysql 索引</h1><h2 id="1-索引的作用"><a href="#1-索引的作用" class="headerlink" title="1. 索引的作用"></a>1. 索引的作用</h2><ul>
@@ -14457,6 +14508,15 @@ semaphore.acquire()
 <li>索引一般应该加载查找条件的字段上</li>
 </ul>
 ]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mysql-视图</title>
+    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
+    <content><![CDATA[]]></content>
       <tags>
         <tag>数据库</tag>
         <tag>Mysql</tag>
