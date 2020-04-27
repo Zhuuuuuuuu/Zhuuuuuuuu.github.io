@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">78字</span>
+            <span class="post-count">509字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">2分钟</span>
         </span>
     </span>
 </div>
@@ -126,6 +126,56 @@
 <li>阻塞等待</li>
 <li>超时等待</li>
 </ul>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>抛出异常</th>
+<th>有返回值,不抛出异常</th>
+<th>阻塞等待</th>
+<th>超时等待</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>添加</td>
+<td>add()</td>
+<td>offer()</td>
+<td>put()</td>
+<td>offer(“加入的内容”,seconds,TimeUnit.Seconds)</td>
+</tr>
+<tr>
+<td>移除</td>
+<td>remove()</td>
+<td>poll()</td>
+<td>take()</td>
+<td>poll(seconds,TimeUnit.Seconds)</td>
+</tr>
+<tr>
+<td>判断队列首</td>
+<td>element()</td>
+<td>peek()</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>1. 抛出异常</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestBq</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        抛出异常</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        test1();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 队列的大小</span></span><br><span class="line">        ArrayBlockingQueue blockingQueue = <span class="keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="number">3</span>);</span><br><span class="line">        System.out.println(blockingQueue.add(<span class="string">"a"</span>));</span><br><span class="line">        System.out.println(blockingQueue.add(<span class="string">"b"</span>));</span><br><span class="line">        System.out.println(blockingQueue.add(<span class="string">"c"</span>));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//        // 抛出异常java.lang.IllegalStateException: Queue full</span></span><br><span class="line"><span class="comment">//        System.out.println(blockingQueue.add("d"));</span></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"==============="</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 移除操作</span></span><br><span class="line">        System.out.println(blockingQueue.remove());</span><br><span class="line">        System.out.println(blockingQueue.remove());</span><br><span class="line">        System.out.println(blockingQueue.remove());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 队列为空之后 报错 java.util.NoSuchElementException</span></span><br><span class="line">        System.out.println(blockingQueue.remove());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>2. 不抛出异常,有返回值</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ArrayBlockingQueue blockingQueue = <span class="keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    System.out.println(blockingQueue.offer(<span class="string">"a"</span>));</span><br><span class="line">    System.out.println(blockingQueue.offer(<span class="string">"b"</span>));</span><br><span class="line">    System.out.println(blockingQueue.offer(<span class="string">"c"</span>));</span><br><span class="line">    System.out.println(blockingQueue.offer(<span class="string">"d"</span>)); <span class="comment">// 不抛出异常</span></span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">"==============="</span>);</span><br><span class="line">    System.out.println(blockingQueue.poll());</span><br><span class="line">    System.out.println(blockingQueue.poll());</span><br><span class="line">    System.out.println(blockingQueue.poll());</span><br><span class="line">    System.out.println(blockingQueue.poll());  <span class="comment">// null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 不抛出异常</span></span><br><span class="line">    test2();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>3. 一直阻塞</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test3</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="comment">// 等待阻塞</span></span><br><span class="line">    ArrayBlockingQueue blockingQueue = <span class="keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="number">3</span>);</span><br><span class="line">    <span class="comment">// 一直阻塞</span></span><br><span class="line">    blockingQueue.put(<span class="string">"a"</span>);</span><br><span class="line">    blockingQueue.put(<span class="string">"b"</span>);</span><br><span class="line">    blockingQueue.put(<span class="string">"c"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 队列没有位置，一直等待</span></span><br><span class="line">    blockingQueue.put(<span class="string">"d"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">"==============="</span>);</span><br><span class="line">    System.out.println(blockingQueue.take());</span><br><span class="line">    System.out.println(blockingQueue.take());</span><br><span class="line">    System.out.println(blockingQueue.take());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一直阻塞</span></span><br><span class="line">    test3();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>4. 超时退出</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test4</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="comment">//超时等待</span></span><br><span class="line">    ArrayBlockingQueue blockingQueue = <span class="keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    blockingQueue.offer(<span class="string">"a"</span>);</span><br><span class="line">    blockingQueue.offer(<span class="string">"b"</span>);</span><br><span class="line">    blockingQueue.offer(<span class="string">"c"</span>);</span><br><span class="line">    blockingQueue.offer(<span class="string">"d"</span>, <span class="number">2</span>,TimeUnit.SECONDS); <span class="comment">// 如果加d，只能2秒，超时就退出</span></span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">"==============="</span>);</span><br><span class="line">    System.out.println(blockingQueue.poll());</span><br><span class="line">    System.out.println(blockingQueue.poll());</span><br><span class="line">    System.out.println(blockingQueue.poll());</span><br><span class="line">    System.out.println(blockingQueue.poll(<span class="number">2</span>, TimeUnit.SECONDS));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="comment">//超时等待</span></span><br><span class="line">    test4();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
