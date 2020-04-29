@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Leetcode-003 |  朱酱酱的学习博客
+    Leetcode-003-无重复字符的最长子串 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-Leetcode/Leetcode-003" class="article article-type-post" itemscope
+  <article id="post-Leetcode/Leetcode-003-无重复字符的最长子串" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Leetcode-003
+  Leetcode-003-无重复字符的最长子串
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2019/05/15/Leetcode/Leetcode-003/" class="article-date">
-  <time datetime="2019-05-15T07:52:53.000Z" itemprop="datePublished">2019-05-15</time>
+      <a href="/2019/08/15/Leetcode/Leetcode-003-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" class="article-date">
+  <time datetime="2019-08-15T03:52:53.000Z" itemprop="datePublished">2019-08-15</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">637字</span>
+            <span class="post-count">910字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -99,29 +99,71 @@
       
 
       
-      <h1 id="Leecode-003-Longest-Substring-Without-Repeating-Characters"><a href="#Leecode-003-Longest-Substring-Without-Repeating-Characters" class="headerlink" title="Leecode-003 [Longest Substring Without Repeating Characters]"></a>Leecode-003 [Longest Substring Without Repeating Characters]</h1><h2 id="思路：快慢指针"><a href="#思路：快慢指针" class="headerlink" title="思路：快慢指针"></a>思路：快慢指针</h2><p><strong>Solution：快慢指针</strong></p>
-<ul>
-<li>需要的参数：<ul>
-<li>left指针：初始化为0</li>
-<li>right指针： 初始化为0</li>
-<li>boolean[128]： 长度的数组，代表ASCII的字符集</li>
-<li>max ： 最大值，初始化为0</li>
-</ul>
-</li>
-</ul>
+      <h1 id="Leecode-003-Longest-Substring-Without-Repeating-Characters"><a href="#Leecode-003-Longest-Substring-Without-Repeating-Characters" class="headerlink" title="Leecode-003-Longest Substring Without Repeating Characters"></a>Leecode-003-<a href="https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/" target="_blank" rel="noopener">Longest Substring Without Repeating Characters</a></h1><h2 id="思路：滑动窗口"><a href="#思路：滑动窗口" class="headerlink" title="思路：滑动窗口"></a>思路：滑动窗口</h2><p><strong>题目描述</strong></p>
+<p>找出字符串中的无重复子字符串的最大值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: &quot;abcabcbb&quot;</span><br><span class="line">输出: 3 </span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;abc&quot;，所以其长度为 3。</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: &quot;bbbbb&quot;</span><br><span class="line">输出: 1</span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;b&quot;，所以其长度为 1。</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">输入: &quot;pwwkew&quot;</span><br><span class="line">输出: 3</span><br><span class="line">解释: 因为无重复字符的最长子串是 &quot;wke&quot;，所以其长度为 3。</span><br><span class="line">     请注意，你的答案必须是 子串 的长度，&quot;pwke&quot; 是一个子序列，不是子串。</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 
+<p><strong>Solution</strong></p>
 <ul>
-<li>步骤：<ul>
-<li>right 右指针先遍历到第一个重复的字符</li>
-<li>如果遍历到重复的字符,先计算一次长度，同时如果left&lt;right并且左右指针对应的字符不一样的话，把left指针对应的字符剔除boolean数组,同时left向前移动一位，就这样while循环一直剔除left到right和left相同为止</li>
-<li>第二层while循环结束后，right和left同时向前移动一位</li>
-<li>最后再计算一次结尾处的长度</li>
+<li>暴力解法时间复杂度太高会达到 <code>O(n^2)</code>，面试如果用的话，那就直接GG了，所以本篇不说这种方法（并且也不需要去用）</li>
+<li><strong>接下来介绍本题最热门的解法：滑动窗口</strong><ul>
+<li>定义一个map数据结构存储（k,v），其中key值是字符，value值是字符位置+1,加1表示从字符位置后一个才开始不重复。</li>
+<li>定义不重复子串的开始位置为start,结束位置是end</li>
+<li>随着end不断向后遍历，会遇到[start,end]区间内有字符相同的情况，此时将字符作为key值，获取它的value值，并更新start,此时新的[start,end]之内就不会存在重复字符。</li>
+<li>无论是否更新start,都会更新map和结果ans。</li>
 </ul>
 </li>
 </ul>
+<p><strong>举例子：</strong></p>
+<p>需要注意的是下面这个例子（因为hashmap的key不能重复，所以下面的重复key是不完全标准的写法，但是为了使更新value的过程变得明显，所以key这里只是看上去重复而已，实际并没有重复）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"pwwkew"</span>为例</span><br><span class="line"></span><br><span class="line">		p	w	w	k	e	w</span><br><span class="line">key		p	w	w	k	e	w	</span><br><span class="line">value	1	2	3	4	5	6</span><br><span class="line">ans		1	2	2	2	3	3</span><br><span class="line">end		0	1	2	3	4	5</span><br><span class="line">start	0	0	2	2	2	3</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>图解如下：</strong></p>
+<ol>
+<li>第一步</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/104812605.png" alt="mark"></p>
+<ol start="2">
+<li>第二步</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/104834678.png" alt="mark"></p>
+<ol start="3">
+<li>第三步</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/104854310.png" alt="mark"></p>
+<ol start="4">
+<li>第四步</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/105024605.png" alt="mark"></p>
+<ol start="5">
+<li>第五步</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/105050674.png" alt="mark"></p>
+<ol start="6">
+<li>第六步</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/105110806.png" alt="mark"></p>
 <h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s == <span class="keyword">null</span> || s.length() == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">0</span>,right = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">boolean</span>[] used = <span class="keyword">new</span> <span class="keyword">boolean</span>[<span class="number">128</span>];</span><br><span class="line">        <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(right &lt; n)&#123; <span class="comment">//右指针先遍历到第一个重复的字符</span></span><br><span class="line">            <span class="keyword">if</span> (used[s.charAt(right)] == <span class="keyword">false</span>)&#123;</span><br><span class="line">                used[s.charAt(right)] = <span class="keyword">true</span>;</span><br><span class="line">                right ++;</span><br><span class="line">            &#125; <span class="keyword">else</span>&#123; <span class="comment">//如果遍历到了重复的字符</span></span><br><span class="line">                max = Math.max(max,right-left);</span><br><span class="line">                <span class="keyword">while</span>(left &lt; right &amp;&amp; s.charAt(right) != s.charAt(left))&#123;</span><br><span class="line">                    <span class="comment">//这样while循环一直剔除left到right和left相同为止</span></span><br><span class="line">                    used[s.charAt(left)] = <span class="keyword">false</span> ; <span class="comment">//把left指针对应的字符剔除boolean数组</span></span><br><span class="line">                    left ++ ;</span><br><span class="line">                &#125; <span class="comment">//第二层while循环结束后，right和left同时向前移动一位</span></span><br><span class="line">                left ++;</span><br><span class="line">                right ++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        max = Math.max(max,right - left); <span class="comment">//最后再计算一次结尾处的长度</span></span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s.length(), ans = <span class="number">0</span>;</span><br><span class="line">        Map&lt;Character, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> end = <span class="number">0</span>, start = <span class="number">0</span>; end &lt; n; end++) &#123;</span><br><span class="line">            <span class="keyword">char</span> alpha = s.charAt(end);</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(alpha)) &#123;</span><br><span class="line">                start = Math.max(map.get(alpha), start);</span><br><span class="line">            &#125;</span><br><span class="line">            ans = Math.max(ans, end - start + <span class="number">1</span>);</span><br><span class="line">            map.put(s.charAt(end), end + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>时间复杂度：O(n)，遍历一遍字符串的时间开销</li>
+<li>空间复杂度:   O(n) ,额外的hashmap存放元素</li>
+</ul>
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    String s = <span class="string">"pwwkew"</span>;</span><br><span class="line">    Solution solution = <span class="keyword">new</span> Solution();</span><br><span class="line">    System.out.println(solution.lengthOfLongestSubstring(s));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -211,7 +253,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/05/15/Leetcode/Leetcode-003/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/08/15/Leetcode/Leetcode-003-%E6%97%A0%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E6%9C%80%E9%95%BF%E5%AD%90%E4%B8%B2/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -229,19 +271,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2019/05/25/Leetcode/Leetcode-023-%E5%90%88%E5%B9%B6k%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/" class="article-nav-link">
+      <a href="/2019/08/15/Leetcode/Leetcode-083/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Leetcode-023-合并K个有序链表
+            Leetcode-083
           
         </div>
       </a>
     
     
-      <a href="/2019/05/12/Leetcode/Leetcode-001-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-nav-link">
+      <a href="/2019/08/12/Leetcode/Leetcode-345/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Leetcode-001-两数之和</div>
+        <div class="article-nav-title">Leetcode-345</div>
       </a>
     
   </nav>
