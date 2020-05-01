@@ -1,6 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Leetcode-213-打家劫舍II</title>
+    <url>/2020/05/01/Leetcode/Leetcode-213-%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8DII/</url>
+    <content><![CDATA[<h1 id="Leecode-213-House-Robber-II"><a href="#Leecode-213-House-Robber-II" class="headerlink" title="Leecode-213-House Robber II"></a>Leecode-213-<a href="https://leetcode-cn.com/problems/house-robber-ii/" target="_blank" rel="noopener">House Robber II</a></h1><h2 id="思路：动态规划"><a href="#思路：动态规划" class="headerlink" title="思路：动态规划"></a>思路：动态规划</h2><p>题目描述：</p>
+<p>你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。这个地方所有的房屋都围成一圈，这意味着第一个房屋和最后一个房屋是紧挨着的。同时，相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入: [2,3,2]</span><br><span class="line">输出: 3</span><br><span class="line">解释: 你不能先偷窃 1 号房屋（金额 &#x3D; 2），然后偷窃 3 号房屋（金额 &#x3D; 2）, 因为他们是相邻的。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入: [1,2,3,1]</span><br><span class="line">输出: 4</span><br><span class="line">解释: 你可以先偷窃 1 号房屋（金额 &#x3D; 1），然后偷窃 3 号房屋（金额 &#x3D; 3）。</span><br><span class="line">     偷窃到的最高金额 &#x3D; 1 + 3 &#x3D; 4 。</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+
+
+<p>这里在Leetcode198打家劫舍的基础上进行了条件追加：</p>
+<p><strong>本质上：其实就是分成两个问题</strong></p>
+<ul>
+<li>在不偷窃第一个房子的情况下，求出最大可以抢的金额p1</li>
+<li>在不偷窃最后一间房子的情况下，求出最大可以抢的金额p2</li>
+<li>比较p1和p2。取最大值</li>
+</ul>
+<p><strong>Solution：动态规划</strong></p>
+<ul>
+<li><p>思路：<strong>环状排列</strong>意味着<strong>第一个房子和最后一个房子</strong>中只能选出一个进行偷窃</p>
+</li>
+<li><p>状态定义：设动态规划列表 dp ，dp[i] 代表前 i个房子在满足条件下的能偷窃到的最高金额。</p>
+</li>
+<li><p>初始状态</p>
+<pre><code>dp[0] = 0;
+dp[1] = nums[0];</code></pre></li>
+<li><p>状态转移方程：</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dp[i] &#x3D; Math.max(dp[i-1], dp[i-2] + nums[i-1]);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>返回值</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">返回dp数组的最后一个元素即为结果</span><br><span class="line">return dp[len];</span><br><span class="line">return dp[-1];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最终返回值</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 分割成两个子问题</span></span><br><span class="line"><span class="comment">// 1. 最后一家不偷情况下的金额</span></span><br><span class="line"><span class="comment">// 2. 第一家不偷情况下的金额</span></span><br><span class="line"><span class="comment">// 3. 取最大值</span></span><br><span class="line"><span class="keyword">return</span> Math.max(</span><br><span class="line">    rob_helper(Arrays.copyOfRange(nums,<span class="number">0</span>,nums.length-<span class="number">1</span>))  <span class="comment">// nums[0,n-1]</span></span><br><span class="line">    ,rob_helper(Arrays.copyOfRange(nums,<span class="number">1</span>,nums.length)));  <span class="comment">// nums[1,n]</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rob_helper</span><span class="params">(<span class="keyword">int</span>[] nums)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (len == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// dp数组的长度是nums数组的长度加1</span></span><br><span class="line">        <span class="comment">// 因为dp[0] = 0</span></span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// dp数组初始化</span></span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        dp[<span class="number">1</span>] = nums[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 状态转移方程</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">2</span>; i &lt;= len; i++) &#123;</span><br><span class="line">            dp[i] = Math.max(dp[i-<span class="number">1</span>], dp[i-<span class="number">2</span>] + nums[i-<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 返回dp数组的最后一个元素即为结果</span></span><br><span class="line">        <span class="keyword">return</span> dp[len];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rob</span><span class="params">(<span class="keyword">int</span>[] nums)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        <span class="keyword">if</span> (len == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (len == <span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> nums[<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Math.max(rob_helper(Arrays.copyOfRange(nums,<span class="number">0</span>,nums.length-<span class="number">1</span>)),rob_helper(Arrays.copyOfRange(nums,<span class="number">1</span>,nums.length)));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] nums = &#123;<span class="number">2</span>,<span class="number">3</span>,<span class="number">2</span>&#125;;</span><br><span class="line">    Solution solution = <span class="keyword">new</span> Solution();</span><br><span class="line">    System.out.println(solution.rob(nums));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>时间复杂度：O(n)，遍历一次nums需要的时间。</li>
+<li>空间复杂度：O(n)，需要额外的dp数组的空间。</li>
+</ul>
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-148</title>
     <url>/2020/05/01/Leetcode/Leetcode-148-%E6%8E%92%E5%BA%8F%E9%93%BE%E8%A1%A8/</url>
     <content><![CDATA[<h1 id="Leecode-148-Sort-List"><a href="#Leecode-148-Sort-List" class="headerlink" title="Leecode-148-Sort List"></a>Leecode-148-<a href="https://leetcode-cn.com/problems/sort-list/" target="_blank" rel="noopener">Sort List</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p><strong>Solution：</strong></p>
@@ -41,10 +109,9 @@
     <url>/2020/04/30/JUC/JUC-11-%E6%B5%81%E5%BC%8F%E8%AE%A1%E7%AE%97/</url>
     <content><![CDATA[<h1 id="JUC-11-Stream流式计算"><a href="#JUC-11-Stream流式计算" class="headerlink" title="JUC-11-Stream流式计算"></a>JUC-11-Stream流式计算</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>大数据时代：存储+计算、</p>
 <ul>
-<li><p>存储：集合，Mysql</p>
-</li>
-<li><p><strong>真正的计算都应该交给流去操作。（流计算实际上是链式编程）</strong></p>
-</li>
+<li>存储：集合，Mysql</li>
+<li><strong>真正的计算都应该交给流去操作。（流计算实际上是链式编程）</strong></li>
+<li>java.util.Stream接口</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200430/214757235.png" alt="mark"></p>
 <a id="more"></a>
@@ -65,8 +132,8 @@
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -97,11 +164,11 @@
 
 
 <p>测试用例:</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Function;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.function.Function;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">函数型接口：</span></span><br><span class="line"><span class="comment">有一个输入参数</span></span><br><span class="line"><span class="comment">有一个输出类型</span></span><br><span class="line"><span class="comment">可以用lambada表达式简化</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">demo01</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 工具类</span></span><br><span class="line">        <span class="comment">// 输出输入的值</span></span><br><span class="line">        <span class="comment">// 方式一：</span></span><br><span class="line"><span class="comment">//        Function&lt;String,String&gt; function = new Function&lt;String,String&gt;() &#123;</span></span><br><span class="line"><span class="comment">//            @Override</span></span><br><span class="line"><span class="comment">//            public String apply(String str) &#123;</span></span><br><span class="line"><span class="comment">//                return str;</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line"><span class="comment">//        &#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方式二</span></span><br><span class="line">        Function function = (str)-&gt;&#123;<span class="keyword">return</span> str;&#125;;</span><br><span class="line">        System.out.println(function.apply(<span class="string">"asdasd"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Function;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.function.Function;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">函数型接口：</span></span><br><span class="line"><span class="comment">有一个输入参数</span></span><br><span class="line"><span class="comment">有一个输出类型</span></span><br><span class="line"><span class="comment">可以用lambada表达式简化</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">demo01</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 工具类</span></span><br><span class="line">        <span class="comment">// 输出输入的值</span></span><br><span class="line">        <span class="comment">// 方式一：</span></span><br><span class="line"><span class="comment">//        Function&lt;String,String&gt; function = new Function&lt;String,String&gt;() &#123;</span></span><br><span class="line"><span class="comment">//            @Override</span></span><br><span class="line"><span class="comment">//            public String apply(String str) &#123;</span></span><br><span class="line"><span class="comment">//                return str;</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line"><span class="comment">//        &#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方式二</span></span><br><span class="line">        Function&lt;String,String&gt; function = (str)-&gt;&#123;<span class="keyword">return</span> str;&#125;;</span><br><span class="line">        System.out.println(function.apply(<span class="string">"asdasd"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="3-Predicate-函数式接口"><a href="#3-Predicate-函数式接口" class="headerlink" title="3. Predicate 函数式接口"></a>3. Predicate 函数式接口</h2><p>底层源码分析：</p>
+<h2 id="3-Predicate-断定型接口"><a href="#3-Predicate-断定型接口" class="headerlink" title="3. Predicate 断定型接口"></a>3. Predicate 断定型接口</h2><p>底层源码分析：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Predicate</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Evaluates this predicate on the given argument.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the input argument</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; if the input argument matches the predicate,</span></span><br><span class="line"><span class="comment">     * otherwise &#123;<span class="doctag">@code</span> false&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">test</span><span class="params">(T t)</span></span>;</span><br></pre></td></tr></table></figure>
 
 
@@ -122,7 +189,7 @@
 
 
 <h2 id="5-Supplier-供给型接口"><a href="#5-Supplier-供给型接口" class="headerlink" title="5. Supplier 供给型接口"></a>5. Supplier 供给型接口</h2><p>底层源码分析：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Supplier</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Gets a result.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">T <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;s</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Supplier</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Gets a result.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">T <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>举例分析：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Function;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.function.Supplier;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">Supplier&lt;T&gt;:没有参数，只有返回值</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">demo04</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 方式一：</span></span><br><span class="line"><span class="comment">//        Supplier&lt;String&gt; supplier = new Supplier&lt;String&gt;() &#123;</span></span><br><span class="line"><span class="comment">//            @Override</span></span><br><span class="line"><span class="comment">//            public String get() &#123;</span></span><br><span class="line"><span class="comment">//                return "朱酱酱";</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line"><span class="comment">//        &#125;;</span></span><br><span class="line"><span class="comment">//        System.out.println(supplier.get());</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方式二：</span></span><br><span class="line">        Supplier&lt;String&gt; supplier = ()-&gt;&#123;<span class="keyword">return</span> <span class="string">"朱酱酱"</span>;&#125;;</span><br><span class="line">        System.out.println(supplier.get());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -131,8 +198,8 @@
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -163,7 +230,7 @@
 
 
 <h2 id="3-七大参数"><a href="#3-七大参数" class="headerlink" title="3. 七大参数"></a>3. 七大参数</h2><p>底层源码分析：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</span><br><span class="line">            (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</span><br><span class="line">                                    <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                    <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</span><br><span class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</span><br><span class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 本质：以上方法开启了ThreadPoolExecutor</span></span><br><span class="line"><span class="comment">// 七大参数：</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,  // 核心线程池大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSize,  // 最大线程池大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,	// 超时了没有人用就会释放</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,		// 超市单位</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, // 阻塞队列</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,		// 线程工厂</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler  // 拒绝策略</span></span></span><br><span class="line"><span class="function"><span class="params">                         )</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||</span><br><span class="line">        maximumPoolSize &lt;= <span class="number">0</span> ||</span><br><span class="line">        maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">        keepAliveTime &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">    <span class="keyword">if</span> (workQueue == <span class="keyword">null</span> || threadFactory == <span class="keyword">null</span> || handler == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">this</span>.acc = System.getSecurityManager() == <span class="keyword">null</span> ?</span><br><span class="line">        <span class="keyword">null</span> :</span><br><span class="line">    AccessController.getContext();</span><br><span class="line">    <span class="keyword">this</span>.corePoolSize = corePoolSize;</span><br><span class="line">    <span class="keyword">this</span>.maximumPoolSize = maximumPoolSize;</span><br><span class="line">    <span class="keyword">this</span>.workQueue = workQueue;</span><br><span class="line">    <span class="keyword">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">    <span class="keyword">this</span>.threadFactory = threadFactory;</span><br><span class="line">    <span class="keyword">this</span>.handler = handler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</span><br><span class="line">            (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</span><br><span class="line">                                    <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                    <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</span><br><span class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</span><br><span class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 本质：以上方法开启了ThreadPoolExecutor</span></span><br><span class="line"><span class="comment">// 七大参数：</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,  // 核心线程池大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> maximumPoolSize,  // 最大线程池大小</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">long</span> keepAliveTime,	// 超时了没有人用就会释放</span></span></span><br><span class="line"><span class="function"><span class="params">                          TimeUnit unit,		// 超时单位</span></span></span><br><span class="line"><span class="function"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue, // 阻塞队列</span></span></span><br><span class="line"><span class="function"><span class="params">                          ThreadFactory threadFactory,		// 线程工厂</span></span></span><br><span class="line"><span class="function"><span class="params">                          RejectedExecutionHandler handler  // 拒绝策略</span></span></span><br><span class="line"><span class="function"><span class="params">                         )</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||</span><br><span class="line">        maximumPoolSize &lt;= <span class="number">0</span> ||</span><br><span class="line">        maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">        keepAliveTime &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">    <span class="keyword">if</span> (workQueue == <span class="keyword">null</span> || threadFactory == <span class="keyword">null</span> || handler == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    <span class="keyword">this</span>.acc = System.getSecurityManager() == <span class="keyword">null</span> ?</span><br><span class="line">        <span class="keyword">null</span> :</span><br><span class="line">    AccessController.getContext();</span><br><span class="line">    <span class="keyword">this</span>.corePoolSize = corePoolSize;</span><br><span class="line">    <span class="keyword">this</span>.maximumPoolSize = maximumPoolSize;</span><br><span class="line">    <span class="keyword">this</span>.workQueue = workQueue;</span><br><span class="line">    <span class="keyword">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">    <span class="keyword">this</span>.threadFactory = threadFactory;</span><br><span class="line">    <span class="keyword">this</span>.handler = handler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在阿里巴巴开发手册中有这样一段描述：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200430/200542806.png" alt="mark"></p>
@@ -210,8 +277,8 @@
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -349,7 +416,7 @@
 <h2 id="3-同步队列"><a href="#3-同步队列" class="headerlink" title="3. 同步队列"></a>3. 同步队列</h2><ul>
 <li><p>阻塞队列：进去一个元素，必须等待取出来之后</p>
 </li>
-<li><p>同步队列：</p>
+<li><p>同步队列：拿一个取一个。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">同步队列:和其他的阻塞队列是不一样的，</span><br><span class="line">SynchronousQueue是不存储元素的，</span><br><span class="line">只要put了一个元素，必须先take出来，否则不能继续put值</span><br></pre></td></tr></table></figure>
 
 
@@ -361,8 +428,8 @@
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -409,8 +476,8 @@
 <p>共享锁：多个线程可以同时占有（读锁）</p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -446,8 +513,8 @@ semaphore.acquire()
 <p>作用：多个共享资源互斥的使用，并发限流，可以控制最大的并发数。</p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -478,8 +545,8 @@ semaphore.acquire()
 <p>参考博客链接：<a href="https://blog.csdn.net/sinat_39634657/article/details/81456810" target="_blank" rel="noopener">https://blog.csdn.net/sinat_39634657/article/details/81456810</a></p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -871,8 +938,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -948,8 +1015,8 @@ semaphore.acquire()
 <p><strong>（本质上：两个拿到的锁不一样）</strong></p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -989,8 +1056,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1086,8 +1153,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1343,8 +1410,8 @@ semaphore.acquire()
 <p>数据加热的含义就是在正式部署之前，我先把可能的数据先预先访问一遍，这样部分可能大量访问的数据就会加载到缓存中。在即将发生大并发访问前手动触发加载缓存不同的key，设置不同的过期时间，让缓存失效的时间点尽量均匀。</p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -1482,8 +1549,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -1526,8 +1593,8 @@ semaphore.acquire()
 <p><strong>稍微复杂的场景用MQ消息队列完成！！！</strong></p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -1855,8 +1922,8 @@ semaphore.acquire()
 <p>　如果可以忍受一小段时间内数据的丢失，毫无疑问使用 RDB 是最好的，定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，而且使用 RDB 还可以避免 AOF 一些隐藏的 bug；否则就使用 AOF 重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。Redis后期官方可能都有将两种持久化方式整合为一种持久化模型。</p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -1891,8 +1958,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -1992,8 +2059,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -2092,8 +2159,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -2132,8 +2199,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -2500,8 +2567,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -2927,8 +2994,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -3103,8 +3170,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -3758,8 +3825,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Redis</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -5628,6 +5695,83 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot-09-页面国际化</title>
+    <url>/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/</url>
+    <content><![CDATA[<h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><p>​    有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</p>
+<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><p>​    先在IDEA中统一设置properties的编码问题！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
+<a id="more"></a>
+
+<p>​    编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></p>
+<h2 id="2-配置文件编写"><a href="#2-配置文件编写" class="headerlink" title="2. 配置文件编写"></a>2. 配置文件编写</h2><ol>
+<li><p>在resources资源文件下新建一个i18n目录，存放国际化配置文件</p>
+</li>
+<li><p>建立一个login.properties文件，还有一个login_zh_CN.properties；发现idea自动识别了国际化操作，文件夹变了！</p>
+</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085838.png" alt=""></p>
+<ol start="3">
+<li>可以继续新建 一个文件</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090009.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090045.png" alt=""></p>
+<ol start="4">
+<li>接下来，我们就来编写配置，看到idea下面有另外一个视图：</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090208.png" alt=""></p>
+<p>这个视图我们点击 + 号就可以直接添加属性了；我们新建一个login.tip，可以看到边上有三个文件框可以输入</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090252.png" alt=""></p>
+<p>添加一下首页的内容！</p>
+<p>然后依次添加其他页面内容即可！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090340.png" alt=""></p>
+<p>然后去查看我们的配置文件；</p>
+<p><strong>login.properties ：默认</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码 </span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
+
+<p><strong>英文：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;Sign in</span><br><span class="line">login.password&#x3D;Password</span><br><span class="line">login.remember&#x3D;Remeber me</span><br><span class="line">login.tip&#x3D;Please sign in</span><br><span class="line">login.username&#x3D;User</span><br></pre></td></tr></table></figure>
+
+<p><strong>中文：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码</span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
+
+<p><strong>OK，配置文件步骤搞定！</strong></p>
+<h2 id="3-配置文件生效"><a href="#3-配置文件生效" class="headerlink" title="3. 配置文件生效"></a>3. 配置文件生效</h2><p>​    去看一下<strong>SpringBoot对国际化的自动配置</strong>！<strong>这里又涉及到一个类：MessageSourceAutoConfiguration</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageSource <span class="title">messageSource</span><span class="params">(MessageSourceProperties properties)</span> </span>&#123;</span><br><span class="line">    ResourceBundleMessageSource messageSource = <span class="keyword">new</span> ResourceBundleMessageSource();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasText(properties.getBasename())) &#123;</span><br><span class="line">        messageSource.setBasenames(StringUtils</span><br><span class="line">                                   .commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename())));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (properties.getEncoding() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setDefaultEncoding(properties.getEncoding().name());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());</span><br><span class="line">    Duration cacheDuration = properties.getCacheDuration();</span><br><span class="line">    <span class="keyword">if</span> (cacheDuration != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setCacheMillis(cacheDuration.toMillis());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());</span><br><span class="line">    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());</span><br><span class="line">    <span class="keyword">return</span> messageSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>真实 的情况是放在了i18n目录下，所以我们要去配置这个messages的路径；</strong></p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n.login</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-配置页面国际化值"><a href="#4-配置页面国际化值" class="headerlink" title="4. 配置页面国际化值"></a>4. 配置页面国际化值</h2><p>​    页面如果想要获取国际化的值，查看Thymeleaf的文档，找到message取值操作位#{…},我们去页面编写测试下：</p>
+<p>IDEA还有提示，非常智能的！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091044.png" alt=""></p>
+<p>​    可以去启动项目，访问一下，发现已经自动识别为中文的了！</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091143.png" alt=""></p>
+<p><strong>但是我们想要更好！可以根据按钮自动切换中文英文！</strong></p>
+<h2 id="5-配置自动切换国际化值"><a href="#5-配置自动切换国际化值" class="headerlink" title="5. 配置自动切换国际化值"></a>5. 配置自动切换国际化值</h2><p>​    在Spring中有一个国际化的Locale（区域信息对象）；里面有个叫做LocaleResolver（获取区域信息对象）的解析器！</p>
+<p>​    去我们webmvc自动配置文件，寻找一下！看到SpringBoot默认配置：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"spring.mvc"</span>, name = <span class="string">"locale"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 容器中没有就自己配，有的话就是获取用户的配置</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FixedLocaleResolver(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//接收头国际化分解</span></span><br><span class="line">    AcceptHeaderLocaleResolver localeResolver = <span class="keyword">new</span> AcceptHeaderLocaleResolver();</span><br><span class="line">    localeResolver.setDefaultLocale(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    <span class="keyword">return</span> localeResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    AcceptHeaderLocaleResolver 这个类中有一个方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    Locale defaultLocale = getDefaultLocale();</span><br><span class="line">    <span class="comment">//默认就是根据请求头带来的区域信息获取locale进行国际化</span></span><br><span class="line">    <span class="keyword">if</span> (defaultLocale != <span class="keyword">null</span> &amp;&amp; request.getHeader(<span class="string">"Accept-Language"</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale requestLocale = request.getLocale();</span><br><span class="line">    List&lt;Locale&gt; supportedLocales = getSupportedLocales();</span><br><span class="line">    <span class="keyword">if</span> (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) &#123;</span><br><span class="line">        <span class="keyword">return</span> requestLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale supportedLocale = findSupportedLocale(request, supportedLocales);</span><br><span class="line">    <span class="keyword">if</span> (supportedLocale != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> supportedLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (defaultLocale != <span class="keyword">null</span> ? defaultLocale : requestLocale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    那假如我们现在想点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！</p>
+<p>​    我们去自己写一个自己的LocaleResolver，可以在链接上携带区域信息！</p>
+<p>​    <strong>修改一下前端页面的跳转连接：</strong></p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='zh_CN')&#125;"</span>&gt;</span>中文<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='en_US')&#125;"</span>&gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>然后编写一个处理的组建类！</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.LocaleResolver;</span><br><span class="line"><span class="keyword">import</span> org.thymeleaf.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Locale;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLocaleResolver</span> <span class="keyword">implements</span> <span class="title">LocaleResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">//解析请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取请求中的语言参数</span></span><br><span class="line">        String language = request.getParameter(<span class="string">"l"</span>);</span><br><span class="line"></span><br><span class="line">        Locale locale = Locale.getDefault(); <span class="comment">//如果没有就使用默认的</span></span><br><span class="line">        <span class="comment">//如果请求的链接携带了国际化的参数</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(language))&#123;</span><br><span class="line">            <span class="comment">//zh_CN</span></span><br><span class="line">            String[] split = language.split(<span class="string">"_"</span>);</span><br><span class="line">            <span class="comment">//国家，地区</span></span><br><span class="line">            locale = <span class="keyword">new</span> Locale(split[<span class="number">0</span>], split[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> locale;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLocale</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Locale locale)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>为了让我们的区域化信息能够生效，我们需要再配置一下这个组件！在我们自己的MvcConofig下添加bean；</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义的国际化组件就生效了</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MyLocaleResolver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <strong>重启项目，来访问一下，发现点击按钮可以实现成功切换！搞定收工！</strong></p>
+]]></content>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SpringBoot-10-项目实战</title>
     <url>/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/</url>
     <content><![CDATA[<h1 id="SpringBoot-10-项目实战"><a href="#SpringBoot-10-项目实战" class="headerlink" title="SpringBoot-10-项目实战"></a>SpringBoot-10-项目实战</h1><h2 id="1-项目简介"><a href="#1-项目简介" class="headerlink" title="1. 项目简介"></a>1. 项目简介</h2><p>​    该项目整合了CRUD实现员工管理案例，将MyBatis整合到原项目中，加入了数据库，添加了日期选项控件</p>
@@ -5808,83 +5952,6 @@ semaphore.acquire()
 </ol>
 <figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span> <span class="attr">xmlns:th</span>=<span class="string">"http://www.thymeleaf.org"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Type"</span> <span class="attr">content</span>=<span class="string">"text/html; charset=UTF-8"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1, shrink-to-fit=no"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"description"</span> <span class="attr">content</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"author"</span> <span class="attr">content</span>=<span class="string">""</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">title</span>&gt;</span>Dashboard Template for Bootstrap<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- Bootstrap core CSS --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">link</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/css/bootstrap.min.css&#125;"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">&lt;!-- Custom styles for this template --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">link</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/css/dashboard.css&#125;"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">style</span> <span class="attr">type</span>=<span class="string">"text/css"</span>&gt;</span></span><br><span class="line"><span class="css">			<span class="comment">/* Chart.js */</span></span></span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="keyword">@-webkit-keyframes</span> chartjs-render-animation &#123;</span></span><br><span class="line">				from &#123;</span><br><span class="line"><span class="css">					<span class="selector-tag">opacity</span>: 0<span class="selector-class">.99</span></span></span><br><span class="line">				&#125;</span><br><span class="line">				to &#123;</span><br><span class="line">					opacity: 1</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="keyword">@keyframes</span> chartjs-render-animation &#123;</span></span><br><span class="line">				from &#123;</span><br><span class="line"><span class="css">					<span class="selector-tag">opacity</span>: 0<span class="selector-class">.99</span></span></span><br><span class="line">				&#125;</span><br><span class="line">				to &#123;</span><br><span class="line">					opacity: 1</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line"><span class="css">			<span class="selector-class">.chartjs-render-monitor</span> &#123;</span></span><br><span class="line"><span class="css">				<span class="selector-tag">-webkit-animation</span>: <span class="selector-tag">chartjs-render-animation</span> 0<span class="selector-class">.001s</span>;</span></span><br><span class="line"><span class="css">				<span class="selector-tag">animation</span>: <span class="selector-tag">chartjs-render-animation</span> 0<span class="selector-class">.001s</span>;</span></span><br><span class="line">			&#125;</span><br><span class="line">		<span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">th:replace</span>=<span class="string">"~&#123;common/commons::topbar&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container-fluid"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">div</span> <span class="attr">th:replace</span>=<span class="string">"~&#123;common/commons::sidebar(active='list.html')&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">				<span class="tag">&lt;<span class="name">main</span> <span class="attr">role</span>=<span class="string">"main"</span> <span class="attr">class</span>=<span class="string">"col-md-9 ml-sm-auto col-lg-10 pt-3 px-4"</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">h2</span>&gt;</span>修改员工信息<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">form</span> <span class="attr">th:action</span>=<span class="string">"@&#123;/updateEmp&#125;"</span> <span class="attr">method</span>=<span class="string">"post"</span> &gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"id"</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.id&#125;"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>姓名<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"employeeName"</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"form-control "</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.employeeName&#125;"</span> &gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>邮箱<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"email"</span> <span class="attr">type</span>=<span class="string">"email"</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;emp.email&#125;"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>性别<span class="tag">&lt;/<span class="name">label</span>&gt;</span><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-check form-check-inline"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">"form-check-input"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">name</span>=<span class="string">"gender"</span> <span class="attr">value</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag">									   <span class="attr">th:checked</span>=<span class="string">"$&#123;emp.gender==1&#125;"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">label</span> <span class="attr">class</span>=<span class="string">"form-check-label"</span>&gt;</span>男<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-check form-check-inline"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">input</span> <span class="attr">class</span>=<span class="string">"form-check-input"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">name</span>=<span class="string">"gender"</span> <span class="attr">value</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">									   <span class="attr">th:checked</span>=<span class="string">"$&#123;emp.gender==0&#125;"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">label</span> <span class="attr">class</span>=<span class="string">"form-check-label"</span>&gt;</span>女<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>部门<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="comment">&lt;!--提交的是部门的ID--&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">select</span> <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">name</span>=<span class="string">"departmentId"</span>&gt;</span></span><br><span class="line">								<span class="tag">&lt;<span class="name">option</span> <span class="attr">th:selected</span>=<span class="string">"$&#123;dept.id == emp.departmentId&#125;"</span> <span class="attr">th:each</span>=<span class="string">"dept:$&#123;departments&#125;"</span></span></span><br><span class="line"><span class="tag">										<span class="attr">th:text</span>=<span class="string">"$&#123;dept.departmentName&#125;"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;dept.id&#125;"</span>&gt;</span>1</span><br><span class="line">								<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"form-group"</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">label</span>&gt;</span>时间<span class="tag">&lt;/<span class="name">label</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"date"</span> <span class="attr">type</span>=<span class="string">"text"</span>  <span class="attr">class</span>=<span class="string">"form-control"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;#dates.format(emp.date,'yyyy-MM-dd')&#125;"</span> <span class="attr">id</span>=<span class="string">"dateFormat"</span> <span class="attr">autocomplete</span>=<span class="string">"off"</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span>&gt;</span>修改<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-]]></content>
-      <tags>
-        <tag>SpringBoot</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot-09-页面国际化</title>
-    <url>/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/</url>
-    <content><![CDATA[<h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><p>​    有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</p>
-<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><p>​    先在IDEA中统一设置properties的编码问题！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
-<a id="more"></a>
-
-<p>​    编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></p>
-<h2 id="2-配置文件编写"><a href="#2-配置文件编写" class="headerlink" title="2. 配置文件编写"></a>2. 配置文件编写</h2><ol>
-<li><p>在resources资源文件下新建一个i18n目录，存放国际化配置文件</p>
-</li>
-<li><p>建立一个login.properties文件，还有一个login_zh_CN.properties；发现idea自动识别了国际化操作，文件夹变了！</p>
-</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085838.png" alt=""></p>
-<ol start="3">
-<li>可以继续新建 一个文件</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090009.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090045.png" alt=""></p>
-<ol start="4">
-<li>接下来，我们就来编写配置，看到idea下面有另外一个视图：</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090208.png" alt=""></p>
-<p>这个视图我们点击 + 号就可以直接添加属性了；我们新建一个login.tip，可以看到边上有三个文件框可以输入</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090252.png" alt=""></p>
-<p>添加一下首页的内容！</p>
-<p>然后依次添加其他页面内容即可！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331090340.png" alt=""></p>
-<p>然后去查看我们的配置文件；</p>
-<p><strong>login.properties ：默认</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码 </span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
-
-<p><strong>英文：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;Sign in</span><br><span class="line">login.password&#x3D;Password</span><br><span class="line">login.remember&#x3D;Remeber me</span><br><span class="line">login.tip&#x3D;Please sign in</span><br><span class="line">login.username&#x3D;User</span><br></pre></td></tr></table></figure>
-
-<p><strong>中文：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">login.btn&#x3D;登录</span><br><span class="line">login.password&#x3D;密码</span><br><span class="line">login.remember&#x3D;记住我</span><br><span class="line">login.tip&#x3D;请登录</span><br><span class="line">login.username&#x3D;用户名</span><br></pre></td></tr></table></figure>
-
-<p><strong>OK，配置文件步骤搞定！</strong></p>
-<h2 id="3-配置文件生效"><a href="#3-配置文件生效" class="headerlink" title="3. 配置文件生效"></a>3. 配置文件生效</h2><p>​    去看一下<strong>SpringBoot对国际化的自动配置</strong>！<strong>这里又涉及到一个类：MessageSourceAutoConfiguration</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> MessageSource <span class="title">messageSource</span><span class="params">(MessageSourceProperties properties)</span> </span>&#123;</span><br><span class="line">    ResourceBundleMessageSource messageSource = <span class="keyword">new</span> ResourceBundleMessageSource();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasText(properties.getBasename())) &#123;</span><br><span class="line">        messageSource.setBasenames(StringUtils</span><br><span class="line">                                   .commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename())));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (properties.getEncoding() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setDefaultEncoding(properties.getEncoding().name());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());</span><br><span class="line">    Duration cacheDuration = properties.getCacheDuration();</span><br><span class="line">    <span class="keyword">if</span> (cacheDuration != <span class="keyword">null</span>) &#123;</span><br><span class="line">        messageSource.setCacheMillis(cacheDuration.toMillis());</span><br><span class="line">    &#125;</span><br><span class="line">    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());</span><br><span class="line">    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());</span><br><span class="line">    <span class="keyword">return</span> messageSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>真实 的情况是放在了i18n目录下，所以我们要去配置这个messages的路径；</strong></p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">spring.messages.basename</span>=<span class="string">i18n.login</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="4-配置页面国际化值"><a href="#4-配置页面国际化值" class="headerlink" title="4. 配置页面国际化值"></a>4. 配置页面国际化值</h2><p>​    页面如果想要获取国际化的值，查看Thymeleaf的文档，找到message取值操作位#{…},我们去页面编写测试下：</p>
-<p>IDEA还有提示，非常智能的！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091044.png" alt=""></p>
-<p>​    可以去启动项目，访问一下，发现已经自动识别为中文的了！</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331091143.png" alt=""></p>
-<p><strong>但是我们想要更好！可以根据按钮自动切换中文英文！</strong></p>
-<h2 id="5-配置自动切换国际化值"><a href="#5-配置自动切换国际化值" class="headerlink" title="5. 配置自动切换国际化值"></a>5. 配置自动切换国际化值</h2><p>​    在Spring中有一个国际化的Locale（区域信息对象）；里面有个叫做LocaleResolver（获取区域信息对象）的解析器！</p>
-<p>​    去我们webmvc自动配置文件，寻找一下！看到SpringBoot默认配置：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"spring.mvc"</span>, name = <span class="string">"locale"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 容器中没有就自己配，有的话就是获取用户的配置</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FixedLocaleResolver(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//接收头国际化分解</span></span><br><span class="line">    AcceptHeaderLocaleResolver localeResolver = <span class="keyword">new</span> AcceptHeaderLocaleResolver();</span><br><span class="line">    localeResolver.setDefaultLocale(<span class="keyword">this</span>.mvcProperties.getLocale());</span><br><span class="line">    <span class="keyword">return</span> localeResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    AcceptHeaderLocaleResolver 这个类中有一个方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    Locale defaultLocale = getDefaultLocale();</span><br><span class="line">    <span class="comment">//默认就是根据请求头带来的区域信息获取locale进行国际化</span></span><br><span class="line">    <span class="keyword">if</span> (defaultLocale != <span class="keyword">null</span> &amp;&amp; request.getHeader(<span class="string">"Accept-Language"</span>) == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale requestLocale = request.getLocale();</span><br><span class="line">    List&lt;Locale&gt; supportedLocales = getSupportedLocales();</span><br><span class="line">    <span class="keyword">if</span> (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) &#123;</span><br><span class="line">        <span class="keyword">return</span> requestLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    Locale supportedLocale = findSupportedLocale(request, supportedLocales);</span><br><span class="line">    <span class="keyword">if</span> (supportedLocale != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> supportedLocale;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (defaultLocale != <span class="keyword">null</span> ? defaultLocale : requestLocale);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    那假如我们现在想点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！</p>
-<p>​    我们去自己写一个自己的LocaleResolver，可以在链接上携带区域信息！</p>
-<p>​    <strong>修改一下前端页面的跳转连接：</strong></p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='zh_CN')&#125;"</span>&gt;</span>中文<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"btn btn-sm"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/index.html(l='en_US')&#125;"</span>&gt;</span>English<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>然后编写一个处理的组建类！</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.config;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.LocaleResolver;</span><br><span class="line"><span class="keyword">import</span> org.thymeleaf.util.StringUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.util.Locale;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLocaleResolver</span> <span class="keyword">implements</span> <span class="title">LocaleResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">//解析请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Locale <span class="title">resolveLocale</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取请求中的语言参数</span></span><br><span class="line">        String language = request.getParameter(<span class="string">"l"</span>);</span><br><span class="line"></span><br><span class="line">        Locale locale = Locale.getDefault(); <span class="comment">//如果没有就使用默认的</span></span><br><span class="line">        <span class="comment">//如果请求的链接携带了国际化的参数</span></span><br><span class="line">        <span class="keyword">if</span>(!StringUtils.isEmpty(language))&#123;</span><br><span class="line">            <span class="comment">//zh_CN</span></span><br><span class="line">            String[] split = language.split(<span class="string">"_"</span>);</span><br><span class="line">            <span class="comment">//国家，地区</span></span><br><span class="line">            locale = <span class="keyword">new</span> Locale(split[<span class="number">0</span>], split[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> locale;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLocale</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Locale locale)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>为了让我们的区域化信息能够生效，我们需要再配置一下这个组件！在我们自己的MvcConofig下添加bean；</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自定义的国际化组件就生效了</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> LocaleResolver <span class="title">localeResolver</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MyLocaleResolver();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​    <strong>重启项目，来访问一下，发现点击按钮可以实现成功切换！搞定收工！</strong></p>
 ]]></content>
       <tags>
         <tag>SpringBoot</tag>
@@ -13346,8 +13413,8 @@ semaphore.acquire()
 <h3 id="6-3-Druid"><a href="#6-3-Druid" class="headerlink" title="6.3 Druid"></a>6.3 Druid</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200304213756.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>JDBC</tag>
         <tag>数据库</tag>
+        <tag>JDBC</tag>
       </tags>
   </entry>
   <entry>
