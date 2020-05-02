@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Leetcode-412-FizzBuzz |  朱酱酱的学习博客
+    JUC-14-JMM |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-Leetcode/Leetcode-412-FizzBuzz" class="article article-type-post" itemscope
+  <article id="post-JUC/JUC-14-JMM" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Leetcode-412-FizzBuzz
+  JUC-14-JMM
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/05/02/Leetcode/Leetcode-412-FizzBuzz/" class="article-date">
-  <time datetime="2020-05-02T03:52:53.000Z" itemprop="datePublished">2020-05-02</time>
+      <a href="/2020/05/02/JUC/JUC-14-JMM/" class="article-date">
+  <time datetime="2020-05-02T14:02:24.000Z" itemprop="datePublished">2020-05-02</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">474字</span>
+            <span class="post-count">1.3k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">5分钟</span>
         </span>
     </span>
 </div>
@@ -99,52 +99,79 @@
       
 
       
-      <h1 id="Leecode-412-Fizz-Buzz"><a href="#Leecode-412-Fizz-Buzz" class="headerlink" title="Leecode-412-Fizz Buzz"></a>Leecode-412-<a href="https://leetcode-cn.com/problems/fizz-buzz/" target="_blank" rel="noopener">Fizz Buzz</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>写一个程序，输出从 1 到 n 数字的字符串表示。</p>
-<ol>
-<li><p>如果 n 是3的倍数，输出“Fizz”；</p>
+      <h1 id="JUC-14-JMM"><a href="#JUC-14-JMM" class="headerlink" title="JUC-14-JMM"></a>JUC-14-JMM</h1><h2 id="1-JMM-简介"><a href="#1-JMM-简介" class="headerlink" title="1. JMM 简介"></a>1. JMM 简介</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/213345495.png" alt="mark"></p>
+<ul>
+<li><p>java内存模型（JMM）</p>
 </li>
-<li><p>如果 n 是5的倍数，输出“Buzz”；</p>
+<li><p>JMM定义了线程和主内存之间的抽象关系：线程之间的共享变量存储在<strong>主内存</strong>（Main Memory）中，每个线程都有一个私有的<strong>本地内存</strong>（Local Memory），本地内存中存储了该线程以读/写共享变量的副本。本地内存是JMM的一个抽象概念，并不真实存在。它涵盖了缓存、写缓冲区、寄存器以及其他的硬件和编译器优化。</p>
 </li>
-<li><p>如果 n 同时是3和5的倍数，输出 “FizzBuzz”。</p>
+</ul>
+<p>关于JMM的一些同步约定：</p>
+<ul>
+<li><p><strong>线程解锁前，必须把共享变量立刻刷回主内存</strong>。</p>
 </li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">输入：n &#x3D; 15,</span><br><span class="line"></span><br><span class="line">返回:</span><br><span class="line">[</span><br><span class="line">    &quot;1&quot;,</span><br><span class="line">    &quot;2&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;4&quot;,</span><br><span class="line">    &quot;Buzz&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;7&quot;,</span><br><span class="line">    &quot;8&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;Buzz&quot;,</span><br><span class="line">    &quot;11&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;13&quot;,</span><br><span class="line">    &quot;14&quot;,</span><br><span class="line">    &quot;FizzBuzz&quot;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-
-
+<li><p><strong>线程加锁前，必须读取主内存中最新的值到工作内存中</strong>。</p>
+</li>
+<li><p>加锁和解锁是同一把锁。</p>
+</li>
+</ul>
 <a id="more"></a>
 
-
-
-<p><strong>Solution：字符串拼接</strong></p>
+<h3 id="1-1-内存交互操作"><a href="#1-1-内存交互操作" class="headerlink" title="1.1 内存交互操作"></a>1.1 内存交互操作</h3><p> 　<strong>内存交互操作有8种，虚拟机实现必须保证每一个操作都是原子的，不可再分的（对于double和long类型的变量来说，load、store、read和write操作在某些平台上允许例外）</strong></p>
 <ul>
-<li><pre><code>如果是3的倍数，输出fizz
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
-5的倍数
-如果当前元素是空的话，即5的倍数，输出buzz
-如果当前元素不为空的话，即3和5的公倍数，输出fizzBuzz
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
-如果不是3的倍数也不是5的倍数，输出当前数字
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## Java</span><br><span class="line"></span><br><span class="line">**Solution :**</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;java</span><br><span class="line">class Solution&#123;</span><br><span class="line">    public List&lt;String&gt; fizzBuzz(int n)&#123;</span><br><span class="line">        &#x2F;&#x2F; 输入是0，返回空数组</span><br><span class="line">        if (n &lt;&#x3D; 0)&#123;</span><br><span class="line">            return new ArrayList&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String[] resultArr &#x3D; new String[n];</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; i从第三个元素开始，如果是3的倍数，输出fizz</span><br><span class="line">        for (int i &#x3D; 2;i &lt; n;i +&#x3D; 3)&#123;</span><br><span class="line">            resultArr[i] &#x3D; &quot;Fizz&quot;;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; i从第五个元素开始</span><br><span class="line">        &#x2F;&#x2F; 如果当前元素是空的话，即5的倍数，输出buzz</span><br><span class="line">        &#x2F;&#x2F; 如果当前元素不为空的话，即3和5的公倍数，输出fizzBuzz</span><br><span class="line">        for (int i &#x3D; 4;i &lt; n;i +&#x3D;5)&#123;</span><br><span class="line">            if(resultArr[i]!&#x3D;null)&#123;</span><br><span class="line">                resultArr[i] &#x3D; &quot;FizzBuzz&quot;;</span><br><span class="line">            &#125;else&#123;</span><br><span class="line">                resultArr[i] &#x3D; &quot;Buzz&quot;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 如果不是3的倍数也不是5的倍数，输出当前数字</span><br><span class="line">        for (int i &#x3D; 0; i &lt; n; i++) &#123;</span><br><span class="line">            if (resultArr[i] &#x3D;&#x3D; null)&#123;</span><br><span class="line">                resultArr[i] &#x3D; String.valueOf(i+1);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return Arrays.asList(resultArr);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-</code></pre></li>
+<li><ul>
+<li>lock   （锁定）：作用于主内存的变量，把一个变量标识为线程独占状态</li>
+<li>unlock （解锁）：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定</li>
+<li>read  （读取）：作用于主内存变量，它把一个变量的值从主内存传输到线程的工作内存中，以便随后的load动作使用</li>
+<li>load   （载入）：作用于工作内存的变量，它把read操作从主存中变量放入工作内存中</li>
+<li>use   （使用）：作用于工作内存中的变量，它把工作内存中的变量传输给执行引擎，每当虚拟机遇到一个需要使用到变量的值，就会使用到这个指令</li>
+<li>assign （赋值）：作用于工作内存中的变量，它把一个从执行引擎中接受到的值放入工作内存的变量副本中</li>
+<li>store  （存储）：作用于主内存中的变量，它把一个从工作内存中一个变量的值传送到主内存中，以便后续的write使用</li>
+<li>write 　（写入）：作用于主内存中的变量，它把store操作从工作内存中得到的变量的值放入主内存的变量中</li>
 </ul>
-<p>测试用例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Solution solution = <span class="keyword">new</span> Solution();</span><br><span class="line">    System.out.println(solution.fizzBuzz(<span class="number">15</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
+</li>
+</ul>
+<h3 id="1-2-JMM对于内存操作的约定"><a href="#1-2-JMM对于内存操作的约定" class="headerlink" title="1.2 JMM对于内存操作的约定"></a>1.2 JMM对于内存操作的约定</h3><p><strong>JMM对这八种指令的使用，制定了如下规则：</strong></p>
 <ul>
-<li>时间复杂度：O(n)</li>
-<li>空间复杂度:  O(1) 不需要额外空间</li>
+<li><ul>
+<li>不允许read和load、store和write操作之一单独出现。即使用了read必须load，使用了store必须write</li>
+<li>不允许线程丢弃他最近的assign操作，即工作变量的数据改变了之后，必须告知主存</li>
+<li>不允许一个线程将没有assign的数据从工作内存同步回主内存</li>
+<li>一个新的变量必须在主内存中诞生，不允许工作内存直接使用一个未被初始化的变量。就是怼变量实施use、store操作之前，必须经过assign和load操作</li>
+<li>一个变量同一时间只有一个线程能对其进行lock。多次lock后，必须执行相同次数的unlock才能解锁</li>
+<li>如果对一个变量进行lock操作，会清空所有工作内存中此变量的值，在执行引擎使用这个变量前，必须重新load或assign操作初始化变量的值</li>
+<li>如果一个变量没有被lock，就不能对其进行unlock操作。也不能unlock一个被其他线程锁住的变量</li>
+<li>对一个变量进行unlock操作之前，必须把此变量同步回主内存</li>
 </ul>
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="2-Volatile-关键字"><a href="#2-Volatile-关键字" class="headerlink" title="2. Volatile 关键字"></a>2. Volatile 关键字</h2><ul>
+<li>Volatile是Java虚拟机提供的<strong>轻量级的同步机制</strong><ul>
+<li><strong>保证可见性</strong></li>
+<li><strong>不保证原子性</strong></li>
+<li><strong>禁止指令重排</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-1-保证可见性"><a href="#2-1-保证可见性" class="headerlink" title="2.1 保证可见性"></a>2.1 保证可见性</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test01</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 主内存中的num = 0</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> <span class="keyword">int</span> num = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123; <span class="comment">// main线程</span></span><br><span class="line">        <span class="comment">// 不加volatile 这个线程就会死循环</span></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">while</span> (num == <span class="number">0</span>)&#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将工作内存修改num = 1</span></span><br><span class="line">        num = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        System.out.println(num);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
+<h3 id="2-2-不保证原子性"><a href="#2-2-不保证原子性" class="headerlink" title="2.2 不保证原子性"></a>2.2 不保证原子性</h3><ul>
+<li>原子性：不可分割</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// volatile 不保证原子性</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test02</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> <span class="keyword">int</span> num = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span></span>&#123;</span><br><span class="line">        num++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 理论上num应该是20000</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++) &#123;</span><br><span class="line">                    add();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 停止条件</span></span><br><span class="line">        <span class="keyword">while</span> (Thread.activeCount() &gt;<span class="number">2</span> )&#123;</span><br><span class="line">            Thread.yield();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        System.out.println(num);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>这里出现的根本原因是：<code>num++; 不是一个原子性的操作</code></p>
+<p><strong>解决方案：如果不加lock和synchronized，怎么保证原子性？</strong></p>
+<ul>
+<li><strong>使用原子类来进行原子性操作（java.util.concurrent.atomic）</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/215340342.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test02</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> AtomicInteger num = <span class="keyword">new</span> AtomicInteger();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span></span>&#123;</span><br><span class="line"><span class="comment">//        num++; // 运算不是一个原子性操作</span></span><br><span class="line">        num.getAndIncrement(); <span class="comment">// AtomicInteger + 1的方法:原理CAS操作</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 理论上num应该是20000</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++) &#123;</span><br><span class="line">                    add();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 停止条件</span></span><br><span class="line">        <span class="keyword">while</span> (Thread.activeCount() &gt;<span class="number">2</span> )&#123;</span><br><span class="line">            Thread.yield();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(num);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里Unsafe类是一个很特殊的存在！！！</strong></p>
+<h3 id="2-3-禁止指令重排"><a href="#2-3-禁止指令重排" class="headerlink" title="2.3 禁止指令重排"></a>2.3 禁止指令重排</h3>
       
       <!-- reward -->
       
@@ -211,14 +238,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/05/02/Leetcode/Leetcode-412-FizzBuzz/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/05/02/JUC/JUC-14-JMM/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JMM/" rel="tag">JMM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
 
 
     </footer>
@@ -229,19 +256,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/05/02/JUC/JUC-12-forkJoin/" class="article-nav-link">
+      <a href="/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            JUC-12-forkJoin
+            JUC-13-异步回调
           
         </div>
       </a>
     
     
-      <a href="/2020/05/01/Leetcode/Leetcode-213-%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8DII/" class="article-nav-link">
+      <a href="/2020/05/02/JUC/JUC-12-forkJoin/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Leetcode-213-打家劫舍II</div>
+        <div class="article-nav-title">JUC-12-forkJoin</div>
       </a>
     
   </nav>
