@@ -1,6 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Leetcode-337-打家劫舍III</title>
+    <url>/2020/05/05/Leetcode/Leetcode-337-%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8DIII/</url>
+    <content><![CDATA[<h1 id="Leecode-337-打家劫舍-III"><a href="#Leecode-337-打家劫舍-III" class="headerlink" title="Leecode-337-打家劫舍 III"></a>Leecode-337-<a href="https://leetcode-cn.com/problems/house-robber-iii/" target="_blank" rel="noopener">打家劫舍 III</a></h1><h2 id="思路：动态规划"><a href="#思路：动态规划" class="headerlink" title="思路：动态规划"></a>思路：动态规划</h2><h3 id="题目描述："><a href="#题目描述：" class="headerlink" title="题目描述："></a>题目描述：</h3><p>你又是一个专业的小偷。。。。</p>
+<p>小偷又发现了一个新的可行窃的地区。这个地区<strong>只有一个入口，我们称之为“根”</strong>。 除了“根”之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 <strong>如果两个直接相连的房子在同一天晚上被打劫，房屋将自动报警。</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入: [3,2,3,null,3,null,1]</span><br><span class="line"></span><br><span class="line">     3</span><br><span class="line">    &#x2F; \</span><br><span class="line">   2   3</span><br><span class="line">    \   \ </span><br><span class="line">     3   1</span><br><span class="line"></span><br><span class="line">输出: 7 </span><br><span class="line">解释: 小偷一晚能够盗取的最高金额 &#x3D; 3 + 3 + 1 &#x3D; 7.</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入: [3,4,5,1,3,null,1]</span><br><span class="line"></span><br><span class="line">     3</span><br><span class="line">    &#x2F; \</span><br><span class="line">   4   5</span><br><span class="line">  &#x2F; \   \ </span><br><span class="line"> 1   3   1</span><br><span class="line"></span><br><span class="line">输出: 9</span><br><span class="line">解释: 小偷一晚能够盗取的最高金额 &#x3D; 4 + 5 &#x3D; 9.</span><br></pre></td></tr></table></figure>
+
+
+
+<a id="more"></a>
+
+<p>下面介绍三种方法：其中最后一种的是最优方法</p>
+<p><strong>Solution1：最优子结构（暴力递归）</strong></p>
+<ol>
+<li><p>首先要明确相邻的节点不能偷，也就是爷爷选择偷，儿子就不能偷了，但是孙子可以偷</p>
+</li>
+<li><p>二叉树只有左右两个孩子，一个爷爷最多 2 个儿子，4 个孙子</p>
+</li>
+<li><p>可以得出单个节点的钱该怎么算（<strong>4个孙子投的钱+爷爷的钱 VS 两个儿子偷的钱，哪个组合多，哪个就能做最大钱数。这就是动态规划的最优子结构</strong>）</p>
+</li>
+</ol>
+<ul>
+<li><p><strong>状态定义</strong>：result 即能偷到的钱最多的数量</p>
+</li>
+<li><p><strong>转移方程</strong>：</p>
+<ul>
+<li>4 个孙子投的钱加上爷爷的钱如下<br><code>int method1 = root.val + rob(root.left.left) + rob(root.left.right) + rob(root.right.left) + rob(root.right.right)</code></li>
+<li>两个儿子偷的钱如下<br><code>int method2 = rob(root.left) + rob(root.right);</code></li>
+<li>最多的钱为：<code>int result = Math.max(method1, method2);</code></li>
+</ul>
+</li>
+<li><p><strong>返回值</strong>：result最多的钱数</p>
+<ul>
+<li>最多的钱为：<code>int result = Math.max(method1, method2);</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Solution 2:记忆化优化-解决重复问题</strong></p>
+<p>针对解法一种速度太慢的问题，经过分析其实现，我们发现爷爷在计算自己能偷多少钱的时候，<strong>同时计算了4个孙子能偷最多的钱数量的同时，两个儿子的钱也算了</strong></p>
+<p><strong>这样在儿子当爷爷的时候，又重新算了一遍孙子节点</strong></p>
+<p>对于重复子问题而言：</p>
+<p>这一步针对重复子问题进行优化，在做斐波那契数列的时候，使用的优化方案是记忆化，但是之前的问题都是使用数组解决的，把每次计算的结构都存起来，下次要用就从缓存中取，这样保证每个数字就计算了一次。</p>
+<p>但是这里二叉树不适合用数组当缓存，我们使用哈希表来存储结果。</p>
+<ul>
+<li>TreeNode当做key</li>
+<li>偷的钱当做value</li>
+</ul>
+<p><strong>Solution 3:省去记忆化</strong></p>
+<ul>
+<li><p>状态定义：每个节点可选择偷或者不偷两种状态，根据题目意思，相连节点不能一起偷</p>
+<ul>
+<li>当前节点选择偷时，那么两个孩子节点就不能选择偷了</li>
+<li>当前节点选择不偷的话，两个孩子节点只要拿出最多的钱加一起就行了（两个孩子节点偷不偷没有任何关系）</li>
+</ul>
+</li>
+<li><p>转移方程</p>
+<ul>
+<li><pre><code class="java">root[<span class="number">0</span>] = Math.max(rob(root.left)[<span class="number">0</span>], rob(root.left)[<span class="number">1</span>]) + Math.max(rob(root.right)[<span class="number">0</span>], rob(root.right)[<span class="number">1</span>])
+root[<span class="number">1</span>] = rob(root.left)[<span class="number">0</span>] + rob(root.right)[<span class="number">0</span>] + root.val;
+&lt;!--￼<span class="number">2</span>--&gt;
+
+
+
+
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Solution 2:</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rob</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 用map来存放结果，避免重复计算</span></span><br><span class="line">        HashMap&lt;TreeNode, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">return</span> rob_helper(root,map);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rob_helper</span><span class="params">(TreeNode root, HashMap&lt;TreeNode, Integer&gt; map)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (root == <span class="keyword">null</span>) <span class="keyword">return</span>  <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 如果之前这个节点已经计算过了，直接获取这个节点</span></span><br><span class="line">        <span class="keyword">if</span> (map.containsKey(root)) <span class="keyword">return</span> map.get(root);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span> money = root.val;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 四个孙子节点</span></span><br><span class="line">        <span class="keyword">if</span> (root.left!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            money += (rob_helper(root.left.left,map)+rob_helper(root.left.right,map)); </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (root.right!=<span class="keyword">null</span>)&#123;</span><br><span class="line">            money += (rob_helper(root.right.left,map)+rob_helper(root.right.right,map));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 孙子+爷爷 VS 两个儿子</span></span><br><span class="line">        <span class="keyword">int</span> result = Math.max(money,rob_helper(root.left,map)+rob_helper(root.right,map));</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 把这个节点算过的钱放进map中</span></span><br><span class="line">        map.put(root,result);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>Solution 3:</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">rob</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 返回rob产生的数组，比较root节点偷或者不偷能拿到最多的钱</span></span><br><span class="line">        <span class="keyword">int</span>[] result = rob_helper(root);</span><br><span class="line">        <span class="keyword">return</span> Math.max(result[<span class="number">0</span>],result[<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] rob_helper(TreeNode root) &#123;</span><br><span class="line">        <span class="comment">// root为null,返回一个[0,0]数组</span></span><br><span class="line">        <span class="keyword">if</span> (root == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">int</span>[] result = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 左节点能偷的钱数</span></span><br><span class="line">        <span class="keyword">int</span>[] left = rob_helper(root.left);</span><br><span class="line">        <span class="comment">// 右节点能偷的钱数</span></span><br><span class="line">        <span class="keyword">int</span>[] right = rob_helper(root.right);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 当前节点不偷的话，递归下一个节点偷或者不偷的情况</span></span><br><span class="line">        result[<span class="number">0</span>] = Math.max(left[<span class="number">0</span>],left[<span class="number">1</span>]) + Math.max(right[<span class="number">0</span>],right[<span class="number">1</span>]);</span><br><span class="line">        <span class="comment">// 当前节点偷的话，下一个节点只能选择不偷</span></span><br><span class="line">        result[<span class="number">1</span>] = left[<span class="number">0</span>] + right[<span class="number">0</span>] +root.val;</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-412-FizzBuzz</title>
+    <url>/2020/05/02/Leetcode/Leetcode-412-FizzBuzz/</url>
+    <content><![CDATA[<h1 id="Leecode-412-Fizz-Buzz"><a href="#Leecode-412-Fizz-Buzz" class="headerlink" title="Leecode-412-Fizz Buzz"></a>Leecode-412-<a href="https://leetcode-cn.com/problems/fizz-buzz/" target="_blank" rel="noopener">Fizz Buzz</a></h1><h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>写一个程序，输出从 1 到 n 数字的字符串表示。</p>
+<ol>
+<li><p>如果 n 是3的倍数，输出“Fizz”；</p>
+</li>
+<li><p>如果 n 是5的倍数，输出“Buzz”；</p>
+</li>
+<li><p>如果 n 同时是3和5的倍数，输出 “FizzBuzz”。</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入：n &#x3D; 15,</span><br><span class="line"></span><br><span class="line">返回:</span><br><span class="line">[</span><br><span class="line">    &quot;1&quot;,</span><br><span class="line">    &quot;2&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;4&quot;,</span><br><span class="line">    &quot;Buzz&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;7&quot;,</span><br><span class="line">    &quot;8&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;Buzz&quot;,</span><br><span class="line">    &quot;11&quot;,</span><br><span class="line">    &quot;Fizz&quot;,</span><br><span class="line">    &quot;13&quot;,</span><br><span class="line">    &quot;14&quot;,</span><br><span class="line">    &quot;FizzBuzz&quot;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+
+
+<a id="more"></a>
+
+
+
+<p><strong>Solution：字符串拼接</strong></p>
+<ul>
+<li><pre><code>如果是3的倍数，输出fizz
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
+5的倍数
+如果当前元素是空的话，即5的倍数，输出buzz
+如果当前元素不为空的话，即3和5的公倍数，输出fizzBuzz
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
+如果不是3的倍数也不是5的倍数，输出当前数字
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## Java</span><br><span class="line"></span><br><span class="line">**Solution :**</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;java</span><br><span class="line">class Solution&#123;</span><br><span class="line">    public List&lt;String&gt; fizzBuzz(int n)&#123;</span><br><span class="line">        &#x2F;&#x2F; 输入是0，返回空数组</span><br><span class="line">        if (n &lt;&#x3D; 0)&#123;</span><br><span class="line">            return new ArrayList&lt;&gt;();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String[] resultArr &#x3D; new String[n];</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; i从第三个元素开始，如果是3的倍数，输出fizz</span><br><span class="line">        for (int i &#x3D; 2;i &lt; n;i +&#x3D; 3)&#123;</span><br><span class="line">            resultArr[i] &#x3D; &quot;Fizz&quot;;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; i从第五个元素开始</span><br><span class="line">        &#x2F;&#x2F; 如果当前元素是空的话，即5的倍数，输出buzz</span><br><span class="line">        &#x2F;&#x2F; 如果当前元素不为空的话，即3和5的公倍数，输出fizzBuzz</span><br><span class="line">        for (int i &#x3D; 4;i &lt; n;i +&#x3D;5)&#123;</span><br><span class="line">            if(resultArr[i]!&#x3D;null)&#123;</span><br><span class="line">                resultArr[i] &#x3D; &quot;FizzBuzz&quot;;</span><br><span class="line">            &#125;else&#123;</span><br><span class="line">                resultArr[i] &#x3D; &quot;Buzz&quot;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 如果不是3的倍数也不是5的倍数，输出当前数字</span><br><span class="line">        for (int i &#x3D; 0; i &lt; n; i++) &#123;</span><br><span class="line">            if (resultArr[i] &#x3D;&#x3D; null)&#123;</span><br><span class="line">                resultArr[i] &#x3D; String.valueOf(i+1);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return Arrays.asList(resultArr);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</code></pre></li>
+</ul>
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Solution solution = <span class="keyword">new</span> Solution();</span><br><span class="line">    System.out.println(solution.fizzBuzz(<span class="number">15</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>时间复杂度：O(n)</li>
+<li>空间复杂度:  O(1) 不需要额外空间</li>
+</ul>
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-213-打家劫舍II</title>
     <url>/2020/05/01/Leetcode/Leetcode-213-%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8DII/</url>
     <content><![CDATA[<h1 id="Leecode-213-House-Robber-II"><a href="#Leecode-213-House-Robber-II" class="headerlink" title="Leecode-213-House Robber II"></a>Leecode-213-<a href="https://leetcode-cn.com/problems/house-robber-ii/" target="_blank" rel="noopener">House Robber II</a></h1><h2 id="思路：动态规划"><a href="#思路：动态规划" class="headerlink" title="思路：动态规划"></a>思路：动态规划</h2><p>题目描述：</p>
@@ -1410,8 +1559,8 @@ semaphore.acquire()
 <p>数据加热的含义就是在正式部署之前，我先把可能的数据先预先访问一遍，这样部分可能大量访问的数据就会加载到缓存中。在即将发生大并发访问前手动触发加载缓存不同的key，设置不同的过期时间，让缓存失效的时间点尽量均匀。</p>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -1549,8 +1698,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -1593,8 +1742,8 @@ semaphore.acquire()
 <p><strong>稍微复杂的场景用MQ消息队列完成！！！</strong></p>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -1922,8 +2071,8 @@ semaphore.acquire()
 <p>　如果可以忍受一小段时间内数据的丢失，毫无疑问使用 RDB 是最好的，定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，而且使用 RDB 还可以避免 AOF 一些隐藏的 bug；否则就使用 AOF 重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。Redis后期官方可能都有将两种持久化方式整合为一种持久化模型。</p>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -1958,8 +2107,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -2059,8 +2208,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -2159,8 +2308,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -2199,8 +2348,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -2567,8 +2716,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -2638,7 +2787,46 @@ semaphore.acquire()
 </li>
 </ol>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200501/094135134.png" alt="mark"></p>
-<h2 id="5-删除元素"><a href="#5-删除元素" class="headerlink" title="5. 删除元素"></a>5. 删除元素</h2><h2 id="6-修改元素"><a href="#6-修改元素" class="headerlink" title="6. 修改元素"></a>6. 修改元素</h2><p>通过调用set(int index,E element) 方法，用指定的元素替换此列表中指定位置的元素。</p>
+<h3 id="4-3-add-int-index-E-element"><a href="#4-3-add-int-index-E-element" class="headerlink" title="4.3 add(int index, E element)"></a>4.3 add(int index, E element)</h3><p>将指定元素插入到此列表中的制定位置</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//判断索引 index &gt;= 0 &amp;&amp; index &lt;= size中时抛出IndexOutOfBoundsException异常</span></span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line">    <span class="comment">// 如果索引值等于链表大小</span></span><br><span class="line">    <span class="keyword">if</span> (index == size)</span><br><span class="line">        <span class="comment">// 将节点插入到尾节点</span></span><br><span class="line">        linkLast(element);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        linkBefore(element, node(index));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkLast</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 将l设置为尾节点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line">    <span class="comment">// 构造一个新节点，上一个指向l，后面指向null</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(l, e, <span class="keyword">null</span>);</span><br><span class="line">    <span class="comment">// 将尾节点设置成新的节点</span></span><br><span class="line">    last = newNode;</span><br><span class="line">    <span class="comment">// 如果尾节点为空，表示原先链表为空</span></span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>)</span><br><span class="line">        <span class="comment">// 将头结点设置成新创建的节点</span></span><br><span class="line">        first = newNode;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">// 将原来尾节点的下一个节点引用指向新节点</span></span><br><span class="line">        l.next = newNode;</span><br><span class="line">    <span class="comment">// 长度加1</span></span><br><span class="line">    size++;</span><br><span class="line">    <span class="comment">//和ArrayList中一样，iterator和listIterator方法返回的迭代器和列表迭代器实现使用。</span></span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkBefore</span><span class="params">(E e, Node&lt;E&gt; succ)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert succ != null;</span></span><br><span class="line">    <span class="comment">// 拿到待插入节点的上一个节点</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; pred = succ.prev;</span><br><span class="line">    <span class="comment">// 新建节点，元素是e，上一个节点是pred,下一个节点是succ</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(pred, e, succ);</span><br><span class="line">    <span class="comment">// 处理头指针：将新节点设置成待插入节点的上一个节点</span></span><br><span class="line">    succ.prev = newNode;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 处理尾指针：next指向newNode</span></span><br><span class="line">    <span class="keyword">if</span> (pred == <span class="keyword">null</span>)</span><br><span class="line">        first = newNode;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        pred.next = newNode;</span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-4-addAll-Collection-lt-extends-E-gt-c"><a href="#4-4-addAll-Collection-lt-extends-E-gt-c" class="headerlink" title="4.4 addAll(Collection&lt;? extends E&gt; c)"></a>4.4 addAll(Collection&lt;? extends E&gt; c)</h3><p><strong>按照指定集合的迭代器返回的顺序，将指定集合中的所有元素追加到此列表的末尾。</strong></p>
+<p>此方法还有一个addAll(int index,Collection&lt;? extends E&gt; c)。将集合c中的所有元素插入到指定索引处的位置。</p>
+<p><strong>本质上：</strong><code>addAll(Collection&lt;? extends E&gt; c) ==  addAll(size,Collection&lt;? extends E&gt; c)</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="comment">// 按照指定集合的迭代器返回的顺序，将指定集合中的所有元素追加到此列表的末尾。</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> addAll(size, c);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Inserts all of the elements in the specified collection into this</span></span><br><span class="line"><span class="comment"> * list, starting at the specified position.  Shifts the element</span></span><br><span class="line"><span class="comment"> * currently at that position (if any) and any subsequent elements to</span></span><br><span class="line"><span class="comment"> * the right (increases their indices).  The new elements will appear</span></span><br><span class="line"><span class="comment"> * in the list in the order that they are returned by the</span></span><br><span class="line"><span class="comment"> * specified collection's iterator.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> index index at which to insert the first element</span></span><br><span class="line"><span class="comment"> *              from the specified collection</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> c collection containing elements to be added to this list</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; if this list changed as a result of the call</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> NullPointerException if the specified collection is null</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> index, Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断索引是否有越界情况</span></span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将集合转换成一个Object类型的数组</span></span><br><span class="line">    Object[] a = c.toArray();</span><br><span class="line">    <span class="comment">// 拿到数组的长度</span></span><br><span class="line">    <span class="keyword">int</span> numNew = a.length;</span><br><span class="line">    <span class="comment">// 如果传入添加的集传入合为空，直接返回false(Collection&lt;? extends E&gt; c这个集合)</span></span><br><span class="line">    <span class="keyword">if</span> (numNew == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    Node&lt;E&gt; pred, succ;</span><br><span class="line">    <span class="comment">// 如果插入的位置等于链表的长度，就是将原集合元素附加到链表的末尾</span></span><br><span class="line">    <span class="keyword">if</span> (index == size) &#123;</span><br><span class="line">        succ = <span class="keyword">null</span>;</span><br><span class="line">        pred = last;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        succ = node(index);</span><br><span class="line">        pred = succ.prev;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历要插入的元素</span></span><br><span class="line">    <span class="keyword">for</span> (Object o : a) &#123;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>) E e = (E) o;</span><br><span class="line">        Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(pred, e, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">if</span> (pred == <span class="keyword">null</span>)</span><br><span class="line">            first = newNode;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            pred.next = newNode;</span><br><span class="line">        pred = newNode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (succ == <span class="keyword">null</span>) &#123;</span><br><span class="line">        last = pred;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        pred.next = succ;</span><br><span class="line">        succ.prev = pred;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    size += numNew;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看到上面想LinkedList集合中添加元素的各种方式，可以<strong>发现LinkedList 每次添加元素只是改变元素的上一个指针的引用和下一个指针的引用，而且都没有扩容</strong>。</p>
+<p>对比于<strong>ArrayList，需要扩容，而且在中间插入元素的时候，后面的元素都要移动一位</strong>。</p>
+<p>两种插入元素的效率差异很大。</p>
+<h2 id="5-删除元素"><a href="#5-删除元素" class="headerlink" title="5. 删除元素"></a>5. 删除元素</h2><p>删除元素和添加元素一样，也是通过更改指向上一个节点和指向下一个节点的引用即可。</p>
+<h3 id="5-1-remove-和removeFirst"><a href="#5-1-remove-和removeFirst" class="headerlink" title="5.1 remove()和removeFirst()"></a>5.1 remove()和removeFirst()</h3><p><strong>从此列表中移除并返回第一个元素</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 从链表中删除第一个元素</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> removeFirst();</span><br><span class="line">&#125;    </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">removeFirst</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 设置f是头结点</span></span><br><span class="line">        <span class="keyword">final</span> Node&lt;E&gt; f = first;</span><br><span class="line">        <span class="keyword">if</span> (f == <span class="keyword">null</span>)</span><br><span class="line">            <span class="comment">//如果头结点为空，则抛出异常</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">        <span class="keyword">return</span> unlinkFirst(f);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Unlinks non-null first node f.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> E <span class="title">unlinkFirst</span><span class="params">(Node&lt;E&gt; f)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// assert f == first &amp;&amp; f != null;</span></span><br><span class="line">        <span class="comment">// 拿到头结点的元素</span></span><br><span class="line">        <span class="keyword">final</span> E element = f.item;</span><br><span class="line">        <span class="comment">// 拿到头结点的next指针</span></span><br><span class="line">        <span class="keyword">final</span> Node&lt;E&gt; next = f.next;</span><br><span class="line">        <span class="comment">// 元素置为null</span></span><br><span class="line">        f.item = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">// next指针置为null</span></span><br><span class="line">        f.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></span><br><span class="line">        <span class="comment">// 将第二个节点的赋值为头结点</span></span><br><span class="line">        first = next;</span><br><span class="line">        <span class="comment">// 如果第二个节点为空（当前链表只存在第一个元素）</span></span><br><span class="line">        <span class="keyword">if</span> (next == <span class="keyword">null</span>)</span><br><span class="line">            <span class="comment">// 那么尾节点也置为 null</span></span><br><span class="line">            last = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="comment">// 将第二个节点的prev指向null</span></span><br><span class="line">            next.prev = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">// size-1</span></span><br><span class="line">        size--;</span><br><span class="line">        <span class="comment">// 操作数+1</span></span><br><span class="line">        modCount++;</span><br><span class="line">        <span class="comment">// 返回删除的元素</span></span><br><span class="line">        <span class="keyword">return</span> element;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-2-removeLast"><a href="#5-2-removeLast" class="headerlink" title="5.2 removeLast()"></a>5.2 removeLast()</h3><p><strong>从该列表中删除并返回最后一个元素</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">removeLast</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line">    <span class="comment">// 如果尾节点为空，表示当前集合为空，抛出异常</span></span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line">    <span class="keyword">return</span> unlinkLast(l);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Unlinks non-null last node l.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> E <span class="title">unlinkLast</span><span class="params">(Node&lt;E&gt; l)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert l == last &amp;&amp; l != null;</span></span><br><span class="line">    <span class="comment">// 拿到尾节点的元素</span></span><br><span class="line">    <span class="keyword">final</span> E element = l.item;</span><br><span class="line">    <span class="comment">// 拿到尾节点的prev指针</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; prev = l.prev;</span><br><span class="line">    <span class="comment">// 元素置为null</span></span><br><span class="line">    l.item = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// prev指向null</span></span><br><span class="line">    l.prev = <span class="keyword">null</span>; <span class="comment">// help GC</span></span><br><span class="line">    <span class="comment">// 将倒数第二个节点作为最后的节点</span></span><br><span class="line">    last = prev;</span><br><span class="line">    <span class="comment">// 如果倒数第二个节点为null</span></span><br><span class="line">    <span class="keyword">if</span> (prev == <span class="keyword">null</span>)</span><br><span class="line">        <span class="comment">// 那么将头节点也置为 null</span></span><br><span class="line">        first = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">// 如果倒数第二个节点不为空，那么将倒数第二个节点的下一个引用置为 null</span></span><br><span class="line">        prev.next = <span class="keyword">null</span>;</span><br><span class="line">    size--;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">return</span> element;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-3-remove-int-index"><a href="#5-3-remove-int-index" class="headerlink" title="5.3 remove(int index)"></a>5.3 remove(int index)</h3><p><strong>删除此列表中指定位置的元素</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断索引是否越界</span></span><br><span class="line">    checkElementIndex(index);</span><br><span class="line">    <span class="keyword">return</span> unlink(node(index));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">E <span class="title">unlink</span><span class="params">(Node&lt;E&gt; x)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert x != null;</span></span><br><span class="line">    <span class="keyword">final</span> E element = x.item;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; next = x.next;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; prev = x.prev;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 表示删除第一个节点</span></span><br><span class="line">    <span class="keyword">if</span> (prev == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 将头结点换位第二个节点</span></span><br><span class="line">        first = next;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 不是删除第一个节点</span></span><br><span class="line">        prev.next = next; <span class="comment">// 上一个元素的next指向当前的next</span></span><br><span class="line">        x.prev = <span class="keyword">null</span>; <span class="comment">// 将prev指向null</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 表示删除最后一个节点</span></span><br><span class="line">    <span class="keyword">if</span> (next == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 直接把最后一个节点换位倒数第二个节点</span></span><br><span class="line">        last = prev;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 不是删除最后一个节点</span></span><br><span class="line">        next.prev = prev; <span class="comment">// 将下一个节点的prev指向当前节点的上一个节点</span></span><br><span class="line">        x.next = <span class="keyword">null</span>; <span class="comment">// next指向null,断开链接</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 元素清空，方便GC</span></span><br><span class="line">    x.item = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 长度-1</span></span><br><span class="line">    size--;</span><br><span class="line">    modCount++;</span><br><span class="line">    <span class="keyword">return</span> element;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-4-remove-Object-o"><a href="#5-4-remove-Object-o" class="headerlink" title="5.4 remove(Object o)"></a>5.4 remove(Object o)</h3><p><strong>如果存在要删除的这个对象，则从该列表中删除指定元素的第一次出现的节点。</strong></p>
+<p>此方法<strong>本质上和remove(int index)没多大区别</strong>。通过循环判断元素是否进行删除，需要注意的是，这个只删除第一次出现的元素，并不是删除所有。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123; <span class="comment">// 删除null</span></span><br><span class="line">        <span class="keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x.item == <span class="keyword">null</span>) &#123;</span><br><span class="line">                unlink(x); <span class="comment">// 调用unlink(x)</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 不是删除null</span></span><br><span class="line">        <span class="keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (o.equals(x.item)) &#123;</span><br><span class="line">                unlink(x);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-修改元素"><a href="#6-修改元素" class="headerlink" title="6. 修改元素"></a>6. 修改元素</h2><p>通过调用set(int index,E element) 方法，用指定的元素替换此列表中指定位置的元素。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Replaces the element at the specified position in this list with the</span></span><br><span class="line"><span class="comment"> * specified element.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> index index of the element to replace</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> element element to be stored at the specified position</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the element previously at the specified position</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IndexOutOfBoundsException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断索引index &gt;= 0 &amp;&amp; index &lt;= size抛出IndexOutOfBoundsException异常</span></span><br><span class="line">    checkElementIndex(index);</span><br><span class="line">    <span class="comment">// 获得指定索引处的元素</span></span><br><span class="line">    Node&lt;E&gt; x = node(index);</span><br><span class="line">    <span class="comment">// 在上一步拿到指定索引处元素的基础上，拿到元素的val(item)</span></span><br><span class="line">    E oldVal = x.item;</span><br><span class="line">    <span class="comment">// 修改元素的(item = element)</span></span><br><span class="line">    x.item = element;</span><br><span class="line">    <span class="comment">// 返回指定索引位置原来的元素</span></span><br><span class="line">    <span class="keyword">return</span> oldVal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这里主要是通过 node(index) 方法获取指定索引位置的节点，然后修改此节点位置的元素即可。</p>
@@ -2660,6 +2848,64 @@ semaphore.acquire()
 <h3 id="7-4-indexOf-Object-o"><a href="#7-4-indexOf-Object-o" class="headerlink" title="7.4 indexOf(Object o)"></a>7.4 indexOf(Object o)</h3><p><strong>返回列表中指定元素第一次出现的索引，如果此列表不包含这个元素，则返回-1</strong></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Returns the index of the first occurrence of the specified element</span></span><br><span class="line"><span class="comment">    * in this list, or -1 if this list does not contain the element.</span></span><br><span class="line"><span class="comment">    * More formally, returns the lowest index &#123;<span class="doctag">@code</span> i&#125; such that</span></span><br><span class="line"><span class="comment">    * &lt;tt&gt;(o==null&amp;nbsp;?&amp;nbsp;get(i)==null&amp;nbsp;:&amp;nbsp;o.equals(get(i)))&lt;/tt&gt;,</span></span><br><span class="line"><span class="comment">    * or -1 if there is no such index.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> o element to search for</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> the index of the first occurrence of the specified element in</span></span><br><span class="line"><span class="comment">    *         this list, or -1 if this list does not contain the element</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回此列表中指定元素第一次出现的索引，如果此列表不包含元素，则返回-1。</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">       <span class="comment">// 如果查找的元素是null的话(LinkedList可以允许null值)</span></span><br><span class="line">       <span class="keyword">if</span> (o == <span class="keyword">null</span>) &#123;</span><br><span class="line">     			<span class="comment">// 从头结点开始遍历向下遍历，直到找到null</span></span><br><span class="line">           <span class="keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">               <span class="keyword">if</span> (x.item == <span class="keyword">null</span>)</span><br><span class="line">                   <span class="keyword">return</span> index;</span><br><span class="line">               index++;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123; <span class="comment">//	如果查找的元素不是null的话</span></span><br><span class="line">           <span class="keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="keyword">null</span>; x = x.next) &#123;</span><br><span class="line">               <span class="keyword">if</span> (o.equals(x.item))</span><br><span class="line">                   <span class="keyword">return</span> index;</span><br><span class="line">               index++;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> -<span class="number">1</span>; <span class="comment">//找不到返回-1</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
+
+
+<h2 id="8-遍历集合"><a href="#8-遍历集合" class="headerlink" title="8. 遍历集合"></a>8. 遍历集合</h2><h3 id="8-1-普通for循环"><a href="#8-1-普通for循环" class="headerlink" title="8.1 普通for循环"></a>8.1 普通for循环</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    LinkedList&lt;String&gt; linkedList = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    linkedList.add(<span class="string">"A"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"B"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"C"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"D"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; linkedList.size(); i++) &#123;</span><br><span class="line">        System.out.println(linkedList.get(i)); <span class="comment">// A B C D</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码很简单，我们就利用 LinkedList 的 get(int index) 方法，遍历出所有的元素。</p>
+<p>但是需要注意的是， <strong>get(int index) 方法每次都要遍历该索引之前的所有元素</strong>，这句话这么理解：</p>
+<p>比如上述的一个LinkedList 集合，我放入了 A,B,C,D是个元素。总共需要四次遍历：</p>
+<ul>
+<li>第一次遍历打印A:只需遍历一次。</li>
+<li>第二次遍历打印B：需要先找到 A，然后再找到 B 打印。</li>
+<li>第三次遍历打印 C：需要先找到 A，然后找到 B，最后找到 C 打印。</li>
+<li>第四次遍历打印 D：需要先找到 A，然后找到 B，然后找到 C，最后找到 D。</li>
+</ul>
+<p>这样如果集合的元素很多，越查找到后面（当然此处get方法进行了优化：查找前半部分从前面开始遍历，查找后半部分从后面开始遍历）花费的时间越多。那么如何改进呢？</p>
+<h3 id="8-2-迭代器"><a href="#8-2-迭代器" class="headerlink" title="8.2 迭代器"></a>8.2 迭代器</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    LinkedList&lt;String&gt; linkedList = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    linkedList.add(<span class="string">"A"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"B"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"C"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"D"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 普通迭代器</span></span><br><span class="line">    Iterator&lt;String&gt; it = linkedList.iterator();</span><br><span class="line">    <span class="keyword">while</span> (it.hasNext())&#123;</span><br><span class="line">        System.out.println(it.next()); <span class="comment">//A B C D</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过适配器模式实现的接口，作用是倒序打印链表</span></span><br><span class="line">    Iterator&lt;String&gt; deIt = linkedList.descendingIterator();</span><br><span class="line">    <span class="keyword">while</span> (deIt.hasNext())&#123;</span><br><span class="line">        System.out.println(deIt.next()); <span class="comment">//D C B A</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在 LinkedList 集合中也有一个内部类ListItr,方法实现大致上差不多(这里是指和ArrayList中的内部类差不多)，通过移动游标指向每一次要遍历的元素，不用在遍历某个元素之前都要从头开始。其实现方法如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ListItr(index);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ListItr</span> <span class="keyword">implements</span> <span class="title">ListIterator</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Node&lt;E&gt; lastReturned;</span><br><span class="line">    <span class="keyword">private</span> Node&lt;E&gt; next;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> nextIndex;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> expectedModCount = modCount;</span><br><span class="line"></span><br><span class="line">    ListItr(<span class="keyword">int</span> index) &#123;</span><br><span class="line">        <span class="comment">// assert isPositionIndex(index);</span></span><br><span class="line">        next = (index == size) ? <span class="keyword">null</span> : node(index);</span><br><span class="line">        nextIndex = index;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasNext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nextIndex &lt; size;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">next</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="keyword">if</span> (!hasNext())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line"></span><br><span class="line">        lastReturned = next;</span><br><span class="line">        next = next.next;</span><br><span class="line">        nextIndex++;</span><br><span class="line">        <span class="keyword">return</span> lastReturned.item;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasPrevious</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nextIndex &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> E <span class="title">previous</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="keyword">if</span> (!hasPrevious())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NoSuchElementException();</span><br><span class="line"></span><br><span class="line">        lastReturned = next = (next == <span class="keyword">null</span>) ? last : next.prev;</span><br><span class="line">        nextIndex--;</span><br><span class="line">        <span class="keyword">return</span> lastReturned.item;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">nextIndex</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nextIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">previousIndex</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nextIndex - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        <span class="keyword">if</span> (lastReturned == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line"></span><br><span class="line">        Node&lt;E&gt; lastNext = lastReturned.next;</span><br><span class="line">        unlink(lastReturned);</span><br><span class="line">        <span class="keyword">if</span> (next == lastReturned)</span><br><span class="line">            next = lastNext;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            nextIndex--;</span><br><span class="line">        lastReturned = <span class="keyword">null</span>;</span><br><span class="line">        expectedModCount++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (lastReturned == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line">        checkForComodification();</span><br><span class="line">        lastReturned.item = e;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        checkForComodification();</span><br><span class="line">        lastReturned = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (next == <span class="keyword">null</span>)</span><br><span class="line">            linkLast(e);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            linkBefore(e, next);</span><br><span class="line">        nextIndex++;</span><br><span class="line">        expectedModCount++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">forEachRemaining</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> E&gt; action)</span> </span>&#123;</span><br><span class="line">        Objects.requireNonNull(action);</span><br><span class="line">        <span class="keyword">while</span> (modCount == expectedModCount &amp;&amp; nextIndex &lt; size) &#123;</span><br><span class="line">            action.accept(next.item);</span><br><span class="line">            lastReturned = next;</span><br><span class="line">            next = next.next;</span><br><span class="line">            nextIndex++;</span><br><span class="line">        &#125;</span><br><span class="line">        checkForComodification();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// modCount</span></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">checkForComodification</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (modCount != expectedModCount)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ConcurrentModificationException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意的是modCount字段，前面我们在增加和删除元素的时候，都会进行自增操作modCount，这是因为如果想一边迭代，一边用集合自带的方法进行删除或者新增操作的话，都会抛出异常（但是使用迭代器操作不会抛出异常）。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="comment">// modCount</span></span><br><span class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">checkForComodification</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (modCount != expectedModCount)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ConcurrentModificationException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        LinkedList&lt;String&gt; linkedList = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        linkedList.add(<span class="string">"A"</span>);</span><br><span class="line">        linkedList.add(<span class="string">"B"</span>);</span><br><span class="line">        linkedList.add(<span class="string">"C"</span>);</span><br><span class="line">        linkedList.add(<span class="string">"D"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 普通迭代器</span></span><br><span class="line">        Iterator&lt;String&gt; it = linkedList.iterator();</span><br><span class="line">        <span class="keyword">while</span> (it.hasNext())&#123;</span><br><span class="line">            System.out.println(it.next()); <span class="comment">//A B C D</span></span><br><span class="line"><span class="comment">//            linkedList.remove(); // 此处会抛出异常</span></span><br><span class="line">            it.remove(); <span class="comment">// 迭代器不会抛出异常</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-3-迭代器forEach循环"><a href="#8-3-迭代器forEach循环" class="headerlink" title="8.3 迭代器forEach循环"></a>8.3 迭代器forEach循环</h3><p><strong>迭代器的另一种形式就是使用 foreach 循环，底层实现也是使用的迭代器，这里我们就不做介绍了。</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    LinkedList&lt;String&gt; linkedList = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    linkedList.add(<span class="string">"A"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"B"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"C"</span>);</span><br><span class="line">    linkedList.add(<span class="string">"D"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方式一：</span></span><br><span class="line">    linkedList.forEach(System.out::println); <span class="comment">// A B C D</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方式二</span></span><br><span class="line">    <span class="keyword">for</span> (String str : linkedList) &#123;</span><br><span class="line">        System.out.println(str);   <span class="comment">// A B C D</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-4-迭代器和for循环的效率差异"><a href="#8-4-迭代器和for循环的效率差异" class="headerlink" title="8.4 迭代器和for循环的效率差异"></a>8.4 迭代器和for循环的效率差异</h3><p>首先我们需要先知道如下两个概念：</p>
+<ul>
+<li><strong>普通for循环：每次遍历一个索引的元素之前，都要访问之前所有的索引。</strong></li>
+<li><strong>迭代器：每次访问一个元素之后，都会用游标记录当前访问位置的元素，遍历一个元素，记录一个位置。</strong></li>
+</ul>
+<p>接下来我们来看实际的例子：</p>
+<ol>
+<li>普通for循环</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1 . 普通for循环实验</span></span><br><span class="line">    LinkedList&lt;Integer&gt; linkedList = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存10000个元素</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) &#123;</span><br><span class="line">        linkedList.add(i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录开始时间</span></span><br><span class="line">    <span class="keyword">long</span> beginTime = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 取10000个元素</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) &#123;</span><br><span class="line">        System.out.println(linkedList.get(i));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">long</span> endTime = System.currentTimeMillis();</span><br><span class="line">    System.out.println(<span class="string">"普通for循环花了"</span> + (endTime-beginTime)+<span class="string">"的时间"</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/152423519.png" alt="mark"></p>
+<ol start="2">
+<li>迭代器</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 2. 迭代器实验</span></span><br><span class="line">    LinkedList&lt;Integer&gt; linkedList = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 存10000个元素</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) &#123;</span><br><span class="line">        linkedList.add(i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录开始时间</span></span><br><span class="line">    <span class="keyword">long</span> beginTime = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 取10000个元素</span></span><br><span class="line">    Iterator&lt;Integer&gt; it = linkedList.iterator();</span><br><span class="line">    <span class="keyword">while</span> (it.hasNext())&#123;</span><br><span class="line">        System.out.println(it.next());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">long</span> endTime = System.currentTimeMillis();</span><br><span class="line">    System.out.println(<span class="string">"迭代器花了"</span> + (endTime-beginTime)+<span class="string">"的时间"</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下所示：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/152652741.png" alt="mark"></p>
+<p><strong>一万个元素两者之间都相差一倍多的时间，如果是十万，百万个元素，那么两者之间相差的速度会越来越大！！！</strong></p>
+<p><strong>参考文档：</strong><a href="https://docs.oracle.com/javase/8/docs/api/java/util/LinkedList.html#" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/api/java/util/LinkedList.html#</a></p>
 ]]></content>
       <tags>
         <tag>JDK源码分析</tag>
@@ -2994,8 +3240,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3170,8 +3416,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3825,8 +4071,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -13413,8 +13659,8 @@ semaphore.acquire()
 <h3 id="6-3-Druid"><a href="#6-3-Druid" class="headerlink" title="6.3 Druid"></a>6.3 Druid</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200304213756.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>JDBC</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -13546,7 +13792,7 @@ semaphore.acquire()
 </ol>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200428/105110806.png" alt="mark"></p>
 <h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s.length(), ans = <span class="number">0</span>;</span><br><span class="line">        Map&lt;Character, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> end = <span class="number">0</span>, start = <span class="number">0</span>; end &lt; n; end++) &#123;</span><br><span class="line">            <span class="keyword">char</span> alpha = s.charAt(end);</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(alpha)) &#123;</span><br><span class="line">                start = Math.max(map.get(alpha), start);</span><br><span class="line">            &#125;</span><br><span class="line">            ans = Math.max(ans, end - start + <span class="number">1</span>);</span><br><span class="line">            map.put(s.charAt(end), end + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(String s)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">int</span> ans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> start = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// key是字符，value是字符位置+1</span></span><br><span class="line">        Map&lt;Character, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="comment">// 遍历字符串</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> end = <span class="number">0</span>; end &lt; n; end++) &#123;</span><br><span class="line">            <span class="comment">// 拿到当前字符</span></span><br><span class="line">            <span class="keyword">char</span> curr  = s.charAt(end);</span><br><span class="line">            <span class="comment">// 如果当前字符已经出现过，更新窗口start的位置</span></span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(curr))&#123;</span><br><span class="line">                start = Math.max(map.get(curr),start);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 更新窗口的长度</span></span><br><span class="line">            ans = Math.max(ans,end - start + <span class="number">1</span>);</span><br><span class="line">            <span class="comment">// 记录end字符</span></span><br><span class="line">            map.put(s.charAt(end),end + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>时间复杂度：O(n)，遍历一遍字符串的时间开销</li>
