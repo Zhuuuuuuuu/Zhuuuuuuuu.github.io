@@ -634,8 +634,8 @@ root[<span class="number">1</span>] = rob(root.left)[<span class="number">0</spa
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -873,11 +873,42 @@ root[<span class="number">1</span>] = rob(root.left)[<span class="number">0</spa
 <li>这里t1和t2都拿到了锁</li>
 <li>只有等t1释放锁之后，t2才能释放锁</li>
 </ul>
-<h3 id="5-4-死锁"><a href="#5-4-死锁" class="headerlink" title="5.4 死锁"></a>5.4 死锁</h3>]]></content>
+<h3 id="5-4-死锁"><a href="#5-4-死锁" class="headerlink" title="5.4 死锁"></a>5.4 死锁</h3><ol>
+<li>死锁是什么？</li>
+</ol>
+<ul>
+<li>两个线程互相竞争对方的资源</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200504/213522266.png" alt="mark"></p>
+<ol start="2">
+<li>如何分析排除死锁？</li>
+</ol>
+<ul>
+<li>先来看一个死锁的例子</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mythread</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String lockA;</span><br><span class="line">    <span class="keyword">private</span> String lockB;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Mythread</span><span class="params">(String lockA, String lockB)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.lockA = lockA;</span><br><span class="line">        <span class="keyword">this</span>.lockB = lockB;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (lockA)&#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"lock"</span>+lockA);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">synchronized</span> (lockB)&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+<span class="string">"lock"</span>+lockB);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestDeadLock</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        String lockA = <span class="string">"lockA"</span>;</span><br><span class="line">        String lockB = <span class="string">"lockB"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Mythread(lockA,lockB),<span class="string">"T1"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Mythread(lockB,lockA),<span class="string">"T2"</span>).start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>那么如何解决这个问题？</li>
+</ul>
+<ol>
+<li>使用jps定位进程号    <code>jps -l</code></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200504/214427255.png" alt="mark"></p>
+<ol start="2">
+<li><code>jstack</code> 进程号 找到死锁问题</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200504/214644171.png" alt="mark"></p>
+<p>注意：面试中遇到问题如何排查？？</p>
+<ul>
+<li><strong>日志</strong></li>
+<li><strong>看一下堆栈信息</strong></li>
+</ul>
+]]></content>
       <tags>
-        <tag>JMM</tag>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
+        <tag>JMM</tag>
       </tags>
   </entry>
   <entry>
@@ -926,8 +957,8 @@ root[<span class="number">1</span>] = rob(root.left)[<span class="number">0</spa
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1353,8 +1384,8 @@ dp[1] = nums[0];</code></pre></li>
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1419,8 +1450,8 @@ dp[1] = nums[0];</code></pre></li>
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1498,8 +1529,8 @@ dp[1] = nums[0];</code></pre></li>
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1649,8 +1680,8 @@ dp[1] = nums[0];</code></pre></li>
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1697,8 +1728,8 @@ dp[1] = nums[0];</code></pre></li>
 <p>共享锁：多个线程可以同时占有（读锁）</p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1734,8 +1765,8 @@ semaphore.acquire()
 <p>作用：多个共享资源互斥的使用，并发限流，可以控制最大的并发数。</p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1766,8 +1797,8 @@ semaphore.acquire()
 <p>参考博客链接：<a href="https://blog.csdn.net/sinat_39634657/article/details/81456810" target="_blank" rel="noopener">https://blog.csdn.net/sinat_39634657/article/details/81456810</a></p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -1931,8 +1962,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -2008,8 +2039,8 @@ semaphore.acquire()
 <p><strong>（本质上：两个拿到的锁不一样）</strong></p>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -2049,8 +2080,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -2146,8 +2177,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>多线程</tag>
         <tag>JUC</tag>
+        <tag>多线程</tag>
       </tags>
   </entry>
   <entry>
@@ -11885,8 +11916,8 @@ semaphore.acquire()
 </ol>
 ]]></content>
       <tags>
-        <tag>JVM</tag>
         <tag>JMM</tag>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -12446,8 +12477,8 @@ semaphore.acquire()
     <content><![CDATA[]]></content>
       <tags>
         <tag>读书笔记</tag>
-        <tag>JVM</tag>
         <tag>JMM</tag>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -12487,8 +12518,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>云服务器开发环境</tag>
         <tag>JDK</tag>
+        <tag>云服务器开发环境</tag>
       </tags>
   </entry>
   <entry>
@@ -16836,15 +16867,6 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
-    <title>Mysql-视图</title>
-    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Mysql</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mysql-索引</title>
     <url>/2019/02/21/Mysql/Mysql-%E7%B4%A2%E5%BC%95/</url>
     <content><![CDATA[<h1 id="Mysql-索引"><a href="#Mysql-索引" class="headerlink" title="Mysql 索引"></a>Mysql 索引</h1><h2 id="1-索引的作用"><a href="#1-索引的作用" class="headerlink" title="1. 索引的作用"></a>1. 索引的作用</h2><ul>
@@ -16910,6 +16932,15 @@ semaphore.acquire()
 <li>索引一般应该加载查找条件的字段上</li>
 </ul>
 ]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Mysql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mysql-视图</title>
+    <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
+    <content><![CDATA[]]></content>
       <tags>
         <tag>数据库</tag>
         <tag>Mysql</tag>
