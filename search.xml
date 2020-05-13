@@ -1,6 +1,543 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Leetcode-155-最小栈</title>
+    <url>/2020/05/12/Leetcode/Leetcode-155-%E6%9C%80%E5%B0%8F%E6%A0%88/</url>
+    <content><![CDATA[<h1 id="Leecode-155-Min-Stack"><a href="#Leecode-155-Min-Stack" class="headerlink" title="Leecode-155-Min Stack"></a>Leecode-155-<a href="https://leetcode-cn.com/problems/min-stack/" target="_blank" rel="noopener">Min Stack</a></h1><h2 id="思路：辅助栈-数据同步"><a href="#思路：辅助栈-数据同步" class="headerlink" title="思路：辅助栈/数据同步"></a>思路：辅助栈/数据同步</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>设计一个支持 push ，pop ，top 操作，并能在常数时间内检索到最小元素的栈。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">push(x) ——   将元素 x 推入栈中。</span><br><span class="line">pop() ——     删除栈顶的元素。</span><br><span class="line">top() ——     获取栈顶元素。</span><br><span class="line">getMin() —— 检索栈中的最小元素。</span><br></pre></td></tr></table></figure>
+
+
+
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">输入：</span><br><span class="line">[<span class="string">"MinStack"</span>,<span class="string">"push"</span>,<span class="string">"push"</span>,<span class="string">"push"</span>,<span class="string">"getMin"</span>,<span class="string">"pop"</span>,<span class="string">"top"</span>,<span class="string">"getMin"</span>]</span><br><span class="line">[[],[-<span class="number">2</span>],[<span class="number">0</span>],[-<span class="number">3</span>],[],[],[],[]]</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">[<span class="keyword">null</span>,<span class="keyword">null</span>,<span class="keyword">null</span>,<span class="keyword">null</span>,-<span class="number">3</span>,<span class="keyword">null</span>,<span class="number">0</span>,-<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">解释：</span><br><span class="line">MinStack minStack = <span class="keyword">new</span> MinStack();</span><br><span class="line">minStack.push(-<span class="number">2</span>);</span><br><span class="line">minStack.push(<span class="number">0</span>);</span><br><span class="line">minStack.push(-<span class="number">3</span>);</span><br><span class="line">minStack.getMin();   --&gt; 返回 -<span class="number">3</span>.</span><br><span class="line">minStack.pop();</span><br><span class="line">minStack.top();      --&gt; 返回 <span class="number">0</span>.</span><br><span class="line">minStack.getMin();   --&gt; 返回 -<span class="number">2</span>.</span><br></pre></td></tr></table></figure>
+
+
+
+<a id="more"></a>
+
+<p><strong>Solution：辅助栈和数据栈同步</strong></p>
+<ul>
+<li>特点：编写简单，不需要考虑一些边界情况（缺点：可能会存储一些多余的元素）</li>
+<li>规则如下：<ul>
+<li><strong>辅助栈为空的时候，必须放进来新的数字</strong></li>
+<li>新来的数小于等于辅助栈栈顶元素的时候，才放入（<strong>这里“等于要考虑进去”，因为出栈的时候，相等的并且是最小值的元素要同步出栈</strong>），要不然就放入辅助栈栈顶自己</li>
+<li><strong>出栈的时候，辅助栈的栈顶元素要等于数据栈栈顶的元素才出栈</strong></li>
+</ul>
+</li>
+</ul>
+<p><strong>总结：</strong></p>
+<ul>
+<li><strong>出栈的时候，最小值出栈才同步</strong></li>
+<li><strong>入栈的时候，最小值入栈才同步</strong></li>
+</ul>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Stack;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MinStack</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 数据栈</span></span><br><span class="line">    <span class="keyword">private</span> Stack&lt;Integer&gt; data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 辅助栈</span></span><br><span class="line">    <span class="keyword">private</span> Stack&lt;Integer&gt; helper;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * initialize your data structure here.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MinStack</span><span class="params">()</span></span>&#123;</span><br><span class="line">        data =   <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">        helper = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 思路1：数据栈和辅助栈在任何时候都要同步</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">push</span><span class="params">(<span class="keyword">int</span> x)</span></span>&#123;</span><br><span class="line">        data.add(x);</span><br><span class="line">        <span class="keyword">if</span> (helper.isEmpty() || helper.peek() &gt;= x)&#123;</span><br><span class="line">            helper.add(x);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            helper.add(helper.peek());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">pop</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// 两个栈都需要pop操作</span></span><br><span class="line">        <span class="keyword">if</span> (!data.isEmpty())&#123;</span><br><span class="line">            helper.pop();</span><br><span class="line">            data.pop();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">top</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!data.isEmpty())&#123;</span><br><span class="line">            <span class="keyword">return</span> data.peek();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"栈元素为空"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMin</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!helper.isEmpty())&#123;</span><br><span class="line">            <span class="keyword">return</span> helper.peek();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"栈元素为空"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStack</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MinStack minStack = <span class="keyword">new</span> MinStack();</span><br><span class="line">        minStack.push(-<span class="number">2</span>);</span><br><span class="line">        minStack.push(<span class="number">0</span>);</span><br><span class="line">        minStack.push(-<span class="number">3</span>);</span><br><span class="line">        minStack.getMin();</span><br><span class="line">        minStack.pop();</span><br><span class="line">        minStack.top();</span><br><span class="line">        minStack.getMin();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>时间复杂度</strong>：O(1) 栈的操作</li>
+<li><strong>空间复杂度</strong>：O(n) 需要一个辅助栈的空间</li>
+</ul>
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>栈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IO-06-序列化和反序列化</title>
+    <url>/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</url>
+    <content><![CDATA[<h1 id="IO-序列化和反序列化"><a href="#IO-序列化和反序列化" class="headerlink" title="IO-序列化和反序列化"></a>IO-序列化和反序列化</h1><h2 id="1-什么是序列化和反序列化？"><a href="#1-什么是序列化和反序列化？" class="headerlink" title="1. 什么是序列化和反序列化？"></a>1. 什么是序列化和反序列化？</h2><ul>
+<li><p><strong>序列化</strong>：把堆内存上的Java对象数据，通过某种方式把对象存储到磁盘文件中或者传递给其他网络节点。这个过程称为序列化，<strong>通俗来说就是将数据结构或者对象转换成二进制串的过程。</strong></p>
+</li>
+<li><p><strong>反序列化</strong>：把磁盘文件中的对象数据或者把网络节点上的对象数据，恢复成Java对象模型的过程。<strong>也就是将在序列化过程中所产生的二进制串转换成数据结构或者对象的过程。</strong></p>
+</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="2-为什么要做序列化？"><a href="#2-为什么要做序列化？" class="headerlink" title="2. 为什么要做序列化？"></a>2. 为什么要做序列化？</h2><ul>
+<li>在分布式的系统中，此时需要把对象在网络上传输，就是得把对象转换成二进制的形式。如需要共享的JavaBean对象，都得做序列化。</li>
+<li>服务器钝化：<ul>
+<li>如果服务器发现某些对象好久没有活动了，那么服务器就会把这些内存中的对象持久化到本地磁盘文件中（Java对象转换成二进制文件）；</li>
+<li>如果服务器发现某些对象需要活动的时候，先去内存中寻找，找不到再去磁盘文件中反序列化我们的对象数据，恢复成Java对象，这样能节省服务器内存。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-Java如何进行序列化？"><a href="#3-Java如何进行序列化？" class="headerlink" title="3. Java如何进行序列化？"></a>3. Java如何进行序列化？</h2><ol>
+<li>需要做序列化的对象的类，必须实现序列化接口：Java.lang.Serializable 接口（这是一个标志接口，没有任何抽象方法），Java 中大多数类都实现了该接口，比如：String，Integer</li>
+<li>底层会判断，如果当前对象是Serializable 的实例，才允许做序列化，（Java对象 instance of Serializable 来判断）</li>
+<li>在Java中使用对象流来完成序列化和反序列化<ul>
+<li><strong>ObjectOutputStream</strong>:通过 writeObject()方法做序列化操作</li>
+<li><strong>ObjectInputStream</strong>:通过 readObject() 方法做反序列化操作</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/153840577.png" alt="mark"></p>
+<p>实例演示：</p>
+<ol>
+<li><strong>第一步：创建一个JavaBean对象</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Person&#123;"</span> +</span><br><span class="line">                <span class="string">"name='"</span> + name + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", age="</span> + age +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li><strong>第二步：使用ObjectOutputStream对象来实现序列化</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Serlize</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        OutputStream op = <span class="keyword">new</span> FileOutputStream(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 序列化对象</span></span><br><span class="line">        ObjectOutputStream ops = <span class="keyword">new</span> ObjectOutputStream(op);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 序列化操作</span></span><br><span class="line">        ops.writeObject(<span class="keyword">new</span> Person(<span class="string">"vue"</span>,<span class="number">1</span>));</span><br><span class="line">        ops.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们打开 a.txt 文件，发现里面的内容乱码，</li>
+<li>注意这不需要我们来看懂，这是二进制文件，计算机能读懂就行了。</li>
+</ul>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>如果新建的 Person 对象没有实现 Serializable 接口，那么上面的操作会报错：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/154354069.png" alt="mark"></p>
+<ol start="3">
+<li><strong>第三步：使用ObjectInputStream 来进行反序列化</strong></li>
+</ol>
+<p><strong>需要注意的：</strong></p>
+<ul>
+<li><strong>反序列化的对象必须要提供该对象的字节码文件.class</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnSerlize</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException </span>&#123;</span><br><span class="line">        FileInputStream in = <span class="keyword">new</span> FileInputStream(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 反序列化对象</span></span><br><span class="line">        ObjectInputStream os = <span class="keyword">new</span> ObjectInputStream(in);</span><br><span class="line">        Person p = (Person) os.readObject();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 读取操作</span></span><br><span class="line">        <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        System.out.println(p);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 关闭资源</span></span><br><span class="line">        os.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到结果是：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Person&#123;name=<span class="string">'vue'</span>, age=<span class="number">1</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-问题总结"><a href="#4-问题总结" class="headerlink" title="4. 问题总结"></a>4. 问题总结</h2><ol>
+<li><strong>如果某些数据不需要做序列化（比如密码，年龄）</strong><ul>
+<li>解决方案：在字段前加上<code>transient</code></li>
+</ul>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> String name;<span class="comment">//需要序列化</span></span><br><span class="line">    <span class="keyword">transient</span> <span class="keyword">private</span> <span class="keyword">int</span> age;<span class="comment">//不需要序列化</span></span><br></pre></td></tr></table></figure>
+
+<p>那么我们在反序列化的时候，打印出来的就是<code>Person [name=vae, age=0]</code>，整型数据默认值为 0 </p>
+<ol start="2">
+<li><strong>序列化版本的问题，在完成序列化之后，由于项目的升级或者修改，可能我们会对序列化对象进行修改，比如增加某个字段，那么在反序列化上就会报错</strong></li>
+</ol>
+<p>比如在上面的Person类中加入一个字段：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> String name;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> id;</span><br></pre></td></tr></table></figure>
+
+<p><strong>报错：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/155008063.png" alt="mark"></p>
+<p><strong>解决方案：</strong>在JavaBean中增加一个 <code>serialVersionUID</code>   字段，用来固定这个版本，无论我们怎么修改，版本都是一致的，就能进行反序列化了</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">678397537617897505L</span>;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IO-07-随机访问文件流</title>
+    <url>/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/</url>
+    <content><![CDATA[<h1 id="IO-随机访问文件流"><a href="#IO-随机访问文件流" class="headerlink" title="IO-随机访问文件流"></a>IO-随机访问文件流</h1><h2 id="1-什么是随机访问文件流？"><a href="#1-什么是随机访问文件流？" class="headerlink" title="1. 什么是随机访问文件流？"></a>1. 什么是随机访问文件流？</h2><ul>
+<li><strong>RandomAccessFile</strong></li>
+<li></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IO-05-包装流</title>
+    <url>/2020/05/12/FileIO/IO-05-%E5%8C%85%E8%A3%85%E6%B5%81/</url>
+    <content><![CDATA[<h1 id="IO-包装流"><a href="#IO-包装流" class="headerlink" title="IO-包装流"></a>IO-包装流</h1><p><strong>根据功能分为节点流和包装流（处理流）</strong></p>
+<ul>
+<li><p>节点流：可以从或向一个特定的地方(节点)读写数据。如FileReader</p>
+</li>
+<li><p>处理流：是对一个已存在的流的连接和封装，通过所封装的流的功能调用实现数据的读写。如BufferedReader,处理流的构造方法总是要带一个其他的流的参数做对象。一个流对象经过其他流的多次包装，称为流的链接。</p>
+</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="1-包装流"><a href="#1-包装流" class="headerlink" title="1. 包装流"></a>1. 包装流</h2><ol>
+<li><strong>什么是包装流？</strong></li>
+</ol>
+<ul>
+<li>包装流隐藏了底层节点流的差异，并对外提供了更方便的输入/输出的功能，让我们只关心这个高级流的操作就好</li>
+<li>使用包装流包装了节点流，程序直接操作包装流，而底层还是节点流和IO设备。</li>
+<li>关闭包装流的时候，只需要关闭包装流即可。</li>
+</ul>
+<h2 id="2-缓冲流"><a href="#2-缓冲流" class="headerlink" title="2. 缓冲流"></a>2. 缓冲流</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/135302648.png" alt="mark"></p>
+<p>*<em>缓冲流就是一个包装流，目的是缓存作用，加快读取和写入数据的速度。- *</em></p>
+<ul>
+<li>字符缓冲流：BufferedInputStream、BufferedOutputStream</li>
+<li>字节缓冲流：BufferedReader、BufferedWriter</li>
+</ul>
+<p><strong>看一个例子：</strong></p>
+<ul>
+<li><p><strong>之前的操作：我们在将字符输入输出流，字节输入输出流的时候。读取/写入操作，通常都会定义一个字节或者字符数组，将读取/写入的数据先存放到这个数组里面，然后在取数组中的数据。这比我们一个一个读取要快很多。这也是缓冲流的由来。</strong></p>
+</li>
+<li><p><strong>只不过缓冲流定义了一个数组用来存储我们读取/写入的数据</strong></p>
+</li>
+<li><p><strong>当内部定义的数组满了（注意：我们操作的时候外部还是会定义一个小的数组，小数组放到内部数组中），就会执行下一步的操作</strong></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/135814640.png" alt="mark"></p>
+<ul>
+<li>下面是一个没有使用缓冲流的例子：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestNoBuffer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">//1、创建目标对象，输入流表示那个文件的数据保存到程序中。不写盘符，默认该文件是在该项目的根目录下</span></span><br><span class="line">        <span class="comment">//a.txt 保存的文件内容为：AAaBCDEF</span></span><br><span class="line">        File target = <span class="keyword">new</span> File(<span class="string">"io"</span>+File.separator+<span class="string">"a.txt"</span>);</span><br><span class="line">        <span class="comment">//2、创建输入流对象</span></span><br><span class="line">        InputStream in = <span class="keyword">new</span> FileInputStream(target);</span><br><span class="line">        <span class="comment">//3、具体的 IO 操作（读取 a.txt 文件中的数据到程序中）</span></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 注意：读取文件中的数据，读到最后没有数据时，返回-1</span></span><br><span class="line"><span class="comment">         *  int read():读取一个字节，返回读取的字节</span></span><br><span class="line"><span class="comment">         *  int read(byte[] b):读取多个字节,并保存到数组 b 中，从数组 b 的索引为 0 的位置开始存储，返回读取了几个字节</span></span><br><span class="line"><span class="comment">         *  int read(byte[] b,int off,int len):读取多个字节，并存储到数组 b 中，从数组b 的索引为 0 的位置开始，长度为len个字节</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="comment">//int read():读取一个字节，返回读取的字节</span></span><br><span class="line">        <span class="keyword">int</span> data1 = in.read();<span class="comment">//获取 a.txt 文件中的数据的第一个字节</span></span><br><span class="line">        System.out.println((<span class="keyword">char</span>)data1); <span class="comment">//A</span></span><br><span class="line">        <span class="comment">//int read(byte[] b):读取多个字节保存到数组b 中</span></span><br><span class="line">        <span class="keyword">byte</span>[] buffer  = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">10</span>];<span class="comment">//这里我们定义了一个 长度为 10 的字节数组，用来存储读取的数据</span></span><br><span class="line">        in.read(buffer);<span class="comment">//获取 a.txt 文件中的前10 个字节，并存储到 buffer 数组中</span></span><br><span class="line">        System.out.println(Arrays.toString(buffer)); <span class="comment">//[65, 97, 66, 67, 68, 69, 70, 0, 0, 0]</span></span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(buffer)); <span class="comment">//AaBCDEF[][][]</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//int read(byte[] b,int off,int len):读取多个字节，并存储到数组 b 中,从索引 off 开始到 len</span></span><br><span class="line">        in.read(buffer, <span class="number">0</span>, <span class="number">3</span>);</span><br><span class="line">        System.out.println(Arrays.toString(buffer)); <span class="comment">//[65, 97, 66, 0, 0, 0, 0, 0, 0, 0]</span></span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(buffer)); <span class="comment">//AaB[][][][][][][]</span></span><br><span class="line">        <span class="comment">//4、关闭流资源</span></span><br><span class="line">        in.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>接下来，我们去看缓冲流的JDK底层源码<ul>
+<li>可以看到，程序中定义了这样的<strong>缓存数组，大小是8192</strong></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BufferedInputStream</span> <span class="keyword">extends</span> <span class="title">FilterInputStream</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> DEFAULT_BUFFER_SIZE = <span class="number">8192</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>最后我们来使用一下</li>
+</ul>
+<ol>
+<li><strong>字节缓冲输入/输出流</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestBufferedStream</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 字节缓冲输入流</span></span><br><span class="line">        BufferedInputStream bis = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 定义一个字节数组，用来存储数据</span></span><br><span class="line">        <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>((len=bis.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 关闭资源流</span></span><br><span class="line">        bis.close();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 字节缓冲输出流</span></span><br><span class="line">        BufferedOutputStream bos = <span class="keyword">new</span> BufferedOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>));</span><br><span class="line">        bos.write(<span class="string">"ABCD"</span>.getBytes());</span><br><span class="line">        bos.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li><strong>字符缓冲输入/输出流</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestBufferedReader</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 字符缓冲输入流</span></span><br><span class="line">        BufferedReader br = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> FileReader(<span class="string">"io"</span>+ File.separator+<span class="string">"a.txt"</span>));</span><br><span class="line">        <span class="keyword">char</span>[] buffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> ((len=br.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line">        br.close();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 字符缓冲输出流</span></span><br><span class="line">        BufferedWriter bw = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>));</span><br><span class="line">        bw.write(<span class="string">"ABCD"</span>);</span><br><span class="line">        bw.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-转换流"><a href="#3-转换流" class="headerlink" title="3. 转换流"></a>3. 转换流</h2><ul>
+<li><strong>转换流：把字节流转换成字符流</strong><ul>
+<li><strong>InputStreamReader:把字节输入流转换成字符输入流</strong></li>
+<li><strong>OutputStreamWriter:把字节输出流转换成字符输出流</strong></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用转换流进行文件的复制</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConvert</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 创建源和目标</span></span><br><span class="line">        File srcFile = <span class="keyword">new</span> File(<span class="string">"io"</span>+File.separator+<span class="string">"a.txt"</span>);</span><br><span class="line">        File descFile = <span class="keyword">new</span> File(<span class="string">"io"</span>+File.separator+<span class="string">"b.txt"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 创建字节输入输出流对象</span></span><br><span class="line">        InputStream  in  = <span class="keyword">new</span> FileInputStream(srcFile);</span><br><span class="line">        OutputStream out = <span class="keyword">new</span> FileOutputStream(descFile);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 创建转换输入输出对象</span></span><br><span class="line">        Reader rd = <span class="keyword">new</span> InputStreamReader(in);</span><br><span class="line">        Writer wt = <span class="keyword">new</span> OutputStreamWriter(out);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 读取和写入操作</span></span><br><span class="line">        <span class="keyword">char</span>[] buffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>]; <span class="comment">//创建一个容量为 10 的字符数组，存储已经读取的数据</span></span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>; <span class="comment">//表示已经读取了多少个字符，如果是 -1，表示已经读取到文件的末尾</span></span><br><span class="line">        <span class="keyword">while</span> ((len=rd.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            wt.write(buffer,<span class="number">0</span>,len);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. 关闭流资源</span></span><br><span class="line">        rd.close();</span><br><span class="line">        wt.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-内存流-数组流"><a href="#4-内存流-数组流" class="headerlink" title="4. 内存流(数组流)"></a>4. 内存流(数组流)</h2><ul>
+<li>把数据先临时存在数组中，也就是内存中。</li>
+<li>所以这个关闭内存流是无效的，关闭后还能再次调用这个方法。</li>
+<li>底层的close()方法是一个空方法。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Closing a &lt;tt&gt;ByteArrayOutputStream&lt;/tt&gt; has no effect. The methods in</span></span><br><span class="line"><span class="comment"> * this class can be called after the stream has been closed without</span></span><br><span class="line"><span class="comment"> * generating an &lt;tt&gt;IOException&lt;/tt&gt;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>①、字节内存流：ByteArrayOutputStream 、ByteArrayInputStream</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestArrayStream</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 字节数组输出流：程序-》内存</span></span><br><span class="line">        ByteArrayOutputStream bos = <span class="keyword">new</span> ByteArrayOutputStream();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将数据写到内存中</span></span><br><span class="line">        bos.write(<span class="string">"ABCD"</span>.getBytes());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建一个新分配的字节数组。</span></span><br><span class="line">        <span class="comment">// 其大小是当前大小，缓冲区的有效内容已经被复制到其中</span></span><br><span class="line">        <span class="keyword">byte</span>[] temp = bos.toByteArray();</span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(temp,<span class="number">0</span>,temp.length));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="comment">// 字节数组输入流：内存-》程序</span></span><br><span class="line">        ByteArrayInputStream bis = <span class="keyword">new</span> ByteArrayInputStream(temp);</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>((len=bis.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//这里不写也没事，因为源码中的 close()是一个空的方法体</span></span><br><span class="line">        bos.close();</span><br><span class="line">        bis.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>②、字符内存流：CharArrayReader、CharArrayWriter</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestArrayReader</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 字符数组输出流</span></span><br><span class="line">        CharArrayWriter caw = <span class="keyword">new</span> CharArrayWriter();</span><br><span class="line">        caw.write(<span class="string">"ABCD"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 返回内存数据的副本</span></span><br><span class="line">        <span class="keyword">char</span>[] temp = caw.toCharArray();</span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(temp));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 字符数组输入流</span></span><br><span class="line">        CharArrayReader car = <span class="keyword">new</span> CharArrayReader(temp);</span><br><span class="line">        <span class="keyword">char</span>[] buffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>((len=car.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>③、字符串流：StringReader,StringWriter（把数据临时存储到字符串中）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestStringReader</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 字符串输出流,底层采用 StringBuffer 进行拼接</span></span><br><span class="line">        StringWriter sw = <span class="keyword">new</span> StringWriter();</span><br><span class="line">        sw.write(<span class="string">"ABCD"</span>);</span><br><span class="line">        sw.write(<span class="string">"朱酱酱"</span>);</span><br><span class="line">        System.out.println(sw.toString());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 字符串输入流</span></span><br><span class="line">        StringReader sr = <span class="keyword">new</span> StringReader(sw.toString());</span><br><span class="line">        <span class="keyword">char</span>[] buffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>((len=sr.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-合并流"><a href="#5-合并流" class="headerlink" title="5. 合并流"></a>5. 合并流</h2><ul>
+<li>把多个输入和输出合并成一个流，也叫做顺序流，因为在读取的时候先读取了第一个，读完了再去读取下一个流。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestSequence</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 定义字节输入合并流</span></span><br><span class="line">        SequenceInputStream seinput = <span class="keyword">new</span> SequenceInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"io/a.txt"</span>), <span class="keyword">new</span> FileInputStream(<span class="string">"io/b.txt"</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> ((len=seinput.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        seinput.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IO-04-字符输入输出流</title>
+    <url>/2020/05/12/FileIO/IO-04-%E5%AD%97%E7%AC%A6%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E6%B5%81/</url>
+    <content><![CDATA[<h1 id="IO-字符输入输出流"><a href="#IO-字符输入输出流" class="headerlink" title="IO-字符输入输出流"></a>IO-字符输入输出流</h1><p>这篇我们将的是字符输入输出流：<strong>Reader,Writer</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/090013104.png" alt="mark"></p>
+<a id="more"></a>
+
+
+
+<ol>
+<li><p><strong>为什么要使用字符流？</strong></p>
+<p>因为使用字节流操作汉字或者特殊语言符号的时候特别容易乱码，因为汉字不止一个字节，<strong>为了解决这个问题，建议使用字符流。</strong></p>
+</li>
+<li><p><strong>什么情况下使用字符流？</strong></p>
+<p><strong>一般可以用记事本打开的文件，我们可以看到内容不乱码。就是文本文件，可以使用字符流。而操作二进制文件（比如图片，音频，视频）必须使用字节流。</strong></p>
+</li>
+</ol>
+<h2 id="1-Writer"><a href="#1-Writer" class="headerlink" title="1. Writer"></a>1. Writer</h2><ul>
+<li>用于写入字符流的抽象类</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Writer</span> <span class="keyword">implements</span> <span class="title">Appendable</span>, <span class="title">Closeable</span>, <span class="title">Flushable</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>方法摘要：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/090537759.png" alt="mark"></p>
+<ul>
+<li>举例介绍：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> FileWriter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.io.FileWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.Writer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestWriter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 创建源</span></span><br><span class="line">        File srcFile = <span class="keyword">new</span> File(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 创建字符输出流对象</span></span><br><span class="line">        Writer out = <span class="keyword">new</span> FileWriter(srcFile);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 具体的IO操作</span></span><br><span class="line">        <span class="comment">/***</span></span><br><span class="line"><span class="comment">         * void write(int c):向外写出一个字符</span></span><br><span class="line"><span class="comment">         * void write(char[] buffer):向外写出多个字符 buffer</span></span><br><span class="line"><span class="comment">         * void write(char[] buffer,int off,int len):把 buffer 数组中从索引 off 开始到 len个长度的数据写出去</span></span><br><span class="line"><span class="comment">         * void write(String str):向外写出一个字符串</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//void write(int c):向外写出一个字符</span></span><br><span class="line">        out.write(<span class="number">65</span>);  <span class="comment">//将 A 写入 a.txt 文件中</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//void write(char[] buffer):向外写出多个字符 buffer</span></span><br><span class="line">        out.write(<span class="string">"Aa刷酱酱"</span>.toCharArray());</span><br><span class="line"></span><br><span class="line">        <span class="comment">//void write(char[] buffer,int off,int len)</span></span><br><span class="line">        out.write(<span class="string">"Aa刷酱酱"</span>.toCharArray(),<span class="number">0</span>,<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//void write(String str):向外写出一个字符串</span></span><br><span class="line">        out.write(<span class="string">"Aa刷酱酱"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 关闭系统资源</span></span><br><span class="line">        <span class="comment">/***</span></span><br><span class="line"><span class="comment">         * 注意如果这里有一个 缓冲的概念，如果写入文件的数据没有达到缓冲的数组长度，那么数据是不会写入到文件中的</span></span><br><span class="line"><span class="comment">         * 解决办法：手动刷新缓冲区 flush()</span></span><br><span class="line"><span class="comment">         * 或者直接调用 close() 方法，这个方法会默认刷新缓冲区</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        out.flush();</span><br><span class="line">        out.close();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// AAa刷酱酱AaAa刷酱酱</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-Reader"><a href="#2-Reader" class="headerlink" title="2. Reader"></a>2. Reader</h2><ul>
+<li>用于读取字符流的抽象类。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Reader</span> <span class="keyword">implements</span> <span class="title">Readable</span>, <span class="title">Closeable</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>方法摘要：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200512/091248573.png" alt="mark"></p>
+<ul>
+<li>下面我们用 <strong>字符输入流Reader的 典型实现类FileReader</strong> 来介绍这个类的用法：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> FileReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestReader</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 创建源</span></span><br><span class="line">        File srcFile = <span class="keyword">new</span> File(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 创建字符输入流对象</span></span><br><span class="line">        Reader in = <span class="keyword">new</span> FileReader(srcFile);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 具体的IO操作</span></span><br><span class="line">        <span class="comment">/***</span></span><br><span class="line"><span class="comment">         * int read():每次读取一个字符，读到最后返回 -1</span></span><br><span class="line"><span class="comment">         * int read(char[] buffer):将字符读进字符数组,返回结果为读取的字符数</span></span><br><span class="line"><span class="comment">         * int read(char[] buffer,int off,int len):将读取的字符存储进字符数组 buffer，返回结果为读取的字符数，从索引 off 开始，长度为 len</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//int read():每次读取一个字符，读到最后返回 -1</span></span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>; <span class="comment">//定义当前读取字符的数量</span></span><br><span class="line">        <span class="keyword">while</span>((len = in.read())!=-<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="comment">// 打印a.txt中的所有内容</span></span><br><span class="line">            System.out.println((<span class="keyword">char</span>) len);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//int read(char[] buffer):将字符读进字符数组</span></span><br><span class="line">        <span class="keyword">char</span>[] buffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="keyword">while</span> ((len=in.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//int read(char[] buffer,int off,int len)</span></span><br><span class="line">        <span class="keyword">while</span> ((len=in.read(buffer,<span class="number">0</span>,<span class="number">10</span>))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(buffer,<span class="number">0</span>,len));</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 4. 关闭流资源</span></span><br><span class="line">        in.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-用字符流完成文件的复制"><a href="#3-用字符流完成文件的复制" class="headerlink" title="3. 用字符流完成文件的复制"></a>3. 用字符流完成文件的复制</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> FileReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestCopy</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 创建源和目标</span></span><br><span class="line">        File srcFile = <span class="keyword">new</span> File(<span class="string">"io"</span> + File.separator + <span class="string">"a.txt"</span>);</span><br><span class="line">        File destFile = <span class="keyword">new</span> File(<span class="string">"io"</span> + File.separator + <span class="string">"b.txt"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 创建字符输入输出流对象</span></span><br><span class="line">        Reader in  = <span class="keyword">new</span> FileReader(srcFile);</span><br><span class="line">        Writer out = <span class="keyword">new</span> FileWriter(destFile);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 读取和写入操作</span></span><br><span class="line">        <span class="keyword">char</span>[] buffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">10</span>]; <span class="comment">//创建一个容量是10的数组，用于存储已经读取的数据</span></span><br><span class="line">        <span class="keyword">int</span> len = -<span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 读进来</span></span><br><span class="line">        <span class="keyword">while</span> ((len=in.read(buffer))!=-<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="comment">// 写出去</span></span><br><span class="line">            out.write(buffer,<span class="number">0</span>,len);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 关闭流资源</span></span><br><span class="line">        out.close();</span><br><span class="line">        in.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>IO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-062-不同路径</title>
+    <url>/2020/05/09/Leetcode/Leetcode-062-%E4%B8%8D%E5%90%8C%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="Leecode-062-Unique-Paths"><a href="#Leecode-062-Unique-Paths" class="headerlink" title="Leecode-062-Unique Paths"></a>Leecode-062-<a href="https://leetcode-cn.com/problems/unique-paths/" target="_blank" rel="noopener">Unique Paths</a></h1><h2 id="思路：动态规划"><a href="#思路：动态规划" class="headerlink" title="思路：动态规划"></a>思路：动态规划</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200513/085447414.png" alt="mark"></p>
+<p>一个机器人位于一个 <em>m x n</em> 网格的左上角 （起始点在下图中标记为“Start” ）。</p>
+<p>机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）</p>
+<p>问总共有多少条不同的路径？</p>
+<ul>
+<li><strong>注意（这里有个坑，m是列数,n才是行数）</strong></li>
+</ul>
+<a id="more"></a>
+
+
+
+<p><strong>Solution：动态规划</strong></p>
+<ul>
+<li><p><strong>确定状态方程</strong></p>
+<ul>
+<li>使用一个二维数组 <code>dp</code> 来存储答案，<code>dp[i][j]</code>的值是从起始点（也就是<code>(0,0)</code>）走到<code>(i, j)</code>的路径数。</li>
+</ul>
+</li>
+<li><p><strong>初始化</strong></p>
+<ul>
+<li>第一行和第一列都初始化为1</li>
+<li>当 <code>i == 0</code>或者<code>j==0</code>的时候，<code>i-1</code>和<code>j-1</code>会越界</li>
+</ul>
+</li>
+<li><p>状态转移</p>
+<ul>
+<li>假设我们全都知道<code>dp[i][j]</code>的值，题目中说到，小机器人只能往右或者往下，那么<code>dp[i][j]</code>的值就是第 i 行第 j 列这个格子的上面那个格子的值加上左边那个格子的值(<strong>本质也就是杨辉三角</strong>)</li>
+<li>也就是<code>dp[i][j]</code> = <code>dp[i-1][j] + dp[i][j-1]</code>，因为这两个格子都可以走到<code>dp[i][j]</code>这个格子，那么他们的路径数之和就是<code>dp[i][j]</code>的值。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">uniquePaths</span><span class="params">(<span class="keyword">int</span> m,<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 初始化</span></span><br><span class="line">        <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[m][n];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n; i++)&#123;</span><br><span class="line">            dp[<span class="number">0</span>][i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 状态转移</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; n; j++) &#123;</span><br><span class="line">                dp[i][j] = dp[i - <span class="number">1</span>][j] + dp[i][j - <span class="number">1</span>];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 返回结果</span></span><br><span class="line">        <span class="keyword">return</span> dp[m - <span class="number">1</span>][n - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p><strong>时间复杂度</strong>:  <em>O</em>(<em>m</em>∗<em>n</em>)</p>
+</li>
+<li><p><strong>空间复杂度</strong>：<em>O</em>(<em>m</em>∗<em>n</em>)</p>
+</li>
+</ul>
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring-02-快速上手</title>
+    <url>/2020/05/08/Spring/Spring-02-%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</url>
+    <content><![CDATA[<h1 id="Spring-02-快速上手"><a href="#Spring-02-快速上手" class="headerlink" title="Spring-02-快速上手"></a>Spring-02-快速上手</h1><h2 id="1-快速上手"><a href="#1-快速上手" class="headerlink" title="1. 快速上手"></a>1. 快速上手</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<p>上一期中我们理解了IOC的基本思想，我们现在来看下Spring的应用</p>
+<ol>
+<li>导入Jar包</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-webmvc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.10.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>编写一个Hello实体类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Hello</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String str;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getStr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStr</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.str = str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello&#123;"</span> +</span><br><span class="line">                <span class="string">"str='"</span> + str + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>在resources/applicationContext.xml</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="tag"><span class="string">        https://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--使用Spring来创建对象，在Spring中称为Bean--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"hello"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Hello"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"str"</span> <span class="attr">value</span>=<span class="string">"Spring"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li>测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.Hello;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 获取Spring上下文对象！,现在所有对象都在Spring管理了</span></span><br><span class="line">        ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line">        Hello hello = (Hello) context.getBean(<span class="string">"hello"</span>);</span><br><span class="line">        System.out.println(hello.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-思考"><a href="#2-思考" class="headerlink" title="2. 思考"></a>2. 思考</h2><ul>
+<li>Hello对象是由谁创建的？<ul>
+<li>答：Spring创建的</li>
+</ul>
+</li>
+<li>Hello 对象的属性是怎么设置的 ?<ul>
+<li>答：hello 对象的属性是由Spring容器设置的</li>
+</ul>
+</li>
+</ul>
+<p>这个过程就叫控制反转 :</p>
+<ul>
+<li>控制：谁来控制对象的创建 , 传统应用程序的对象是由程序本身控制创建的 , 使用Spring后 , 对象是由Spring来创建的</li>
+<li>反转：程序本身不创建对象 , 而变成被动的接收对象 .</li>
+</ul>
+<p><strong>依赖注入</strong></p>
+<ul>
+<li><p>就是利用set方法来进行注入的</p>
+<p><strong>IOC是一种编程思想，由主动的编程变成被动的接收</strong></p>
+</li>
+</ul>
+<h2 id="3-IOC创建对象的方式"><a href="#3-IOC创建对象的方式" class="headerlink" title="3. IOC创建对象的方式"></a>3. IOC创建对象的方式</h2><h3 id="3-1-通过无参构造方法创建"><a href="#3-1-通过无参构造方法创建" class="headerlink" title="3.1 通过无参构造方法创建"></a>3.1 通过无参构造方法创建</h3><ol>
+<li>User.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"进入了User的无参构造"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"name"</span>+name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>applicationContext.xml</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="tag"><span class="string">        https://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"user"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.User"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">value</span>=<span class="string">"朱酱酱"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>测试类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line">        User user = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line">        user.show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果可以发现，在调用show方法之前，<strong>User对象已经通过无参构造初始化了</strong>！</p>
+<h3 id="3-2-通过有参构造方法创建"><a href="#3-2-通过有参构造方法创建" class="headerlink" title="3.2 通过有参构造方法创建"></a>3.2 通过有参构造方法创建</h3><ol>
+<li>UserT.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserT</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 有参构造</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserT</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"name="</span>+ name );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>有参构造的三种注入方式</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 第一种根据index参数下标设置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userT"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.UserT"</span>&gt;</span></span><br><span class="line">   <span class="comment">&lt;!-- index指构造方法 , 下标从0开始 --&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"0"</span> <span class="attr">value</span>=<span class="string">"朱酱酱2"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 第二种根据参数名字设置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userT"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.UserT"</span>&gt;</span></span><br><span class="line">   <span class="comment">&lt;!-- name指参数名 --&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">value</span>=<span class="string">"朱酱酱2"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 第三种根据参数类型设置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userT"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.UserT"</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">type</span>=<span class="string">"java.lang.String"</span> <span class="attr">value</span>=<span class="string">"朱酱酱2"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">       ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line">        UserT user = (UserT) context.getBean(<span class="string">"userT"</span>);</span><br><span class="line">        user.show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>结论：在配置文件加载的时候。其中管理的对象都已经初始化了！</strong></p>
+]]></content>
+      <tags>
+        <tag>Spring</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-070-爬楼梯</title>
+    <url>/2020/05/06/Leetcode/Leetcode-070-%E7%88%AC%E6%A5%BC%E6%A2%AF/</url>
+    <content><![CDATA[<h1 id="Leecode-070-Climbing-Stairs"><a href="#Leecode-070-Climbing-Stairs" class="headerlink" title="Leecode-070-Climbing Stairs"></a>Leecode-070-<a href="https://leetcode-cn.com/problems/climbing-stairs/" target="_blank" rel="noopener">Climbing Stairs</a></h1><h2 id="思路：动态规划"><a href="#思路：动态规划" class="headerlink" title="思路：动态规划"></a>思路：动态规划</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>每次爬楼梯可以爬1个或者2个台阶，你有多少种不同的方法可以爬到楼顶？</p>
+<p>注意：给定的n是一个正整数。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入： 2</span><br><span class="line">输出： 2</span><br><span class="line">解释： 有两种方法可以爬到楼顶。</span><br><span class="line">1.  1 阶 + 1 阶</span><br><span class="line">2.  2 阶</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入： 3</span><br><span class="line">输出： 3</span><br><span class="line">解释： 有三种方法可以爬到楼顶。</span><br><span class="line">1.  1 阶 + 1 阶 + 1 阶</span><br><span class="line">2.  1 阶 + 2 阶</span><br><span class="line">3.  2 阶 + 1 阶</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p><strong>Solution：</strong></p>
+<ul>
+<li>第 i 阶可以由以下两种方法得到：<ul>
+<li>在第 (<em>i</em>−1) 阶后向上爬一阶。</li>
+<li>在第(<em>i</em>−2) 阶后向上爬 22 阶。</li>
+</ul>
+</li>
+</ul>
+<p>所以到达第 i 阶的方法总数就是到第(<em>i</em>−1) 阶和第 (<em>i</em>−2) 阶的方法数之和。</p>
+<p>令 <code>dp[i]</code>表示能到达第 i 阶的方法总数：</p>
+<p>​                                                            <em>dp</em>[<em>i</em>]=<em>dp</em>[<em>i</em>−1]+<em>dp</em>[<em>i</em>−2]</p>
+<p>例如：6级台阶是由5级和4级台阶构成</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200513/085052174.png" alt="mark"></p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">climbStairs</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 初始化(长度为 n+1 的原因是 有0索引的存在)</span></span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[n + <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        dp[<span class="number">1</span>] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 状态转移</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            dp[i] = dp[i - <span class="number">1</span>] + dp[i - <span class="number">2</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 返回第n个台阶有多少种爬法</span></span><br><span class="line">        <span class="keyword">return</span> dp[n];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>时间复杂度：O(n) 遍历n次。</li>
+<li>空间复杂度：O(n)使用了一个dp数组存储元素。</li>
+</ul>
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>动态规划</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode-337-打家劫舍III</title>
     <url>/2020/05/05/Leetcode/Leetcode-337-%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8DIII/</url>
     <content><![CDATA[<h1 id="Leecode-337-打家劫舍-III"><a href="#Leecode-337-打家劫舍-III" class="headerlink" title="Leecode-337-打家劫舍 III"></a>Leecode-337-<a href="https://leetcode-cn.com/problems/house-robber-iii/" target="_blank" rel="noopener">打家劫舍 III</a></h1><h2 id="思路：动态规划"><a href="#思路：动态规划" class="headerlink" title="思路：动态规划"></a>思路：动态规划</h2><h3 id="题目描述："><a href="#题目描述：" class="headerlink" title="题目描述："></a>题目描述：</h3><p>你又是一个专业的小偷。。。。</p>
@@ -1346,9 +1883,9 @@ root[<span class="number">1</span>] = rob(root.left)[<span class="number">0</spa
 </ul>
 ]]></content>
       <tags>
+        <tag>JMM</tag>
         <tag>JUC</tag>
         <tag>多线程</tag>
-        <tag>JMM</tag>
       </tags>
   </entry>
   <entry>
@@ -1627,7 +2164,7 @@ dp[1] = nums[0];</code></pre></li>
     <url>/2020/05/01/Spring/Spring-01-%E6%A6%82%E8%BF%B0%E5%8F%8AIOC%E7%90%86%E8%AE%BA%E6%8E%A8%E5%AF%BC/</url>
     <content><![CDATA[<h1 id="Spring-01-概述及IOC理论推导"><a href="#Spring-01-概述及IOC理论推导" class="headerlink" title="Spring-01-概述及IOC理论推导"></a>Spring-01-概述及IOC理论推导</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
 <p>2002年，Rod Jahnson首次推出了Spring框架雏形interface21框架。</p>
-<p>2004年3月24日，Spring框架以interface21框架为基础，经过重新设计，发布了1.0正式版。</p>
+<p>2004年3月24日，<strong>Spring框架以interface21框架为基础，经过重新设计，发布了1.0正式版。</strong></p>
 <p>很难想象Rod Johnson的学历 , 他是悉尼大学的博士，然而他的专业不是计算机，而是音乐学。</p>
 <p>官网 : <a href="http://spring.io/" target="_blank" rel="noopener">http://spring.io/</a></p>
 <p>官方下载地址 : <a href="https://repo.spring.io/libs-release-local/org/springframework/spring/" target="_blank" rel="noopener">https://repo.spring.io/libs-release-local/org/springframework/spring/</a></p>
@@ -1657,7 +2194,96 @@ dp[1] = nums[0];</code></pre></li>
 <li><strong>Spring Web 模块</strong>：Web 上下文模块建立在应用程序上下文模块之上，为基于 Web 的应用程序提供了上下文。所以，Spring 框架支持与 Jakarta Struts 的集成。Web 模块还简化了处理多部分请求以及将请求参数绑定到域对象的工作。</li>
 <li><strong>Spring MVC 框架</strong>：MVC 框架是一个全功能的构建 Web 应用程序的 MVC 实现。通过策略接口，MVC 框架变成为高度可配置的，MVC 容纳了大量视图技术，其中包括 JSP、Velocity、Tiles、iText 和 POI。</li>
 </ul>
-<h2 id="2-IOC理论推导"><a href="#2-IOC理论推导" class="headerlink" title="2. IOC理论推导"></a>2. IOC理论推导</h2><h3 id="2-1-推导"><a href="#2-1-推导" class="headerlink" title="2.1 推导"></a>2.1 推导</h3>]]></content>
+<h2 id="2-IOC理论推导"><a href="#2-IOC理论推导" class="headerlink" title="2. IOC理论推导"></a>2. IOC理论推导</h2><h3 id="2-1-推导"><a href="#2-1-推导" class="headerlink" title="2.1 推导"></a>2.1 推导</h3><p>考虑如下一种情形：</p>
+<ol>
+<li>UserDao.inteface</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>UserDaoImpl.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDaoImpl</span> <span class="keyword">implements</span> <span class="title">UserDao</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"获取用户数据"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>UserService.inteface</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li>UserServiceImpl.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.zhuuu.dao.UserDao;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.dao.UserDaoImpl;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.dao.UserDaoMysqlImpl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> UserDao userDao = <span class="keyword">new</span> UserDaoImpl();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        userDao.getUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试一下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">   UserService service = <span class="keyword">new</span> UserServiceImpl();</span><br><span class="line">   service.getUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>那么现在问题来了，如果用户想添加新的功能，那么我们只能从Service层Impl去修改代码</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">   <span class="keyword">private</span> UserDao userDao = <span class="keyword">new</span> UserDaoMySqlImpl();</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       userDao.getUser();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>假设如果我们还要新增一个功能的话，如</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDaoOracleImpl</span> <span class="keyword">implements</span> <span class="title">UserDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Oracle获取数据"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>那么我们发现了一个很严重的问题，程序的耦合性太高了，牵一发而动全身。</li>
+<li>假设我们的这种需求非常大 , 这种方式就根本不适用了</li>
+</ul>
+<p><strong>那么我们如何解决呢？</strong></p>
+<h3 id="2-2-推导结果"><a href="#2-2-推导结果" class="headerlink" title="2.2 推导结果"></a>2.2 推导结果</h3><ul>
+<li>我们可以在需要用到它的地方，不去实现它，而是留出一个接口</li>
+<li>通过set方法区引用注入</li>
+</ul>
+<ol>
+<li>修改过的UserServiceImpl.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"><span class="comment">//    private UserDao userDao = new UserDaoImpl();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> UserDao userDao;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 利用set实现</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserDao</span><span class="params">(UserDao userDao)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userDao = userDao;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        userDao.getUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>现在通过不一样的的方法去测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">   UserServiceImpl service = <span class="keyword">new</span> UserServiceImpl();</span><br><span class="line">   service.setUserDao( <span class="keyword">new</span> UserDaoMySqlImpl() );</span><br><span class="line">   service.getUser();</span><br><span class="line">   <span class="comment">//那我们现在又想用Oracle去实现呢</span></span><br><span class="line">   service.setUserDao( <span class="keyword">new</span> UserDaoOracleImpl() );</span><br><span class="line">   service.getUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>注意：这里已经发生了根本性的变化</strong></p>
+<ul>
+<li><strong>以前所有的东西都是由程序去进行控制创建</strong></li>
+<li><strong>而现在是由用户进行控制创建，把主动权交给了调用者，程序不要用管怎么创建对象。</strong></li>
+<li><strong>这种思想 , 从本质上解决了问题 , 我们程序员不再去管理对象的创建了 , 更多的去关注业务的实现 . 耦合性大大降低 . 这也就是IOC的原型 !</strong></li>
+</ul>
+<h3 id="2-3-IOC本质"><a href="#2-3-IOC本质" class="headerlink" title="2.3 IOC本质"></a>2.3 IOC本质</h3><p><strong>控制反转IOC(Inversion Of Control)</strong></p>
+<ul>
+<li>一种设计思想，<strong>DI(依赖注入)是实现IoC的一种方法</strong>，也有人认为DI只是IoC的另一种说法</li>
+<li>没有IoC的程序中 , 我们使用面向对象编程，对象的创建与对象间的依赖关系完全在硬编码的程序中</li>
+<li>控制反转后将对象的创建交给第三方（可以说是获取依赖对象的方式反转了）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200509/180313492.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200509/180325441.png" alt="mark"></p>
+<p>以上就是IOC带来的改变。</p>
+<p>同时，在Spring中：</p>
+<ul>
+<li><p><strong>IoC是Spring框架的核心内容</strong>，使用多种方式完美的实现了IoC，可以使用XML配置，也可以使用注解，新版本的Spring也可以零配置实现IoC。</p>
+</li>
+<li><p>Spring容器在初始化的时候先读取配置文件，根据配置文件或元数据创建与组织对象存入容器中，程序使用时再去从IOC容器中读取需要的对象。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200509/180605099.png" alt="mark"></p>
+<p><strong>在Spring中实现控制反转的是IoC容器，其实现方法是依赖注入（Dependency Injection,DI）。</strong></p>
+]]></content>
       <tags>
         <tag>Spring</tag>
       </tags>
@@ -1709,7 +2335,7 @@ dp[1] = nums[0];</code></pre></li>
 </ol>
 <ol start="4">
 <li>关闭资源<ul>
-<li>输入：输入流的close()方法</li>
+<li>输入：输入流的 close()方法</li>
 <li>输出：输出流的 close() 方法</li>
 </ul>
 </li>
@@ -1822,7 +2448,7 @@ dp[1] = nums[0];</code></pre></li>
 <li>String[] list()  返回一个字符串数组，命名由此抽象路径名表示的目录中的文件和目录。</li>
 <li>String[] list(FilenameFilter filter) 返回一个字符串数组，命名由此抽象路径名表示的目录中满足指定过滤器的文件和目录。</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">//File(File parent, String child)</span></span><br><span class="line">    <span class="comment">//从父抽象路径名和子路径名字符串创建新的 File实例。</span></span><br><span class="line">    File dir = <span class="keyword">new</span> File(<span class="string">"D:"</span> + File.separator + <span class="string">"IO"</span>);</span><br><span class="line">    File file = <span class="keyword">new</span> File(dir, <span class="string">"a.txt"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断dir是否存在且表示一个目录</span></span><br><span class="line">    <span class="keyword">if</span> (!(dir.exists()||dir.isDirectory()))&#123;</span><br><span class="line">        <span class="comment">//如果 dir 不存在，则创建这个目录</span></span><br><span class="line">        dir.mkdirs();</span><br><span class="line">        <span class="comment">//根据目录和文件名，创建 a.txt文件</span></span><br><span class="line">        file.createNewFile();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回由此抽象路径名表示的文件或目录的名称。</span></span><br><span class="line">    <span class="comment">// 这只是路径名称序列中的最后一个名字。</span></span><br><span class="line">    <span class="comment">// 如果路径名的名称序列为空，则返回空字符串。</span></span><br><span class="line">    System.out.println(file.getName());  <span class="comment">// a.txt</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回此抽象路径名的父路径名字符串，</span></span><br><span class="line">    <span class="comment">// 如果此路径名未命名为父目录，则返回null。</span></span><br><span class="line">    System.out.println(file.getParent()); <span class="comment">// D:\IO</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//将此抽象路径名转换为路径名字符串。</span></span><br><span class="line">    <span class="comment">// 结果字符串使用default name-separator character以名称顺序分隔名称。</span></span><br><span class="line">    System.out.println(file.getPath());  <span class="comment">// D:\IO\a.txt</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">//File(File parent, String child)</span></span><br><span class="line">    <span class="comment">//从父抽象路径名和子路径名字符串创建新的 File实例。</span></span><br><span class="line">    File dir = <span class="keyword">new</span> File(<span class="string">"D:"</span> + File.separator + <span class="string">"IO"</span>);</span><br><span class="line">    File file = <span class="keyword">new</span> File(dir, <span class="string">"a.txt"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断dir是否存在且表示一个目录</span></span><br><span class="line">    <span class="keyword">if</span> (!(dir.exists()||dir.isDirectory()))&#123;</span><br><span class="line">        <span class="comment">//如果 dir 不存在，则创建这个目录</span></span><br><span class="line">        dir.mkdirs();</span><br><span class="line">        <span class="comment">//根据目录和文件名，创建 a.txt文件</span></span><br><span class="line">        file.createNewFile();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回由此抽象路径名表示的文件或目录的名称。</span></span><br><span class="line">    <span class="comment">// 这只是路径名称序列中的最后一个名字。</span></span><br><span class="line">    <span class="comment">// 如果路径名的名称序列为空，则返回空字符串。</span></span><br><span class="line">    System.out.println(file.getName());  <span class="comment">// a.txt</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回此抽象路径名的父路径名字符串，</span></span><br><span class="line">    <span class="comment">// 如果此路径名未命名为父目录，则返回null。</span></span><br><span class="line">    System.out.println(file.getParent()); <span class="comment">// D:\IO</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//将此抽象路径名转换为路径名字符串。</span></span><br><span class="line">    <span class="comment">// 结果字符串使用default name-separator character以名称顺序分隔名称。</span></span><br><span class="line">    System.out.println(file.getPath());  <span class="comment">// D:\IO\a.txt</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -2914,8 +3540,8 @@ semaphore.acquire()
 <p>数据加热的含义就是在正式部署之前，我先把可能的数据先预先访问一遍，这样部分可能大量访问的数据就会加载到缓存中。在即将发生大并发访问前手动触发加载缓存不同的key，设置不同的过期时间，让缓存失效的时间点尽量均匀。</p>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3053,8 +3679,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3097,8 +3723,8 @@ semaphore.acquire()
 <p><strong>稍微复杂的场景用MQ消息队列完成！！！</strong></p>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3426,8 +4052,8 @@ semaphore.acquire()
 <p>　如果可以忍受一小段时间内数据的丢失，毫无疑问使用 RDB 是最好的，定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，而且使用 RDB 还可以避免 AOF 一些隐藏的 bug；否则就使用 AOF 重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。Redis后期官方可能都有将两种持久化方式整合为一种持久化模型。</p>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3462,8 +4088,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3563,8 +4189,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3663,8 +4289,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -3703,8 +4329,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -4071,8 +4697,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -4456,150 +5082,6 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
-    <title>Redis-02-入门与使用</title>
-    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
-<li><strong>Redis是什么？</strong></li>
-</ol>
-<ul>
-<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
-</li>
-<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
-</li>
-<li><p>也被称之为结构化数据库！</p>
-</li>
-</ul>
-<ol start="2">
-<li><strong>Redis能做什么？</strong></li>
-</ol>
-<ul>
-<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
-<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
-<a id="more"></a>
-
-<ol>
-<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
-<li>效率高，可以用于告诉缓存</li>
-<li>发布订阅系统</li>
-<li>地图信息分析</li>
-<li>计时器，计数器（浏览量！）</li>
-<li>……</li>
-</ol>
-<ol start="3">
-<li><strong>Redis特性</strong></li>
-</ol>
-<ul>
-<li>多样的数据类型</li>
-<li>持久化</li>
-<li>集群</li>
-<li>事务</li>
-</ul>
-<p>…….</p>
-<ol start="4">
-<li><strong>需要的工具</strong></li>
-</ol>
-<ul>
-<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
-<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
-</ul>
-<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
-<li>下载并上传到服务器</li>
-</ol>
-<p>官网下载：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
-<ol start="2">
-<li>解压压缩包（程序/opt目录下）</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
-<ol start="3">
-<li>进入解压后的文件，可以看到redis.conf</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
-<ol start="4">
-<li>确保有gcc环境并安装</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
-<ol start="5">
-<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
-<ol start="6">
-<li><strong>将redis配置文件复制到当前目录下</strong></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
-
-<ol start="7">
-<li>redis默认不是后台启动，修改配置文件！</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
-<ol start="8">
-<li><strong>通过制定的配置文件启动redis服务</strong></li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
-<ol start="9">
-<li>测试redis连接（使用redis-cli进行连接）</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
-<ol start="10">
-<li>查看redis进程与连接</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
-<ol start="11">
-<li>如何关闭redis服务</li>
-</ol>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
-<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
-<p>简单测试一下：（100个并发连接，100000条请求）</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
-<li><p>默认有16个数据库（默认使用第0个）</p>
-<ul>
-<li>可以使用select切换数据库</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<p><strong>思考redis 为什么是6379?</strong></p>
-<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
-<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
-<ul>
-<li><strong>Redis是单线程的</strong><ul>
-<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
-<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
-<li>为什么<strong>单线程</strong>还这么快？<ul>
-<li>Redis是C语言写的，这个不比Memecache差</li>
-<li>高性能的服务器不一定是多线程的</li>
-<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>Redis</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redis-03-数据类型</title>
     <url>/2020/04/07/Redis/Redis-03-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[<h1 id="Redis-03-数据类型"><a href="#Redis-03-数据类型" class="headerlink" title="Redis-03-数据类型"></a>Redis-03-数据类型</h1><h2 id="1-五大数据类型"><a href="#1-五大数据类型" class="headerlink" title="1. 五大数据类型"></a>1. 五大数据类型</h2><h3 id="key"><a href="#key" class="headerlink" title="key"></a>key</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">set</span>  key value	     设置key value</span><br><span class="line">keys *                查看所有的key</span><br><span class="line">exists key 		     判断当前的key是否存在</span><br><span class="line">expire key seconds	 设置过期时间</span><br><span class="line">get    key			获得key的值</span><br><span class="line">ttl    key			查看当前key的剩余过期时间</span><br><span class="line"><span class="built_in">type</span>   key			查看当前key的一个类型</span><br></pre></td></tr></table></figure>
@@ -4771,8 +5253,152 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis-02-入门与使用</title>
+    <url>/2020/04/07/Redis/Redis-02-%E5%85%A5%E9%97%A8%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="Redis-02-入门与使用"><a href="#Redis-02-入门与使用" class="headerlink" title="Redis-02-入门与使用"></a>Redis-02-入门与使用</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ol>
+<li><strong>Redis是什么？</strong></li>
+</ol>
+<ul>
+<li><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C语言" target="_blank" rel="noopener">C语言</a>编写、</p>
+</li>
+<li><p>支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/数据库/103728" target="_blank" rel="noopener">数据库</a>，并提供多种语言的API。</p>
+</li>
+<li><p>也被称之为结构化数据库！</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Redis能做什么？</strong></li>
+</ol>
+<ul>
+<li>Redis 是一个<strong>高性能的key-value数据库</strong>。 redis的出现，很大程度补偿了<a href="https://baike.baidu.com/item/memcached" target="_blank" rel="noopener">memcached</a>这类key/value存储的不足，在部 分场合可以对关系数据库起到很好的补充作用。</li>
+<li>Redis<strong>支持主从同步</strong>。数据可以从主服务器向任意数量的从服务器上同步，从服务器可以是关联其他从服务器的主服务器。这使得Redis可执行单层树复制。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214026.png" alt=""></p>
+<a id="more"></a>
+
+<ol>
+<li>可以做内存存储，持久化，内存中是断电即失，<strong>所以说持久化很重要（rdb,aof）</strong></li>
+<li>效率高，可以用于告诉缓存</li>
+<li>发布订阅系统</li>
+<li>地图信息分析</li>
+<li>计时器，计数器（浏览量！）</li>
+<li>……</li>
+</ol>
+<ol start="3">
+<li><strong>Redis特性</strong></li>
+</ol>
+<ul>
+<li>多样的数据类型</li>
+<li>持久化</li>
+<li>集群</li>
+<li>事务</li>
+</ul>
+<p>…….</p>
+<ol start="4">
+<li><strong>需要的工具</strong></li>
+</ol>
+<ul>
+<li>官网：<a href="https://redis.io/" target="_blank" rel="noopener">https://redis.io/</a></li>
+<li>中文网：<a href="http://www.redis.cn/" target="_blank" rel="noopener">http://www.redis.cn/</a></li>
+</ul>
+<h2 id="2-Linux下安装"><a href="#2-Linux下安装" class="headerlink" title="2. Linux下安装"></a>2. Linux下安装</h2><ol>
+<li>下载并上传到服务器</li>
+</ol>
+<p>官网下载：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200407214711.png" alt=""></p>
+<ol start="2">
+<li>解压压缩包（程序/opt目录下）</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv redis-5.0.8.tar.gz  &#x2F;opt&#x2F;</span><br><span class="line">cd &#x2F;opt&#x2F;</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193839.png" alt=""></p>
+<ol start="3">
+<li>进入解压后的文件，可以看到redis.conf</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408193930.png" alt=""></p>
+<ol start="4">
+<li>确保有gcc环境并安装</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -v</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194500.png" alt=""></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194530.png" alt=""></p>
+<ol start="5">
+<li>redis的默认安装路径都在 <strong>usr/locab/bin目录下</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408194716.png" alt=""></p>
+<ol start="6">
+<li><strong>将redis配置文件复制到当前目录下</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># mkdir kconfig</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin<span class="comment"># cp /opt/redis-5.0.8/redis.conf kconfig/</span></span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>redis默认不是后台启动，修改配置文件！</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195107.png" alt=""></p>
+<ol start="8">
+<li><strong>通过制定的配置文件启动redis服务</strong></li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195240.png" alt=""></p>
+<ol start="9">
+<li>测试redis连接（使用redis-cli进行连接）</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195350.png" alt=""></p>
+<ol start="10">
+<li>查看redis进程与连接</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195535.png" alt=""></p>
+<ol start="11">
+<li>如何关闭redis服务</li>
+</ol>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408195653.png" alt=""></p>
+<h2 id="3-redis-性能测试"><a href="#3-redis-性能测试" class="headerlink" title="3. redis 性能测试"></a>3. redis 性能测试</h2><p><strong>redis-benchmark是一个压力测试工具</strong></p>
+<p>简单测试一下：（100个并发连接，100000条请求）</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200051.png" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408200417.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">10万个请求进行写入测试</span><br><span class="line">100个并发客户端</span><br><span class="line">每次写入三个字节</span><br><span class="line">只有一个服务器来处理请求，单机性能</span><br><span class="line"></span><br><span class="line">所有请求在3毫秒钟处理完成</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-redis-基础知识"><a href="#4-redis-基础知识" class="headerlink" title="4. redis 基础知识"></a>4. redis 基础知识</h2><ul>
+<li><p>默认有16个数据库（默认使用第0个）</p>
+<ul>
+<li>可以使用select切换数据库</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">DBSIZE      数据库大小</span><br><span class="line">select 3    切换到第三个数据库</span><br><span class="line">keys *      查看当前数据库所有的key</span><br><span class="line">get value   获得value的值</span><br><span class="line">flushdb  	清除当前的数据库</span><br><span class="line">flushall    清除所有的数据库</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<p><strong>思考redis 为什么是6379?</strong></p>
+<p>而Merz全名Alessia Merz，是意大利的一位广告女郎，就是下面这位：</p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408201240.png" alt=""></p>
+<p>这个名字是愚蠢的代名词，所以就选了这个6379。</p>
+<ul>
+<li><strong>Redis是单线程的</strong><ul>
+<li>Redis是基于内存操作的，CPU不是Redis的性能瓶颈</li>
+<li>Redis的瓶颈是根据机器的内存和网络带宽,既然可以使用单线程来实现，所以就是用单线程！</li>
+<li>为什么<strong>单线程</strong>还这么快？<ul>
+<li>Redis是C语言写的，这个不比Memecache差</li>
+<li>高性能的服务器不一定是多线程的</li>
+<li><strong>核心：redis是将所有的数据全部放在内存里面的，同时多线程CPU会产生上下文切换（对于内存系统来说，如果没有上下文切换效率就是最高的）</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -5426,8 +6052,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>Redis</tag>
         <tag>数据库</tag>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -6390,6 +7016,89 @@ semaphore.acquire()
       </tags>
   </entry>
   <entry>
+    <title>Leetcode-020</title>
+    <url>/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/</url>
+    <content><![CDATA[<h1 id="Leecode-020-Valid-Parentheses"><a href="#Leecode-020-Valid-Parentheses" class="headerlink" title="Leecode-020 Valid Parentheses"></a>Leecode-020 <a href="https://leetcode-cn.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a>思路：辅助栈</h2><p><strong>题目描述</strong></p>
+<ul>
+<li><p>如果有一个‘(’对应就有一个‘）’</p>
+</li>
+<li><p>如果有一个‘{’对应就有一个‘}’</p>
+</li>
+<li><p>如果有一个‘[’对应就有一个‘]’</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: &quot;()&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: &quot;()[]&#123;&#125;&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: &quot;(]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: &quot;([)]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line">Input: &quot;&#123;[]&#125;&quot;</span><br><span class="line">Output: true</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p><strong>Solution：stack</strong></p>
+<ul>
+<li><p>如果字符串为空，直接返回true</p>
+</li>
+<li><p>先遍历一遍字符串</p>
+<ul>
+<li><p>如果有‘(’ 就把 ‘）’  push进栈</p>
+</li>
+<li><p>如果有‘{’ 就把 ‘}’    push进栈</p>
+</li>
+<li><p>如果有‘[’ 就把 ‘]’     push进栈</p>
+</li>
+<li><p>如果遇到一个闭括号，那么我们检查栈顶的元素。</p>
+<ul>
+<li>如果栈顶的元素是一个相同类型的左括号，那么我们将它从栈中弹出并继续处理</li>
+<li>否则，表达是无效</li>
+</ul>
+</li>
+<li><p>如果到最后剩下的栈中仍然有元素，那么表达式无效</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h2><p><strong>时间复杂度：O(n)，</strong>因为我们一次只遍历给定的字符串中的一个字符并在栈上进行 O(1)的推入和弹出操作。<br><strong>空间复杂度：O(n)，</strong>当我们将所有的开括号都推到栈上时以及在最糟糕的情况下，最终要把所有括号推到栈上。例如 ((((((((((。</p>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s.isEmpty()) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        Stack&lt;Character&gt; stack = <span class="keyword">new</span> Stack&lt;Character&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">char</span> c:s.toCharArray())&#123;</span><br><span class="line">            <span class="keyword">if</span>(c == <span class="string">'('</span>) </span><br><span class="line">                stack.push(<span class="string">')'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'&#123;'</span>) </span><br><span class="line">                stack.push(<span class="string">'&#125;'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'['</span>) </span><br><span class="line">                stack.push(<span class="string">']'</span>);</span><br><span class="line">            <span class="comment">//如果和栈顶元素不相同</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(stack.isEmpty()||c!=stack.pop())  </span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果最后栈中无元素</span></span><br><span class="line">        <span class="keyword">if</span>(stack.empty())</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">isValid</span><span class="params">(self, s: str)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> s:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                stack.append(<span class="string">')'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'&#123;'</span>:</span><br><span class="line">                stack.append(<span class="string">'&#125;'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'['</span>:</span><br><span class="line">                stack.append(<span class="string">']'</span>)</span><br><span class="line">            <span class="comment"># 如果和栈顶元素类型不相同</span></span><br><span class="line">            <span class="keyword">elif</span>(stack==[] <span class="keyword">or</span> c!=stack.pop()):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="comment"># 如果最后栈中还存在元素</span></span><br><span class="line">        <span class="keyword">if</span> stack == []:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-1111-有效括号的长度</title>
+    <url>/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/</url>
+    <content><![CDATA[<h1 id="Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings"><a href="#Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings" class="headerlink" title="Leecode-1111 Maximum Nesting Depth of Two Valid Parentheses Strings"></a>Leecode-1111 <a href="https://leetcode-cn.com/problems/maximum-nesting-depth-of-two-valid-parentheses-strings/" target="_blank" rel="noopener">Maximum Nesting Depth of Two Valid Parentheses Strings</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a><strong>思路：辅助栈</strong></h2><p><strong>题目描述</strong></p>
+<p>有效括号的意思：一句话概括就是每个左括号都可以找到右括号与之配置。</p>
+<p>题面中的 depth 其实就是栈的最大深度。“你需要从中选出任意一组有效括号字符串 A 和 B，使 max(depth(A), depth(B)) 的可能取值最小”。这句话的意思就是想要A字符串和B字符串的depth尽可能的接近。（<strong>原因：每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的。所以只需要按照奇数偶数分配给A和B就行了）</strong></p>
+<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a><strong>复杂度分析</strong></h2><p>时间复杂度很明显是 O(n)的，空间复杂度也是 O(n)（如果算返回的变量的话）。</p>
+<a id="more"></a>
+
+<p><strong>Solution：栈</strong></p>
+<ul>
+<li>每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的</li>
+<li>所以只需要按照奇数偶数分配给A和B就行了</li>
+</ul>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] maxDepthAfterSplit(String seq) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> len = seq.length();</span><br><span class="line">        <span class="keyword">int</span>[] res = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 嵌套深度，栈的当前高度</span></span><br><span class="line">        <span class="keyword">int</span> depth = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在 Java 里，seq.charAt(i) 函数会做下标越界检查，</span></span><br><span class="line">        <span class="comment">// 因此先转换成字符数组是常见的做法</span></span><br><span class="line">        <span class="keyword">char</span>[] charArray = seq.toCharArray();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="comment">// 遍历到左括号，连续括号个数加 1，</span></span><br><span class="line">            <span class="keyword">if</span> (charArray[i] == <span class="string">'('</span>) &#123;</span><br><span class="line">                depth++;</span><br><span class="line">                <span class="comment">// % 2 也可以写成 &amp; 1，为了保证语义清楚，写 % 2</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 遍历到右括号，与当前栈顶左括号分在一组，因此先取模，再 --</span></span><br><span class="line">                <span class="comment">// 这一步希望大家多体会，很有意思</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">                depth--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">maxDepthAfterSplit</span><span class="params">(self, seq: str)</span> -&gt; List[int]:</span></span><br><span class="line">        ans = []</span><br><span class="line">        idx = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> seq:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                ans.append(idx &amp; <span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># if c == ')':</span></span><br><span class="line">                ans.append((idx + <span class="number">1</span>)&amp;<span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>春招每日一题</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JDK1.8源码-01-java.lang.Object</title>
     <url>/2020/04/01/jdk_SourceCode/JDK1.8-01-Object/</url>
     <content><![CDATA[<h1 id="JDK1-8源码-01-java-lang-Object"><a href="#JDK1-8源码-01-java-lang-Object" class="headerlink" title="JDK1.8源码-01-java.lang.Object"></a>JDK1.8源码-01-java.lang.Object</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><strong>首先介绍JDK所有类的基类–java.lang.Object。</strong></p>
@@ -6594,89 +7303,6 @@ semaphore.acquire()
 ]]></content>
       <tags>
         <tag>JDK源码分析</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-020</title>
-    <url>/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/</url>
-    <content><![CDATA[<h1 id="Leecode-020-Valid-Parentheses"><a href="#Leecode-020-Valid-Parentheses" class="headerlink" title="Leecode-020 Valid Parentheses"></a>Leecode-020 <a href="https://leetcode-cn.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a>思路：辅助栈</h2><p><strong>题目描述</strong></p>
-<ul>
-<li><p>如果有一个‘(’对应就有一个‘）’</p>
-</li>
-<li><p>如果有一个‘{’对应就有一个‘}’</p>
-</li>
-<li><p>如果有一个‘[’对应就有一个‘]’</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: &quot;()&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: &quot;()[]&#123;&#125;&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: &quot;(]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: &quot;([)]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line">Input: &quot;&#123;[]&#125;&quot;</span><br><span class="line">Output: true</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-
-<p><strong>Solution：stack</strong></p>
-<ul>
-<li><p>如果字符串为空，直接返回true</p>
-</li>
-<li><p>先遍历一遍字符串</p>
-<ul>
-<li><p>如果有‘(’ 就把 ‘）’  push进栈</p>
-</li>
-<li><p>如果有‘{’ 就把 ‘}’    push进栈</p>
-</li>
-<li><p>如果有‘[’ 就把 ‘]’     push进栈</p>
-</li>
-<li><p>如果遇到一个闭括号，那么我们检查栈顶的元素。</p>
-<ul>
-<li>如果栈顶的元素是一个相同类型的左括号，那么我们将它从栈中弹出并继续处理</li>
-<li>否则，表达是无效</li>
-</ul>
-</li>
-<li><p>如果到最后剩下的栈中仍然有元素，那么表达式无效</p>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h2><p><strong>时间复杂度：O(n)，</strong>因为我们一次只遍历给定的字符串中的一个字符并在栈上进行 O(1)的推入和弹出操作。<br><strong>空间复杂度：O(n)，</strong>当我们将所有的开括号都推到栈上时以及在最糟糕的情况下，最终要把所有括号推到栈上。例如 ((((((((((。</p>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s.isEmpty()) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        Stack&lt;Character&gt; stack = <span class="keyword">new</span> Stack&lt;Character&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">char</span> c:s.toCharArray())&#123;</span><br><span class="line">            <span class="keyword">if</span>(c == <span class="string">'('</span>) </span><br><span class="line">                stack.push(<span class="string">')'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'&#123;'</span>) </span><br><span class="line">                stack.push(<span class="string">'&#125;'</span>);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(c == <span class="string">'['</span>) </span><br><span class="line">                stack.push(<span class="string">']'</span>);</span><br><span class="line">            <span class="comment">//如果和栈顶元素不相同</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(stack.isEmpty()||c!=stack.pop())  </span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果最后栈中无元素</span></span><br><span class="line">        <span class="keyword">if</span>(stack.empty())</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">isValid</span><span class="params">(self, s: str)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> s:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        stack = []</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> s:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                stack.append(<span class="string">')'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'&#123;'</span>:</span><br><span class="line">                stack.append(<span class="string">'&#125;'</span>)</span><br><span class="line">            <span class="keyword">elif</span> c == <span class="string">'['</span>:</span><br><span class="line">                stack.append(<span class="string">']'</span>)</span><br><span class="line">            <span class="comment"># 如果和栈顶元素类型不相同</span></span><br><span class="line">            <span class="keyword">elif</span>(stack==[] <span class="keyword">or</span> c!=stack.pop()):</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="comment"># 如果最后栈中还存在元素</span></span><br><span class="line">        <span class="keyword">if</span> stack == []:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-1111-有效括号的长度</title>
-    <url>/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/</url>
-    <content><![CDATA[<h1 id="Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings"><a href="#Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings" class="headerlink" title="Leecode-1111 Maximum Nesting Depth of Two Valid Parentheses Strings"></a>Leecode-1111 <a href="https://leetcode-cn.com/problems/maximum-nesting-depth-of-two-valid-parentheses-strings/" target="_blank" rel="noopener">Maximum Nesting Depth of Two Valid Parentheses Strings</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a><strong>思路：辅助栈</strong></h2><p><strong>题目描述</strong></p>
-<p>有效括号的意思：一句话概括就是每个左括号都可以找到右括号与之配置。</p>
-<p>题面中的 depth 其实就是栈的最大深度。“你需要从中选出任意一组有效括号字符串 A 和 B，使 max(depth(A), depth(B)) 的可能取值最小”。这句话的意思就是想要A字符串和B字符串的depth尽可能的接近。（<strong>原因：每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的。所以只需要按照奇数偶数分配给A和B就行了）</strong></p>
-<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a><strong>复杂度分析</strong></h2><p>时间复杂度很明显是 O(n)的，空间复杂度也是 O(n)（如果算返回的变量的话）。</p>
-<a id="more"></a>
-
-<p><strong>Solution：栈</strong></p>
-<ul>
-<li>每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的</li>
-<li>所以只需要按照奇数偶数分配给A和B就行了</li>
-</ul>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] maxDepthAfterSplit(String seq) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> len = seq.length();</span><br><span class="line">        <span class="keyword">int</span>[] res = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 嵌套深度，栈的当前高度</span></span><br><span class="line">        <span class="keyword">int</span> depth = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在 Java 里，seq.charAt(i) 函数会做下标越界检查，</span></span><br><span class="line">        <span class="comment">// 因此先转换成字符数组是常见的做法</span></span><br><span class="line">        <span class="keyword">char</span>[] charArray = seq.toCharArray();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="comment">// 遍历到左括号，连续括号个数加 1，</span></span><br><span class="line">            <span class="keyword">if</span> (charArray[i] == <span class="string">'('</span>) &#123;</span><br><span class="line">                depth++;</span><br><span class="line">                <span class="comment">// % 2 也可以写成 &amp; 1，为了保证语义清楚，写 % 2</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 遍历到右括号，与当前栈顶左括号分在一组，因此先取模，再 --</span></span><br><span class="line">                <span class="comment">// 这一步希望大家多体会，很有意思</span></span><br><span class="line">                res[i] = depth % <span class="number">2</span>;</span><br><span class="line">                depth--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">maxDepthAfterSplit</span><span class="params">(self, seq: str)</span> -&gt; List[int]:</span></span><br><span class="line">        ans = []</span><br><span class="line">        idx = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> seq:</span><br><span class="line">            <span class="keyword">if</span> c == <span class="string">'('</span>:</span><br><span class="line">                ans.append(idx &amp; <span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># if c == ')':</span></span><br><span class="line">                ans.append((idx + <span class="number">1</span>)&amp;<span class="number">1</span>)</span><br><span class="line">                idx += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> ans</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-        <tag>春招每日一题</tag>
       </tags>
   </entry>
   <entry>
@@ -9355,6 +9981,62 @@ semaphore.acquire()
   </entry>
   <entry>
     <title>Leetcode-365</title>
+    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
+    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
+<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
+<p>只允许以下操作：</p>
+<ul>
+<li>装满任意一个水壶</li>
+<li>清空任意一个水壶</li>
+<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
+</ul>
+<p><strong>Solution：</strong></p>
+<ul>
+<li>DFS</li>
+<li>裴蜀定理</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
+<a id="more"></a>
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
+<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
+<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
+<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
+<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
+<p><strong>Solution : 裴蜀定理</strong></p>
+<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
+<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
+<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
+<ul>
+<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
+</li>
+<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
+</li>
+<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
+</li>
+</ul>
+<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
+<p>​                                                    <strong>ax+by=z</strong></p>
+<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>Leetcode</tag>
+        <tag>春招每日一题</tag>
+        <tag>深度优先搜索</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode-365</title>
     <url>/2020/03/20/Leetcode/Leetcode-365-%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
 <p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
@@ -9416,62 +10098,6 @@ semaphore.acquire()
         <tag>春招每日一题</tag>
         <tag>深度优先搜索</tag>
         <tag>广度优先搜索</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode-365</title>
-    <url>/2020/03/20/Leetcode/Leetcode-395/</url>
-    <content><![CDATA[<h1 id="Leecode-365-Water-and-Jug-Problem"><a href="#Leecode-365-Water-and-Jug-Problem" class="headerlink" title="Leecode-365 Water and Jug Problem"></a>Leecode-365 <a href="https://leetcode-cn.com/problems/water-and-jug-problem/" target="_blank" rel="noopener">Water and Jug Problem</a></h1><h2 id="思路：DFS-裴蜀定理"><a href="#思路：DFS-裴蜀定理" class="headerlink" title="思路：DFS/裴蜀定理"></a>思路：DFS/裴蜀定理</h2><p><strong>题目描述</strong></p>
-<p>有两个容量分别为 <em>x</em>升 和 <em>y</em>升 的水壶以及无限多的水。判断能否通过使用这两个水壶，从而可以得到恰好 <em>z</em>升 的水？</p>
-<p>只允许以下操作：</p>
-<ul>
-<li>装满任意一个水壶</li>
-<li>清空任意一个水壶</li>
-<li>从一个水壶向另外一个水壶倒水，直至倒满或者倒空</li>
-</ul>
-<p><strong>Solution：</strong></p>
-<ul>
-<li>DFS</li>
-<li>裴蜀定理</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326215210.jpg" alt=""></p>
-<a id="more"></a>
-
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canMeasureWater</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> z)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (z == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (x + y &lt; z) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    AbstractMap.SimpleEntry&lt;Integer, Integer&gt; start = <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    queue.add(start);</span><br><span class="line">    Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    visited.add(start);</span><br><span class="line">    <span class="keyword">while</span> (!queue.isEmpty()) &#123;</span><br><span class="line">      Map.Entry&lt;Integer, Integer&gt; entry = queue.poll();</span><br><span class="line">      <span class="keyword">int</span> curX = entry.getKey();</span><br><span class="line">      <span class="keyword">int</span> curY = entry.getValue();</span><br><span class="line">      <span class="keyword">if</span> (curX == z || curY == z || curX + curY == z) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(x, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶填满</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, y));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curY &lt; y) &#123;</span><br><span class="line">        <span class="comment">// 把第一个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(<span class="number">0</span>, curY));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (curX &lt; x) &#123;</span><br><span class="line">        <span class="comment">// 把第二个桶倒空</span></span><br><span class="line">        addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX, <span class="number">0</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// y - curY是第二个桶还可以再加的水的升数，但是最多只能加curX升水。</span></span><br><span class="line">      <span class="keyword">int</span> moveSize = Math.min(curX, y - curY);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX - moveSize, curY + moveSize));</span><br><span class="line">      <span class="comment">// 反过来同理，x - curX是第一个桶还可以再加的升数，但是最多只能加curY升水。</span></span><br><span class="line">      moveSize = Math.min(curY, x - curX);</span><br><span class="line">      <span class="comment">// 把第一个桶里的curX升水倒到第二个桶里去。</span></span><br><span class="line">      addIntoQueue(queue, visited, <span class="keyword">new</span> AbstractMap.SimpleEntry&lt;&gt;(curX + moveSize, curY - moveSize));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addIntoQueue</span><span class="params">(Queue&lt;Map.Entry&lt;Integer, Integer&gt;&gt; queue,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Set&lt;Map.Entry&lt;Integer, Integer&gt;&gt; visited,</span></span></span><br><span class="line"><span class="function"><span class="params">                            Map.Entry&lt;Integer, Integer&gt; newEntry)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!visited.contains(newEntry)) &#123;</span><br><span class="line">      visited.add(newEntry);</span><br><span class="line">      queue.add(newEntry);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution : DFS</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        stack = [(<span class="number">0</span>,<span class="number">0</span>)]</span><br><span class="line">        self.seen = set()</span><br><span class="line">        <span class="keyword">while</span> stack:</span><br><span class="line">            remain_x , remain_y = stack.pop()</span><br><span class="line">            <span class="comment">#如果找到了z</span></span><br><span class="line">            <span class="keyword">if</span> remain_x == z <span class="keyword">or</span> remain_y == z <span class="keyword">or</span> remain_x + remain_y == z:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">            <span class="comment">#如果之前存过了，就跳出本次循环</span></span><br><span class="line">            <span class="keyword">if</span>(remain_x,remain_y) <span class="keyword">in</span> self.seen:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="comment">#把本次的x,y中的水记录下来</span></span><br><span class="line">            self.seen.add((remain_x,remain_y))</span><br><span class="line">            <span class="comment">#把x壶倒满</span></span><br><span class="line">            stack.append((x,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒满</span></span><br><span class="line">            stack.append((remain_x,y))</span><br><span class="line">            <span class="comment">#把x壶倒空</span></span><br><span class="line">            stack.append((<span class="number">0</span>,remain_y))</span><br><span class="line">            <span class="comment">#把y壶倒空</span></span><br><span class="line">            stack.append((remain_x,<span class="number">0</span>))</span><br><span class="line">            <span class="comment">#把x壶中水倒入给y,直至y壶倒满或者x壶倒空</span></span><br><span class="line">            stack.append((remain_x - min(remain_x,y - remain_y),remain_y + min(remain_x,y - remain_y)))</span><br><span class="line">            <span class="comment">#把y壶中水倒入给x，直至x壶倒满或者y壶倒空</span></span><br><span class="line">            stack.append((remain_x + min(x - remain_x,remain_y),remain_y - min(x - remain_x,remain_y)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
-
-<p>​    首先对题目进行建模。观察题目可知，在任意一个时刻，此问题的状态可以由两个数字决定：X 壶中的水量，以及 Y 壶中的水量。</p>
-<p>​    在任意一个时刻，我们可以且仅可以采取以下几种操作：</p>
-<p><strong>把 X 壶的水灌进 Y 壶，直至灌满或倒空；</strong><br><strong>把 Y 壶的水灌进 X 壶，直至灌满或倒空；</strong><br><strong>把 X 壶灌满；</strong><br><strong>把 Y 壶灌满；</strong><br><strong>把 X 壶倒空；</strong><br><strong>把 Y 壶倒空。</strong></p>
-<p>​    因此，本题可以使用深度优先搜索来解决。搜索中的每一步以 remain_x, remain_y 作为状态，即表示 X 壶和 Y 壶中的水量。在每一步搜索时，我们会依次尝试所有的操作，递归地搜索下去。这可能会导致我们陷入无止境的递归，<strong>因此我们还需要使用一个哈希结合（HashSet）存储所有已经搜索过的 remain_x, remain_y 状态，保证每个状态至多只被搜索一次。</strong></p>
-<p>​    <strong>由于深度优先搜索导致的递归远远超过了 Python 的默认递归层数（可以使用 sys 库更改递归层数，但不推荐这么做），代码使用栈来模拟递归，避免了真正使用递归而导致的问题。</strong></p>
-<p><strong>Solution : 裴蜀定理</strong></p>
-<p><a href="https://baike.baidu.com/item/裴蜀定理/5186593?fromtitle=贝祖定理&fromid=5185441" target="_blank" rel="noopener">裴蜀定理</a></p>
-<p>每次操作只会让桶里的水总量增加 <code>x</code>，增加 <code>y</code>，减少 <code>x</code>，或者减少 <code>y</code>。</p>
-<p>你可能认为这有问题：如果往一个不满的桶里放水，或者把它排空呢？那变化量不就不是 <code>x</code> 或者 <code>y</code> 了吗？接下来来解释这一点：</p>
-<ul>
-<li><p>首先要清楚，在题目所给的操作下，两个桶不可能同时有水且不满。因为观察所有题目中的操作，操作的结果都至少有一个桶是空的或者满的；</p>
-</li>
-<li><p>其次，对一个不满的桶加水是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于直接从初始状态给这个桶加满水；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态分别给两个桶加满；</p>
-</li>
-<li><p>再次，把一个不满的桶里面的水倒掉是没有意义的。因为如果另一个桶是空的，那么这个操作的结果等价于回到初始状态；而如果另一个桶是满的，那么这个操作的结果等价于从初始状态直接给另一个桶倒满。</p>
-</li>
-</ul>
-<p><strong>因此，我们可以认为每次操作只会给水的总量带来 x 或者 y 的变化量。因此我们的目标可以改写成：找到一对整数 a, b，使得</strong></p>
-<p>​                                                    <strong>ax+by=z</strong></p>
-<p><strong>而贝祖定理告诉我们，ax+by=z 有解当且仅当 z是 x,y 的最大公约数的倍数。因此我们只需要找到 x,y 的最大公约数并判断 z 是否是它的倍数即可。</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">canMeasureWater</span><span class="params">(self, x: int, y: int, z: int)</span> -&gt; bool:</span></span><br><span class="line">        <span class="keyword">if</span> x + y &lt; z:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> x == <span class="number">0</span> <span class="keyword">or</span> y == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> z == <span class="number">0</span> <span class="keyword">or</span> x + y == z</span><br><span class="line">        <span class="keyword">return</span> z % math.gcd(x, y) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Leetcode</tag>
-        <tag>春招每日一题</tag>
-        <tag>深度优先搜索</tag>
       </tags>
   </entry>
   <entry>
@@ -12440,8 +13066,8 @@ semaphore.acquire()
 </ol>
 ]]></content>
       <tags>
-        <tag>JMM</tag>
         <tag>JVM</tag>
+        <tag>JMM</tag>
       </tags>
   </entry>
   <entry>
@@ -13001,8 +13627,41 @@ semaphore.acquire()
     <content><![CDATA[]]></content>
       <tags>
         <tag>读书笔记</tag>
-        <tag>JMM</tag>
         <tag>JVM</tag>
+        <tag>JMM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>云服务器-Tomcat配置</title>
+    <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-Tomcat%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h1 id="云服务器-Tomcat配置"><a href="#云服务器-Tomcat配置" class="headerlink" title="云服务器-Tomcat配置"></a>云服务器-Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
+<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
+<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
+</li>
+<li><p>如果JDK已经配置好,</p>
+<ul>
+<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
+<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
+<p>如果出现Tomcat的主页,即安装成功,</p>
+<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
+<p><strong>回答：</strong></p>
+<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
+<p>使用下面的命令即可</p>
+<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
+<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
+<p><strong>回答：</strong></p>
+<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
+<p>tail -f catalina.out</p>
+]]></content>
+      <tags>
+        <tag>云服务器开发环境</tag>
+        <tag>Tomcat</tag>
       </tags>
   </entry>
   <entry>
@@ -13042,41 +13701,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
+        <tag>云服务器开发环境</tag>
         <tag>JDK</tag>
-        <tag>云服务器开发环境</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>云服务器-Tomcat配置</title>
-    <url>/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-Tomcat%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<h1 id="云服务器-Tomcat配置"><a href="#云服务器-Tomcat配置" class="headerlink" title="云服务器-Tomcat配置"></a>云服务器-Tomcat配置</h1><h2 id="1-Tomcat的下载"><a href="#1-Tomcat的下载" class="headerlink" title="1.Tomcat的下载"></a>1.Tomcat的下载</h2><p>下载地址:<a href="https://tomcat.apache.org/download-80.cgi" target="_blank" rel="noopener">https://tomcat.apache.org/download-80.cgi</a></p>
-<h2 id="2-Tomcat的启动"><a href="#2-Tomcat的启动" class="headerlink" title="2.Tomcat的启动"></a>2.Tomcat的启动</h2><ul>
-<li><p>如果你的Tomcat的JDK配置好的话,理论上这一步可以直接把Tomcat启动</p>
-</li>
-<li><p>如果JDK已经配置好,</p>
-<ul>
-<li>可以直接进入tomcat服务器的bin目录，然后执行”./startup.sh”命令启动Tomcat服务器.</li>
-</ul>
-</li>
-</ul>
-<a id="more"></a>
-
-<h2 id="3-测试验证"><a href="#3-测试验证" class="headerlink" title="3.测试验证"></a>3.测试验证</h2><p>在浏览器地址栏输入:</p>
-<p><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">http://127.0.0.1:8080/</a></p>
-<p>如果出现Tomcat的主页,即安装成功,</p>
-<h2 id="4-其他"><a href="#4-其他" class="headerlink" title="4.其他"></a>4.其他</h2><p><strong>问题1：如何修改8080端口为80？</strong></p>
-<p><strong>回答：</strong></p>
-<p>基于Linux内核的操作系统1024以内的端口为系统保留端口，所以我们即使修改了配置文件中的port=“80”也是没有用的。其实想要在Linux环境中配置80端口也是非常方便的。</p>
-<p>使用下面的命令即可</p>
-<p><code>sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080</code></p>
-<p><strong>问题2:如何查看Tomcat的控制台输出？</strong></p>
-<p><strong>回答：</strong></p>
-<p>在Tomcat/logs 目录下有一个catalina.out文件。我们使用tail 命令打开这个文件即可</p>
-<p>tail -f catalina.out</p>
-]]></content>
-      <tags>
-        <tag>云服务器开发环境</tag>
-        <tag>Tomcat</tag>
       </tags>
   </entry>
   <entry>
@@ -17355,8 +17981,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17386,8 +18012,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17395,8 +18021,8 @@ semaphore.acquire()
     <url>/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/</url>
     <content><![CDATA[]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17466,8 +18092,8 @@ semaphore.acquire()
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17530,8 +18156,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17560,8 +18186,8 @@ semaphore.acquire()
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17751,8 +18377,8 @@ SELECT studentno,studentname FROM student;
 
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -17884,8 +18510,8 @@ SELECT studentno,studentname FROM student;
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -18021,8 +18647,8 @@ SELECT studentno,studentname FROM student;
 </ul>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -18101,8 +18727,8 @@ SELECT studentno,studentname FROM student;
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200210160123.png" alt=""></p>
 ]]></content>
       <tags>
-        <tag>数据库</tag>
         <tag>Mysql</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>

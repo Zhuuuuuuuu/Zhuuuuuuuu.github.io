@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">847字</span>
+            <span class="post-count">1.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -101,7 +101,7 @@
       
       <h1 id="Spring-01-概述及IOC理论推导"><a href="#Spring-01-概述及IOC理论推导" class="headerlink" title="Spring-01-概述及IOC理论推导"></a>Spring-01-概述及IOC理论推导</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
 <p>2002年，Rod Jahnson首次推出了Spring框架雏形interface21框架。</p>
-<p>2004年3月24日，Spring框架以interface21框架为基础，经过重新设计，发布了1.0正式版。</p>
+<p>2004年3月24日，<strong>Spring框架以interface21框架为基础，经过重新设计，发布了1.0正式版。</strong></p>
 <p>很难想象Rod Johnson的学历 , 他是悉尼大学的博士，然而他的专业不是计算机，而是音乐学。</p>
 <p>官网 : <a href="http://spring.io/" target="_blank" rel="noopener">http://spring.io/</a></p>
 <p>官方下载地址 : <a href="https://repo.spring.io/libs-release-local/org/springframework/spring/" target="_blank" rel="noopener">https://repo.spring.io/libs-release-local/org/springframework/spring/</a></p>
@@ -131,7 +131,96 @@
 <li><strong>Spring Web 模块</strong>：Web 上下文模块建立在应用程序上下文模块之上，为基于 Web 的应用程序提供了上下文。所以，Spring 框架支持与 Jakarta Struts 的集成。Web 模块还简化了处理多部分请求以及将请求参数绑定到域对象的工作。</li>
 <li><strong>Spring MVC 框架</strong>：MVC 框架是一个全功能的构建 Web 应用程序的 MVC 实现。通过策略接口，MVC 框架变成为高度可配置的，MVC 容纳了大量视图技术，其中包括 JSP、Velocity、Tiles、iText 和 POI。</li>
 </ul>
-<h2 id="2-IOC理论推导"><a href="#2-IOC理论推导" class="headerlink" title="2. IOC理论推导"></a>2. IOC理论推导</h2><h3 id="2-1-推导"><a href="#2-1-推导" class="headerlink" title="2.1 推导"></a>2.1 推导</h3>
+<h2 id="2-IOC理论推导"><a href="#2-IOC理论推导" class="headerlink" title="2. IOC理论推导"></a>2. IOC理论推导</h2><h3 id="2-1-推导"><a href="#2-1-推导" class="headerlink" title="2.1 推导"></a>2.1 推导</h3><p>考虑如下一种情形：</p>
+<ol>
+<li>UserDao.inteface</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>UserDaoImpl.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDaoImpl</span> <span class="keyword">implements</span> <span class="title">UserDao</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"获取用户数据"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>UserService.inteface</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li>UserServiceImpl.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.zhuuu.dao.UserDao;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.dao.UserDaoImpl;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.dao.UserDaoMysqlImpl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> UserDao userDao = <span class="keyword">new</span> UserDaoImpl();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        userDao.getUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">   UserService service = <span class="keyword">new</span> UserServiceImpl();</span><br><span class="line">   service.getUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>那么现在问题来了，如果用户想添加新的功能，那么我们只能从Service层Impl去修改代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">   <span class="keyword">private</span> UserDao userDao = <span class="keyword">new</span> UserDaoMySqlImpl();</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       userDao.getUser();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>假设如果我们还要新增一个功能的话，如</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDaoOracleImpl</span> <span class="keyword">implements</span> <span class="title">UserDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Oracle获取数据"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>那么我们发现了一个很严重的问题，程序的耦合性太高了，牵一发而动全身。</li>
+<li>假设我们的这种需求非常大 , 这种方式就根本不适用了</li>
+</ul>
+<p><strong>那么我们如何解决呢？</strong></p>
+<h3 id="2-2-推导结果"><a href="#2-2-推导结果" class="headerlink" title="2.2 推导结果"></a>2.2 推导结果</h3><ul>
+<li>我们可以在需要用到它的地方，不去实现它，而是留出一个接口</li>
+<li>通过set方法区引用注入</li>
+</ul>
+<ol>
+<li>修改过的UserServiceImpl.java</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"><span class="comment">//    private UserDao userDao = new UserDaoImpl();</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> UserDao userDao;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 利用set实现</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserDao</span><span class="params">(UserDao userDao)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userDao = userDao;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        userDao.getUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>现在通过不一样的的方法去测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">   UserServiceImpl service = <span class="keyword">new</span> UserServiceImpl();</span><br><span class="line">   service.setUserDao( <span class="keyword">new</span> UserDaoMySqlImpl() );</span><br><span class="line">   service.getUser();</span><br><span class="line">   <span class="comment">//那我们现在又想用Oracle去实现呢</span></span><br><span class="line">   service.setUserDao( <span class="keyword">new</span> UserDaoOracleImpl() );</span><br><span class="line">   service.getUser();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>注意：这里已经发生了根本性的变化</strong></p>
+<ul>
+<li><strong>以前所有的东西都是由程序去进行控制创建</strong></li>
+<li><strong>而现在是由用户进行控制创建，把主动权交给了调用者，程序不要用管怎么创建对象。</strong></li>
+<li><strong>这种思想 , 从本质上解决了问题 , 我们程序员不再去管理对象的创建了 , 更多的去关注业务的实现 . 耦合性大大降低 . 这也就是IOC的原型 !</strong></li>
+</ul>
+<h3 id="2-3-IOC本质"><a href="#2-3-IOC本质" class="headerlink" title="2.3 IOC本质"></a>2.3 IOC本质</h3><p><strong>控制反转IOC(Inversion Of Control)</strong></p>
+<ul>
+<li>一种设计思想，<strong>DI(依赖注入)是实现IoC的一种方法</strong>，也有人认为DI只是IoC的另一种说法</li>
+<li>没有IoC的程序中 , 我们使用面向对象编程，对象的创建与对象间的依赖关系完全在硬编码的程序中</li>
+<li>控制反转后将对象的创建交给第三方（可以说是获取依赖对象的方式反转了）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200509/180313492.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200509/180325441.png" alt="mark"></p>
+<p>以上就是IOC带来的改变。</p>
+<p>同时，在Spring中：</p>
+<ul>
+<li><p><strong>IoC是Spring框架的核心内容</strong>，使用多种方式完美的实现了IoC，可以使用XML配置，也可以使用注解，新版本的Spring也可以零配置实现IoC。</p>
+</li>
+<li><p>Spring容器在初始化的时候先读取配置文件，根据配置文件或元数据创建与组织对象存入容器中，程序使用时再去从IOC容器中读取需要的对象。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200509/180605099.png" alt="mark"></p>
+<p><strong>在Spring中实现控制反转的是IoC容器，其实现方法是依赖注入（Dependency Injection,DI）。</strong></p>
+
       
       <!-- reward -->
       
