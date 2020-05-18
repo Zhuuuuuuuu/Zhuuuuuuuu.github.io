@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">985字</span>
+            <span class="post-count">2.1k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">5分钟</span>
+            <span class="post-count">9分钟</span>
         </span>
     </span>
 </div>
@@ -194,6 +194,94 @@
 </ol>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--Properties注入--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"info"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"学号"</span>&gt;</span>121801<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"准考证号"</span>&gt;</span>121801<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"性别"</span>&gt;</span>男<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+
+
+<h2 id="3-P命名和C命名注入"><a href="#3-P命名和C命名注入" class="headerlink" title="3. P命名和C命名注入"></a>3. P命名和C命名注入</h2><ol>
+<li>User.java（注意：这里没有有参构造器）</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">     <span class="keyword">private</span> String name;</span><br><span class="line">     <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"> </span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">         <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">         <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">     <span class="meta">@Override</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="string">"User&#123;"</span> +</span><br><span class="line">                 <span class="string">"name='"</span> + name + <span class="string">'\''</span> +</span><br><span class="line">                 <span class="string">", age="</span> + age +</span><br><span class="line">                 <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-1-P命名空间注入"><a href="#3-1-P命名空间注入" class="headerlink" title="3.1 P命名空间注入"></a>3.1 P命名空间注入</h3><ol>
+<li>需要在头文件中加入约束文件</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">导入约束 : xmlns:p="http://www.springframework.org/schema/p"</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--P(属性: properties)命名空间 , 属性依然要设置set方法--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"user"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.User"</span> <span class="attr">p:name</span>=<span class="string">"朱酱酱"</span> <span class="attr">p:age</span>=<span class="string">"18"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-2-C命名空间注入"><a href="#3-2-C命名空间注入" class="headerlink" title="3.2 C命名空间注入"></a>3.2 C命名空间注入</h3><ol>
+<li>需要在头文件中加入约束文件</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">导入约束 : xmlns:c="http://www.springframework.org/schema/c"</span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--C(构造: Constructor)命名空间 , 属性依然要设置set方法--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"user"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.User"</span> <span class="attr">c:name</span>=<span class="string">"朱酱酱"</span> <span class="attr">c:age</span>=<span class="string">"18"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>发现问题：爆红了，刚才我们没有写有参构造！</li>
+<li>解决：把有参构造器加上，这里也能知道，c 就是所谓的构造器注入！</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test02</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line">    User user = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line">    System.out.println(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-Bean的作用域"><a href="#4-Bean的作用域" class="headerlink" title="4. Bean的作用域"></a>4. Bean的作用域</h2><p>在Spring中，那些组成应用程序的主题及由Spring IOC容器所管理的对象，被称之为Bean。</p>
+<p>简单来说，bean就是由IOC容器初始化，装配及管理的对象。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200517/195000008.png" alt="mark"></p>
+<p>几种作用域中，request、session作用域仅在基于web的应用中使用（不必关心你所采用的是什么web应用框架），只能用在基于web的Spring ApplicationContext环境。</p>
+<h3 id="4-1-Singleton"><a href="#4-1-Singleton" class="headerlink" title="4.1 Singleton"></a>4.1 Singleton</h3><ul>
+<li><p>当一个bean的作用域为Singleton，那么Spring IoC容器中只会存在一个共享的bean实例，并且所有对bean的请求，只要id与该bean定义相匹配，<strong>则只会返回bean的同一实例。</strong></p>
+</li>
+<li><p>Singleton是单例类型，就是在创建起容器时就同时自动创建了一个bean的对象，不管你是否使用，他都存在了，每次获取到的对象都是同一个对象。注意，Singleton作用域是Spring中的默认作用域</p>
+</li>
+</ul>
+<p>要在XML中将bean定义成singleton，可以这样配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"ServiceImpl"</span> <span class="attr">class</span>=<span class="string">"cn.csdn.service.ServiceImpl"</span> <span class="attr">scope</span>=<span class="string">"singleton"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test03</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line">    User user = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line">    User user2 = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line">    System.out.println(user==user2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-2-Prototype"><a href="#4-2-Prototype" class="headerlink" title="4.2 Prototype"></a>4.2 Prototype</h3><ul>
+<li>当一个bean的作用域为Prototype，表示一个bean定义对应多个对象实例。Prototype作用域的bean会导致在每次对该bean请求（将其注入到另一个bean中，或者以程序的方式调用容器的getBean()方法）时都会<strong>创建一个新的bean实例</strong></li>
+<li>Prototype是原型模式，它允许我们每次获取到的对象都不是同一对象</li>
+<li>根据经验，对有状态的bean应该是用prototype作用域，而对无状态的bean应该采用singleton作用域。</li>
+</ul>
+<p>在XML中将bean定义成prototype，可以这样配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"account"</span> <span class="attr">class</span>=<span class="string">"com.foo.DefaultAccount"</span> <span class="attr">scope</span>=<span class="string">"prototype"</span>/&gt;</span>  </span><br><span class="line"> 或者</span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"account"</span> <span class="attr">class</span>=<span class="string">"com.foo.DefaultAccount"</span> <span class="attr">singleton</span>=<span class="string">"false"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-3-Request"><a href="#4-3-Request" class="headerlink" title="4.3 Request"></a>4.3 Request</h3><ul>
+<li><p>当一个bean的作用域为Request，表示在一次HTTP请求中，一个bean定义对应一个实例；即<strong>每个HTTP请求都会有各自的bean实例</strong>，</p>
+</li>
+<li><p>该作用域仅在基于web的Spring ApplicationContext情形下有效。</p>
+</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"loginAction"</span> <span class="attr">class</span>=<span class="string">cn.csdn.LoginAction</span>" <span class="attr">scope</span>=<span class="string">"request"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>针对每次HTTP请求，Spring容器会根据loginAction bean的定义创建一个全新的LoginAction bean实例，且该loginAction bean<strong>实例仅在当前HTTP request内有效。</strong></p>
+</li>
+<li><p>因此可以根据需要<strong>放心的更改所建实例的内部状态</strong>，而<strong>其他</strong>请求中根据loginAction bean定义创建的实例，<strong>将不会看到这些特定于某个请求的状态变化。</strong></p>
+</li>
+<li><p>当处理请求结束，request作用域的bean实例将被销毁。</p>
+</li>
+</ul>
+<h3 id="4-4-Session"><a href="#4-4-Session" class="headerlink" title="4.4 Session"></a>4.4 Session</h3><ul>
+<li>当一个bean的作用域为Session，表示在一个HTTP Session中，一个bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userPreferences"</span> <span class="attr">class</span>=<span class="string">"com.foo.UserPreferences"</span> <span class="attr">scope</span>=<span class="string">"session"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>针对某个HTTP Session，Spring容器会根据userPreferences bean定义创建一个全新的userPreferences bean实例，且该userPreferences bean<strong>仅在当前HTTP Session内有效。</strong></p>
+</li>
+<li><p>与request作用域一样，可以根据需要放心的更改所创建实例的内部状态，而别的HTTP Session中根据userPreferences创建的实例，将不会看到这些特定于某个HTTP Session的状态变化。</p>
+</li>
+<li><p>当HTTP Session最终被废弃的时候，在该HTTP Session作用域内的bean也会被废弃掉。</p>
+</li>
+</ul>
 
       
       <!-- reward -->
