@@ -210,7 +210,7 @@
 <p>需要说明的是：Java代码在进行javac 编译的时候，并不像C和C++那样有“连接”这一步骤，而是在虚拟机加载Class文件的时候进行动态连接。</p>
 <p>也就是说，在Class文件中不会保存各个方法和字段的最终内存布局信息，因此这些字段和方法的符号引用不经过转换的话是无法被虚拟机使用的。</p>
 <p>当虚拟机运行的时候，需要从常量池中获得对应的符号引用，再在类创建时候解析并翻译到具体的内存地址中。关于类创建和动态连接的过程，将在下一篇中详细介绍。</p>
-<p>常量池中的每一项都是一个表，在JDK1.8中共有14种结构各不相同的表结构数据，每个表结构的第一位是一个 u1 类型的标志位（tag,取值是1~18，缺少的标识位是2，13，14，17的数据类型）。代表当前这个常量属于哪种常量类型。</p>
+<p><strong>常量池中的每一项都是一个表</strong>，在JDK1.8中共有14种结构各不相同的表结构数据，每个表结构的第一位是一个 u1 类型的标志位（tag,取值是1~18，缺少的标识位是2，13，14，17的数据类型）。代表当前这个常量属于哪种常量类型。</p>
 <p>14 种常量类型所代表的具体含义如下：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/203021764.png" alt="mark"></p>
 <p>接着我们来看十六进制文件，紧跟常量池的数量是0x0a，这是一个标志位，0x0a的十进制数是10，查看常量池项目表接口可以得到，表示的类型是 <code>CONSTANT_Methodref_info。</code></p>
@@ -227,10 +227,10 @@
 <h2 id="8-类索引，父类索引和接口索引集合"><a href="#8-类索引，父类索引和接口索引集合" class="headerlink" title="8. 类索引，父类索引和接口索引集合"></a>8. 类索引，父类索引和接口索引集合</h2><p>类索引，父类索引和接口索引按顺序排列在访问标志位之后。</p>
 <ul>
 <li>类索引：用于确定这个类的全限定名，是一个 u2 类型的数据</li>
-<li>父类索引：用于确定这个类的父类全限类名，也是一个 u2 类型的数据。因为Java是单继承的，除了 java.lang.Object 类以外，所有的类都有弗雷。所以除了Object类之外，所有的Java类的父类索引都不为0。</li>
+<li>父类索引：用于确定这个类的父类全限类名，也是一个 u2 类型的数据。因为Java是单继承的，除了 java.lang.Object 类以外，所有的类都有父类。所以除了Object类之外，所有的Java类的父类索引都不为0。</li>
 <li>接口索引：用于描述这个类实现了哪些接口，是一个u2类型的数据集合，第一项是u2类型的接口计数器，表示实现接口的个数。如果没有实现任何接口，则为0。</li>
 </ul>
-<h2 id="9-字段表集合"><a href="#9-字段表集合" class="headerlink" title="9. 字段表集合"></a>9. 字段表集合</h2><p>字段表（field_info）：描述接口或类中声明的变量。（不包括方法内部声明的变量）</p>
+<h2 id="9-字段表集合"><a href="#9-字段表集合" class="headerlink" title="9. 字段表集合"></a>9. 字段表集合</h2><p><strong>字段表（field_info）：描述接口或类中声明的变量</strong>。（不包括方法内部声明的变量）</p>
 <p>描述的信息包括：</p>
 <ul>
 <li>字段的作用域（public，protected，private修饰）</li>
@@ -256,7 +256,7 @@
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/205005207.png" alt="mark"></p>
 <p>方法访问标志如下（access_flags）：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/205025246.png" alt="mark"></p>
-<h2 id="11-属性表集合"><a href="#11-属性表集合" class="headerlink" title="11. 属性表集合"></a>11. 属性表集合</h2><p>在前面介绍了字段表集合，方法表集合中都包括了属性表集合（attributes），其实就是引用的这里。</p>
+<h2 id="11-属性表集合"><a href="#11-属性表集合" class="headerlink" title="11. 属性表集合"></a>11. 属性表集合</h2><p>在前面介绍了<strong>字段表集合，方法表集合中都包括了属性表集合（attributes），其实就是引用的这里。</strong></p>
 <p>根据《Java虚拟机规范第二版》中，预定义了 9 项虚拟机实现应当能够识别的属性。</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/205232552.png" alt="mark"></p>
 <p>对于每一项属性，它的名称都要从常量池中引用一个<code>CONSTANT_Utf8_info</code> 来表示，其属性值的结构则是完全自定义的，只需要说明属性值所占用的位数长度即可。 </p>
@@ -346,11 +346,11 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/02/21/JavaInterview/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%B9%B6%E5%8F%91Synchronized/" class="article-nav-link">
+      <a href="/2020/02/12/JVM_Notes/JVM-10-%E7%B1%BB%E5%8A%A0%E8%BD%BD/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            深入理解并发Synchronized
+            JVM-10-类加载
           
         </div>
       </a>
@@ -556,7 +556,7 @@
     </li>
     
     <li class="nav-item">
-      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计者模式</a>
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
     </li>
     
     <li class="nav-item">
