@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.2k字</span>
+            <span class="post-count">2.2k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">4分钟</span>
+            <span class="post-count">9分钟</span>
         </span>
     </span>
 </div>
@@ -175,10 +175,75 @@
 
 
 
+<p><strong>CMD和 ENTRYPOINT 区别：</strong></p>
+<ul>
+<li>CMD：多个CMD会覆盖前面一个，只会执行最后一个CMD命令</li>
+<li>ENTRYPOINT ： 可以追加后面的参数</li>
+</ul>
 <ol start="8">
 <li><strong>LABEL：用于为镜像添加元数据</strong></li>
 </ol>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">    LABEL &lt;key&gt;=&lt;value&gt; &lt;key&gt;=&lt;value&gt; &lt;key&gt;=&lt;value&gt; ...</span><br><span class="line">示例：</span><br><span class="line">　　LABEL version="1.0" description="这是一个Web服务器" by="IT笔录"</span><br><span class="line">注：</span><br><span class="line">　　使用LABEL指定元数据时，一条LABEL指定可以指定一或多条元数据，指定多条元数据时不同元数据之间通过空格分隔。推荐将所有的元数据通过一条LABEL指令指定，以免生成过多的中间镜像。</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>9. ENV: 设置环境变量</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">    ENV &lt;key&gt; &lt;value&gt;  #&lt;key&gt;之后的所有内容均会被视为其&lt;value&gt;的组成部分，因此，一次只能设置一个变量</span><br><span class="line">    ENV &lt;key&gt;=&lt;value&gt; ...  #可以设置多个变量，每个变量为一个"&lt;key&gt;=&lt;value&gt;"的键值对，如果&lt;key&gt;中包含空格，可以使用\来进行转义，也可以通过""来进行标示；另外，反斜线也可以用于续行</span><br><span class="line">示例：</span><br><span class="line">    ENV myName John Doe</span><br><span class="line">    ENV myDog Rex The Dog</span><br><span class="line">    ENV myCat=fluffy</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="10">
+<li><strong>EXPOSE：指定于外界交互的端口</strong></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">    EXPOSE &lt;port&gt; [&lt;port&gt;...]</span><br><span class="line">示例：</span><br><span class="line">    EXPOSE 80 443</span><br><span class="line">    EXPOSE 8080    EXPOSE 11211/tcp 11211/udp</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    注：</span><br><span class="line">    EXPOSE并不会让容器的端口访问到主机。</span><br><span class="line">    要使其可访问，需要在docker run运行容器时通过-p来发布这些端口，或通过-P参数来发布EXPOSE导出的所有端口</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="11">
+<li><strong>VOLUME：用于指定持久化目录</strong></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">    VOLUME ["/path/to/dir"]</span><br><span class="line">示例：</span><br><span class="line">    VOLUME ["/data"]</span><br><span class="line">    VOLUME ["/var/www", "/var/log/apache2", "/etc/apache2"]</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    注：　　</span><br><span class="line">    一个卷可以存在于一个或多个容器的指定目录，该目录可以绕过联合文件系统，并具有以下功能：</span><br><span class="line">1 卷可以容器间共享和重用</span><br><span class="line">2 容器并不一定要和其它容器共享卷</span><br><span class="line">3 修改卷后会立即生效</span><br><span class="line">4 对卷的修改不会对镜像产生影响</span><br><span class="line">5 卷会一直存在，直到没有任何容器在使用它</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="12">
+<li><strong>WORKDIR：工作目录，类似于cd命令</strong></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">    WORKDIR /path/to/workdir</span><br><span class="line">示例：</span><br><span class="line">    WORKDIR /a  (这时工作目录为/a)</span><br><span class="line">    WORKDIR b  (这时工作目录为/a/b)</span><br><span class="line">    WORKDIR c  (这时工作目录为/a/b/c)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    注意：</span><br><span class="line">    通过WORKDIR设置工作目录以后，</span><br><span class="line">    Dockerfile 中其后所有的命令RUN，CMD,ENTRYPOINT,ADD,COPY等命令都会在该目录下执行。</span><br><span class="line">    在使用docker run 运行容器时，可以通过-w 参数覆盖构建时所设置的工作目录</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="13">
+<li><p><strong>USER</strong></p>
+<p>指定运行容器时的用户名或 UID，后续的 RUN 也会使用指定用户。</p>
+<p>使用USER指定用户时，可以使用用户名、UID或GID，或是两者的组合。当服务不需要管理员权限时，可以通过该命令指定运行用户。并且可以在之前创建所需要的用户</p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">格式:　　</span><br><span class="line">USER user　　</span><br><span class="line">USER user:group　　</span><br><span class="line">USER uid　　</span><br><span class="line">USER uid:gid　　</span><br><span class="line">USER user:gid　　</span><br><span class="line">USER uid:group</span><br><span class="line"> </span><br><span class="line"> 示例：    　　USER www</span><br><span class="line"> 注：</span><br><span class="line">　　使用USER指定用户后，Dockerfile中其后的命令RUN、CMD、ENTRYPOINT都将使用该用户。镜像构建完成后，通过docker run运行容器时，可以通过-u参数来覆盖所指定的用户。</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="14">
+<li><strong>ARG：用于指定传递给构建运行时的变量</strong></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">    ARG &lt;name&gt;[=&lt;default value&gt;]</span><br><span class="line">示例：</span><br><span class="line">    ARG site</span><br><span class="line">    ARG build_user=www</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="15">
+<li><strong>ONBUILD：用于设置镜像触发器</strong></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">　　ONBUILD [INSTRUCTION]</span><br><span class="line">示例：</span><br><span class="line">　　ONBUILD ADD . /app/src</span><br><span class="line">　　ONBUILD RUN /usr/local/bin/python-build --dir /app/src</span><br><span class="line">注：</span><br><span class="line">　　当所构建的镜像被用做其它镜像的基础镜像，该镜像中的触发器将会被钥触发</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-综合例子"><a href="#3-综合例子" class="headerlink" title="3. 综合例子"></a>3. 综合例子</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> This my first nginx Dockerfile</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Version 1.0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Base images 基础镜像</span></span><br><span class="line">FROM centos</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">MAINTAINER 维护者信息</span></span><br><span class="line">MAINTAINER Zhuuu</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">ENV 设置环境变量</span></span><br><span class="line">ENV PATH /usr/local/nginx/sbin:$PATH</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">ADD  文件放在当前目录下，拷过去会自动解压</span></span><br><span class="line">ADD nginx-1.8.0.tar.gz /usr/local/  </span><br><span class="line">ADD epel-release-latest-7.noarch.rpm /usr/local/  </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">RUN 执行以下命令 </span></span><br><span class="line">RUN rpm -ivh /usr/local/epel-release-latest-7.noarch.rpm</span><br><span class="line">RUN yum install -y wget lftp gcc gcc-c++ make openssl-devel pcre-devel pcre &amp;&amp; yum clean all</span><br><span class="line">RUN useradd -s /sbin/nologin -M www</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">WORKDIR 相当于<span class="built_in">cd</span></span></span><br><span class="line">WORKDIR /usr/local/nginx-1.8.0 </span><br><span class="line"></span><br><span class="line">RUN ./configure --prefix=/usr/local/nginx --user=www --group=www --with-http_ssl_module --with-pcre &amp;&amp; make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line">RUN echo "daemon off;" &gt;&gt; /etc/nginx.conf</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">EXPOSE 映射端口</span></span><br><span class="line">EXPOSE 80</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">CMD 运行以下命令</span></span><br><span class="line">CMD ["nginx"]</span><br></pre></td></tr></table></figure>
+
+
+
+
 
 
       
@@ -264,6 +329,15 @@
   
   
   <nav class="article-nav">
+    
+      <a href="/2020/05/29/Docker/Docker-08-DockerFile-%E5%AE%9E%E6%88%98%E6%B5%8B%E8%AF%95/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Docker-08-DockerFile-实战测试
+          
+        </div>
+      </a>
     
     
       <a href="/2020/05/26/Leetcode/Leetcode-041-%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%95%B0/" class="article-nav-link">

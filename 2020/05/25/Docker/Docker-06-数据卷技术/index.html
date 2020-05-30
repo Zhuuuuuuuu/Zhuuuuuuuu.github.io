@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.9k字</span>
+            <span class="post-count">3.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">6分钟</span>
+            <span class="post-count">14分钟</span>
         </span>
     </span>
 </div>
@@ -177,7 +177,7 @@
 <p>在使用 docker build 命令生成镜像并且以该镜像启动容器时会挂载一个数据卷到 /data 目录。根据我们已知的数据覆盖规则，如果镜像中存在 /data 目录，这个目录中的内容将全部被复制到宿主机中对应的目录中，并且根据容器中的文件设置合适的权限和所有者。</p>
 <p><strong>注意：</strong></p>
 <ul>
-<li><p><strong>VOLUME 指定不能挂在主机中的指定目录。这是为了保证DockerFile的一致性，因为不能保证所有的宿主机都有对应的目录。</strong></p>
+<li><p><strong>VOLUME 指定不能挂载主机中的指定目录。这是为了保证DockerFile的一致性，因为不能保证所有的宿主机都有对应的目录。</strong></p>
 </li>
 <li><p>在实际的使用中，还有一个陷阱需要大家注意：<strong>在Dockerfile使用VOLUME指令之后的代码，如果尝试对这个数据卷进行修改，这些修改都不会生效</strong></p>
 </li>
@@ -185,22 +185,114 @@
 <p>下面是一个这样的例子：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">RUN useradd nick</span><br><span class="line">VOLUME /data     #VOLUME添加数据卷</span><br><span class="line">RUN touch /data/test.txt   #对上面的数据卷修改是不会生效的</span><br><span class="line">RUN chown -R nick:nick /data</span><br></pre></td></tr></table></figure>
 
-<p>通过这个 Dockerfile 创建镜像并启动容器后，该容器中存在用户 nick，并且能够看到 /data 目录挂载的数据卷。但是 /data 目录内并没有文件 test.txt，更别说 test.txt 文件的所有者属性了。要解释这个现象需要我们了解通过 Dockerfile 创建镜像的过程：<br>Dockerfile 中除了 FROM 指令的每一行都是基于上一行生成的临时镜像运行一个容器，执行一条指令并执行类似 docker commit 的命令得到一个新的镜像。这条类似 docker commit 的命令不会对挂载的数据卷进行保存。<br>所以上面的 Dockerfile 最后两行执行时，都会在一个临时的容器上挂载 /data，并对这个临时的数据卷进行操作，但是这一行指令执行并提交后，这个临时的数据卷并没有被保存。因而我们最终通过镜像创建的容器所挂载的数据卷是没有被最后两条指令操作过的。我们姑且叫它 “Dockerfile 中数据卷的初始化问题”。</p>
-<p>下面的写法可以解决 Dockerfile 中数据卷的初始化问题：</p>
+
+
+<p>通过这个 Dockerfile 创建镜像并启动容器后，该容器中存在用户 nick，并且能够看到 /data 目录挂载的数据卷。<strong>但是 /data 目录内并没有文件 test.txt，更别说 test.txt 文件的所有者属性了</strong>。要解释这个现象需要我们了解通过 Dockerfile 创建镜像的过程：<br>Dockerfile 中除了 FROM 指令的<strong>每一行都是基于上一行生成的临时镜像运行一个容器</strong>，执行一条指令并执行类似 docker commit 的命令得到一个新的镜像。这条类似 docker commit 的命令不会对挂载的数据卷进行保存。<br>所以上面的 Dockerfile 最后两行执行时，都会在一个临时的容器上挂载 /data，并对这个临时的数据卷进行操作，<strong>但是这一行指令执行并提交后，这个临时的数据卷并没有被保存</strong>。因而我们最终通过镜像创建的容器所挂载的数据卷是没有被最后两条指令操作过的。我们姑且叫它 “Dockerfile 中数据卷的初始化问题”。</p>
+<p><strong>下面的写法可以解决 Dockerfile 中数据卷的初始化问题：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">RUN useradd nick</span><br><span class="line">RUN mkdir /data &amp;&amp; touch /data/test.txt</span><br><span class="line">RUN chown -R nick:nick /data</span><br><span class="line">VOLUME /data</span><br></pre></td></tr></table></figure>
 
-<p>通过这个 Dockerfile 创建镜像并启动容器后，数据卷的初始化是符合预期的。这是由于在挂载数据卷时，/data 已经存在，/data 中的文件以及它们的权限和所有者设置会被复制到数据卷中。<br>还有另外一种方法可以解决 Dockerfile 中数据卷的初始化问题。就是利用 CMD 指令和 ENTRYPOINT 指令的执行特点：与 RUN 指令在镜像构建过程中执行不同，CMD 指令和 ENTRYPOINT 指令是在容器启动时执行。因此使用下面的 Dockerfile 也可以达到对数据卷的初始化目的：</p>
+<p>通过这个 Dockerfile 创建镜像并启动容器后，数据卷的初始化是符合预期的。这是由于在挂载数据卷时，/data 已经存在，/data 中的文件以及它们的权限和所有者设置会被复制到数据卷中。<br><strong>还有另外一种方法可以解决 Dockerfile 中数据卷的初始化问题。就是利用 CMD 指令和 ENTRYPOINT 指令的执行特点：与 RUN 指令在镜像构建过程中执行不同，CMD 指令和 ENTRYPOINT 指令是在容器启动时执行。</strong>因此使用下面的 Dockerfile 也可以达到对数据卷的初始化目的：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">RUN useradd nick</span><br><span class="line">VOLUME /data</span><br><span class="line">CMD touch /data/test.txt &amp;&amp; chown -R nick:nick /data &amp;&amp; /bin/bash</span><br></pre></td></tr></table></figure>
 
 
 
 <h2 id="6-数据的覆盖问题"><a href="#6-数据的覆盖问题" class="headerlink" title="6. 数据的覆盖问题"></a>6. 数据的覆盖问题</h2><ul>
-<li>如果挂在一个空的数据卷到容器的一个非空目录中，那么这个目录下的文件会被复制到数据卷中</li>
+<li>如果挂载一个空的数据卷到容器的一个非空目录中，那么这个目录下的文件会被复制到数据卷中</li>
 <li>如果挂载一个非空的数据卷到容器的一个目录中，那么容器中的目录会显示数据卷的数据。如果原来容器中的目录有数据，那么这些原始数据会被隐藏掉</li>
 </ul>
 <p>总结：</p>
 <p>灵活利用第一个规则可以帮助我们初始化数据卷中的内容。</p>
 <p>掌握第二条规则可以保证挂载数据卷后的数据总是你期望的数据。</p>
+<h2 id="7-共享数据卷与数据卷容器"><a href="#7-共享数据卷与数据卷容器" class="headerlink" title="7. 共享数据卷与数据卷容器"></a>7. 共享数据卷与数据卷容器</h2><p>数据卷的共享有两种方式:</p>
+<h3 id="7-1-两个docker之间直接共享数据卷"><a href="#7-1-两个docker之间直接共享数据卷" class="headerlink" title="7.1 两个docker之间直接共享数据卷"></a>7.1 两个docker之间直接共享数据卷</h3><p><code>--volumes-from</code>:相当于继承的概念</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~# docker run  -it -d  --name u1  -v share_vol:/opt   ubuntu:14.04  /bin/bash  #将数据卷share_vol挂载到容器的/opt</span><br><span class="line">7c9bcad41f3d9172699f0add3d6ba65d4a50c6ebac57fc5a042938198896e951</span><br><span class="line">root@ubuntu:~# docker run  -it -d  --name u2  --volumes-from u1  ubuntu:14.04  /bin/bash   #u2 使用u1的数据卷</span><br><span class="line">58a1a4dad1bed5372d9c30d6a8d13644f376426c1fa603de5bab5b52199a6095</span><br><span class="line">root@ubuntu:~# docker exec -it u1 /bin/bash    #在容器u1 /opt 中新建文件</span><br><span class="line">root@7c9bcad41f3d:/# cd opt/</span><br><span class="line">root@7c9bcad41f3d:/opt# echo "u1"&gt;&gt;1.txt</span><br><span class="line">root@7c9bcad41f3d:/opt# exit</span><br><span class="line">root@ubuntu:~# docker exec -it u2 /bin/bash   #容器u2与u1用的是共享数据卷，所以也能看见u1创建的文件,反之.</span><br><span class="line">root@58a1a4dad1be:/# cd opt/</span><br><span class="line">root@58a1a4dad1be:/opt# ls</span><br><span class="line">1.txt</span><br><span class="line">root@58a1a4dad1be:/opt#</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="7-2-单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式"><a href="#7-2-单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式" class="headerlink" title="7.2 单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式"></a>7.2 单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式</h3><p><code>--volumes-from</code>:相当于继承的概念</p>
+<ul>
+<li><p>如果用户需要在容器之间共享一些持续更新的数据，最简单的方式是使用数据卷容器。数据卷容器其实就是一个普通的容器，专门用它提供数据卷供其他容器挂载。</p>
+</li>
+<li><p>一个容器挂载了一个volume，即使这个容器停止运行，该volume仍然存在，其他容器也可以使用<code>--volumes-from</code> 与这个容器共享卷</p>
+</li>
+</ul>
+<ol>
+<li>创建数据卷容器，给容器挂载一个 volume后容器停止，好节约资源.</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name share_docker  -v share_vol:&#x2F;data  ubuntu &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>然后再其他容器中使用 <code>--volumes-from</code> 来挂在 share_docker 容器中的数据卷</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~# docker run -it -d --name u1 --volumes-from share_docker  ubuntu /bin/bash</span><br><span class="line">fdc15fca2a7e2545b0751315797cbe8fe868b7fd37c295cff8df8189f3254e5f</span><br><span class="line">root@ubuntu:~# docker run -it -d --name u2 --volumes-from share_docker  ubuntu /bin/bash</span><br><span class="line">98e511fb3ef5e6fe3a06ac0b6aa3a97e8881ffaeb48ccb585d3b8cd92b429d1d</span><br><span class="line"></span><br><span class="line">(注意，命令中没有指定数据卷的信息，也就是说新容器中挂载数据卷的目录和源容器中是一样的。)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="8-备份，恢复或者迁移-volume"><a href="#8-备份，恢复或者迁移-volume" class="headerlink" title="8. 备份，恢复或者迁移 volume"></a>8. 备份，恢复或者迁移 volume</h2><p>volume作为数据的载体，在很多情况下需要对其中的数据进行备份迁移。</p>
+<p>一个很容易想到的办法是使用 docker inspect 查找到volume 在宿主机上对应的文件夹的位置，然后复制其中的内容或者打包。这种做法不推荐，推荐使用  –volumes-from来实现.</p>
+<h3 id="8-1-备份"><a href="#8-1-备份" class="headerlink" title="8.1 备份"></a>8.1 备份</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~<span class="comment"># docker run --rm --volumes-from share_docker -v $(pwd):/backup ubuntu tar cvf /backup/data.tar /data</span></span><br><span class="line">/data/</span><br><span class="line">/data/2.txt</span><br><span class="line">/data/1.txt</span><br><span class="line">tar: Removing leading `/<span class="string">' from member names</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">说明：share_docker容器包含了我们希望备份的一个volume,上面这行命令启动了另外一个临时容器，这个容器挂载了两个volume，第一个volume来自 share_docker 的共享，也就是需要备份的volume。第二个volume将宿主机的当前目录挂载到临时容器的/backup目录。容器运行后要将备份内容(/data文件夹)备份到容器的/backup/data.tar.然后删除容器，备份后的data.tar就留在了宿主机的当前目录.</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-2-恢复"><a href="#8-2-恢复" class="headerlink" title="8.2 恢复"></a>8.2 恢复</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">创建需要恢复数据的目标容器：</span><br><span class="line">root@ubuntu:~<span class="comment"># docker run -it -d --name back_docker -v  back_vol:/data ubuntu /bin/bash </span></span><br><span class="line">e24b5e898c2016b7ebda93a266a351c6d9a47e6a3f828dac3c8a56cadfc0ce26</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">启动临时容器用于恢复。</span><br><span class="line">docker run --rm --volumes-from  back_docker -v $(<span class="built_in">pwd</span>):/backup ubuntu tar xvf /backup/data.tar -C /</span><br><span class="line"></span><br><span class="line">data/</span><br><span class="line">data/2.txt</span><br><span class="line">data/1.txt</span><br><span class="line">root@ubuntu:~<span class="comment"># docker exec  -it back_docker  /bin/bash  #查看发现数据恢复</span></span><br><span class="line">root@e24b5e898c20:/<span class="comment"># cd data/</span></span><br><span class="line">root@e24b5e898c20:/data<span class="comment"># ls</span></span><br><span class="line">1.txt  2.txt</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="9-使用mount语法挂载数据卷"><a href="#9-使用mount语法挂载数据卷" class="headerlink" title="9. 使用mount语法挂载数据卷"></a>9. 使用mount语法挂载数据卷</h2><p>之前我们使用 –volume(-v) 选项来挂载数据卷，现在docker提供了更强大的 –mount 选项来管理数据卷。</p>
+<p>mount 选项可以通过逗号分割多个键值对一次提供多个配置项，因此mount 选项可以提供比volume 选项更详细的配置</p>
+<p>使用 mount 选项的常用配置如下：</p>
+<ul>
+<li><strong>type</strong> 指定挂载方式，我们这里用到的是 volume，其实还可以有 bind 和 tmpfs。</li>
+<li><strong>volume-driver</strong> 指定挂载数据卷的驱动程序，默认值是 local。</li>
+<li><strong>source</strong> 指定挂载的源，对于一个命名的数据卷，这里应该指定这个数据卷的名称。在使用时可以写 source，也可以简写为 src。</li>
+<li><strong>destination</strong> 指定挂载的数据在容器中的路径。在使用时可以写 destination，也可以简写为 dst 或 target。</li>
+<li><strong>readonly</strong> 指定挂载的数据为只读。</li>
+<li><strong>volume-opt</strong> 可以指定多次，用来提高更多的 mount 相关的配置。</li>
+</ul>
+<p>下面我们来看具体的例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker volume create hello</span><br><span class="line">$ docker run -id --mount <span class="built_in">type</span>=volume,<span class="built_in">source</span>=hello,target=/world ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>我们创建了名称为 hello 的数据卷，然后把它挂在到容器中的 /world 目录。通过 inspect 命令查看容器的详情中的 “Mounts” 信息可以验证实际的数据卷挂载结果.</p>
+<ul>
+<li><strong>使用volume driver 把数据存储到别的地方（远程）</strong></li>
+</ul>
+<p>除了默认的把数据卷中的数据存储在宿主机，docker 还允许我们通过指定 volume driver 的方式把数据卷中的数据存储在其它的地方，比如 Azrue Storge 或 AWS 的 S3。<br>简单起见，我们接下来的 demo 演示如何通过 vieux/sshfs 驱动把数据卷的存储在其它的主机上。</p>
+<ol>
+<li>docker 默认是不安装 vieux/sshfs 插件的，我们可以通过下面的命令进行安装：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker plugin install --grant-all-permissions vieux/sshfs</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>然后通过 vieux/sshfs 驱动创建数据卷，并指定远程主机的登录用户名、密码和数据存放目录：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker volume create --driver vieux/sshfs \</span><br><span class="line">    -o sshcmd=nick@39.106.171.56:/home/nick/sshvolume \</span><br><span class="line">    -o password=yourpassword \</span><br><span class="line">    mysshvolume</span><br></pre></td></tr></table></figure>
+
+<p>注意，请确保你指定的远程主机上的挂载点目录是存在的(demo 中是 /home/nick/sshvolume 目录)，否则在启动容器时会报错。</p>
+<ol start="3">
+<li>最后在启动容器的时候指定挂载这个数据卷：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -id \</span><br><span class="line">    --name testcon \</span><br><span class="line">    --mount type=volume,volume-driver=vieux/sshfs,source=mysshvolume,target=/world \</span><br><span class="line">    ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>你在容器中 /world 目录下操作的文件都存储在远程主机的 /home/nick/sshvolume 目录中。进入容器testcon然后在 /world 目录下创建一个文件，然后打开远程主机/home/nick/sshvolume 目录进行查看，你新建的文件看看是不是已经在那里了！</p>
+<ul>
+<li><strong>docker volume 使用NFS存储</strong></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">NFS服务端,配置nfs共享</span></span><br><span class="line">yum install nfs-utils rpcbind -y</span><br><span class="line">mkdir -p /data/nfs/docker</span><br><span class="line">echo "/data/nfs *(rw,no_root_squash,sync)"&gt;&gt;/etc/exports</span><br><span class="line">exportfs -r</span><br><span class="line">systemctl start rpcbind nfs-server</span><br><span class="line">systemctl enable rpcbind nfs-server</span><br><span class="line">showmount -e localhost</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">nfs客户端</span></span><br><span class="line">yum install -y nfs-utils rpcbind</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">创建volume 连接 39.106.171.56:/data/nfs</span></span><br><span class="line">docker volume create --driver local \</span><br><span class="line">  --opt type=nfs \</span><br><span class="line">  --opt o=addr=39.106.171.56,rw \</span><br><span class="line">  --opt device=:/data/nfs \</span><br><span class="line">  volume-nfs</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">查看</span></span><br><span class="line">docker volume ls</span><br><span class="line">docker volume inspect volume-nfs</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">容器使用volume-nfs</span></span><br><span class="line">docker run -dit --name busybox7 -v volume-nfs:/nfs busybox</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">查看</span></span><br><span class="line">docker inspect -f &#123;&#123;.Mounts&#125;&#125; busybox7</span><br><span class="line">df -h |grep /data/nfs</span><br><span class="line"><span class="meta"> #</span><span class="bash">volume目录/var/lib/docker/volumes/volume-nfs/_data自动挂载到了nfs服务上</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">容器创文件测试</span></span><br><span class="line">docker exec busybox7 touch /nfs/testfiles.txt</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
