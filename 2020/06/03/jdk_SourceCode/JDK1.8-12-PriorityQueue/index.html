@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">2.5k字</span>
+            <span class="post-count">2.6k字</span>
         </span>
     </span>
 
@@ -99,7 +99,8 @@
       
 
       
-      <h1 id="JDK1-8源码-12-PriorityQueue"><a href="#JDK1-8源码-12-PriorityQueue" class="headerlink" title="JDK1.8源码-12-PriorityQueue"></a>JDK1.8源码-12-PriorityQueue</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>之前的文章中，我们有介绍过动态数组ArrayList，双向队列LinkedList，键值对集合HashMap，树集TreeMap。</p>
+      <h1 id="JDK1-8源码-12-PriorityQueue"><a href="#JDK1-8源码-12-PriorityQueue" class="headerlink" title="JDK1.8源码-12-PriorityQueue"></a>JDK1.8源码-12-PriorityQueue</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p><strong>写在前面：请把我的博客中关于 二叉堆的数据结构看了再来看此篇，效果会增倍！！！</strong></p>
+<p>之前的文章中，我们有介绍过动态数组ArrayList，双向队列LinkedList，键值对集合HashMap，树集TreeMap。</p>
 <p>他们各自有各自的优点，</p>
 <ul>
 <li><strong>ArrayList动态扩容</strong>，数组实现查询非常快但要求连续内存空间</li>
@@ -112,9 +113,9 @@
 
 <h2 id="1-构造函数"><a href="#1-构造函数" class="headerlink" title="1. 构造函数"></a>1. 构造函数</h2><p> 在实际介绍PriorityQueue原理之前，再次啰嗦PriorityQueue的内部结构。</p>
 <ul>
-<li>PriorityQueue中的元素在逻辑上构成了一棵完全二叉树</li>
-<li>PriorityQueue实际存储时是一个数组类型</li>
-<li>PriorityQueue 继承了接口Queue ，表明这是一个队列，只是它并不像普通队列（如LinkedList）在遍历输出时候简单的按照顺序从头到尾输出</li>
+<li>PriorityQueue中的元素在逻辑上构成了<strong>一棵完全二叉树</strong></li>
+<li>PriorityQueue实际存储时是一个<strong>数组类型</strong></li>
+<li>PriorityQueue <strong>继承了接口Queue ，表明这是一个队列</strong>，只是它并不像普通队列（如LinkedList）在遍历输出时候简单的按照顺序从头到尾输出</li>
 <li>PriorityQueue 总是先输出根节点的值，然后调整树使它继续成为一棵完全二叉树，每次输出根节点总是整个树优先级最高的，要么数值最小要么数值最大。</li>
 </ul>
 <p>在PriorityQueue的内部，主要有以下<strong>结构属性</strong>构成：</p>
@@ -128,8 +129,13 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(DEFAULT_INITIAL_CAPACITY, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(<span class="keyword">int</span> initialCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(initialCapacity, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(Comparator&lt;? <span class="keyword">super</span> E&gt; comparator)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(DEFAULT_INITIAL_CAPACITY, comparator);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PriorityQueue</span><span class="params">(<span class="keyword">int</span> initialCapacity,Comparator&lt;? <span class="keyword">super</span> E&gt; comparator)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (initialCapacity &lt; <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">    <span class="keyword">this</span>.queue = <span class="keyword">new</span> Object[initialCapacity];</span><br><span class="line">    <span class="keyword">this</span>.comparator = comparator;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol>
-<li>主要构造器有上述四种，前三种在内部会调用最后一个构造器</li>
-<li>两个参数：一个指定要初始化数组的容量，一个则用于初始化一个比较器（如果没有显示的指定他们的值，默认初始化容量<code>DEFAULT_INITIAL_CAPACITY（11)</code>, 比较器传入的是<code>null</code>）</li>
+<li><strong>主要构造器有上述四种，前三种在内部会调用最后一个构造器</strong></li>
+<li><strong>两个参数：</strong><ul>
+<li>一个指定要初始化数组的容量，</li>
+<li>一个则用于初始化一个比较器</li>
+<li>（如果没有显示的指定他们的值，默认初始化容量<code>DEFAULT_INITIAL_CAPACITY（11)</code>, 比较器传入的是<code>null</code>）</li>
+</ul>
+</li>
 </ol>
 <p>下面我们看获取到PriorityQueue实例之后，如何向其中添加和删除节点却一样保持原堆结构不变。</p>
 <h2 id="2-优先队列的增删改查"><a href="#2-优先队列的增删改查" class="headerlink" title="2. 优先队列的增删改查"></a>2. 优先队列的增删改查</h2><h3 id="2-1-增加"><a href="#2-1-增加" class="headerlink" title="2.1 增加"></a>2.1 增加</h3><p><strong>add(E e) 和 offer(E e) 方法</strong></p>
@@ -287,6 +293,15 @@
   
   
   <nav class="article-nav">
+    
+      <a href="/2020/06/03/Docker/Docker-09-%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Docker-09-网络原理
+          
+        </div>
+      </a>
     
     
       <a href="/2020/05/30/DataStructure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-01-%E5%A0%86%E5%92%8C%E4%BA%8C%E5%8F%89%E5%A0%86/" class="article-nav-link">
