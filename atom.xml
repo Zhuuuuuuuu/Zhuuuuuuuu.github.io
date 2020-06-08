@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2020-06-06T02:48:37.716Z</updated>
+  <updated>2020-06-08T09:37:19.854Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Leetcode-108-将有序数组转换为二叉搜索树</title>
+    <link href="http://zhuuu.work/2020/06/07/Leetcode/Leetcode-108-%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/"/>
+    <id>http://zhuuu.work/2020/06/07/Leetcode/Leetcode-108-%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/</id>
+    <published>2020-06-07T09:52:53.000Z</published>
+    <updated>2020-06-08T09:37:19.854Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leecode-108-Convert-Sorted-Array-to-Binary-Search-Tree"><a href="#Leecode-108-Convert-Sorted-Array-to-Binary-Search-Tree" class="headerlink" title="Leecode-108-Convert Sorted Array to Binary Search Tree"></a>Leecode-108-<a href="https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/" target="_blank" rel="noopener">Convert Sorted Array to Binary Search Tree</a></h1><h2 id=""><a href="#" class="headerlink" title=""></a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>将一个按照升序排列的有序数组，转换为一棵高度平衡二叉搜索树。</p><p>本题中，一个高度平衡二叉树是指一个二叉树<em>每个节点</em> 的左右两个子树的高度差的绝对值不超过 1。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">给定有序数组: [-10,-3,0,5,9],</span><br><span class="line"></span><br><span class="line">一个可能的答案是：[0,-3,9,-10,null,5]，它可以表示下面这个高度平衡二叉搜索树：</span><br><span class="line"></span><br><span class="line">      0</span><br><span class="line">     &#x2F; \</span><br><span class="line">   -3   9</span><br><span class="line">   &#x2F;   &#x2F;</span><br><span class="line"> -10  5</span><br></pre></td></tr></table></figure><a id="more"></a><p><strong>Solution：DFS</strong></p><ul><li>深度优先遍历（DFS）<ul><li>这种方法以深度<code>depth</code> 为优先策略，从根节点开始一直遍历到某个叶子节点，回到根节点，再遍历另外一个分支。</li><li>根据根节点，左孩子和有孩子的访问顺序又可以把DFS细分为 前序遍历，中序遍历，后序遍历。</li></ul></li><li><strong>这里有很重要的一点：有序数组转换成二叉搜索树的结果不唯一</strong><ul><li><strong>众所周知，二叉搜索树的中序遍历是一个升序序列。</strong></li><li><strong>将有序数组作为输入，可以把该问题看作根据中序遍历创建二叉搜索树</strong></li><li>中序遍历不能唯一确定一棵二叉搜索树。</li><li>先序和后序遍历不能确定一颗唯一的二叉搜索树</li><li>中序+后序，后序+先序可以唯一确定一颗二叉搜索树</li><li>因此，“有序数组 -&gt; BST”有多种答案。</li></ul></li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200608/172631566.png" alt="mark"></p><h2 id="方法一：中序遍历（始终选择中间左边元素作为根节点）"><a href="#方法一：中序遍历（始终选择中间左边元素作为根节点）" class="headerlink" title="方法一：中序遍历（始终选择中间左边元素作为根节点）"></a>方法一：中序遍历（始终选择中间左边元素作为根节点）</h2><ul><li>方法<code>helper(left,right,nums)</code> 使用数组nums 中索引从left到right创建BST<ul><li>如果 left &gt; right ，子树中不存在元素，返回空</li><li>找出中间元素 <code>p = (left + right) &gt;&gt;&gt;1;</code></li><li>创建根节点 <code>root = TreeNode(nums[p])</code></li><li>递归创建左子树 <code>root.left = helper(left,p-1,nums)</code></li><li>递归创建右子树 <code>root.right = helper(p + 1,right)</code></li></ul></li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">sortedArrayToBST</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> helper(<span class="number">0</span>,nums.length - <span class="number">1</span>,nums);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> TreeNode <span class="title">helper</span> <span class="params">(<span class="keyword">int</span> left, <span class="keyword">int</span> right , <span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 退出递归的条件</span></span><br><span class="line">        <span class="keyword">if</span> (left &gt; right)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拿到中间节点作为根节点 （左侧）</span></span><br><span class="line">        <span class="keyword">int</span> p = (left + right) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// inorder traversal: left -&gt; node -&gt; right</span></span><br><span class="line">        TreeNode root = <span class="keyword">new</span> TreeNode(nums[p]);</span><br><span class="line">        root.left  = helper(left, p -<span class="number">1</span>,nums);</span><br><span class="line">        root.right = helper(p + <span class="number">1</span>,right,nums);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ul><li>时间复杂度：O(N) 每个元素只访问一次</li><li>空间复杂度：O(N) 二叉搜索树空间O(<em>N</em>)，递归栈深度 O(log<em>N</em>)。</li></ul><h2 id="方法二：中序遍历：始终选择中间位置右边元素作为根节点"><a href="#方法二：中序遍历：始终选择中间位置右边元素作为根节点" class="headerlink" title="方法二：中序遍历：始终选择中间位置右边元素作为根节点"></a>方法二：中序遍历：始终选择中间位置右边元素作为根节点</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200608/173643871.png" alt="mark"></p><ul><li>道理同上一个解法，这里不再重述</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span>[] nums;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> TreeNode <span class="title">helper</span><span class="params">(<span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (left &gt; right) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// always choose right middle node as a root</span></span><br><span class="line">    <span class="keyword">int</span> p = (left + right) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span> ((left + right) % <span class="number">2</span> == <span class="number">1</span>) ++p;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// inorder traversal: left -&gt; node -&gt; right</span></span><br><span class="line">    TreeNode root = <span class="keyword">new</span> TreeNode(nums[p]);</span><br><span class="line">    root.left = helper(left, p - <span class="number">1</span>);</span><br><span class="line">    root.right = helper(p + <span class="number">1</span>, right);</span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> TreeNode <span class="title">sortedArrayToBST</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.nums = nums;</span><br><span class="line">    <span class="keyword">return</span> helper(<span class="number">0</span>, nums.length - <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leecode-108-Convert-Sorted-Array-to-Binary-Search-Tree&quot;&gt;&lt;a href=&quot;#Leecode-108-Convert-Sorted-Array-to-Binary-Search-Tree&quot; class=&quot;headerlink&quot; title=&quot;Leecode-108-Convert Sorted Array to Binary Search Tree&quot;&gt;&lt;/a&gt;Leecode-108-&lt;a href=&quot;https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Convert Sorted Array to Binary Search Tree&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;&quot;&gt;&lt;a href=&quot;#&quot; class=&quot;headerlink&quot; title=&quot;&quot;&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;p&gt;将一个按照升序排列的有序数组，转换为一棵高度平衡二叉搜索树。&lt;/p&gt;
+&lt;p&gt;本题中，一个高度平衡二叉树是指一个二叉树&lt;em&gt;每个节点&lt;/em&gt; 的左右两个子树的高度差的绝对值不超过 1。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;给定有序数组: [-10,-3,0,5,9],&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;一个可能的答案是：[0,-3,9,-10,null,5]，它可以表示下面这个高度平衡二叉搜索树：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;      0&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;     &amp;#x2F; \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   -3   9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   &amp;#x2F;   &amp;#x2F;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; -10  5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="深度优先" scheme="http://zhuuu.work/tags/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88/"/>
+    
+  </entry>
   
   <entry>
     <title>数据库-面经</title>
@@ -475,6 +500,30 @@
   </entry>
   
   <entry>
+    <title>Docker-02-Hello-World</title>
+    <link href="http://zhuuu.work/2020/05/23/Docker/Docker-02-Hello-World/"/>
+    <id>http://zhuuu.work/2020/05/23/Docker/Docker-02-Hello-World/</id>
+    <published>2020-05-23T00:22:24.000Z</published>
+    <updated>2020-05-23T06:53:33.730Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Docker-02-Hello-World"><a href="#Docker-02-Hello-World" class="headerlink" title="Docker-02-Hello-World"></a>Docker-02-Hello-World</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/093923608.png" alt="mark"></p><p><code>docker run</code> 命令</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/113405933.png" alt="mark"></p><ul><li>Docker在本机寻找镜像<ul><li>有，直接使用</li><li>没有，去docker hub上下载</li></ul></li></ul><h2 id="1-docker-原理"><a href="#1-docker-原理" class="headerlink" title="1. docker 原理"></a>1. docker 原理</h2><h3 id="1-1-Docker工作方式"><a href="#1-1-Docker工作方式" class="headerlink" title="1.1 Docker工作方式"></a>1.1 Docker工作方式</h3><ul><li>Docker是一个Client-Server结构的系统，Docker的守护进行在主机上，通过Socket链接</li><li>Docker Server 接受Docker Client的指令，并且执行这个命令！</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/145017509.png" alt="mark"></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;Docker-02-Hello-World&quot;&gt;&lt;a href=&quot;#Docker-02-Hello-World&quot; class=&quot;headerlink&quot; title=&quot;Docker-02-Hello-World&quot;&gt;&lt;/a&gt;Docker-02-Hello-World&lt;/
+      
+    
+    </summary>
+    
+    
+    
+      <category term="Docker" scheme="http://zhuuu.work/tags/Docker/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Docker-01-简介</title>
     <link href="http://zhuuu.work/2020/05/23/Docker/Docker-01-%E7%AE%80%E4%BB%8B/"/>
     <id>http://zhuuu.work/2020/05/23/Docker/Docker-01-%E7%AE%80%E4%BB%8B/</id>
@@ -506,30 +555,6 @@
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/094018098.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Docker" scheme="http://zhuuu.work/tags/Docker/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Docker-02-Hello-World</title>
-    <link href="http://zhuuu.work/2020/05/23/Docker/Docker-02-Hello-World/"/>
-    <id>http://zhuuu.work/2020/05/23/Docker/Docker-02-Hello-World/</id>
-    <published>2020-05-23T00:22:24.000Z</published>
-    <updated>2020-05-23T06:53:33.730Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Docker-02-Hello-World"><a href="#Docker-02-Hello-World" class="headerlink" title="Docker-02-Hello-World"></a>Docker-02-Hello-World</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/093923608.png" alt="mark"></p><p><code>docker run</code> 命令</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/113405933.png" alt="mark"></p><ul><li>Docker在本机寻找镜像<ul><li>有，直接使用</li><li>没有，去docker hub上下载</li></ul></li></ul><h2 id="1-docker-原理"><a href="#1-docker-原理" class="headerlink" title="1. docker 原理"></a>1. docker 原理</h2><h3 id="1-1-Docker工作方式"><a href="#1-1-Docker工作方式" class="headerlink" title="1.1 Docker工作方式"></a>1.1 Docker工作方式</h3><ul><li>Docker是一个Client-Server结构的系统，Docker的守护进行在主机上，通过Socket链接</li><li>Docker Server 接受Docker Client的指令，并且执行这个命令！</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200523/145017509.png" alt="mark"></p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;Docker-02-Hello-World&quot;&gt;&lt;a href=&quot;#Docker-02-Hello-World&quot; class=&quot;headerlink&quot; title=&quot;Docker-02-Hello-World&quot;&gt;&lt;/a&gt;Docker-02-Hello-World&lt;/
-      
     
     </summary>
     
@@ -2655,31 +2680,6 @@
       <category term="算法" scheme="http://zhuuu.work/tags/%E7%AE%97%E6%B3%95/"/>
     
       <category term="读书笔记" scheme="http://zhuuu.work/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Leetcode-面试题01.07-旋转矩阵</title>
-    <link href="http://zhuuu.work/2020/04/08/Leetcode/Leetcode-%E9%9D%A2%E8%AF%95%E9%A2%9801.07-%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/"/>
-    <id>http://zhuuu.work/2020/04/08/Leetcode/Leetcode-%E9%9D%A2%E8%AF%95%E9%A2%9801.07-%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5/</id>
-    <published>2020-04-08T02:52:53.000Z</published>
-    <updated>2020-04-08T03:44:51.508Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Leecode-面试题-01-07-Rotate-Matrix-LCCI"><a href="#Leecode-面试题-01-07-Rotate-Matrix-LCCI" class="headerlink" title="Leecode-面试题 01.07. Rotate Matrix LCCI"></a>Leecode-<a href="https://leetcode-cn.com/problems/rotate-matrix-lcci/" target="_blank" rel="noopener">面试题 01.07. Rotate Matrix LCCI</a></h1><h2 id="思路：对称旋转"><a href="#思路：对称旋转" class="headerlink" title="思路：对称旋转"></a>思路：对称旋转</h2><p><strong>题目描述</strong></p><p>给定矩阵：N*N大小的矩阵</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408105441.png" alt=""></p><p>要得到旋转后矩阵为：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[7,4,1]</span><br><span class="line">[8,5,2]</span><br><span class="line">[9,6,3]</span><br></pre></td></tr></table></figure><a id="more"></a><p><strong>Solution：一次旋转，一次行对称</strong></p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408105441.png" alt=""></p><p>如上图：先由对角线[1,5,9]为轴进行旋转：</p><p>于是数组变成了：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[1,4,7]</span><br><span class="line">[2,5,8]</span><br><span class="line">[3,6,9]</span><br></pre></td></tr></table></figure><p>然后再以每一行中点进行翻转：就得到了</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[7,4,1]</span><br><span class="line">[8,5,2]</span><br><span class="line">[9,3,6]</span><br></pre></td></tr></table></figure><h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">rotate</span><span class="params">(<span class="keyword">int</span>[][] matrix)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = matrix.length;</span><br><span class="line">        <span class="comment">// 先以对角线（左上-右下）为轴进行翻转</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n - <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; n; j++) &#123;</span><br><span class="line">                <span class="keyword">int</span> tmp = matrix[i][j];</span><br><span class="line">                matrix[i][j] = matrix[j][i];</span><br><span class="line">                matrix[j][i] = tmp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 再对每一行以中点进行翻转</span></span><br><span class="line">        <span class="keyword">int</span> mid = n/<span class="number">2</span>;</span><br><span class="line">        <span class="comment">// int mid = n &gt;&gt; 1; 相当于除2   </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; mid; j++) &#123;</span><br><span class="line">                <span class="keyword">int</span> tmp = matrix[i][j];</span><br><span class="line">                matrix[i][j] = matrix[i][n - <span class="number">1</span> - j];</span><br><span class="line">                matrix[i][n - <span class="number">1</span> - j] = tmp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Leecode-面试题-01-07-Rotate-Matrix-LCCI&quot;&gt;&lt;a href=&quot;#Leecode-面试题-01-07-Rotate-Matrix-LCCI&quot; class=&quot;headerlink&quot; title=&quot;Leecode-面试题 01.07. Rotate Matrix LCCI&quot;&gt;&lt;/a&gt;Leecode-&lt;a href=&quot;https://leetcode-cn.com/problems/rotate-matrix-lcci/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;面试题 01.07. Rotate Matrix LCCI&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;思路：对称旋转&quot;&gt;&lt;a href=&quot;#思路：对称旋转&quot; class=&quot;headerlink&quot; title=&quot;思路：对称旋转&quot;&gt;&lt;/a&gt;思路：对称旋转&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;题目描述&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;给定矩阵：N*N大小的矩阵&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200408105441.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;要得到旋转后矩阵为：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[7,4,1]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[8,5,2]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[9,6,3]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
   </entry>
   
