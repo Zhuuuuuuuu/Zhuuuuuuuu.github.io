@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">82字</span>
+            <span class="post-count">5.2k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">21分钟</span>
         </span>
     </span>
 </div>
@@ -99,13 +99,390 @@
       
 
       
-      <h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+      <h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200610/221023280.png" alt="mark"></p>
+<ul>
 <li>设计模式是解决问题的方案，学习现有的设计模式可以做到经验的复用</li>
 <li>拥有设计模式的词汇，在沟通是就能用到更少的词汇来讨论，并且不需要知道底层的细节</li>
 </ul>
 <a id="more"></a>
 
-<h3 id="1-设计原则"><a href="#1-设计原则" class="headerlink" title="1. 设计原则"></a>1. 设计原则</h3><h2 id="一-创建型"><a href="#一-创建型" class="headerlink" title="一 . 创建型"></a>一 . 创建型</h2>
+<h3 id="1-设计原则"><a href="#1-设计原则" class="headerlink" title="1. 设计原则"></a>1. 设计原则</h3><h2 id="一-创建型"><a href="#一-创建型" class="headerlink" title="一 . 创建型"></a>一 . 创建型</h2><h3 id="1-原型模式（Prototype）"><a href="#1-原型模式（Prototype）" class="headerlink" title="1. 原型模式（Prototype）"></a>1. 原型模式（Prototype）</h3><ul>
+<li><p>使用原型实例指定要创建对象的类型，通过复制这个原型来创建新对象。</p>
+</li>
+<li><p>简单来说，其实就是当需要创建一个指定对象的时候，我们刚好有这样一个对象，但是又不能直接使用这个对象，那么我就会<strong>clone</strong> 一个一模一样的对象，基本上这就是原型模型</p>
+</li>
+<li><p>关键字： clone</p>
+</li>
+</ul>
+<p>这些场景可能派的上用场</p>
+<ul>
+<li>当new一个对象时，非常繁琐复杂时，可以使用原型模式来进行复制一个对象。即使需求的变更，这些对象需要作出调整，我们依然拥有比较稳定一致的接口创建对象。</li>
+<li>需要提供数据对象，同时有需要避免外部对数据对象进行修改。</li>
+</ul>
+<p><strong>简单的UML类图</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200610/221312940.webp" alt="mark"></p>
+<p><strong>角色：</strong></p>
+<ul>
+<li><code>client</code> ： 使用者</li>
+<li><code>Prototype</code> : 接口（抽象类），声明具备clone 能力，例如Java中的<code>Cloneable</code> 接口</li>
+<li><code>ConcretePrototype</code>： 具体的原型类</li>
+</ul>
+<p><strong>关于浅拷贝和深拷贝：</strong></p>
+<ul>
+<li><strong>浅拷贝</strong>：一个对象通过赋值的形式直接传递的其实是对象在内存中的内存地址</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;String&gt; a = <span class="keyword">new</span> ArrayList();</span><br><span class="line">ArrayList&lt;String&gt; b = a;</span><br><span class="line"><span class="comment">//当修改a时，b的值同样会被修改</span></span><br></pre></td></tr></table></figure>
+
+<p>以上的代码就是浅拷贝，从某种角度来说，<strong>这种浅拷贝的方式并不合适在原型模式中使用，更多情况下我们需要一个不会影响原始对象的一个新对象，也就需要使用到深拷贝</strong></p>
+<ul>
+<li><strong>深拷贝</strong>：一个不会影响原始对象的一个新对象</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;String&gt; a = <span class="keyword">new</span> ArrayList();</span><br><span class="line">ArrayList&lt;String&gt; b = a.clone();</span><br><span class="line"><span class="comment">//或者</span></span><br><span class="line">ArrayList&lt;String&gt; c = <span class="keyword">new</span> ArrayList(a);</span><br></pre></td></tr></table></figure>
+
+<p>上面代码的</p>
+<p><strong>第一种方式</strong>，是使用<code>Object</code> 类的<code>super.clone()</code>方法来使用实现拷贝的过程。</p>
+<p><strong>第二种方式</strong>：使用a在创建了一个新的对象并且赋值给c ， 这样a和 c是两个值相同的两个对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//ArrayList的clone()方法代码</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        ArrayList&lt;?&gt; v = (ArrayList&lt;?&gt;) <span class="keyword">super</span>.clone();</span><br><span class="line">        v.elementData = Arrays.copyOf(elementData, size);</span><br><span class="line">        v.modCount = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (CloneNotSupportedException e) &#123;</span><br><span class="line">        <span class="comment">// this shouldn't happen, since we are Cloneable</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>需要注意的是：通过实现<code>Cloneable</code>接口的原型模式在调用<code>clone()</code> 方法构造实例并不一定比new操作速度快，只有new 对象操作复杂且耗时成本较高的时候，clone方法才有效率上的提升。</p>
+<p><strong>简单实现</strong></p>
+<ol>
+<li>Prototype</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Prototype</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> Prototype <span class="title">myclone</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>ConcretePrototype</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcretePrototype</span> <span class="keyword">extends</span> <span class="title">Prototype</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String filed;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConcretePrototype</span><span class="params">(String filed)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.filed = filed;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function">Prototype <span class="title">myclone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcretePrototype(filed);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"ConcretePrototype&#123;"</span> +</span><br><span class="line">                <span class="string">"filed='"</span> + filed + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>Client</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Prototype prototype = <span class="keyword">new</span> ConcretePrototype(<span class="string">"abc"</span>);</span><br><span class="line">        Prototype clone = prototype.myclone();</span><br><span class="line">        System.out.println(clone.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>JDK</strong></p>
+<ul>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html#clone%28%29" target="_blank" rel="noopener">java.lang.Object#clone()</a></li>
+</ul>
+<h3 id="2-生成器（Builder）"><a href="#2-生成器（Builder）" class="headerlink" title="2. 生成器（Builder）"></a>2. 生成器（Builder）</h3><ul>
+<li>封装一个对象的构造过程，并允许按照步骤构造。</li>
+<li>Builder 模式也就是<strong>建造者模式</strong>，先说定义，<strong>将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。</strong><ul>
+<li>首先，将复杂对象的创建过程和部件分离出来，其实就是把创建过程和自身的部件解耦，使得构建过程和部件都可以自由扩展，两者之间的耦合度降到最低。</li>
+<li>然后，再是相同的构建过程可以创建不同的表示，相同的组合也可以通过不同的部件创建出不同的对象。</li>
+</ul>
+</li>
+</ul>
+<p><strong>可能使用的场景</strong></p>
+<ul>
+<li>相同的方法，不同的执行顺序，产生不同的结果</li>
+<li>多个部件（代码中就对应类的属性），都可以装配到同一个对象中，但是产生的结果又不相同的时候</li>
+<li>初始化一个对象特尔别复杂，参数多且很多参数都有默认值的时候。</li>
+</ul>
+<p><strong>实现</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200611/114543747.webp" alt="mark"></p>
+<ul>
+<li>Product  : 抽象的产品类。</li>
+<li>Builder : 抽象的Builder 类，规范产品的组件。</li>
+<li>ConcreteBuilder  :  具体的Builder类，实现具体的组件过程。</li>
+<li>Director : 统一组装的过程。</li>
+</ul>
+<ol>
+<li>手机配置简化的抽象类，设置CPU、OS以、内存大小以及运存大小</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 这是一个手机配置简化的抽象类，</span></span><br><span class="line"><span class="comment">// 设置CPU、OS以、内存大小以及运存大小</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Phone</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> String mCPU;</span><br><span class="line">    <span class="keyword">protected</span> String mOS;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> mMemorySize;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> mStorageSize;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">setmCPU</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">setmOS</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setmMemorySize</span><span class="params">(<span class="keyword">int</span> mMemorySize)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.mMemorySize = mMemorySize;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setmStorageSize</span><span class="params">(<span class="keyword">int</span> mStorageSize)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.mStorageSize = mStorageSize;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Phone&#123;"</span> +</span><br><span class="line">                <span class="string">"mCPU='"</span> + mCPU + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", mOS='"</span> + mOS + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", mMemorySize="</span> + mMemorySize +</span><br><span class="line">                <span class="string">", mStorageSize="</span> + mStorageSize +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>具体的IPhoneX的类，由于CPU和系统是固定，而内存和运存运存可选。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 具体的IPhoneX的类，</span></span><br><span class="line"><span class="comment">// 由于CPU和系统是固定，而内存和运存运存可选。</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IPhoneX</span> <span class="keyword">extends</span> <span class="title">Phone</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">IPhoneX</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setmCPU</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        mCPU = <span class="string">"A11"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setmOS</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        mOS = <span class="string">"iOS 11"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>抽象的Builder类，作为主要隔离作用的类，<strong>Phone的API每一个方法都有对应的builder方法，并且都返回自身来实现链式API</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抽象的Builder类，作为主要隔离作用的类，</span></span><br><span class="line"><span class="comment">// Phone的API的每一个方法都有对应的build方法，并都返回自身来实现链式API。</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置CPU</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Builder <span class="title">buildCPU</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">//设置系统</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Builder <span class="title">buildOS</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">//设置运存大小</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Builder <span class="title">buildMemorySize</span><span class="params">(<span class="keyword">int</span> memorySize)</span></span>;</span><br><span class="line">    <span class="comment">//设置储存大小</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Builder <span class="title">buildStorageSize</span><span class="params">(<span class="keyword">int</span> storageSize)</span></span>;</span><br><span class="line">    <span class="comment">//创建一个Phone对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Phone <span class="title">create</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li><code>IPhoneXBuilder</code>，具体的<code>Builder</code>类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IPhoneXBuilder，具体的Builder类</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IPhoneXBuilder</span> <span class="keyword">extends</span> <span class="title">Builder</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> IPhoneX mIPhoneX = <span class="keyword">new</span> IPhoneX();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">buildCPU</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        mIPhoneX.setmCPU();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">buildOS</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        mIPhoneX.setmOS();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">buildMemorySize</span><span class="params">(<span class="keyword">int</span> memorySize)</span> </span>&#123;</span><br><span class="line">        mIPhoneX.setmMemorySize(memorySize);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">buildStorageSize</span><span class="params">(<span class="keyword">int</span> storageSize)</span> </span>&#123;</span><br><span class="line">        mIPhoneX.setmStorageSize(storageSize);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注意一定要返回一个具体的对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Phone <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mIPhoneX;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="5">
+<li>Director：复杂指挥phone的建造顺序</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Director类，负责构造Phone</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Director</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Builder mBuilder = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Director</span><span class="params">(Builder Builder)</span> </span>&#123;</span><br><span class="line">        mBuilder = Builder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">construct</span><span class="params">(<span class="keyword">int</span> memorySize,<span class="keyword">int</span> StorageSize)</span></span>&#123;</span><br><span class="line">        mBuilder.buildCPU().</span><br><span class="line">                buildOS().</span><br><span class="line">                buildMemorySize(memorySize).</span><br><span class="line">                buildStorageSize(StorageSize);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="6">
+<li>客户端测试：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Builder builder = <span class="keyword">new</span> IPhoneXBuilder();</span><br><span class="line"></span><br><span class="line">        Director director = <span class="keyword">new</span> Director(builder);</span><br><span class="line"></span><br><span class="line">        director.construct(<span class="number">6</span>,<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(builder.create().toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>再来一个JDK中简易的实现 (StringBuilder)</strong></p>
+<ol>
+<li><code>AbstractStringBuilder</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractStringBuilder</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">char</span>[] value;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AbstractStringBuilder</span><span class="params">(<span class="keyword">int</span> capacity)</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">        value = <span class="keyword">new</span> <span class="keyword">char</span>[capacity];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AbstractStringBuilder <span class="title">append</span><span class="params">(<span class="keyword">char</span> c)</span> </span>&#123;</span><br><span class="line">        ensureCapacityInternal(count + <span class="number">1</span>);</span><br><span class="line">        value[count++] = c;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureCapacityInternal</span><span class="params">(<span class="keyword">int</span> minimumCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// overflow-conscious code</span></span><br><span class="line">        <span class="keyword">if</span> (minimumCapacity - value.length &gt; <span class="number">0</span>)</span><br><span class="line">            expandCapacity(minimumCapacity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">expandCapacity</span><span class="params">(<span class="keyword">int</span> minimumCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> newCapacity = value.length * <span class="number">2</span> + <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span> (newCapacity - minimumCapacity &lt; <span class="number">0</span>)</span><br><span class="line">            newCapacity = minimumCapacity;</span><br><span class="line">        <span class="keyword">if</span> (newCapacity &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (minimumCapacity &lt; <span class="number">0</span>) <span class="comment">// overflow</span></span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> OutOfMemoryError();</span><br><span class="line">            newCapacity = Integer.MAX_VALUE;</span><br><span class="line">        &#125;</span><br><span class="line">        value = Arrays.copyOf(value, newCapacity);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li><code>StringBuilder</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringBuilder</span> <span class="keyword">extends</span> <span class="title">AbstractStringBuilder</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">StringBuilder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(<span class="number">16</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Create a copy, don't share the array</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String(value, <span class="number">0</span>, count);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>Client:测试</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> count = <span class="number">26</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">            sb.append((<span class="keyword">char</span>) (<span class="string">'a'</span> + i));</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(sb.toString());  <span class="comment">// abcdefghijklmnopqrstuvwxyz</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>JDK中Builder模式的具体实现</strong></p>
+<ul>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/StringBuilder.html" target="_blank" rel="noopener">java.lang.StringBuilder</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html#put-byte-" target="_blank" rel="noopener">java.nio.ByteBuffer</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/StringBuffer.html#append-boolean-" target="_blank" rel="noopener">java.lang.StringBuffer</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Appendable.html" target="_blank" rel="noopener">java.lang.Appendable</a></li>
+<li><a href="https://github.com/apache/camel/tree/0e195428ee04531be27a0b659005e3aa8d159d23/camel-core/src/main/java/org/apache/camel/builder" target="_blank" rel="noopener">Apache Camel builders</a></li>
+</ul>
+<h3 id="3-工厂模式（Factory）"><a href="#3-工厂模式（Factory）" class="headerlink" title="3. 工厂模式（Factory）"></a>3. 工厂模式（Factory）</h3><ul>
+<li>顾名思义，工厂模式就是生产产品的！</li>
+<li>工厂模式(Factory Pattern) 提供了一种创建对象的最佳方式，属于创建型模式。</li>
+<li>在工厂模式中，创建对象时不会对客户端暴露创建逻辑，并且是通过一个共同的接口来指定新创建的对象。</li>
+</ul>
+<p><strong>大致描述：</strong></p>
+<ul>
+<li>将上述思想对应到code中，工厂模式需要做的就是帮助我们构建对象，因为构建对象的过程可能比较复杂，我们无法掌握（例如：无法直接new 出来）。这是对工厂模式的一个大致描述，接下来可以从实现方式来说明。</li>
+</ul>
+<h4 id="3-1-简单工厂模式（Simple-Factory）"><a href="#3-1-简单工厂模式（Simple-Factory）" class="headerlink" title="3.1 简单工厂模式（Simple Factory）"></a>3.1 简单工厂模式（Simple Factory）</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简单工厂模式的大致模式</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 商品A</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductA</span> <span class="keyword">implements</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 商品B</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductB</span> <span class="keyword">implements</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 商品C</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductC</span> <span class="keyword">implements</span> <span class="title">Product</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>首先，简单工厂模式并没有被归纳到23中GOF设计模式中，其实可以理解为工厂模式的简单使用。</li>
+<li><strong>一个工厂对象决定创建出哪一种类产品</strong>，而产品有不同的系列相互之间有些许差异。举个生产鞋的例子，先看UML图</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200613/092602806.webp" alt="mark"></p>
+<p>大致可以分为三部分：工厂类，抽象产品类，具体的产品类</p>
+<ul>
+<li>Factory : 工厂类，生产shoe</li>
+<li>Shoe : 抽象的产品类</li>
+<li>SportShoe : 具体的产品，运动鞋</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 鞋的抽象类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Shoe</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 运动鞋 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SportShoe</span> <span class="keyword">extends</span> <span class="title">Shoe</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 工厂类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShoeFactory</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>以上就是最简单的工厂，但是一个只生产运动鞋的工厂，老板想去赚更多的钱，要求添加生成<code>HighHeeledShoe</code>(高跟鞋)。我们需要对<code>ShoeFactory</code>的设计进行修改，如图：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200613/092542993.webp" alt="mark"></p>
+<p>改造后的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在produceShoe()的函数中添加了type参数，</span></span><br><span class="line"><span class="comment">// 表示Shoe的不同类型，以此来生产不同的鞋子。我们开始改造ShoeFactory类</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/** 高跟鞋 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HighHeeledShoe</span> <span class="keyword">extends</span> <span class="title">Shoe</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 修改后的工厂类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShoeFactory</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"highHeeled"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HighHeeledShoe();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这样我们可以根绝给定的不同类型生产对应鞋子了。这里看到代码可能会有两个问题</p>
+<ul>
+<li>第一：每次添加一个品牌需要加一个case(虽然现实中是很正常的逻辑。但是在代码层面并不优雅)。同时，简单工厂模式违反了<strong>开闭原则</strong>，即对扩展开放，对修改关闭；因为增加了具体产品，就需要修改对应工厂类代码；</li>
+<li>第二：调用<code>produceShoe（）</code>的时候，我们还需要去创建一个Factory对象并进行控制管理<ul>
+<li>直接new出<code>Factory</code>的对象，我们就必须自己控制工厂类的构造和生成，同时我们也需要非常清楚工厂的构造函数（比如构造函数有多少个参数，输入参数时有什么条件等等），还需要知道工厂的内部细节，一旦工厂扩展或者改变了，就很可能不知道怎么调用了，对于调用者来说无疑会是噩梦。</li>
+</ul>
+</li>
+</ul>
+<p>优化问题：</p>
+<ul>
+<li>先优化第一个问题：从技术的层面我们不使用<code>swith case</code> 这种形式来实现不同类型的对象创建，我们<strong>使用反射就可以实现优化</strong></li>
+<li>对于第二个问题：最直接的解决方案就是我们直接调用生产鞋子的方法，直接告诉工厂再由工厂生产，这样我们就不需要创建工厂。（那就是给<code>produceShoe()</code>函数添加<code>static</code>关键字就可以解决问题了）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 优化后的工厂类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShoeFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据类型生产鞋子</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> cls</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Shoe <span class="title">produceShoe</span><span class="params">(Class&lt;? extends Shoe&gt; cls)</span></span>&#123;</span><br><span class="line">        Shoe shoe = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            shoe = (Shoe) Class.forName(cls.getName()).newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> shoe;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这样一来问题就解决了</p>
+<ul>
+<li>用静态方法则完全不用关心如何构造对象，我们需要关心工厂的构造细节，即使工厂内部发生变化也不需要关心</li>
+<li>简单工厂模式主要适用于创建抽象子类的业务相同但具体实现不同的对象的情况。</li>
+</ul>
+<h4 id="3-2-工厂方法模式"><a href="#3-2-工厂方法模式" class="headerlink" title="3.2 工厂方法模式"></a>3.2 工厂方法模式</h4><ul>
+<li>实际上，制造鞋子的厂商一定不会只有一家，肯定存在多家竞争的关系，所以有更多的制造不同鞋子的工厂，<code>produceShoe</code>函数就可以抽象出来，不同的<code>Factory</code>子类根据自己的需求去实现。</li>
+<li>例如下图的<code>NikeFactory</code>和<code>DaphneFactory</code>类</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200613/112053054.webp" alt="mark"></p>
+<ul>
+<li>相对于简单工厂，工厂方法的区别就在于工厂类分类抽象工厂和具体的实现工厂类。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 抽象工厂类 */</span></span><br><span class="line">pulibc <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Factory</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span>；</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/** Nike工厂类 */</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> class NikeFactory extends Factory </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"highHeeled"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HighHeeledShoe();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Daphne工厂类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DaphneFactory</span> <span class="keyword">extends</span> <span class="title">Factory</span></span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"highHeeled"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HighHeeledShoe();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>使用的时候就很简单了，只需要调用对应的工厂，选择客户需要的类型就可以获得相应的产品了，这样不同的制造商就能分别生产不同的鞋子。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Factory daphneFactory = <span class="keyword">new</span> DaphneFactory();</span><br><span class="line">daphneFactory.produceShoe(<span class="string">"highHeeled"</span>);</span><br><span class="line"></span><br><span class="line">Factory nikeFactory = <span class="keyword">new</span> NikeFactory();</span><br><span class="line">nikeFactory.produceShoe(<span class="string">"sport"</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在工厂的环节采用抽象类的形式实现，其实也可以将<code>produceShoe</code>抽象成<code>IProduceShoe</code>接口，当然，这也是我的个人理解。其实觉得抽象类或者接口使用其中一个就可以了，不必要同时使用；但也不是绝对的，这个需要根据具体的情况而定。</p>
+<p><strong>对应JDK中：</strong></p>
+<ul>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Calendar.html#getInstance--" target="_blank" rel="noopener">java.util.Calendar</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/ResourceBundle.html#getBundle-java.lang.String-" target="_blank" rel="noopener">java.util.ResourceBundle</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/text/NumberFormat.html#getInstance--" target="_blank" rel="noopener">java.text.NumberFormat</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/nio/charset/Charset.html#forName-java.lang.String-" target="_blank" rel="noopener">java.nio.charset.Charset</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/net/URLStreamHandlerFactory.html#createURLStreamHandler-java.lang.String-" target="_blank" rel="noopener">java.net.URLStreamHandlerFactory</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/util/EnumSet.html#of-E-" target="_blank" rel="noopener">java.util.EnumSet</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/javax/xml/bind/JAXBContext.html#createMarshaller--" target="_blank" rel="noopener">javax.xml.bind.JAXBContext</a></li>
+</ul>
+<p><strong>通用形式：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">public</span> Product <span class="title">factoryMethod</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Product product = factoryMethod();</span><br><span class="line">        <span class="comment">// do something with the product</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactory</span> <span class="keyword">extends</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Product <span class="title">factoryMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProduct();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactory1</span> <span class="keyword">extends</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Product <span class="title">factoryMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProduct1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactory2</span> <span class="keyword">extends</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Product <span class="title">factoryMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProduct2();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="3-3-抽象工厂模式（Abstract-Factory）"><a href="#3-3-抽象工厂模式（Abstract-Factory）" class="headerlink" title="3.3 抽象工厂模式（Abstract Factory）"></a>3.3 抽象工厂模式（Abstract Factory）</h4><ul>
+<li>生产鞋子的厂商不一定只会生产衣服<code>cloth</code>,我们需要为了工厂添加制造衣服的这条生产线。为了工厂添加生产衣服后的UML图如下：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200613/113418278.webp" alt="mark"></p>
+<ul>
+<li><p>将<code>ShoeFactory</code>和<code>ClothFactory</code>抽象成接口（原因：Java无法多继承，所以使用Interface）</p>
+</li>
+<li><p>需要对应的产品就要实现工厂对应的接口。</p>
+</li>
+<li><p>添加<code>NikeFactory</code>中的生产衣服的功能<code>produceCloth</code>,这样也就是实现<code>NikeFactory</code>可以生产多种产品。</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NikeFactory</span> <span class="keyword">extends</span> <span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"highHeeled"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HighHeeledShoe();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//新增方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Cloth <span class="title">produceCloth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportCloth();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"skirt"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Skirt();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>当你需要创建一些对象家族时候，抽象工厂也是不错的选择，因为它可以一次性创建多个对象。</p>
+</li>
+<li><p>抽象工厂十分强大灵活（至少比前两种都要好），可以用多个抽象子类完成复杂的需求，同时保证了外界接触不到任何类型的具体产品类型，某种意思上很符合开闭原则 。</p>
+</li>
+<li><p>当然，缺点也显而易见，模式比较庞大，从UML图就能看出来。</p>
+</li>
+</ul>
+<h4 id="3-4-小结"><a href="#3-4-小结" class="headerlink" title="3.4 小结"></a>3.4 小结</h4><ul>
+<li>简单工厂<strong>只能有一个工厂生</strong>产<strong>相同类型的产品</strong></li>
+<li>工厂方法模式<strong>只能生产一系列的产品，可以同时有不同的工厂去实现。</strong></li>
+<li>抽象工厂模式通过<strong>实现不同的抽象方法可以生产出多个系列的产品。</strong></li>
+</ul>
+<h3 id="4-单例模式"><a href="#4-单例模式" class="headerlink" title="4. 单例模式"></a>4. 单例模式</h3><ul>
+<li>单例模式是应用最广泛的模式之一，定义就是<strong>单例对象的类必须保证只有一个实例存在</strong></li>
+<li>单例模式适用于创建一个对象需要消耗过多资源的情况，例如数据库等资源是需要考虑使用的。</li>
+</ul>
+<p>实现单例模式关键点如下：</p>
+<ul>
+<li>构造函数私有化（不会让你有机会再创建一个对象）</li>
+<li>通过一个静态方法或枚举（后面会有举例）返回单例类对象</li>
+<li>确保单例类的对象有且只有一个,尤其是多线程的环境下(难点)</li>
+<li>确保单例类的对象在反序列化的时候不会重新构建对象</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200313101430.png" alt=""></p>
+<h4 id="4-1-饿汉式-线程安全"><a href="#4-1-饿汉式-线程安全" class="headerlink" title="4.1 饿汉式-线程安全"></a>4.1 饿汉式-线程安全</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 饿汉式实现</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 声明对象的时候就 已经初始化</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 私有化构造器</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 共有静态方法，对外暴露获取的途径(Getter方法)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="4-2-懒汉式-线程不安全"><a href="#4-2-懒汉式-线程不安全" class="headerlink" title="4.2 懒汉式-线程不安全"></a>4.2 懒汉式-线程不安全</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 2. 懒汉式实现</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明对象的时候不进行初始化</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有化构造器</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getter方法加锁保证线程安全</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  <span class="keyword">synchronized</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 进入是检查有没有被创建</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> == instance)&#123;</span><br><span class="line">            instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>懒汉式与饿汉式不同的地方是单例对象初始化的时机,实现了懒加载</li>
+<li>同时<code>getInstance()</code>方法前添加了<code>synchronized</code>关键字,以此来确保多线程环境下单例模式的唯一性.(相对的,每次调用<code>getInstance()</code>方法都是会进行同步的,也是懒汉式最大的问题)</li>
+</ul>
+<h4 id="4-3-懒汉式-DCL-线程不安全"><a href="#4-3-懒汉式-DCL-线程不安全" class="headerlink" title="4.3 懒汉式(DCL)-线程不安全"></a>4.3 懒汉式(DCL)-线程不安全</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 3. DCL</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明对象的时候不进行初始化</span></span><br><span class="line">    <span class="comment">// volatile作用：避免指令的重排，保证原子性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有化构造器</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 双重检测锁</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> == instance)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton<span class="class">.<span class="keyword">class</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">null</span> == instance)&#123;</span><br><span class="line">                     instance = <span class="keyword">new</span> Singleton();  <span class="comment">// 造成问题的关键</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 返回对象实例</span></span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>可以看到<code>getInstance()</code>方法对instance进行了两次判空,</p>
+<ul>
+<li>第一次判断是为了判断不必要的同步</li>
+<li>第二次是为了判断null的情况下创建实例</li>
+</ul>
+</li>
+<li><p>同时<code>instance</code>对象前面还添加了 <code>volatile</code>关键字,如果不使用<code>volatile</code>是无法保证<code>instance</code>的原子性的</p>
+<ul>
+<li><code>instance = new Singleton();</code>这句代码不是一个原子性操作</li>
+<li>这句代码最终会被编译成多条汇编指令，大致做了3件事：</li>
+<li><ol>
+<li>给Singleton的实例分配内存空间</li>
+<li>调用<code>Singleton()</code>的构造函数,初始化成员字段</li>
+<li>指向分配的内存空间<strong>(此时<code>instance</code>不为null)</strong></li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>由于JMM允许指令重排来保证代码效率,所以上述第二点和第三点的顺序无法保证,也就是说执行顺序可能是1-2-3或者是1-3-2。</p>
+<ul>
+<li>如果是1-3-2, instance 在 3 步骤的时候就已经是非空了,所以2步骤没有执行,那么另外一个线程会取走一个还没初始化完毕的实例,导致DCL失效</li>
+<li>在JDK1.5之后，调整了JVM，具体化了<code>volatile</code>关键字。然，<code>volatile</code>或多或少会影响到性能，考虑到正确性这点性能的牺牲还是值得的。</li>
+</ul>
+</li>
+<li><p><strong>DCL模式能够在绝大多数场景下保证单例对象的唯一性，资源利用率高，只有第一次加载时反应稍慢，一般能够满足需求</strong></p>
+</li>
+</ul>
+<h4 id="4-4-静态内部类"><a href="#4-4-静态内部类" class="headerlink" title="4.4 静态内部类"></a>4.4 静态内部类</h4><ul>
+<li>懒汉式的改进</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 4 . 静态内部类实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</span><br><span class="line">   <span class="comment">// 1. 私有化构造器</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 静态内部类</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span></span>&#123;</span><br><span class="line">        <span class="comment">// final：保证线程中只有一个存在</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 只有调用的时候才会加载</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>当第一次加载<code>Singleton</code>类时并不会初始化<code>instance</code>，只有在第一次调用<code>getInstance()</code>方法是回初始化。</p>
+</li>
+<li><p>第一次调用<code>getInstance()</code>方法导致虚拟机加载<code>SingletonHolder</code>类，这种方式嫩确保线程安全，也能确保单例对象的唯一性，</p>
+</li>
+<li><p>同时也延迟了单例对象的实例化，所以推荐使用这种实现方式。</p>
+</li>
+</ul>
+<h4 id="4-5-枚举单例-线程安全"><a href="#4-5-枚举单例-线程安全" class="headerlink" title="4.5 枚举单例-线程安全"></a>4.5 枚举单例-线程安全</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  5.枚举单例模式</span></span><br><span class="line"><span class="keyword">public</span> enmu SingletonEnum &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 5. 枚举单例</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton&#123;</span><br><span class="line">    INSTANCE; <span class="comment">//纯天然单例模式</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Singleton instance1 = Singleton.INSTANCE;</span><br><span class="line">        Singleton instance2 = Singleton.INSTANCE;</span><br><span class="line">        System.out.println(instance1 == instance2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>就是这么简单粗暴，其实最大优点在于关键点的第4点，即是反序列化也不会重新生成新的实例。</li>
+</ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>不管哪种形式实现单例模式，核心原理都是那四个关键点，具体选择哪种实现方式取决于项目本身以及具体的开发环境等等。</p>
+<p>而对于客户端来说通常没有高并发的情况，推荐使用DCL模式或者是静态内部类的方式实现。</p>
+<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>只存在一个实例，减少了内存开支，减少了系统的性能开销</li>
+<li>避免对资源的多重占用</li>
+<li>全局的访问点，优化和共享资源访问</li>
+</ul>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<li>没有接口，难扩展，只能修改代码</li>
+<li>如果持有Context容易导致内存泄露（需要传递Context的话最好是Application Context）</li>
+</ul>
+<p><strong>JDK实现:</strong></p>
+<ul>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Runtime.html#getRuntime%28%29" target="_blank" rel="noopener">java.lang.Runtime#getRuntime()</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/awt/Desktop.html#getDesktop--" target="_blank" rel="noopener">java.awt.Desktop#getDesktop()</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/System.html#getSecurityManager--" target="_blank" rel="noopener">java.lang.System#getSecurityManager()</a></li>
+</ul>
+
       
       <!-- reward -->
       

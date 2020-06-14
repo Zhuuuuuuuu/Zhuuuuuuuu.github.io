@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">666字</span>
+            <span class="post-count">895字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -112,8 +112,8 @@
 <li>处理器上的寄存器的读写的速度比内存快几个数量级，为了解决这种速度矛盾，在它们之间加入了高速缓存。</li>
 <li><strong>高速缓存在多线程下带来了一些问题</strong><ul>
 <li><strong>缓存一致性问题</strong>：当多个处理器的运算任务都涉及同一块主内存区域的时候，将可能导致各自的缓存不一致的情况，如果发生了这种情况，需要各个处理器遵循一些协议，在读写时要根据协议来操作（MSI,MESI）<ul>
-<li>早期采用<strong>总线加锁</strong></li>
-<li>现在采用（MSI,MESI）缓存一致性</li>
+<li><strong>早期</strong>采用<strong>总线加锁</strong></li>
+<li><strong>现在</strong>采用（MSI,MESI）缓存一致性</li>
 </ul>
 </li>
 <li><strong>指令重排序问题</strong>：为了使得处理器内部的运算单元能被尽量充分利用，处理器可能会对输入的代码及逆行乱序执行（Out-Of-Order Execution）优化，处理器会在计算结果之后对乱序执行后的结果及逆行重组，保证这个乱序结果和顺序结果的执行结果一致。</li>
@@ -151,7 +151,31 @@
 <li>lock : 将主内存变量加锁，标识位线程独占的状态</li>
 <li>unlock : 对主内存变量解锁</li>
 </ol>
-
+<h3 id="2-3-volatile-可见性底层实现原理"><a href="#2-3-volatile-可见性底层实现原理" class="headerlink" title="2.3 volatile 可见性底层实现原理"></a>2.3 volatile 可见性底层实现原理</h3><ul>
+<li><p><strong>关键在于lock前缀指令（汇编语言）</strong>，它的作用是将本处理器的缓存立马同步回主内存，该写入动作也会引起其他处理器或者别的内核的无效化（Invalidate）其缓存。</p>
+<ul>
+<li><strong>这种操作就相当于对缓存中的变量做了一次起那面介绍了Java内存模型的“store” “write” 操作。</strong></li>
+<li><strong>同时开启了MESI缓存一致性协议</strong></li>
+</ul>
+</li>
+<li><p>lock 前缀指令相当于插入了一个<strong>内存屏障（Memory Barrier）</strong></p>
+</li>
+<li><p>在 <code>store</code> 操作之前会加一把锁(<code>lock操作</code>)，在<code>write</code> 之后才会<code>unlock</code></p>
+</li>
+</ul>
+<h3 id="2-4-并发编程的三大特性"><a href="#2-4-并发编程的三大特性" class="headerlink" title="2.4 并发编程的三大特性"></a>2.4 并发编程的三大特性</h3><p><strong>并发编程的三大特性</strong></p>
+<ul>
+<li>可见性</li>
+<li>原子性</li>
+<li>有序性</li>
+</ul>
+<p><strong>Volatile</strong>是Java虚拟机提供的<strong>轻量级的同步机制</strong></p>
+<ul>
+<li><strong>保证可见性</strong></li>
+<li><strong>不保证原子性</strong></li>
+<li><strong>禁止指令重排(有序性)</strong></li>
+</ul>
+<h2 id="3-AQS"><a href="#3-AQS" class="headerlink" title="3. AQS"></a>3. AQS</h2>
       
       <!-- reward -->
       
@@ -236,19 +260,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/01/25/JVM_Notes/JVM-02-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/" class="article-nav-link">
+      <a href="/2020/01/24/JVM_Notes/JVM-01-%E7%AE%80%E4%BB%8B/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            JVM-02-运行时内存结构
+            JVM-01-简介
           
         </div>
       </a>
     
     
-      <a href="/2020/01/24/JVM_Notes/JVM-01-%E7%AE%80%E4%BB%8B/" class="article-nav-link">
+      <a href="/2019/12/25/personal_server/%E6%9C%8D%E5%8A%A1%E5%99%A8-JDK%E9%85%8D%E7%BD%AE/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">JVM-01-简介</div>
+        <div class="article-nav-title">云服务器-JDK配置</div>
       </a>
     
   </nav>
