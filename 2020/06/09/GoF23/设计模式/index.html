@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">10.1k字</span>
+            <span class="post-count">10.7k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">40分钟</span>
+            <span class="post-count">43分钟</span>
         </span>
     </span>
 </div>
@@ -400,8 +400,8 @@
 </ul>
 <h3 id="3-工厂模式（Factory）"><a href="#3-工厂模式（Factory）" class="headerlink" title="3. 工厂模式（Factory）"></a>3. 工厂模式（Factory）</h3><ul>
 <li>顾名思义，工厂模式就是生产产品的！</li>
-<li>工厂模式(Factory Pattern) 提供了一种创建对象的最佳方式，属于创建型模式。</li>
-<li>在工厂模式中，创建对象时不会对客户端暴露创建逻辑，并且是通过一个共同的接口来指定新创建的对象。</li>
+<li>工厂模式(Factory Pattern) 提供了一种<strong>创建对象的最佳方式，属于创建型模式。</strong></li>
+<li>在工厂模式中，创建对象时不会对客户端暴露创建逻辑，并且是通过一个共同的接口来指定新创建的对象。<strong>（绕开了new）</strong></li>
 </ul>
 <p><strong>大致描述：</strong></p>
 <ul>
@@ -433,24 +433,24 @@
 
 
 
-<p>这样我们可以根绝给定的不同类型生产对应鞋子了。这里看到代码可能会有两个问题</p>
+<p>这样我们可以根据给定的不同类型生产对应鞋子了。这里看到代码可能会有两个问题</p>
 <ul>
-<li>第一：每次添加一个品牌需要加一个case(虽然现实中是很正常的逻辑。但是在代码层面并不优雅)。同时，简单工厂模式违反了<strong>开闭原则</strong>，即对扩展开放，对修改关闭；因为增加了具体产品，就需要修改对应工厂类代码；</li>
+<li>第一：每次添加一个品牌需要加一个case(虽然现实中是很正常的逻辑。但是在代码层面并不优雅)。同时，<strong>简单工厂模式违反了开闭原则，即对扩展开放，对修改关闭；因为增加了具体产品，就需要修改对应工厂类代码；</strong></li>
 <li>第二：调用<code>produceShoe（）</code>的时候，我们还需要去创建一个Factory对象并进行控制管理<ul>
-<li>直接new出<code>Factory</code>的对象，我们就必须自己控制工厂类的构造和生成，同时我们也需要非常清楚工厂的构造函数（比如构造函数有多少个参数，输入参数时有什么条件等等），还需要知道工厂的内部细节，一旦工厂扩展或者改变了，就很可能不知道怎么调用了，对于调用者来说无疑会是噩梦。</li>
+<li><strong>直接new出<code>Factory</code>的对象</strong>（如<code>return new SportShoe();</code>），我们就必须自己控制工厂类的构造和生成，同时我们也需要非常清楚工厂的构造函数（比如构造函数有多少个参数，输入参数时有什么条件等等），还需要知道工厂的内部细节，一旦工厂扩展或者改变了，就很可能不知道怎么调用了，对于调用者来说无疑会是噩梦。</li>
 </ul>
 </li>
 </ul>
-<p>优化问题：</p>
+<p><strong>优化问题：</strong></p>
 <ul>
-<li>先优化第一个问题：从技术的层面我们不使用<code>swith case</code> 这种形式来实现不同类型的对象创建，我们<strong>使用反射就可以实现优化</strong></li>
+<li>先优化第一个问题：从技术的层面我们不使用<code>swith case</code> 这种形式来实现不同类型的对象创建，我们<strong>使用反射就可以实现优化（编译期到运行期）</strong></li>
 <li>对于第二个问题：最直接的解决方案就是我们直接调用生产鞋子的方法，直接告诉工厂再由工厂生产，这样我们就不需要创建工厂。（那就是给<code>produceShoe()</code>函数添加<code>static</code>关键字就可以解决问题了）</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 优化后的工厂类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShoeFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据类型生产鞋子</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> cls</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Shoe <span class="title">produceShoe</span><span class="params">(Class&lt;? extends Shoe&gt; cls)</span></span>&#123;</span><br><span class="line">        Shoe shoe = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            shoe = (Shoe) Class.forName(cls.getName()).newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> shoe;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<p>这样一来问题就解决了</p>
+<p><strong>这样一来问题就解决了</strong></p>
 <ul>
 <li>用静态方法则完全不用关心如何构造对象，我们需要关心工厂的构造细节，即使工厂内部发生变化也不需要关心</li>
 <li>简单工厂模式主要适用于创建抽象子类的业务相同但具体实现不同的对象的情况。</li>
@@ -461,7 +461,7 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200613/112053054.webp" alt="mark"></p>
 <ul>
-<li>相对于简单工厂，工厂方法的区别就在于工厂类分类抽象工厂和具体的实现工厂类。</li>
+<li>相对于简单工厂，<strong>工厂方法的区别就在于工厂类分类抽象工厂和具体的实现工厂类。</strong></li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 抽象工厂类 */</span></span><br><span class="line">pulibc <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Factory</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span>；</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/** Nike工厂类 */</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> class NikeFactory extends Factory </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"highHeeled"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HighHeeledShoe();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Daphne工厂类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DaphneFactory</span> <span class="keyword">extends</span> <span class="title">Factory</span></span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Shoe <span class="title">produceShoe</span><span class="params">(String type)</span></span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"sport"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SportShoe();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">"highHeeled"</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HighHeeledShoe();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> Shoe();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -495,7 +495,7 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200613/113418278.webp" alt="mark"></p>
 <ul>
-<li><p>将<code>ShoeFactory</code>和<code>ClothFactory</code>抽象成接口（原因：Java无法多继承，所以使用Interface）</p>
+<li><p><strong>将<code>ShoeFactory</code>和<code>ClothFactory</code>抽象成接口（原因：Java无法多继承，所以使用Interface）</strong></p>
 </li>
 <li><p>需要对应的产品就要实现工厂对应的接口。</p>
 </li>
@@ -507,15 +507,15 @@
 
 
 <ul>
-<li><p>当你需要创建一些对象家族时候，抽象工厂也是不错的选择，因为它可以一次性创建多个对象。</p>
+<li><p><strong>当你需要创建一些对象家族时候，抽象工厂也是不错的选择，因为它可以一次性创建多个对象。</strong></p>
 </li>
-<li><p>抽象工厂十分强大灵活（至少比前两种都要好），可以用多个抽象子类完成复杂的需求，同时保证了外界接触不到任何类型的具体产品类型，某种意思上很符合开闭原则 。</p>
+<li><p>抽象工厂十分强大灵活（至少比前两种都要好），可以用<strong>多个抽象子类完成复杂的需求</strong>，同时保证了外界接触不到任何类型的具体产品类型，某种意思上很符合开闭原则 。</p>
 </li>
 <li><p>当然，缺点也显而易见，模式比较庞大，从UML图就能看出来。</p>
 </li>
 </ul>
 <h4 id="3-4-小结"><a href="#3-4-小结" class="headerlink" title="3.4 小结"></a>3.4 小结</h4><ul>
-<li>简单工厂<strong>只能有一个工厂生</strong>产<strong>相同类型的产品</strong></li>
+<li>简单工厂<strong>只能有一个工厂生产相同类型的产品</strong></li>
 <li>工厂方法模式<strong>只能生产一系列的产品，可以同时有不同的工厂去实现。</strong></li>
 <li>抽象工厂模式通过<strong>实现不同的抽象方法可以生产出多个系列的产品。</strong></li>
 </ul>
@@ -596,14 +596,16 @@
 <ul>
 <li>就是这么简单粗暴，其实最大优点在于关键点的第4点，即是反序列化也不会重新生成新的实例。</li>
 </ul>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>不管哪种形式实现单例模式，核心原理都是那四个关键点，具体选择哪种实现方式取决于项目本身以及具体的开发环境等等。</p>
+<h4 id="4-6-总结"><a href="#4-6-总结" class="headerlink" title="4.6 总结"></a>4.6 总结</h4><p>不管哪种形式实现单例模式，核心原理都是那四个关键点，具体选择哪种实现方式取决于项目本身以及具体的开发环境等等。</p>
 <p>而对于客户端来说通常没有高并发的情况，推荐使用DCL模式或者是静态内部类的方式实现。</p>
-<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><ul>
+<p>优点</p>
+<ul>
 <li>只存在一个实例，减少了内存开支，减少了系统的性能开销</li>
 <li>避免对资源的多重占用</li>
 <li>全局的访问点，优化和共享资源访问</li>
 </ul>
-<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><ul>
+<p>缺点</p>
+<ul>
 <li>没有接口，难扩展，只能修改代码</li>
 <li>如果持有Context容易导致内存泄露（需要传递Context的话最好是Application Context）</li>
 </ul>
@@ -765,7 +767,7 @@
 <li><a href="http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpSessionBindingListener.html" target="_blank" rel="noopener">javax.servlet.http.HttpSessionBindingListener</a></li>
 <li><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="noopener">RxJava</a></li>
 </ul>
-<h4 id="4-装饰者模式（Decorator）"><a href="#4-装饰者模式（Decorator）" class="headerlink" title="4. 装饰者模式（Decorator）"></a>4. 装饰者模式（Decorator）</h4><ul>
+<h2 id="三：结构型"><a href="#三：结构型" class="headerlink" title="三：结构型"></a>三：结构型</h2><h4 id="1-装饰者模式（Decorator）"><a href="#1-装饰者模式（Decorator）" class="headerlink" title="1. 装饰者模式（Decorator）"></a>1. 装饰者模式（Decorator）</h4><ul>
 <li>装饰者模式（Decorator Pattern）也称为包装模式（Wrapper Pattern），以透明动态的方式来动态扩展对象的功能，也是<strong>继承关系中一种代替方案</strong>。</li>
 <li><strong>装饰者模式与继承关系的目的都是要扩展对象的功能，但是装饰者模式可以提供比继承更多的灵活性。(减少代码的冗余)</strong></li>
 <li><strong>通过不同具体装饰类以及这些装饰类的排列组合，设计师可以创造出很多不同行为的组合。</strong></li>
@@ -814,7 +816,7 @@
 
 <p><strong>总结：</strong></p>
 <ul>
-<li><h5 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h5><ul>
+<li><h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><ul>
 <li>装饰者模式与<strong>继承关系</strong>的目的都是要<strong>扩展对象的功能</strong>，但是装饰者模式可以提供比继承更多的灵活性。</li>
 <li>通过使用不同的具体装饰类以及这些装饰类的排列组合，设计师可以创造出很多不同行为的<strong>组合</strong>。</li>
 </ul>
@@ -826,6 +828,58 @@
 <li>装饰者模式是以对客户端透明的方式扩展对象的功能，是继承关系的一个替代方案，目的是为了减少类的冗余</li>
 <li>代理模式是提供一个代理对象，并有代理对象来控制原来对象的引用。</li>
 <li>总而言之：代理模式是为了对代理对象进行控制，但不做功能的扩展；装饰者模式为本装饰的对象进行功能的扩展。</li>
+</ul>
+<h4 id="2-桥模式（Bridge）"><a href="#2-桥模式（Bridge）" class="headerlink" title="2. 桥模式（Bridge）"></a>2. 桥模式（Bridge）</h4><ul>
+<li><p>定义：将<strong>抽象部分（业务功能</strong>）与<strong>实现部分（平台实现）</strong>分离，使他们可以独立的变化。<strong>（主要是违背了单一职责原则）</strong></p>
+</li>
+<li><p>动机：由于某些类型的固有的实现逻辑，使得他们具有两个变化的维度，乃至多个变化的维度</p>
+<ul>
+<li>使用在对象间的<strong>组合关系</strong>，使得抽象和实现之间演着各自的维度来变化。</li>
+</ul>
+</li>
+</ul>
+<p><strong>类图：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200626/091251315.png" alt="mark"></p>
+<ul>
+<li>Abstraction：定义抽象类的接口</li>
+<li>Implementor：定义实现类接口</li>
+</ul>
+<p><strong>代码实现：</strong></p>
+<ul>
+<li>RemoteControl 表示遥控器，指代 Abstraction。</li>
+<li>TV 表示电视，指代 Implementor。</li>
+<li>桥接模式将遥控器和电视分离开来，从而可以独立改变遥控器或者电视的实现。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">TV</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">on</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">off</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">tuneChannel</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>TV具体实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sony</span> <span class="keyword">extends</span> <span class="title">TV</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">on</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Sony On"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">off</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Sony Off"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tuneChannel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Sony ChannelChange"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChangHong</span> <span class="keyword">extends</span> <span class="title">TV</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">on</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ChangHong On"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">off</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ChangHong Off"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tuneChannel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ChangHong ChannelChange"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>遥控器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">RemoteController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 组合tv</span></span><br><span class="line">    <span class="keyword">protected</span> TV tv;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向tv的指针</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RemoteController</span><span class="params">(TV tv)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.tv = tv;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">on</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">off</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">tuneChannel</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体遥控器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteRemote1</span> <span class="keyword">extends</span> <span class="title">RemoteController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向tv的指针</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConcreteRemote1</span><span class="params">(TV tv)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(tv);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">on</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ConcreteRemoteControl1 on"</span>);</span><br><span class="line">        tv.on();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">off</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ConcreteRemoteControl1 off"</span>);</span><br><span class="line">        tv.off();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tuneChannel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ConcreteRemoteControl1 tuneChannel"</span>);</span><br><span class="line">        tv.tuneChannel();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteRemote2</span> <span class="keyword">extends</span> <span class="title">RemoteController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向TV的指针</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConcreteRemote2</span><span class="params">(TV tv)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(tv);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">on</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ConcreteRemoteControl2 on"</span>);</span><br><span class="line">        tv.on();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">off</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ConcreteRemoteControl2 off"</span>);</span><br><span class="line">        tv.off();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tuneChannel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"ConcreteRemoteControl2 tuneChannel"</span>);</span><br><span class="line">        tv.tuneChannel();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>客户端测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 组合的方式</span></span><br><span class="line">        ConcreteRemote1 remote1 = <span class="keyword">new</span> ConcreteRemote1(<span class="keyword">new</span> ChangHong());</span><br><span class="line">        remote1.on();</span><br><span class="line">        remote1.off();</span><br><span class="line">        remote1.tuneChannel();</span><br><span class="line">        System.out.println(remote1.tv);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"====================="</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 组合的方式</span></span><br><span class="line">        ConcreteRemote2 remote2 = <span class="keyword">new</span> ConcreteRemote2(<span class="keyword">new</span> Sony());</span><br><span class="line">        remote2.on();</span><br><span class="line">        remote2.off();</span><br><span class="line">        remote2.tuneChannel();</span><br><span class="line">        System.out.println(remote2.tv);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//结果：</span></span><br><span class="line">ConcreteRemoteControl1 on</span><br><span class="line">ChangHong On</span><br><span class="line">ConcreteRemoteControl1 off</span><br><span class="line">ChangHong Off</span><br><span class="line">ConcreteRemoteControl1 tuneChannel</span><br><span class="line">ChangHong ChannelChange</span><br><span class="line">ChangHong@<span class="number">4554617</span>c</span><br><span class="line">=====================</span><br><span class="line">ConcreteRemoteControl2 on</span><br><span class="line">Sony On</span><br><span class="line">ConcreteRemoteControl2 off</span><br><span class="line">Sony Off</span><br><span class="line">ConcreteRemoteControl2 tuneChannel</span><br><span class="line">Sony ChannelChange</span><br><span class="line">Sony@<span class="number">74</span>a14482</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>JDK中实现</strong></p>
+<ul>
+<li>AWT (It provides an abstraction layer which maps onto the native OS the windowing support.)</li>
+<li>JDBC</li>
 </ul>
 
       
