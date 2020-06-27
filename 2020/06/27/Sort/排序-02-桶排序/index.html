@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">18字</span>
+            <span class="post-count">480字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">2分钟</span>
         </span>
     </span>
 </div>
@@ -100,6 +100,47 @@
 
       
       <h1 id="排序-02-桶排序"><a href="#排序-02-桶排序" class="headerlink" title="排序-02-桶排序"></a>排序-02-桶排序</h1><p>参考博客 ： <a href="https://www.cnblogs.com/skywang12345/p/3603935.html" target="_blank" rel="noopener">https://www.cnblogs.com/skywang12345/p/3603935.html</a></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175321622.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175306350.png" alt="mark"></p>
+<h2 id="1-桶排序思想"><a href="#1-桶排序思想" class="headerlink" title="1. 桶排序思想"></a>1. 桶排序思想</h2><ul>
+<li><strong>一句话总结：划分多个范围相同的区间，每个子区间进行自排序，最后合并</strong></li>
+<li>桶排序是计数排序的扩展版本<ul>
+<li>计数排序可以看成每个桶只存储相同的元素</li>
+<li>而桶排序每个桶存储的是一定范围的元素，通过映射函数，将待排序数组中的元素映射到各个对应的桶中，对每个桶中的元素进行排序，最后将非空桶中的元素逐个放入原序列中。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/173153414.png" alt="mark"></p>
+<a id="more"></a>
+
+
+
+<h2 id="2-Java实现代码"><a href="#2-Java实现代码" class="headerlink" title="2. Java实现代码"></a>2. Java实现代码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BucketSort</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bucketSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算最大值与最小值</span></span><br><span class="line">        <span class="keyword">int</span> max = Integer.MIN_VALUE;</span><br><span class="line">        <span class="keyword">int</span> min = Integer.MAX_VALUE;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++)&#123;</span><br><span class="line">            max = Math.max(max, arr[i]);</span><br><span class="line">            min = Math.min(min, arr[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算桶的数量</span></span><br><span class="line">        <span class="keyword">int</span> bucketNum = (max - min) / arr.length + <span class="number">1</span>;</span><br><span class="line">        ArrayList&lt;ArrayList&lt;Integer&gt;&gt; bucketArr = <span class="keyword">new</span> ArrayList&lt;&gt;(bucketNum);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bucketNum; i++)&#123;</span><br><span class="line">            bucketArr.add(<span class="keyword">new</span> ArrayList&lt;Integer&gt;());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将每个元素放入桶</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> num = (arr[i] - min) / (arr.length);</span><br><span class="line">            bucketArr.get(num).add(arr[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对每个桶进行排序</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bucketArr.size(); i++)&#123;</span><br><span class="line">            Collections.sort(bucketArr.get(i));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将桶中的元素赋值到原序列</span></span><br><span class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bucketArr.size(); i++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; bucketArr.get(i).size(); j++)&#123;</span><br><span class="line">                arr[index++] = bucketArr.get(i).get(j);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        BucketSort.bucketSort(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">18</span>,<span class="number">11</span>,<span class="number">28</span>,<span class="number">45</span>,<span class="number">23</span>,<span class="number">50</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-复杂度分析"><a href="#3-复杂度分析" class="headerlink" title="3. 复杂度分析"></a>3. 复杂度分析</h2><ul>
+<li><strong>时间复杂度：O(N+K)</strong><ul>
+<li>N 次循环，将每个元素装入对应的桶中</li>
+<li>M 次循环，对每个桶中的数据进行排序（平均每个桶有 N/M 个元素）</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175714244.png" alt="mark"></p>
+<ul>
+<li><strong>空间复杂度： O( N + M )</strong></li>
+</ul>
+<ul>
+<li><strong>稳定性分析</strong><ul>
+<li><strong>桶排序的稳定性取决于桶内排序使用的算法</strong></li>
+</ul>
+</li>
+</ul>
 
       
       <!-- reward -->

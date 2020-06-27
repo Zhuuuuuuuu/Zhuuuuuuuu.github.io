@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2020-06-27T07:16:58.699Z</updated>
+  <updated>2020-06-27T09:58:13.230Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -21,16 +21,24 @@
     <link href="http://zhuuu.work/2020/06/27/Sort/%E6%8E%92%E5%BA%8F-02-%E6%A1%B6%E6%8E%92%E5%BA%8F/"/>
     <id>http://zhuuu.work/2020/06/27/Sort/%E6%8E%92%E5%BA%8F-02-%E6%A1%B6%E6%8E%92%E5%BA%8F/</id>
     <published>2020-06-27T10:32:24.000Z</published>
-    <updated>2020-06-27T07:16:58.699Z</updated>
+    <updated>2020-06-27T09:58:13.230Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="排序-02-桶排序"><a href="#排序-02-桶排序" class="headerlink" title="排序-02-桶排序"></a>排序-02-桶排序</h1><p>参考博客 ： <a href="https://www.cnblogs.com/skywang12345/p/3603935.html" target="_blank" rel="noopener">https://www.cnblogs.com/skywang12345/p/3603935.html</a></p>]]></content>
+    <content type="html"><![CDATA[<h1 id="排序-02-桶排序"><a href="#排序-02-桶排序" class="headerlink" title="排序-02-桶排序"></a>排序-02-桶排序</h1><p>参考博客 ： <a href="https://www.cnblogs.com/skywang12345/p/3603935.html" target="_blank" rel="noopener">https://www.cnblogs.com/skywang12345/p/3603935.html</a></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175321622.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175306350.png" alt="mark"></p><h2 id="1-桶排序思想"><a href="#1-桶排序思想" class="headerlink" title="1. 桶排序思想"></a>1. 桶排序思想</h2><ul><li><strong>一句话总结：划分多个范围相同的区间，每个子区间进行自排序，最后合并</strong></li><li>桶排序是计数排序的扩展版本<ul><li>计数排序可以看成每个桶只存储相同的元素</li><li>而桶排序每个桶存储的是一定范围的元素，通过映射函数，将待排序数组中的元素映射到各个对应的桶中，对每个桶中的元素进行排序，最后将非空桶中的元素逐个放入原序列中。</li></ul></li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/173153414.png" alt="mark"></p><a id="more"></a><h2 id="2-Java实现代码"><a href="#2-Java实现代码" class="headerlink" title="2. Java实现代码"></a>2. Java实现代码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BucketSort</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bucketSort</span><span class="params">(<span class="keyword">int</span>[] arr)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算最大值与最小值</span></span><br><span class="line">        <span class="keyword">int</span> max = Integer.MIN_VALUE;</span><br><span class="line">        <span class="keyword">int</span> min = Integer.MAX_VALUE;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++)&#123;</span><br><span class="line">            max = Math.max(max, arr[i]);</span><br><span class="line">            min = Math.min(min, arr[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算桶的数量</span></span><br><span class="line">        <span class="keyword">int</span> bucketNum = (max - min) / arr.length + <span class="number">1</span>;</span><br><span class="line">        ArrayList&lt;ArrayList&lt;Integer&gt;&gt; bucketArr = <span class="keyword">new</span> ArrayList&lt;&gt;(bucketNum);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bucketNum; i++)&#123;</span><br><span class="line">            bucketArr.add(<span class="keyword">new</span> ArrayList&lt;Integer&gt;());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将每个元素放入桶</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> num = (arr[i] - min) / (arr.length);</span><br><span class="line">            bucketArr.get(num).add(arr[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对每个桶进行排序</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bucketArr.size(); i++)&#123;</span><br><span class="line">            Collections.sort(bucketArr.get(i));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将桶中的元素赋值到原序列</span></span><br><span class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bucketArr.size(); i++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; bucketArr.get(i).size(); j++)&#123;</span><br><span class="line">                arr[index++] = bucketArr.get(i).get(j);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>测试用例：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        BucketSort.bucketSort(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">18</span>,<span class="number">11</span>,<span class="number">28</span>,<span class="number">45</span>,<span class="number">23</span>,<span class="number">50</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="3-复杂度分析"><a href="#3-复杂度分析" class="headerlink" title="3. 复杂度分析"></a>3. 复杂度分析</h2><ul><li><strong>时间复杂度：O(N+K)</strong><ul><li>N 次循环，将每个元素装入对应的桶中</li><li>M 次循环，对每个桶中的数据进行排序（平均每个桶有 N/M 个元素）</li></ul></li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175714244.png" alt="mark"></p><ul><li><strong>空间复杂度： O( N + M )</strong></li></ul><ul><li><strong>稳定性分析</strong><ul><li><strong>桶排序的稳定性取决于桶内排序使用的算法</strong></li></ul></li></ul>]]></content>
     
     <summary type="html">
     
-      
-      
-        &lt;h1 id=&quot;排序-02-桶排序&quot;&gt;&lt;a href=&quot;#排序-02-桶排序&quot; class=&quot;headerlink&quot; title=&quot;排序-02-桶排序&quot;&gt;&lt;/a&gt;排序-02-桶排序&lt;/h1&gt;&lt;p&gt;参考博客 ： &lt;a href=&quot;https://www.cnblogs.com/sk
-      
+      &lt;h1 id=&quot;排序-02-桶排序&quot;&gt;&lt;a href=&quot;#排序-02-桶排序&quot; class=&quot;headerlink&quot; title=&quot;排序-02-桶排序&quot;&gt;&lt;/a&gt;排序-02-桶排序&lt;/h1&gt;&lt;p&gt;参考博客 ： &lt;a href=&quot;https://www.cnblogs.com/skywang12345/p/3603935.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/skywang12345/p/3603935.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175321622.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/175306350.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;1-桶排序思想&quot;&gt;&lt;a href=&quot;#1-桶排序思想&quot; class=&quot;headerlink&quot; title=&quot;1. 桶排序思想&quot;&gt;&lt;/a&gt;1. 桶排序思想&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;一句话总结：划分多个范围相同的区间，每个子区间进行自排序，最后合并&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;桶排序是计数排序的扩展版本&lt;ul&gt;
+&lt;li&gt;计数排序可以看成每个桶只存储相同的元素&lt;/li&gt;
+&lt;li&gt;而桶排序每个桶存储的是一定范围的元素，通过映射函数，将待排序数组中的元素映射到各个对应的桶中，对每个桶中的元素进行排序，最后将非空桶中的元素逐个放入原序列中。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200627/173153414.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -117,9 +125,9 @@
     
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
-      <category term="排序" scheme="http://zhuuu.work/tags/%E6%8E%92%E5%BA%8F/"/>
-    
       <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
+    
+      <category term="排序" scheme="http://zhuuu.work/tags/%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   
@@ -152,9 +160,9 @@
     
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
-      <category term="排序" scheme="http://zhuuu.work/tags/%E6%8E%92%E5%BA%8F/"/>
-    
       <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
+    
+      <category term="排序" scheme="http://zhuuu.work/tags/%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   
@@ -996,6 +1004,28 @@
   </entry>
   
   <entry>
+    <title>Docker-04-命令实战练习</title>
+    <link href="http://zhuuu.work/2020/05/25/Docker/Docker-04-%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%88%98%E7%BB%83%E4%B9%A0/"/>
+    <id>http://zhuuu.work/2020/05/25/Docker/Docker-04-%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%88%98%E7%BB%83%E4%B9%A0/</id>
+    <published>2020-05-25T04:44:24.000Z</published>
+    <updated>2020-05-25T10:10:21.974Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Docker-04-命令实战练习"><a href="#Docker-04-命令实战练习" class="headerlink" title="Docker-04-命令实战练习"></a>Docker-04-命令实战练习</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/112944540.png" alt="mark"></p><p>镜像下载：<a href="https://hub.docker.com/" target="_blank" rel="noopener">https://hub.docker.com/</a></p><a id="more"></a><h2 id="1-Docker-安装-Nginx"><a href="#1-Docker-安装-Nginx" class="headerlink" title="1. Docker 安装 Nginx"></a>1. Docker 安装 Nginx</h2><p><code>dockerhub-nginx:</code> <a href="https://hub.docker.com/search?q=nginx&amp;type=image" target="_blank" rel="noopener">https://hub.docker.com/search?q=nginx&amp;type=image</a></p><p>需要用到的命令</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 搜索镜像</span></span><br><span class="line">docker search nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 下载镜像</span></span><br><span class="line">docker pull nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 开启nginx(后台运行 名字是nginx01 端口号映射 服务名称)</span></span><br><span class="line">docker run -d --name nginx01 -p:3344:80 nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 4. 本机测试</span></span><br><span class="line">curl localhost:3344</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5. 进入容器</span></span><br><span class="line">docker exec -it nginx01 /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 6. 退出容器</span></span><br><span class="line">docker stop 容器id</span><br></pre></td></tr></table></figure><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/121949685.png" alt="mark"></p><p><strong>端口原理分析：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/122230224.png" alt="mark"></p><p><strong>外网测试：（ip+port访问docker镜像）</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/122536548.png" alt="mark"></p><p><strong>思考问题：</strong></p><ul><li>每次配置nginx配置文件，都需要进入容器内部，那么如何在外部修改做到同步到容器内部呢？</li></ul><p>答：数据卷技术（后面会详细说明）</p><h2 id="2-Docker-安装-Tomcat"><a href="#2-Docker-安装-Tomcat" class="headerlink" title="2. Docker 安装 Tomcat"></a>2. Docker 安装 Tomcat</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 下载</span></span><br><span class="line">docker pull tomcat:9.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 启动运行</span></span><br><span class="line">docker run -d -p 3355:8080 --name tomcat01 tomcat</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 出现的问题</span></span><br><span class="line">从外部访问出现404 error</span><br><span class="line">原因：阉割版本的（保证最小可运行的环境）</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 4. 解决 将webapps.dist 拷贝到 webapps目录即可</span></span></span><br></pre></td></tr></table></figure><p><strong>思考问题：</strong></p><ul><li>每次配置tomcat配置文件，都需要进入容器内部，那么如何在外部修改做到同步到容器内部呢？</li></ul><p>答：数据卷技术（后面会详细说明）(提供一个映射路径)</p><h2 id="3-Docker-部署-ES-kibana"><a href="#3-Docker-部署-ES-kibana" class="headerlink" title="3. Docker 部署 ES+kibana"></a>3. Docker 部署 ES+kibana</h2><p>官方文档：<a href="https://hub.docker.com/_/elasticsearch" target="_blank" rel="noopener">https://hub.docker.com/_/elasticsearch</a></p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> es暴露的端口很多</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> es十分耗内存</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 1. 下载启动</span></span><br><span class="line">docker run -d --name elasticsearch01 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:tag</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 启动了之后发现linux卡死</span></span><br><span class="line">原因：es非常耗内存</span><br><span class="line">（docker stats） 此时可以查看docker占cpu的资源</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 修改配置增加内存限制</span></span><br><span class="line">docker run -d --name elasticsearch02 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="-Xms64m -Xmx512m" elasticsearch:tag</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4. 测试</span></span><br><span class="line">curl localhost:9200</span><br></pre></td></tr></table></figure><p><strong>那么问题来了 kibana一般和ES是同时使用的，既然docker的核心是进程隔离，那么我们怎么做到相互之间的通信呢？</strong></p><p>答：Docker的网络原理（通过内网转发）</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/180934060.png" alt="mark"></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Docker-04-命令实战练习&quot;&gt;&lt;a href=&quot;#Docker-04-命令实战练习&quot; class=&quot;headerlink&quot; title=&quot;Docker-04-命令实战练习&quot;&gt;&lt;/a&gt;Docker-04-命令实战练习&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/112944540.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;p&gt;镜像下载：&lt;a href=&quot;https://hub.docker.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://hub.docker.com/&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Docker" scheme="http://zhuuu.work/tags/Docker/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Docker-05-镜像原理</title>
     <link href="http://zhuuu.work/2020/05/25/Docker/Docker-05-%E9%95%9C%E5%83%8F%E5%8E%9F%E7%90%86/"/>
     <id>http://zhuuu.work/2020/05/25/Docker/Docker-05-%E9%95%9C%E5%83%8F%E5%8E%9F%E7%90%86/</id>
@@ -1011,28 +1041,6 @@
 &lt;/ol&gt;
 &lt;p&gt;我们可以从 Docker Hub 网站来搜索镜像，Docker Hub 网址为： &lt;strong&gt;&lt;a href=&quot;https://hub.docker.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://hub.docker.com/&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;我们也可以使用 docker search 命令来搜索镜像。比如我们需要一个 httpd 的镜像来作为我们的 web 服务。我们可以通过 docker search 命令搜索 httpd 来寻找适合我们的镜像。&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Docker" scheme="http://zhuuu.work/tags/Docker/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Docker-04-命令实战练习</title>
-    <link href="http://zhuuu.work/2020/05/25/Docker/Docker-04-%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%88%98%E7%BB%83%E4%B9%A0/"/>
-    <id>http://zhuuu.work/2020/05/25/Docker/Docker-04-%E5%91%BD%E4%BB%A4%E5%AE%9E%E6%88%98%E7%BB%83%E4%B9%A0/</id>
-    <published>2020-05-25T04:44:24.000Z</published>
-    <updated>2020-05-25T10:10:21.974Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Docker-04-命令实战练习"><a href="#Docker-04-命令实战练习" class="headerlink" title="Docker-04-命令实战练习"></a>Docker-04-命令实战练习</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/112944540.png" alt="mark"></p><p>镜像下载：<a href="https://hub.docker.com/" target="_blank" rel="noopener">https://hub.docker.com/</a></p><a id="more"></a><h2 id="1-Docker-安装-Nginx"><a href="#1-Docker-安装-Nginx" class="headerlink" title="1. Docker 安装 Nginx"></a>1. Docker 安装 Nginx</h2><p><code>dockerhub-nginx:</code> <a href="https://hub.docker.com/search?q=nginx&amp;type=image" target="_blank" rel="noopener">https://hub.docker.com/search?q=nginx&amp;type=image</a></p><p>需要用到的命令</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 搜索镜像</span></span><br><span class="line">docker search nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 下载镜像</span></span><br><span class="line">docker pull nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 开启nginx(后台运行 名字是nginx01 端口号映射 服务名称)</span></span><br><span class="line">docker run -d --name nginx01 -p:3344:80 nginx</span><br><span class="line"><span class="meta">#</span><span class="bash"> 4. 本机测试</span></span><br><span class="line">curl localhost:3344</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5. 进入容器</span></span><br><span class="line">docker exec -it nginx01 /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 6. 退出容器</span></span><br><span class="line">docker stop 容器id</span><br></pre></td></tr></table></figure><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/121949685.png" alt="mark"></p><p><strong>端口原理分析：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/122230224.png" alt="mark"></p><p><strong>外网测试：（ip+port访问docker镜像）</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/122536548.png" alt="mark"></p><p><strong>思考问题：</strong></p><ul><li>每次配置nginx配置文件，都需要进入容器内部，那么如何在外部修改做到同步到容器内部呢？</li></ul><p>答：数据卷技术（后面会详细说明）</p><h2 id="2-Docker-安装-Tomcat"><a href="#2-Docker-安装-Tomcat" class="headerlink" title="2. Docker 安装 Tomcat"></a>2. Docker 安装 Tomcat</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 下载</span></span><br><span class="line">docker pull tomcat:9.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 启动运行</span></span><br><span class="line">docker run -d -p 3355:8080 --name tomcat01 tomcat</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 出现的问题</span></span><br><span class="line">从外部访问出现404 error</span><br><span class="line">原因：阉割版本的（保证最小可运行的环境）</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 4. 解决 将webapps.dist 拷贝到 webapps目录即可</span></span></span><br></pre></td></tr></table></figure><p><strong>思考问题：</strong></p><ul><li>每次配置tomcat配置文件，都需要进入容器内部，那么如何在外部修改做到同步到容器内部呢？</li></ul><p>答：数据卷技术（后面会详细说明）(提供一个映射路径)</p><h2 id="3-Docker-部署-ES-kibana"><a href="#3-Docker-部署-ES-kibana" class="headerlink" title="3. Docker 部署 ES+kibana"></a>3. Docker 部署 ES+kibana</h2><p>官方文档：<a href="https://hub.docker.com/_/elasticsearch" target="_blank" rel="noopener">https://hub.docker.com/_/elasticsearch</a></p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> es暴露的端口很多</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> es十分耗内存</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 1. 下载启动</span></span><br><span class="line">docker run -d --name elasticsearch01 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:tag</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 启动了之后发现linux卡死</span></span><br><span class="line">原因：es非常耗内存</span><br><span class="line">（docker stats） 此时可以查看docker占cpu的资源</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 修改配置增加内存限制</span></span><br><span class="line">docker run -d --name elasticsearch02 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="-Xms64m -Xmx512m" elasticsearch:tag</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4. 测试</span></span><br><span class="line">curl localhost:9200</span><br></pre></td></tr></table></figure><p><strong>那么问题来了 kibana一般和ES是同时使用的，既然docker的核心是进程隔离，那么我们怎么做到相互之间的通信呢？</strong></p><p>答：Docker的网络原理（通过内网转发）</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/180934060.png" alt="mark"></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Docker-04-命令实战练习&quot;&gt;&lt;a href=&quot;#Docker-04-命令实战练习&quot; class=&quot;headerlink&quot; title=&quot;Docker-04-命令实战练习&quot;&gt;&lt;/a&gt;Docker-04-命令实战练习&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200525/112944540.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;p&gt;镜像下载：&lt;a href=&quot;https://hub.docker.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://hub.docker.com/&lt;/a&gt;&lt;/p&gt;
     
     </summary>
     
@@ -1603,6 +1611,30 @@
   </entry>
   
   <entry>
+    <title>IO-07-随机访问文件流</title>
+    <link href="http://zhuuu.work/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/"/>
+    <id>http://zhuuu.work/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/</id>
+    <published>2020-05-12T07:38:38.000Z</published>
+    <updated>2020-05-12T08:35:33.359Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="IO-随机访问文件流"><a href="#IO-随机访问文件流" class="headerlink" title="IO-随机访问文件流"></a>IO-随机访问文件流</h1><h2 id="1-什么是随机访问文件流？"><a href="#1-什么是随机访问文件流？" class="headerlink" title="1. 什么是随机访问文件流？"></a>1. 什么是随机访问文件流？</h2><ul><li><strong>RandomAccessFile</strong></li><li></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;IO-随机访问文件流&quot;&gt;&lt;a href=&quot;#IO-随机访问文件流&quot; class=&quot;headerlink&quot; title=&quot;IO-随机访问文件流&quot;&gt;&lt;/a&gt;IO-随机访问文件流&lt;/h1&gt;&lt;h2 id=&quot;1-什么是随机访问文件流？&quot;&gt;&lt;a href=&quot;#1-什么是随机访
+      
+    
+    </summary>
+    
+    
+    
+      <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
+    
+  </entry>
+  
+  <entry>
     <title>IO-06-序列化和反序列化</title>
     <link href="http://zhuuu.work/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
     <id>http://zhuuu.work/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</id>
@@ -1619,30 +1651,6 @@
 &lt;li&gt;&lt;p&gt;&lt;strong&gt;反序列化&lt;/strong&gt;：把磁盘文件中的对象数据或者把网络节点上的对象数据，恢复成Java对象模型的过程。&lt;strong&gt;也就是将在序列化过程中所产生的二进制串转换成数据结构或者对象的过程。&lt;/strong&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>IO-07-随机访问文件流</title>
-    <link href="http://zhuuu.work/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/"/>
-    <id>http://zhuuu.work/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/</id>
-    <published>2020-05-12T07:38:38.000Z</published>
-    <updated>2020-05-12T08:35:33.359Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="IO-随机访问文件流"><a href="#IO-随机访问文件流" class="headerlink" title="IO-随机访问文件流"></a>IO-随机访问文件流</h1><h2 id="1-什么是随机访问文件流？"><a href="#1-什么是随机访问文件流？" class="headerlink" title="1. 什么是随机访问文件流？"></a>1. 什么是随机访问文件流？</h2><ul><li><strong>RandomAccessFile</strong></li><li></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;IO-随机访问文件流&quot;&gt;&lt;a href=&quot;#IO-随机访问文件流&quot; class=&quot;headerlink&quot; title=&quot;IO-随机访问文件流&quot;&gt;&lt;/a&gt;IO-随机访问文件流&lt;/h1&gt;&lt;h2 id=&quot;1-什么是随机访问文件流？&quot;&gt;&lt;a href=&quot;#1-什么是随机访
-      
     
     </summary>
     
@@ -2077,6 +2085,36 @@
   </entry>
   
   <entry>
+    <title>JUC-13-异步回调</title>
+    <link href="http://zhuuu.work/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/"/>
+    <id>http://zhuuu.work/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/</id>
+    <published>2020-05-02T14:02:24.000Z</published>
+    <updated>2020-05-02T13:29:43.887Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="JUC-13-异步回调"><a href="#JUC-13-异步回调" class="headerlink" title="JUC-13-异步回调"></a>JUC-13-异步回调</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ol><li>Future</li></ol><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202835824.png" alt="mark"></p><ol start="2"><li>CompletableFuture&lt; T &gt;</li></ol><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202905660.png" alt="mark"></p><a id="more"></a><h2 id="2-实际使用"><a href="#2-实际使用" class="headerlink" title="2. 实际使用"></a>2. 实际使用</h2><ol><li>没有返回值的runAsync异步回调</li></ol><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 没有返回值的runAsync异步回调</span></span><br><span class="line">CompletableFuture&lt;Void&gt; completableFuture = CompletableFuture.runAsync(()-&gt;&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 阻塞两秒，模拟ajax</span></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(Thread.currentThread().getName()+<span class="string">"runASync-&gt;void"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">"waiting"</span>);</span><br><span class="line">completableFuture.get() ; <span class="comment">// 阻塞获取执行结果</span></span><br></pre></td></tr></table></figure><ol start="2"><li>有返回值的异步回调</li></ol><ul><li>分别有成功的回调和失败的回调</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 2. 有返回值的异步回调</span></span><br><span class="line"><span class="comment">// 分别有成功的回调和失败的回调</span></span><br><span class="line">CompletableFuture&lt;Integer&gt; CF = CompletableFuture.supplyAsync(()-&gt;&#123;</span><br><span class="line">    System.out.println();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1024</span>;  <span class="comment">// 成功返回1024</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">System.out.println(CF.whenComplete((t, u) -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">"t="</span> + t); <span class="comment">// 正常的返回结果</span></span><br><span class="line">    System.out.println(<span class="string">"u="</span> + u); <span class="comment">// 如果有错，返回错误的信息</span></span><br><span class="line">&#125;).exceptionally((e) -&gt; &#123;</span><br><span class="line">    System.out.println(e.getMessage());</span><br><span class="line">    <span class="keyword">return</span> <span class="number">233</span>; <span class="comment">// 失败返回233</span></span><br><span class="line">&#125;).get());</span><br></pre></td></tr></table></figure><p>底层源码：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">supplyAsync</span><span class="params">(Supplier&lt;U&gt; supplier)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> asyncSupplyStage(asyncPool, supplier);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">asyncSupplyStage</span><span class="params">(Executor e,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     Supplier&lt;U&gt; f)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (f == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        CompletableFuture&lt;U&gt; d = <span class="keyword">new</span> CompletableFuture&lt;U&gt;();</span><br><span class="line">        e.execute(<span class="keyword">new</span> AsyncSupply&lt;U&gt;(d, f));</span><br><span class="line">        <span class="keyword">return</span> d;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CompletableFuture&lt;T&gt; <span class="title">whenComplete</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        BiConsumer&lt;? <span class="keyword">super</span> T, ? <span class="keyword">super</span> Throwable&gt; action)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> uniWhenCompleteStage(<span class="keyword">null</span>, action);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BiConsumer</span>&lt;<span class="title">T</span>, <span class="title">U</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Performs this operation on the given arguments.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the first input argument</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> u the second input argument</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">accept</span><span class="params">(T t, U u)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;JUC-13-异步回调&quot;&gt;&lt;a href=&quot;#JUC-13-异步回调&quot; class=&quot;headerlink&quot; title=&quot;JUC-13-异步回调&quot;&gt;&lt;/a&gt;JUC-13-异步回调&lt;/h1&gt;&lt;h2 id=&quot;1-简介&quot;&gt;&lt;a href=&quot;#1-简介&quot; class=&quot;headerlink&quot; title=&quot;1. 简介&quot;&gt;&lt;/a&gt;1. 简介&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;Future&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202835824.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;CompletableFuture&amp;lt; T &amp;gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202905660.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+  </entry>
+  
+  <entry>
     <title>JUC-14-JMM</title>
     <link href="http://zhuuu.work/2020/05/02/JUC/JUC-14-JMM/"/>
     <id>http://zhuuu.work/2020/05/02/JUC/JUC-14-JMM/</id>
@@ -2113,36 +2151,6 @@
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="JMM" scheme="http://zhuuu.work/tags/JMM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JUC-13-异步回调</title>
-    <link href="http://zhuuu.work/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/"/>
-    <id>http://zhuuu.work/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/</id>
-    <published>2020-05-02T14:02:24.000Z</published>
-    <updated>2020-05-02T13:29:43.887Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="JUC-13-异步回调"><a href="#JUC-13-异步回调" class="headerlink" title="JUC-13-异步回调"></a>JUC-13-异步回调</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ol><li>Future</li></ol><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202835824.png" alt="mark"></p><ol start="2"><li>CompletableFuture&lt; T &gt;</li></ol><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202905660.png" alt="mark"></p><a id="more"></a><h2 id="2-实际使用"><a href="#2-实际使用" class="headerlink" title="2. 实际使用"></a>2. 实际使用</h2><ol><li>没有返回值的runAsync异步回调</li></ol><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 没有返回值的runAsync异步回调</span></span><br><span class="line">CompletableFuture&lt;Void&gt; completableFuture = CompletableFuture.runAsync(()-&gt;&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 阻塞两秒，模拟ajax</span></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(Thread.currentThread().getName()+<span class="string">"runASync-&gt;void"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">"waiting"</span>);</span><br><span class="line">completableFuture.get() ; <span class="comment">// 阻塞获取执行结果</span></span><br></pre></td></tr></table></figure><ol start="2"><li>有返回值的异步回调</li></ol><ul><li>分别有成功的回调和失败的回调</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 2. 有返回值的异步回调</span></span><br><span class="line"><span class="comment">// 分别有成功的回调和失败的回调</span></span><br><span class="line">CompletableFuture&lt;Integer&gt; CF = CompletableFuture.supplyAsync(()-&gt;&#123;</span><br><span class="line">    System.out.println();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1024</span>;  <span class="comment">// 成功返回1024</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">System.out.println(CF.whenComplete((t, u) -&gt; &#123;</span><br><span class="line">    System.out.println(<span class="string">"t="</span> + t); <span class="comment">// 正常的返回结果</span></span><br><span class="line">    System.out.println(<span class="string">"u="</span> + u); <span class="comment">// 如果有错，返回错误的信息</span></span><br><span class="line">&#125;).exceptionally((e) -&gt; &#123;</span><br><span class="line">    System.out.println(e.getMessage());</span><br><span class="line">    <span class="keyword">return</span> <span class="number">233</span>; <span class="comment">// 失败返回233</span></span><br><span class="line">&#125;).get());</span><br></pre></td></tr></table></figure><p>底层源码：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">supplyAsync</span><span class="params">(Supplier&lt;U&gt; supplier)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> asyncSupplyStage(asyncPool, supplier);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">asyncSupplyStage</span><span class="params">(Executor e,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                     Supplier&lt;U&gt; f)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (f == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        CompletableFuture&lt;U&gt; d = <span class="keyword">new</span> CompletableFuture&lt;U&gt;();</span><br><span class="line">        e.execute(<span class="keyword">new</span> AsyncSupply&lt;U&gt;(d, f));</span><br><span class="line">        <span class="keyword">return</span> d;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CompletableFuture&lt;T&gt; <span class="title">whenComplete</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        BiConsumer&lt;? <span class="keyword">super</span> T, ? <span class="keyword">super</span> Throwable&gt; action)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> uniWhenCompleteStage(<span class="keyword">null</span>, action);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BiConsumer</span>&lt;<span class="title">T</span>, <span class="title">U</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Performs this operation on the given arguments.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the first input argument</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> u the second input argument</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">accept</span><span class="params">(T t, U u)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;JUC-13-异步回调&quot;&gt;&lt;a href=&quot;#JUC-13-异步回调&quot; class=&quot;headerlink&quot; title=&quot;JUC-13-异步回调&quot;&gt;&lt;/a&gt;JUC-13-异步回调&lt;/h1&gt;&lt;h2 id=&quot;1-简介&quot;&gt;&lt;a href=&quot;#1-简介&quot; class=&quot;headerlink&quot; title=&quot;1. 简介&quot;&gt;&lt;/a&gt;1. 简介&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;Future&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202835824.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;ol start=&quot;2&quot;&gt;
-&lt;li&gt;CompletableFuture&amp;lt; T &amp;gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200502/202905660.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
   </entry>
   
