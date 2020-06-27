@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.4k字</span>
+            <span class="post-count">1.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">5分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -127,7 +127,7 @@
 
 <ul>
 <li><strong>时间复杂度</strong>：O(N)  这里 N 表示数组的长度。</li>
-<li><strong>空间复杂度</strong>：把 N个数存在哈希表里面，使用了 N个空间。</li>
+<li><strong>空间复杂度</strong>：O(N)  把 N个数存在哈希表里面，使用了 N个空间。</li>
 </ul>
 <h2 id="方法二：排序-二分查找"><a href="#方法二：排序-二分查找" class="headerlink" title="方法二：排序 + 二分查找"></a>方法二：排序 + 二分查找</h2><p><strong>话在前头：这个方法时间复杂度不符合要求</strong></p>
 <ul>
@@ -160,6 +160,18 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">firstMissingPositive</span><span class="params">(<span class="keyword">int</span>[] nums)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对数组自己做哈希：数值为i的数字映射到下标 i - 1的位置</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">while</span> (nums[i] &gt; <span class="number">0</span> &amp;&amp; nums[i] &lt;= len &amp;&amp; nums[nums[i] - <span class="number">1</span>] != nums[i])&#123;</span><br><span class="line">                <span class="comment">// 满足在指定范围内，并且没有放在正确的位置上，才交换</span></span><br><span class="line">                <span class="comment">// 例如：数值3应该放在索引2的位置上</span></span><br><span class="line">                swap(nums,nums[i] - <span class="number">1</span>,i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历数组找到缺失的最小正数</span></span><br><span class="line">        <span class="comment">// 缺失的正整数是下标 + 1（i 从0 开始）</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] != i + <span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">return</span> i + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 都正确范围数组长度 + 1</span></span><br><span class="line">        <span class="keyword">return</span> len + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 交换函数</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">        nums[i] = nums[j];</span><br><span class="line">        nums[j] = temp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+
+
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：O(n)<ul>
+<li><code>while</code>循环不会每一次都把数组里面的所有元素过一遍。如果有一些元素在这一次循环中被交换到他们应该在的位置上，那么在后序的遍历中，由于他们已经在正确的位置上了，代码执行到他们的时候，就会被跳过（<strong>相当于是一个剪枝的处理）</strong></li>
+<li>最极端的一种情况是，在第 1 个位置经过这个 while 就把所有的元素都看了一遍，这个所有的元素都被放置在它们应该在的位置，那么 for 循环后面的部分的 while 的循环体都不会被执行。</li>
+<li>平均下来，每次元素只要被看一次就可以了。<code>while</code> 循环体被执行很多次的情况不会发生。这样的复杂度分析的方法叫做<strong>均摊复杂度分析。</strong></li>
+</ul>
+</li>
+<li>空间复杂度：O(1) </li>
+</ul>
 
       
       <!-- reward -->
