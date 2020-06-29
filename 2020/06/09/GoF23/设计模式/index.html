@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">10.7k字</span>
+            <span class="post-count">13.4k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">43分钟</span>
+            <span class="post-count">54分钟</span>
         </span>
     </span>
 </div>
@@ -880,6 +880,180 @@
 <ul>
 <li>AWT (It provides an abstraction layer which maps onto the native OS the windowing support.)</li>
 <li>JDBC</li>
+</ul>
+<h4 id="3-享元模式（Flyweight）"><a href="#3-享元模式（Flyweight）" class="headerlink" title="3. 享元模式（Flyweight）"></a>3. 享元模式（Flyweight）</h4><ul>
+<li><p><strong>享元模式</strong> ： 是对象池的一种实现，主要用于减少创建对象的数量，<strong>以减少内存占用和提供性能。</strong></p>
+</li>
+<li><p>定义：运用共享技术有效的支持大量细粒度的对象<strong>（要求对象是只读的）</strong></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200628/111500446.webp" alt="mark"></p>
+<ul>
+<li>Flyweight:  享元模式的抽象类或者接口。</li>
+<li>ConcreateFlyweight: 具体的享元对象。</li>
+<li>FlyweightFactory：享元工厂，负责管理享元对象池和创建享元对象。</li>
+</ul>
+<p><strong>代码实现</strong></p>
+<ul>
+<li>场景：过年抢票，大家肯定都不陌生，各种刷票插件、软件什么的。在用户设置好出发和到达之后，每次查询请求都返回一系列的车票结果。<ul>
+<li>当数千万的用户在不断请求查询结果时，如果每次查询结果都是重新创建返回的，可想而知，肯定会有大量的重复对象的创建、销毁，内存占用和GC的压力都会随之增大。</li>
+<li>而享元模式就能很好的应对这种情况，车次是固定的，根据出发地和到达地查询出来的车次基本都是相同的</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>创建一个Ticket接口，定义输出车票信息的方法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个Ticket接口，定义输出车票信息的方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Ticket</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showTicket</span><span class="params">(String info)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>具体的实现类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TrainTicket</span> <span class="keyword">implements</span> <span class="title">Ticket</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//出发地</span></span><br><span class="line">    <span class="keyword">private</span>  String from;</span><br><span class="line">    <span class="comment">//到达地</span></span><br><span class="line">    <span class="keyword">private</span>  String to;</span><br><span class="line">    <span class="comment">//铺位</span></span><br><span class="line">    <span class="keyword">private</span> String bunk;</span><br><span class="line">    <span class="comment">//价格</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> price;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TrainTicket</span><span class="params">(String from, String to)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.from = from;</span><br><span class="line">        <span class="keyword">this</span>.to = to;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">showTicket</span><span class="params">(String info)</span> </span>&#123;</span><br><span class="line">        price = <span class="keyword">new</span> Random().nextInt(<span class="number">200</span>);</span><br><span class="line">        System.out.println(<span class="string">"查询 从 "</span>+from+<span class="string">" 到 "</span> + to + <span class="string">" 的 "</span> + bunk + <span class="string">" 车票，价格："</span> + price);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>享元工厂</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TicketFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// JUC MAP</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String,Ticket&gt; ticketMap = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 每次获取车票对象时的创建，享元模式有效的减少了重复对象的创建。</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Ticket <span class="title">getTicket</span><span class="params">(String from,String to)</span></span>&#123;</span><br><span class="line">        <span class="keyword">final</span> String key = from + <span class="string">"-"</span> + to;</span><br><span class="line">        <span class="comment">// 享元模式的精髓，有就直接返回这个对象</span></span><br><span class="line">        <span class="keyword">if</span> (ticketMap.containsKey(key))&#123;</span><br><span class="line">            <span class="keyword">return</span> ticketMap.get(key);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 没有就加入到对象池中，并且返回这个对象</span></span><br><span class="line">            TrainTicket ticket = <span class="keyword">new</span> TrainTicket(from, to);</span><br><span class="line">            ticketMap.put(key,ticket);</span><br><span class="line">            <span class="keyword">return</span> ticket;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>JDK:</strong></p>
+<p>Java 利用缓存来加速大量小对象的访问时间。</p>
+<ul>
+<li>java.lang.Integer#valueOf(int)</li>
+<li>java.lang.Boolean#valueOf(boolean)</li>
+<li>java.lang.Byte#valueOf(byte)</li>
+<li>java.lang.Character#valueOf(char)</li>
+</ul>
+<h4 id="4-外观模式（Facade）"><a href="#4-外观模式（Facade）" class="headerlink" title="4. 外观模式（Facade）"></a>4. 外观模式（Facade）</h4><ul>
+<li>外观模式：封装系统的复杂结构，向外提供一个可以访问系统的接口，这个接口就是系统内外通信的统一的出入口。这样使得系统更加易于维护和使用<ul>
+<li>在我们集成很多第三方SDK的时候就会发现，我们集成一次之后，想要升级SDK的版本的话，我们只需要替换jar或者修改依赖库的版本，当然你也可以一直使用最新的版本。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200628/113712188.webp" alt="mark"></p>
+<ul>
+<li>Client：客户端，直接使用<code>Facade</code>接口提供的方法</li>
+<li>Facade：就是系统对外的同一对象，封装了各个子系统的交互简化了<code>Client</code>调用</li>
+<li>SystemA、SystemB、SystemC：子系统接口</li>
+<li>ConcreteSystemA、ConcreteSystemB、ConcreteSystemC：子系统的实现</li>
+</ul>
+<p>这里就可以看出，对Client来说只需要知道一个Facade一个就行，不需要知道Facade内部的具体复杂逻辑，降低用户的使用成本。<strong>（思想：高内聚，松耦合）</strong></p>
+<p><strong>优点</strong></p>
+<ul>
+<li>对使用者隐藏内部的具体细节，降低使用者和子系统的耦合。</li>
+<li>外观类对子系统的接口封装，使得系统更加容易使用</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>外观类接口会过于庞大</li>
+<li>没有遵循开闭原则，业务变化时需要修改外观类</li>
+</ul>
+<p><strong>代码实现：没有特定代码结构</strong></p>
+<ul>
+<li>场景：生活中有很多这样的例子，我们经常使用的智能手机就是一个外观模式的例子，能够打电话、拍照等功能，而打电话和拍照又是独立的功能系统。</li>
+</ul>
+<ol>
+<li>手机功能</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Phone</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hangUp</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhomeImpl</span> <span class="keyword">implements</span> <span class="title">Phone</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"打电话"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hangUp</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"挂电话"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>拍照功能</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Camera</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">open</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">takePhoto</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SnoyCamera</span> <span class="keyword">implements</span> <span class="title">Camera</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">open</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"开启相机"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">takePhoto</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"拍照"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"关闭相机"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>组装手机</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmartPhone</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> PhomeImpl phome = <span class="keyword">new</span> PhomeImpl();</span><br><span class="line">    <span class="keyword">private</span> SnoyCamera camera = <span class="keyword">new</span> SnoyCamera();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span></span>&#123;</span><br><span class="line">        phome.call();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">takePhoto</span><span class="params">()</span></span>&#123;</span><br><span class="line">        camera.open();</span><br><span class="line">        camera.takePhoto();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="5-代理模式（Proxy）"><a href="#5-代理模式（Proxy）" class="headerlink" title="5. 代理模式（Proxy）"></a>5. 代理模式（Proxy）</h4><ul>
+<li><strong>代理模式</strong>： 为其他对象提供一个代理，并由代理对象控制原有对象的引用。也称作委托模式</li>
+<li>其实代理模式无论是在日常开发中还是设计模式汇总都随处可见，中介者模式的中介者对象也是<strong>代理模式</strong>的应用，其他的对象的交互都是交给终结者对象处理的。而在生活中就更多的类似代理模式的例子。例如：抢票插件，科学上网等等。</li>
+</ul>
+<p><strong>UML类图：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200629/091646377.webp" alt="mark"></p>
+<ul>
+<li>subject: 抽象主体类（也可以是接口），声明共同的功能</li>
+<li>RealSubject: 真实的主体类，也就是<strong>被代理的类</strong>，负责执行具体的业务逻辑方法；客户类调用代理类间接调用其定义的方法。</li>
+<li>ProxySubject:代理主体类，也就是<strong>代理类</strong>，持有一个被代理类的真实对象，在实现抽象主体类共同方法中调用<strong>被代理类</strong>的相对应的方法，起到代理的作用。</li>
+<li>Client: 客户类，直接去访问代理</li>
+</ul>
+<h5 id="5-1-静态代理"><a href="#5-1-静态代理" class="headerlink" title="5.1 静态代理"></a>5.1 静态代理</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**抽象主体*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Subject</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visit</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**被代理主体*/</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RealSubject</span> <span class="keyword">implements</span> <span class="title">Subject</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.print(<span class="string">"this is real subject"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**代理主题*/</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ProxySubject</span> <span class="keyword">implements</span> <span class="title">Subject</span></span>&#123;</span><br><span class="line">    <span class="comment">// 真实主体</span></span><br><span class="line">    <span class="keyword">private</span> RealSubject realSubject;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ProxySubject</span><span class="params">(RealSubject realSubject)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.realSubject = realSubject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">visit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.print(<span class="string">"proxy start"</span>);</span><br><span class="line">        realSubject.visit();</span><br><span class="line">        System.out.print(<span class="string">"proxy end"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**客户类*/</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 创建被代理对象</span></span><br><span class="line">        RealSubject realSubject = <span class="keyword">new</span> RealSubject();</span><br><span class="line">        <span class="comment">// 创建代理对象</span></span><br><span class="line">        ProxySubject proxySubject = <span class="keyword">new</span> ProxySubject(realSubject);</span><br><span class="line">        <span class="comment">// 调用方法</span></span><br><span class="line">        proxySubject.visit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>静态代理的好处:</strong></p>
+<ul>
+<li>可以使得我们的真实角色更加纯粹 . 不再去关注一些公共的事情 .</li>
+<li>公共的业务由代理来完成 . 实现了业务的分工 ,</li>
+<li>公共业务发生扩展时变得更加集中和方便 .</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>类多了 , 多了代理类 , 工作量变大了 . 开发效率降低 .</li>
+</ul>
+<h5 id="5-2-动态代理"><a href="#5-2-动态代理" class="headerlink" title="5.2 动态代理"></a>5.2 动态代理</h5><ul>
+<li>上一部分介绍的，其实就是<strong>静态代理，也就是在代码的编译阶段生成代理类来完成代理对象的一系列操作。</strong></li>
+<li>而<strong>动态代理</strong>则是在运行时动态生成代理类对象。</li>
+<li>代理对象的生成则是利用<code>JDK</code>中的<code>java.lang.reflect.Proxy</code> 类 ，使用<code>newProxyInstance</code> 方法则可以创建一个我们所需要代理的对象</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 主要是newProxyInstance方法，动态生成代理类</span></span><br><span class="line"><span class="meta">@CallerSensitive</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">newProxyInstance</span><span class="params">(ClassLoader loader,</span></span></span><br><span class="line"><span class="function"><span class="params">                                          Class&lt;?&gt;[] interfaces,</span></span></span><br><span class="line"><span class="function"><span class="params">                                          InvocationHandler h)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> IllegalArgumentException</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        Objects.requireNonNull(h);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> Class&lt;?&gt;[] intfs = interfaces.clone();</span><br><span class="line">        <span class="keyword">final</span> SecurityManager sm = System.getSecurityManager();</span><br><span class="line">        <span class="keyword">if</span> (sm != <span class="keyword">null</span>) &#123;</span><br><span class="line">            checkProxyAccess(Reflection.getCallerClass(), loader, intfs);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Look up or generate the designated proxy class.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Class&lt;?&gt; cl = getProxyClass0(loader, intfs);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Invoke its constructor with the designated invocation handler.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (sm != <span class="keyword">null</span>) &#123;</span><br><span class="line">                checkNewProxyPermission(Reflection.getCallerClass(), cl);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">final</span> Constructor&lt;?&gt; cons = cl.getConstructor(constructorParams);</span><br><span class="line">            <span class="keyword">final</span> InvocationHandler ih = h;</span><br><span class="line">            <span class="keyword">if</span> (!Modifier.isPublic(cl.getModifiers())) &#123;</span><br><span class="line">                AccessController.doPrivileged(<span class="keyword">new</span> PrivilegedAction&lt;Void&gt;() &#123;</span><br><span class="line">                    <span class="function"><span class="keyword">public</span> Void <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                        cons.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> cons.newInstance(<span class="keyword">new</span> Object[]&#123;h&#125;);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException|InstantiationException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e.toString(), e);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">            Throwable t = e.getCause();</span><br><span class="line">            <span class="keyword">if</span> (t <span class="keyword">instanceof</span> RuntimeException) &#123;</span><br><span class="line">                <span class="keyword">throw</span> (RuntimeException) t;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(t.toString(), t);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e.toString(), e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>newProxyInstance</code> 是一个<code>Proxy</code>的静态方法，并且接收三个参数</p>
+<ul>
+<li><code>ClassLoader loader</code> <strong>类加载器</strong></li>
+<li><code>Class&lt;?&gt;[] interfaces</code> <strong>目标对象实现的接口类型</strong></li>
+<li><code>InvocationHandler h</code> 处理事件的对象，<code>InvocationHandler</code> 是一个接口，执行目标对象的方法，会触发<code>InvocationHandler</code> 的<code>invoke</code></li>
+</ul>
+<p><strong>另外一个重要的类当然就是<code>InvocationHandler</code> 了，其中最重要的方法就是<code>invoke</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> Throwable</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>Object proxy</code>: 执行方法的代理对象</li>
+<li><code>Method method</code> ：被执行的方法的对象</li>
+<li><code>bject[] args</code> : 被执行方法的参数</li>
+<li>返回值：代理对象调用方法所返回的值</li>
+</ul>
+<p>依然使用<code>Subject</code>作为例子，看看简单的代码实现（代码没有封装）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 创建被代理对象</span></span><br><span class="line">        <span class="keyword">final</span> RealSubject realSubject = <span class="keyword">new</span> RealSubject();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建被代理对象</span></span><br><span class="line">        Subject subject = (Subject) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(),</span><br><span class="line">                <span class="keyword">new</span> Class[]&#123;Subject<span class="class">.<span class="keyword">class</span>&#125;,</span></span><br><span class="line"><span class="class">                <span class="title">new</span> <span class="title">InvocationHandler</span>() </span>&#123;</span><br><span class="line">                    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                        <span class="comment">// 第一个参数是要代理的对象</span></span><br><span class="line">                        <span class="comment">// 第二个参数是需要传入的参数</span></span><br><span class="line">                        <span class="keyword">return</span> method.invoke(realSubject,args);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用方法</span></span><br><span class="line">        subject.visit();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>从代码上来看，比之前静态代理要简单很多，没有那么多类和对象，但是<strong>相对的代码在性能上有牺牲</strong>，而且对于不太熟悉反射相关的知识的开发者并不是太友好。</li>
+<li>通过反射类<code>Proxy</code> 和 <code>InvocationHandler</code> 回调接口实现JDK动态代理，要求被代理类必须实现一个接口，但事实上并不是所有的类都有接口，对于没有实现接口的类，便无法使用该方法实现动态代理。</li>
+</ul>
+<h5 id="5-3-其他代理分类"><a href="#5-3-其他代理分类" class="headerlink" title="5.3 其他代理分类"></a>5.3 其他代理分类</h5><p>静态代理和动态代理是代码方法来区分代理模式，也可以从使用范围来区分不同的代理实现</p>
+<ul>
+<li>远程代理（Remote Proxy）: 为某个对象在不同的内存地址空间提供局部代理。使得系统可以将<code>Server</code> 部分的实现隐藏，以便<code>Client</code>不必考虑<code>Server</code>的存在</li>
+<li>虚拟代理（Virtual Proxy） : 使用一个代理对象表示一个十分耗资源的对象并在真正需要时候才创建</li>
+<li>保护代理(Protection Proxy): 使用代理控制对原始对象的访问.该类型的代理常被用于原始对象有不同访问权限的情况.</li>
+<li>智能引用(Smart Reference) : 在访问原始对象时执行一些自己的附加操作并对指向原始对象的引用计数.</li>
+</ul>
+<p>这里要注意的是，静态和动态代理都可以应用于上述4种情形，两者是各自独立的变化。</p>
+<p><strong>总结:</strong></p>
+<p>代理模式使用非常广泛，基本在其他的设计模式中也能看到代理模式的影子，但是使用时针对性较强，而且模式本身并没有什么突出的优缺点，基本上可以放心使用</p>
+<p><strong>通用的动态代理实现类:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigProxy</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 要代理的对象</span></span><br><span class="line">    <span class="keyword">private</span> Object target;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTarget</span><span class="params">(Object target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.target = target;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成代理类</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getProxy</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Proxy.newProxyInstance(</span><br><span class="line">                <span class="keyword">this</span>.getClass().getClassLoader(),</span><br><span class="line">                target.getClass().getInterfaces(),</span><br><span class="line">                <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// proxy ： 代理类</span></span><br><span class="line">    <span class="comment">// method : 代理类中要代理的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">// ....</span></span><br><span class="line">        <span class="comment">// 业务逻辑代码</span></span><br><span class="line">        <span class="keyword">return</span> method.invoke(target,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>JDK:</strong></p>
+<ul>
+<li>java.lang.reflect.proxy</li>
+<li>java.lang.reflect.InvocationHandler</li>
+<li>Spring的 Aop</li>
 </ul>
 
       
