@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">13.4k字</span>
+            <span class="post-count">16.2k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">54分钟</span>
+            <span class="post-count">65分钟</span>
         </span>
     </span>
 </div>
@@ -767,6 +767,148 @@
 <li><a href="http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpSessionBindingListener.html" target="_blank" rel="noopener">javax.servlet.http.HttpSessionBindingListener</a></li>
 <li><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="noopener">RxJava</a></li>
 </ul>
+<h4 id="4-中介者模式（Mediator）"><a href="#4-中介者模式（Mediator）" class="headerlink" title="4 . 中介者模式（Mediator）"></a>4 . 中介者模式（Mediator）</h4><ul>
+<li>中介者模式（Mediator Pattern） , 使用一个中介对象封装一系列对象交互，使得个对象之间没有明显的交互，并且能够独立的改变对象之间的交互（可能说的有点绕<strong>T_T</strong>）</li>
+<li>看看下面这张<strong>UML类图</strong>，就能理解了。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200701/091636157.webp" alt="mark"></p>
+<ul>
+<li>其实和门面模式（Facade）有异曲同工之处，Facade解决的是系统内外的耦合性问题，而Mediator解决的是系统内的对象间的耦合问题。</li>
+</ul>
+<p><strong>举个例子：</strong></p>
+<ul>
+<li>简单的说就是，中介者对象聚合了对象的交互，其他的对象都是通过中介者对象进行交互，没有直接的交互。</li>
+<li>这个可以想象一下租房，中介手里有房东的房子，你找中介租房，中介就是你和房东之间的那个中介对象。（代理模式也是如此）</li>
+</ul>
+<blockquote>
+<p>虽然跳过中介直接找房东更加便宜，但是相对的，中介起的作用也简化和房东扯皮的一些过程</p>
+</blockquote>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200701/092158293.webp" alt="mark"></p>
+<ul>
+<li>Meadiator:  抽象中介者，定义了同事对象到中介者对象的接口。</li>
+<li>ConcreteMediator： 具体的中介者角色，继承抽象中介者，实现了父类定义的方法，负责具体的同事对象之间的交互</li>
+<li>Colleague : 抽象同事类,定义了中介者对象接口,只于中介者交互.不与其他同事对象交互.</li>
+<li>ConcreteColleagueA/B:具体的同事类,继承抽象的同事类,每个具体的同事类都知道本身小范围内的行为,不知道自己大范围内的目的.</li>
+</ul>
+<p>其实这样描述,有没有觉得想MVC模式里面的Controller(当然在Controller里面的代码可能不会像中介者这样降低View 之间的耦合),也是起到Model 和 View 聚合的一个作用,使得Model 和 View的耦合性降低.</p>
+<p><strong>代码实现:</strong></p>
+<h4 id="5-状态模式（State）"><a href="#5-状态模式（State）" class="headerlink" title="5. 状态模式（State）"></a>5. 状态模式（State）</h4><ul>
+<li>定义：类的内部状态改变的时候，可以改变它的行为<ul>
+<li>可能描述的有点模糊，举个栗子（真就是举个栗子）</li>
+</ul>
+</li>
+</ul>
+<p>（Android系统在未root时，是无法卸载系统预装应用的；root成功，开启root权限之后，不仅可以卸载系统预装应用，还可以使用xposed，简直就是可以为所欲为啊！这就可以看出，Android系统在root的状态变更时，影响到了自身的某些行为，进而某些行为也相对应的发生了改变。）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200703/083558850.webp" alt="mark"></p>
+<ul>
+<li><p>从UML类图上来看，结构似乎和策略模式是一模一样的。</p>
+</li>
+<li><p>状态模式的关键点在于不同的状态下，对于同一行为有不同的响应，避免使用<code>if-else</code>或<code>switch-case</code>区分状态所带来的代码臃肿；在保持代码结构的清晰的同时还保证了扩展和维护性。</p>
+</li>
+</ul>
+<p><strong>代码实现</strong></p>
+<ul>
+<li>平常使用的登陆或者注销状态，经常使用的收藏和关注的功能，然而没有登录会提示去登陆，功能是无法使用的。</li>
+<li>实现收藏功能很容易出现以下代码：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">collect</span><span class="params">(Context context)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(isLogin())&#123;</span><br><span class="line">        <span class="comment">//收藏</span></span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">//去登陆</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果还需要添加关注功能的话，又需要再次判断是否登录，一旦需要判断登录的功能一多，这种coding方式就会成为噩梦。</strong></p>
+<ul>
+<li>接下来使用状态模式可以很好的避免这种情况，首先我们需要抽象出一个公共行为接口<code>UserState</code> ，其中包含<code>collect()</code>以及<code>follow()</code>方法。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserState</span> </span>&#123;</span><br><span class="line">    <span class="comment">/** 收藏行为 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">collect</span><span class="params">(Context context)</span></span>;</span><br><span class="line">    <span class="comment">/** 关注行为 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">follow</span><span class="params">(Context context)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>对应<strong>登录</strong>和<strong>未登录</strong>两种状态会有两种不同的实现方式，如下</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoginState</span> <span class="keyword">implements</span> <span class="title">UserState</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">collect</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"收藏成功"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">follow</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"关注成功"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogoutState</span> <span class="keyword">implements</span> <span class="title">UserState</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">collect</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"请登录"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">follow</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"请登录"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>接下来，我们需要一个类来关联登录状态与外界，并为外界提供<code>collect()</code>函数和<code>follow()</code>函数对应的调用；并将<code>LoginState</code>和<code>LogoutState</code>结合起来。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这里主要是实现状态模式，</span></span><br><span class="line"><span class="comment">// 对于用户这个案例来说，结合单例模式可能会更好。</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserContext</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserState LOGIN = <span class="keyword">new</span> LoginState();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserState LOGOUT = <span class="keyword">new</span> LogoutState();</span><br><span class="line">    <span class="keyword">private</span> UserState mState = LOGOUT;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 登录，供外部调用 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">login</span><span class="params">()</span></span>&#123;</span><br><span class="line">        mState = LOGIN;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 退出登录，供外部调用 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">logout</span><span class="params">()</span></span>&#123;</span><br><span class="line">        mState = LOGOUT;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 调用mState的coolect() */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">collect</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        mState.collect(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 调用mState的follow() */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">follow</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        mState.follow(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 此方法判断不太严谨，请忽略 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isLogin</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mState <span class="keyword">instanceof</span> LoginState;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<ul>
+<li><p>这里的<code>UserContext</code> 提供给外部的<code>collect()</code> 和 <code>follow()</code> 方法的同时，还要提供<code>login()</code> 和 <code>logout（）</code>两个方法给外部调用来更改<code>UserContext</code> 的内部状态。</p>
+</li>
+<li><p>这里主要是实现状态模式，<strong>对于用户这个案例来说，通常会结合单例模式使用的更好</strong></p>
+</li>
+</ul>
+<blockquote>
+<p>从某种程度上来说，提供login()和logout()两个方法是为了防止外界篡改内部的行为，因为外部无法传入自己实现的UserState对象，也就无法修改UserContext对应状态的行为。</p>
+<p>确实也看到有些文章，在设置状态时，状态是由外部传入的，这种写法觉得不太合适，所以这里单独说明。</p>
+</blockquote>
+<p><strong>扩展思考</strong></p>
+<p>其实对于实际情况来说，用户的操作行为可能远远不止这两个方法，若还有需要状态判断登录状态的行为，我们可以继续在<code>UserState</code>接口中为新增的行为添加相应的方法；但是，我们也可以预见，<code>UserState</code>接口将会越来越庞大。</p>
+<p>这种问题的话，也可以将每个行为独立成一个接口，进而让<code>UserState</code>继承各个行为接口，或者将<code>UserState</code>改成抽象类实现各个行为接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//独立的收藏的接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ICollect</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">collect</span><span class="params">(Context context)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//独立的关注的接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IFollow</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">follow</span><span class="params">(Context context)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//所有行为接口的集合</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserState</span> <span class="keyword">extends</span> <span class="title">ICollect</span>,<span class="title">IFollow</span></span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>总结：</strong><ul>
+<li>状态模式的关键点在于不同的状态下，对于同一行为有不同的响应，避免使用<code>if-else</code>或<code>switch-case</code>区分状态所带来的代码臃肿；在保持代码结构的清晰的同时还保证了扩展和维护性。</li>
+<li>随着状态的增加，系统类和对象的个数也会增加，使用不当会导致程序结构变得越来越庞大。</li>
+</ul>
+</li>
+</ul>
+<h4 id="6-备忘录模式（Memento）"><a href="#6-备忘录模式（Memento）" class="headerlink" title="6. 备忘录模式（Memento）"></a>6. 备忘录模式（Memento）</h4><ul>
+<li>定义：在不破坏封闭的前提下，将对象的当前内部状态保存到对象之外，之后可以再次恢复到此对象。（典型的例子就是游戏存档和读档的这个行为）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200703/090135433.webp" alt="mark"></p>
+<ul>
+<li><strong>Originator:</strong> 发起者，负责创建一个备忘录，并且可以记录，恢复自身的内部状态。可以根据需要决定<code>Memeto</code>保存自身的那些内部状态。</li>
+<li><strong>Memento:</strong>备忘录，用于存储<code>Originator</code>的状态，防止<code>Originator</code>以外的对象访问<code>Memento</code></li>
+<li><strong>Caretaker</strong> : 备忘录管理者，负责存储备忘录，不能对备忘录的内容进行操作和访问，只能将备忘录传递给其他对象。</li>
+</ul>
+<p><strong>代码实现：</strong></p>
+<ul>
+<li>发起者通过创建一个新的备忘录对象来保存自己的内部状态</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//看出其模式的封闭性，对于状态得存储只有Originator知道</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Originator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String state;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建一个新的备忘录对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Memento <span class="title">createMemento</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Memento(state);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将发起者的状态恢复到备忘录的状态</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">restore</span><span class="params">(Memento memento)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = memento.getState();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>备忘录，将发起人对象传入的状态存储起来。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Memento</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String state;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Memento</span><span class="params">(String state)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = state;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getState</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> state;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setState</span><span class="params">(String state)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = state;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>备忘录管理者，负责保存备忘录对象，但是从不修改（甚至不查看）备忘录对象的内容。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Caretaker</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Memento mMemento;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Memento <span class="title">restoreMemento</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mMemento;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">storeMemengto</span><span class="params">(Memento memento)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.mMemento = memento;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>基本上这就是备忘录模式的结构了，可以看出其模式的封闭性，对于状态的存储只有<code>Originator</code> 知道。</p>
+<p><strong>总结：</strong></p>
+<ul>
+<li>备忘录模式在不破坏封装性的条件下，通过备忘录对象存储另外一个对象的内部状态的快照，在将来合适的时候把这个对象还原到存储的状态。</li>
+</ul>
+<p><strong>优点：</strong></p>
+<ul>
+<li>给用户提供了一种可以恢复状态的机制，可以是用户能够方便的回到某个历史的状态</li>
+<li>实现了信息的封装，是的用户不需要关心状态的保存细节</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li><strong>现在很多序列化的技术已经比备忘录模式优秀很多</strong></li>
+</ul>
+<p><strong>JDK：</strong></p>
+<ul>
+<li>java.io.Serializable</li>
+</ul>
 <h2 id="三：结构型"><a href="#三：结构型" class="headerlink" title="三：结构型"></a>三：结构型</h2><h4 id="1-装饰者模式（Decorator）"><a href="#1-装饰者模式（Decorator）" class="headerlink" title="1. 装饰者模式（Decorator）"></a>1. 装饰者模式（Decorator）</h4><ul>
 <li>装饰者模式（Decorator Pattern）也称为包装模式（Wrapper Pattern），以透明动态的方式来动态扩展对象的功能，也是<strong>继承关系中一种代替方案</strong>。</li>
 <li><strong>装饰者模式与继承关系的目的都是要扩展对象的功能，但是装饰者模式可以提供比继承更多的灵活性。(减少代码的冗余)</strong></li>
@@ -1054,6 +1196,42 @@
 <li>java.lang.reflect.proxy</li>
 <li>java.lang.reflect.InvocationHandler</li>
 <li>Spring的 Aop</li>
+</ul>
+<h4 id="6-适配器模式（Adapter）"><a href="#6-适配器模式（Adapter）" class="headerlink" title="6. 适配器模式（Adapter）"></a>6. 适配器模式（Adapter）</h4><p>定义：此模式的作用就是兼容原本接口不匹配的两个类，起到桥梁的作用。</p>
+<h5 id="6-1-类的适配器模式"><a href="#6-1-类的适配器模式" class="headerlink" title="6.1 类的适配器模式"></a>6.1 类的适配器模式</h5><ul>
+<li>类的适配器模式：采用继承实现</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200701/085746124.webp" alt="mark"></p>
+<ul>
+<li>Target：目标接口，也就是期望得到的接口</li>
+<li>Adaptee：需要适配的接口</li>
+<li>Adapter：适配器，负责把<code>Adaptee</code>转换成<code>Target</code>的类</li>
+</ul>
+<p>不说远了，就说<strong>手机充电头</strong>，其实就是一个电源适配器，生活用电的电压是220v，而手机充电的电压是5v，所以这时候就需要使用到电源适配器将220v的电压转换为5v（如果你是直接插在插板的USB接口上的话，当我没说）。</p>
+<p>对应上面的UML图， 生活电压就是<code>Adaptee</code>，手机充电电压就是<code>Target</code>，不用多说，电源适配器自然就是<code>Adapter</code>了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Target接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Volt5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVolt5</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Adaptee类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Volt220</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVlot220</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">220</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Adapter类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VoltAdapter</span> <span class="keyword">extends</span> <span class="title">Volt220</span> <span class="keyword">implements</span> <span class="title">Volt5</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVolt5</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        VoltAdapter adapter = <span class="keyword">new</span> VoltAdapter();</span><br><span class="line">        System.out.println(<span class="string">"输出电压"</span> + adapter.getVolt5());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="6-2-对象适配器模式"><a href="#6-2-对象适配器模式" class="headerlink" title="6.2 对象适配器模式"></a>6.2 对象适配器模式</h5><ul>
+<li>与类适配器不同的是，<strong>对象适配器模式不使用继承关联链接<code>Adaptee</code> 类，而是使用代理关系连接到<code>Adaptee</code>类</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200701/090602860.webp" alt="mark"></p>
+<ul>
+<li>这种实现方式直接将要被适配的对象传递到<code>Adapter</code> 中，使用组合的形式实现接口的兼容效果。</li>
+<li>一般常用的适配器模式都是对象适配器模式</li>
+<li>还有就是<code>Adaptee</code> 对象不会被暴露出来，因为没有继承被适配的对象。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Target接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Volt5</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVolt5</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//Adaptee类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Volt220</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVlot220</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">220</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// Adapter类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VoltAdapter</span> <span class="keyword">implements</span> <span class="title">Volt5</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 组合的形式</span></span><br><span class="line">    Volt220 volt220;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">VoltAdapter</span><span class="params">(Volt220 volt220)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.volt220 = volt220;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVolt5</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getVolt220</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> volt220.getVlot220();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        VoltAdapter adapter = <span class="keyword">new</span> VoltAdapter(<span class="keyword">new</span> Volt220());</span><br><span class="line">        System.out.println(<span class="string">"输出电压"</span> + adapter.getVolt5());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>JDK:</strong></p>
+<ul>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#asList%28T...%29" target="_blank" rel="noopener">java.util.Arrays#asList()</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#list-java.util.Enumeration-" target="_blank" rel="noopener">java.util.Collections#list()</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/api/java/util/Collections.html#enumeration-java.util.Collection-" target="_blank" rel="noopener">java.util.Collections#enumeration()</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/javax/xml/bind/annotation/adapters/XmlAdapter.html#marshal-BoundType-" target="_blank" rel="noopener">javax.xml.bind.annotation.adapters.XMLAdapter</a></li>
 </ul>
 
       
