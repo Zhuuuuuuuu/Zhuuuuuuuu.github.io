@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    建造者模式 |  朱酱酱的学习博客
+    Leetcode-047-全排列II |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-GoF23/设计模式-建造者模式" class="article article-type-post" itemscope
+  <article id="post-Leetcode/Leetcode-047-全排列II" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  建造者模式
+  Leetcode-047-全排列II
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/03/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time datetime="2020-03-13T07:02:24.000Z" itemprop="datePublished">2020-03-13</time>
+      <a href="/2020/06/29/Leetcode/Leetcode-047-%E5%85%A8%E6%8E%92%E5%88%97II/" class="article-date">
+  <time datetime="2020-06-29T09:59:53.000Z" itemprop="datePublished">2020-06-29</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">58字</span>
+            <span class="post-count">926字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -99,13 +99,55 @@
       
 
       
-      <h1 id="建造者模式"><a href="#建造者模式" class="headerlink" title="建造者模式"></a>建造者模式</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><ul>
-<li>建造者模式是一种创建型模式</li>
+      <h1 id="Leetcode-047-全排列-II"><a href="#Leetcode-047-全排列-II" class="headerlink" title="Leetcode-047-全排列 II"></a>Leetcode-047-<a href="https://leetcode-cn.com/problems/permutations-ii/" target="_blank" rel="noopener">全排列 II</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个<strong>可包含重复数字</strong>的序列，返回所有不重复的全排列。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">示例:</span><br><span class="line"></span><br><span class="line">输入: [1,1,2]</span><br><span class="line">输出:</span><br><span class="line">[</span><br><span class="line">  [1,1,2],</span><br><span class="line">  [1,2,1],</span><br><span class="line">  [2,1,1]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<a id="more"></a>
+
+
+
+<h2 id="方法：回溯-剪枝"><a href="#方法：回溯-剪枝" class="headerlink" title="方法：回溯+剪枝"></a>方法：回溯+剪枝</h2><ul>
+<li><p>这一题是在「力扣」第 46 题： <a href="https://leetcode-cn.com/problems/permutations/" target="_blank" rel="noopener">“全排列”</a> 的基础上增加了“序列中的元素可重复”这一条件，但要求返回的结果又不能有重复元素。</p>
+</li>
+<li><p><strong>思路：在一定会产生重复的地方进行剪枝</strong></p>
+</li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200609/204939595.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200703/181206422.png" alt="mark"></p>
 <ul>
-<li>提供了一种创建对象的最佳方式</li>
-<li>用来创建一些复杂对象，不需要用户知道具体的建造方式</li>
+<li><strong>剪枝的方法</strong><ul>
+<li><strong>一个比较容易想到的方法就是在结果集里面去重，但是问题来了，这里的结果集里面是一个列表，对列表的去重可没有HashSet那么容易</strong></li>
+<li>如果要比较两个列表是否一样，<strong>一个很显然的办法就是排序，而且是一开始就进行排序，去除重复的选项</strong>。 一旦发现这一支搜索下去可能搜索到重复的元素就停止搜索，这样结果集中不会包含重复元素。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>产生重复结点的地方，正是图中标注了“剪刀”，且被绿色框框住的地方。</p>
+</li>
+<li><p>大家也可以把第 2 个 <code>1</code> 加上 <code>&#39;</code> ，即 <code>[1, 1&#39;, 2]</code> 去想象这个搜索的过程。只要遇到起点一样，就有可能产生重复。</p>
+<ul>
+<li><strong>这里有一个特别细节的地方</strong></li>
+<li><strong>在图中 ② 处，搜索的数也和上一次一样，但是上一次的 <code>1</code> 还在使用中；</strong></li>
+<li><strong>在图中 ① 处，搜索的数也和上一次一样，但是上一次的 <code>1</code> 刚刚被撤销，正是因为刚被撤销，下面的搜索中还会使用到，因此会产生重复，剪掉的就应该是这样的分支</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>代码实现：在第 46 题的基础上，要加上这样一段代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>] &amp;&amp; !used[i - <span class="number">1</span>]) &#123;</span><br><span class="line">    <span class="keyword">continue</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 思想：在一定会产生重复结果集的地方剪枝</span></span><br><span class="line"><span class="comment">// 一个比较容易想到的办法是在结果集中去重。</span></span><br><span class="line"><span class="comment">// 但是问题又来了，这些结果集的元素是一个又一个列表，对列表去重不像用哈希表对基本元素去重那样容易。</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; permuteUnique(<span class="keyword">int</span>[] nums) &#123;</span><br><span class="line">        <span class="comment">// 结果集</span></span><br><span class="line">        List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 特判</span></span><br><span class="line">        <span class="keyword">if</span> (nums.length == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在搜索之前就要对元素进行排序：排序是剪枝的前提</span></span><br><span class="line">        <span class="comment">// 一旦发现这一支搜索下去可能会遇到重复的元素就停止搜索</span></span><br><span class="line">        Arrays.sort(nums);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span>[] used = <span class="keyword">new</span> <span class="keyword">boolean</span>[nums.length];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 全局唯一的辅助结果集</span></span><br><span class="line">        ArrayList&lt;Integer&gt; temp = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        backtrack(nums,<span class="number">0</span>,used,temp,res);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> depth, <span class="keyword">boolean</span>[] used, ArrayList&lt;Integer&gt; temp, List&lt;List&lt;Integer&gt;&gt; res)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 递归结束的条件</span></span><br><span class="line">        <span class="keyword">if</span> (depth == nums.length)&#123;</span><br><span class="line">            res.add(<span class="keyword">new</span> ArrayList&lt;&gt;(temp));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// for循环进行操作</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="comment">// 1. 如果当前数已经使用过</span></span><br><span class="line">            <span class="keyword">if</span> (used[i]) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 1. 剪枝条件 ： i &gt; 0 是为了保证 nums[i - 1] 有意义</span></span><br><span class="line">            <span class="comment">// 写！user[i] 是因为nums[i-1]在回溯的时候刚刚被撤销的选择的情况</span></span><br><span class="line">            <span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>] &amp;&amp; !used[i - <span class="number">1</span>])&#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 2. 做出选择</span></span><br><span class="line">            temp.add(nums[i]);</span><br><span class="line">            used[i] = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 3. backtrack</span></span><br><span class="line">            backtrack(nums,depth + <span class="number">1</span>,used,temp,res);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 4. 撤销选择</span></span><br><span class="line">            used[i] = <span class="keyword">false</span>;</span><br><span class="line">            temp.remove(temp.size() - <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>复杂度分析</strong>：（理由同第 46 题，重复元素越多，剪枝越多。但是计算复杂度的时候需要<strong>考虑最差情况</strong>。）</p>
+<ul>
+<li>时间复杂度： O(N*N!)</li>
+<li>空间复杂度： O(N*N!)</li>
 </ul>
 
       
@@ -174,14 +216,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/03/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/06/29/Leetcode/Leetcode-047-%E5%85%A8%E6%8E%92%E5%88%97II/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="tag">设计者模式</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95/" rel="tag">回溯算法</a></li></ul>
 
 
     </footer>
@@ -192,19 +234,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/03/14/Webfront/JavaScript/JavaScript-%E5%88%9D%E8%AE%A4%E8%AF%86/" class="article-nav-link">
+      <a href="/2020/06/30/Leetcode/Leetcode-046-%E5%85%A8%E6%8E%92%E5%88%97/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            JavaScript-初认识
+            Leetcode-046-全排列
           
         </div>
       </a>
     
     
-      <a href="/2020/03/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" class="article-nav-link">
+      <a href="/2020/06/28/assembly/%E6%B1%87%E7%BC%96-02-%E8%BF%9B%E5%88%B6/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">工厂模式</div>
+        <div class="article-nav-title">汇编-02-进制</div>
       </a>
     
   </nav>
