@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.2k字</span>
+            <span class="post-count">1.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">4分钟</span>
+            <span class="post-count">5分钟</span>
         </span>
     </span>
 </div>
@@ -241,7 +241,27 @@
 <li>时间复杂度：O(log<em>N</em>) &lt; O(N) </li>
 <li>空间复杂度：O(1)</li>
 </ul>
-<h2 id="题目2：34-在排序数组中查找元素的第一个和最后一个位置"><a href="#题目2：34-在排序数组中查找元素的第一个和最后一个位置" class="headerlink" title="题目2：34. 在排序数组中查找元素的第一个和最后一个位置"></a>题目2：<a href="https://leetcode-cn.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank" rel="noopener">34. 在排序数组中查找元素的第一个和最后一个位置</a></h2>
+<p>上述的做法实际上是将<strong>待搜索的区间分为了三个区间</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200705/164445962.png" alt="mark"></p>
+<p><strong>这种写法的弊端是：返回的边界问题（读者可以想一想弊端具体发生的情况）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200705/164615121.png" alt="mark"></p>
+<p><strong>接下来提供另外一种：二分查找的思想（排除法）</strong></p>
+<ul>
+<li><strong>mid被分到左边区间</strong></li>
+<li><strong>mid被分到右边区间</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200705/164822418.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200705/165100657.png" alt="mark"></p>
+<p><strong>死循环可能产生的原因：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200705/165635068.png" alt="mark"></p>
+<h2 id="题目2：35-搜索插入位置"><a href="#题目2：35-搜索插入位置" class="headerlink" title="题目2：35. 搜索插入位置"></a>题目2：<a href="https://leetcode-cn.com/problems/search-insert-position/" target="_blank" rel="noopener">35. 搜索插入位置</a></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">searchInsert</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (len == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 特判</span></span><br><span class="line">        <span class="keyword">if</span> (nums[len - <span class="number">1</span>] &lt; target)&#123;</span><br><span class="line">            <span class="keyword">return</span> len;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> left  = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> right = nums.length - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (left &lt; right)&#123;</span><br><span class="line">            <span class="keyword">int</span> mid = (left + right) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">            <span class="comment">// 什么时候不是解</span></span><br><span class="line">            <span class="comment">// 如果严格小于不是解</span></span><br><span class="line">            <span class="keyword">if</span> (nums[mid] &lt; target)&#123;</span><br><span class="line">                <span class="comment">// 下一轮搜索的区间是[mid + 1,right]</span></span><br><span class="line">                left = mid + <span class="number">1</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 相反的区间[left,mid]</span></span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> left;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析：</strong></p>
+<ul>
+<li>时间复杂度：O(logN)，这里 N 是数组的长度，每一次都将问题的规模缩减为原来的一半，因此时间复杂度是对数级别的；</li>
+<li>空间复杂度：O(1)。</li>
+</ul>
+
       
       <!-- reward -->
       
