@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3k字</span>
+            <span class="post-count">3.7k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">11分钟</span>
+            <span class="post-count">13分钟</span>
         </span>
     </span>
 </div>
@@ -177,7 +177,7 @@
 
 
 <ul>
-<li>只对等值查找(where)有效果，对范围查找没效果</li>
+<li><strong>只对等值查找(where)有效果，对范围查找没效果</strong></li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select XXX where id &#x3D; 1</span><br></pre></td></tr></table></figure>
 
@@ -227,7 +227,7 @@
 
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200606/104828872.png" alt="mark"></p>
 <h2 id="6-Mysql事务"><a href="#6-Mysql事务" class="headerlink" title="6. Mysql事务"></a>6. Mysql事务</h2><ul>
-<li><strong>事务的定义：事务会把数据会把数据库从一种一致的状态转换到另外一种一直的状态，在数据提交的工作时候，可以保证要么所有的修改都已经保存好了，要么所有的修改都不保存（要么成功，要么失败）</strong></li>
+<li><strong>事务的定义：事务会把数据会把数据库从一种一致的状态转换到另外一种一致的状态，在数据提交的工作时候，可以保证要么所有的修改都已经保存好了，要么所有的修改都不保存（要么成功，要么失败）</strong></li>
 <li><strong>对于Innodb而言，其默认的事务隔离级别是READ REPEATABLE,完全遵循和符合事务的ACID的特性</strong></li>
 </ul>
 <ul>
@@ -267,29 +267,33 @@
 <p><strong>核心：事务一旦提交则不可逆，被持久化到数据库中</strong></p>
 <p>操作前A：800，B：200<br>操作后A：600，B：400</p>
 <ul>
-<li>如果在操作前（事务还没提交）服务器宕机或者断电，那么重启数据库之后，数据状态应该为 A：800 B:200</li>
-<li>如果在操作后（事务已经提交）服务器宕机或者断电，那么重启数据库之后，数据状态应该为 A:600 B : 400</li>
+<li>如果在操作前（事务还没提交）服务器宕机或者断电，那么重启数据库之后，数据状态应该为 A：800 B:  200</li>
+<li>如果在操作后（事务已经提交）服务器宕机或者断电，那么重启数据库之后，数据状态应该为 A:   600 B : 400</li>
 </ul>
 <h3 id="6-2-并发操作带来的隔离性的问题"><a href="#6-2-并发操作带来的隔离性的问题" class="headerlink" title="6.2 并发操作带来的隔离性的问题"></a>6.2 并发操作带来的隔离性的问题</h3><ul>
 <li><strong>并发操作带来的隔离性的问题：本质上是锁带来的问题</strong></li>
 </ul>
+<p><strong>写的还可以的参考博客</strong>：<a href="https://www.cnblogs.com/shan-kylin/p/9543294.html" target="_blank" rel="noopener">https://www.cnblogs.com/shan-kylin/p/9543294.html</a></p>
 <ol>
 <li><strong>脏读：一个事务读取了另一个事务未提交的数据</strong></li>
 </ol>
 <p>首先分清楚脏页和脏数据的完全不同的概念</p>
 <ul>
-<li>脏页：缓冲池中已经修改的页，但还没有刷新到磁盘中，即数据库中的页和磁盘中的页数据是不一样的。</li>
-<li>脏数据：事务对缓冲池中行记录的修改，并且还没有提交</li>
+<li><strong>脏页</strong>： 缓冲池中已经修改的页，但还没有刷新到磁盘中，即数据库中的页和磁盘中的页数据是不一样的。</li>
+<li><strong>脏数据：</strong>事务对缓冲池中行记录的修改，并且还没有提交</li>
 </ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200814-103338999.png" alt="mark"></p>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200225114310.png" alt=""></p>
 <ol start="2">
 <li><strong>不可重复读：</strong></li>
 </ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200814-103849043.png" alt="mark"></p>
 <ul>
 <li>在一个事务中多次读取同一个数据集合，在这个事务还没有结束的时候，另外一个事务也访问该同一个数据集合，并做了一些DML操作。因此在第一个事务中两次读取数据之间，由于第二个事务的修改，那么第一个事务两次读到的数据可能不一样，这种情况叫做不可重复读。</li>
-<li>与脏读的区别是，不可重复读读到的是已提交的数据，脏读独到的是未提交的数据。</li>
+<li><strong>与脏读的区别是，不可重复读读到的是已提交的数据，脏读读到的是未提交的数据。</strong></li>
 </ul>
 <p>不可重复读（Non-repeatable Reads）：一个事务对同一行数据重复读取两次，但是却得到了不同的结果。</p>
+<p><strong>解决方法——引入隔离级别更高事务隔离：可重复读</strong></p>
 <p>包括以下情况：</p>
 <ul>
 <li><strong>虚读</strong>：事务T1读取某一数据后，事务T2对其做了修改，当事务T1再次读取该数据时得到与前一次不同的值。</li>
@@ -299,8 +303,10 @@
 <ol start="3">
 <li><strong>丢失更新</strong></li>
 </ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200814-100411279.png" alt="mark"></p>
+<p>很明显的看出，旺财对A添加的20块不翼而飞了，这就是<strong>“数据丢失”，</strong>对事务不加任何锁（不存在事务隔离），就会导致这种问题。</p>
 <ul>
-<li><strong>简单的来说就是一个事务的更新操作会被另外一个事务的更新操作锁覆盖。</strong></li>
+<li><strong>简单的来说就是一个事务的更新操作会被另外一个事务的更新操作所覆盖。</strong></li>
 <li><strong>要解决这个问题需要让事务的操作变成串行化，而不是并行操作。（Select … for update : 读的时候加一把排他锁）</strong></li>
 </ul>
 <p>逻辑意义的丢失更新出现的场景：</p>
@@ -312,12 +318,35 @@
 </ol>
 <h3 id="6-3-事务的隔离级别"><a href="#6-3-事务的隔离级别" class="headerlink" title="6.3 事务的隔离级别"></a>6.3 事务的隔离级别</h3><p>为了避免上面出现的几种情况，在标准SQL规范中，定义了4个事务隔离级别，不同的隔离级别对事务的处理不同。</p>
 <ul>
-<li><strong>读未提交（Read Uncommitted）</strong> ： <strong>只处理更新丢失</strong>。如果一个事务已经开始写数据，则不允许其他事务进行写操作，但允许其他事务读慈航数据。可通过“排他写锁”实现。（ 在该隔离级别，所有事务都可以看到其他未提交事务的执行结果。）</li>
-<li><strong>读已提交（Read Committed）</strong>：<strong>处理更新丢失，脏读</strong>。读取数据的事务允许其他事务继续访问修改数据，但是未提交的写事务会禁止其他事务访问修改。可通过“瞬间共享读锁”和“排他写锁”实现。（它满足了隔离的简单定义：一个事务只能看见已经提交事务所做的改变。）</li>
-<li><strong>可重复读（Repeatable Read）:</strong> <strong>处理更新丢失，脏读和不可重复读。</strong>读取数据的事务会进制写事务，但允许读事务，写事务则禁止任何其他事务。可通过“共享读锁”和“排他写锁”实现。（Mysql在REPEATABLE READ 事务隔离的级别下，使用next-key-lock算法，来避免幻读的产生。）（Mysql 默认的隔离级别，它保证同一个事务在多个实例并发读取的时候，会看到同样的数据行。）</li>
+<li><strong>读未提交（Read Uncommitted）</strong> ： <strong>只处理更新丢失</strong>。如果一个事务已经开始写数据，则不允许其他事务进行写操作，但允许其他事务读数据。可通过“排他写锁”实现。（ <strong>在该隔离级别，所有事务都可以看到其他未提交事务的执行结果。）</strong></li>
+<li>简单一句话：操作：写数据的时候添加一个X锁（排他锁），也就是在写数据的时候不允许其他事务进行写操作，但是读不受限制，读不加锁。（这样就可以解决了多个人一起写数据而导致了“数据丢失”的问题，但是会引发新的问题——脏读。）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200814-100613256.png" alt="mark"></p>
+<ul>
+<li><strong>读已提交（Read Committed）</strong>：<strong>处理更新丢失，脏读</strong>。读取数据的事务允许其他事务继续访问修改数据，但是未提交的写事务会禁止其他事务访问修改。可通过“瞬间共享读锁”和“排他写锁”实现。<strong>（它满足了隔离的简单定义：一个事务只能看见已经提交事务所做的改变。）</strong></li>
+</ul>
+<p>操作：写数据的时候加上X锁（排他锁），读数据的时候添加S锁（共享锁），而且有约定：<strong>如果一个数据加了X锁就没法加S锁；同理如果加了S锁就没法加X锁，但是一个数据可以同时存在多个S锁（因为只是读数据），并且规定S锁读取数据，一旦读取完成就立刻释放S锁（不管后续是否还有很多其他的操作，只要是读取了S锁的数据后，就立刻释放S锁）。</strong></p>
+<p>这样就解决了脏读的问题，但是又有新的问题出现——不可重复读。</p>
+<p>解决方法——引入隔离级别更高事务隔离：可重复读</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200814-103749910.png" alt="mark"></p>
+<ul>
+<li><strong>可重复读（Repeatable Read）:</strong> <strong>处理更新丢失，脏读和不可重复读。</strong>读取数据的事务会禁止写事务，但允许读事务，写事务则禁止任何其他事务。可通过“共享读锁”和“排他写锁”实现。（Mysql在REPEATABLE READ 事务隔离的级别下，使用next-key-lock算法，来避免幻读的产生。）（Mysql 默认的隔离级别，它保证同一个事务在多个实例并发读取的时候，会看到同样的数据行。）</li>
+</ul>
+<p><strong>操作：对S锁进行修改，之前的S锁是：读取了数据之后就立刻释放S锁，现在修改是：在读取数据的时候加上S锁，但是要直到事务准备提交了才释放该S锁，X锁还是一致。</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200814-104055542.png" alt="mark"></p>
+<p><strong>这样就解决了不可重复读的问题了，但是又有新的问题出现——幻读。</strong></p>
+<p>例如：</p>
+<p>有一次旺财对一个“学生表”进行操作，选取了年龄是18岁的所有行， 用X锁锁住， 并且做了修改。</p>
+<p>改完以后旺财再次选择所有年龄是18岁的行， 想做一个确认， 没想到有一行竟然没有修改！</p>
+<p>这是怎么回事？ 出了幻觉吗？</p>
+<p>原来就在旺财查询并修改的的时候， 小强也对学生表进行操作， 他插入了一个新的行，其中的年龄也是18岁！ 虽然两个人的修改都没有问题， 互不影响， 但从最终效果看， 还是出了事。</p>
+<p>（<strong>码农翻身注： 正是小强的操作， 让旺财出现了“幻读”）</strong></p>
+<p>解决幻读的方式——串行化</p>
+<ul>
 <li><strong>序列化（Serializable）</strong> ： <strong>提供严格的事务隔离级别</strong>。要求失去序列化执行，事务只能一个一个的执行，不能并发的执行。仅仅通过“行级锁”是无法实现事务序列化的，必须通过其他机制保证新插入的数据不会被刚执行查询操作的事务访问到。（<strong>主要用于Innodb的分布式事务</strong>）（最高的隔离级别，它通过强制事务排序，使之不可能相互冲突，从而解决幻读的问题，简而言之，就是在每个读的数据行上加上共享锁。）</li>
 </ul>
-<p>注意：</p>
+<p><strong>事务只能一件一件的进行，不能并发进行。</strong></p>
+<p><strong>注意：</strong></p>
 <ul>
 <li><strong><em>隔离级别越高，越能保证数据的完整性和统一性，但是对并发性能的影响也越大。</em></strong></li>
 <li><strong><em>对于多数应用程序，可以优先考虑把数据库系统的隔离级别设为Read Committed。它能够避免脏读，而且具有较好的并发性能。</em></strong></li>

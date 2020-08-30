@@ -75,7 +75,7 @@
     
     
     
-    <article id="post-JUC/JUC-02-生产者消费者" class="article article-type-post" itemscope
+    <article id="post-Leetcode/Leetcode-125-验证回文串" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -83,8 +83,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/18/JUC/JUC-02-%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85/"
-    >JUC-02-生产者消费者</a
+  <a class="article-title" href="/2020/05/20/Leetcode/Leetcode-125-%E9%AA%8C%E8%AF%81%E5%9B%9E%E6%96%87%E4%B8%B2/"
+    >Leetcode-125-验证回文串</a
   >
 </h2>
   
@@ -94,8 +94,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/18/JUC/JUC-02-%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85/" class="article-date">
-  <time datetime="2020-04-18T06:02:24.000Z" itemprop="datePublished">2020-04-18</time>
+      <a href="/2020/05/20/Leetcode/Leetcode-125-%E9%AA%8C%E8%AF%81%E5%9B%9E%E6%96%87%E4%B8%B2/" class="article-date">
+  <time datetime="2020-05-20T07:22:53.000Z" itemprop="datePublished">2020-05-20</time>
 </a>
       
       
@@ -113,188 +113,14 @@
       
 
       
-      <h1 id="JUC-02-生产者消费者"><a href="#JUC-02-生产者消费者" class="headerlink" title="JUC-02-生产者消费者"></a>JUC-02-生产者消费者</h1><h2 id="1-Synchronized-版本"><a href="#1-Synchronized-版本" class="headerlink" title="1. Synchronized 版本"></a>1. Synchronized 版本</h2><p>双线程案例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.PC;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">线程之间的通信问题：</span></span><br><span class="line"><span class="comment">线程交替执行： A B 操作同一个变量 num = 0</span></span><br><span class="line"><span class="comment">A num + 1</span></span><br><span class="line"><span class="comment">B num - 1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Data data = <span class="keyword">new</span> Data();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    data.increment();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    data.decrement();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 资源类</span></span><br><span class="line"><span class="comment">// 等待 业务 通知</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// + 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 等待 业务 通知</span></span><br><span class="line">        <span class="keyword">if</span> (number != <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">// 等待操作</span></span><br><span class="line">            <span class="keyword">this</span>.wait();</span><br><span class="line">        &#125;</span><br><span class="line">        number ++;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"---&gt;"</span>+number);</span><br><span class="line">        <span class="comment">// 通知线程 + 1完毕</span></span><br><span class="line">        <span class="keyword">this</span>.notifyAll();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// - 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">decrement</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 等待 业务 通知</span></span><br><span class="line">        <span class="keyword">if</span> (number == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">this</span>.wait();</span><br><span class="line">        &#125;</span><br><span class="line">        number --;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"---&gt;"</span>+number);</span><br><span class="line">        <span class="comment">// 通知线程 - 1完毕</span></span><br><span class="line">        <span class="keyword">this</span>.notifyAll();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>存在的问题（如果增加线程）：</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            data.increment();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">"C"</span>).start();</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            data.decrement();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">"D"</span>).start();</span><br></pre></td></tr></table></figure>
-
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/150419965.png" alt="mark"></p>
-<h3 id="1-1-虚假唤醒问题"><a href="#1-1-虚假唤醒问题" class="headerlink" title="1.1 虚假唤醒问题"></a>1.1 虚假唤醒问题</h3><p><strong>产生的原因：虚假唤醒问题</strong></p>
-<p>在java.lang.object (wait()方法)</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/150950718.png" alt="mark"></p>
-<p><strong>解决方法：if 改为 while</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 资源类</span></span><br><span class="line"><span class="comment">// 等待 业务 通知</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// + 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 等待 业务 通知</span></span><br><span class="line">        <span class="keyword">while</span> (number != <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">// 等待操作</span></span><br><span class="line">            <span class="keyword">this</span>.wait();</span><br><span class="line">        &#125;</span><br><span class="line">        number ++;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"---&gt;"</span>+number);</span><br><span class="line">        <span class="comment">// 通知线程 + 1完毕</span></span><br><span class="line">        <span class="keyword">this</span>.notifyAll();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// - 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">decrement</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 等待 业务 通知</span></span><br><span class="line">        <span class="keyword">while</span> (number == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">this</span>.wait();</span><br><span class="line">        &#125;</span><br><span class="line">        number --;</span><br><span class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"---&gt;"</span>+number);</span><br><span class="line">        <span class="comment">// 通知线程 - 1完毕</span></span><br><span class="line">        <span class="keyword">this</span>.notifyAll();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="2-JUC-版本"><a href="#2-JUC-版本" class="headerlink" title="2. JUC 版本"></a>2. JUC 版本</h2><p>Condition 接口：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/153721622.png" alt="mark"></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 例如，假设我们有一个有限的缓冲区，它支持put和take方法。 如果在一个空的缓冲区尝试一个take ，则线程将阻塞直到一个项目可用; 如果put试图在一个完整的缓冲区，那么线程将阻塞，直到空间变得可用。 我们希望在单独的等待集中等待put线程和take线程，以便我们可以在缓冲区中的项目或空间可用的时候使用仅通知单个线程的优化。 这可以使用两个Condition实例来实现。 </span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">BoundedBuffer</span> </span>&#123;</span><br><span class="line">   <span class="keyword">final</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">   <span class="keyword">final</span> Condition notFull  = lock.newCondition(); </span><br><span class="line">   <span class="keyword">final</span> Condition notEmpty = lock.newCondition(); </span><br><span class="line"></span><br><span class="line">   <span class="keyword">final</span> Object[] items = <span class="keyword">new</span> Object[<span class="number">100</span>];</span><br><span class="line">   <span class="keyword">int</span> putptr, takeptr, count;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Object x)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">     lock.lock(); </span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="keyword">while</span> (count == items.length)</span><br><span class="line">         notFull.await();</span><br><span class="line">       items[putptr] = x;</span><br><span class="line">       <span class="keyword">if</span> (++putptr == items.length) putptr = <span class="number">0</span>;</span><br><span class="line">       ++count;</span><br><span class="line">       notEmpty.signal();</span><br><span class="line">     &#125; <span class="keyword">finally</span> &#123; lock.unlock(); &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> Object <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">     lock.lock(); </span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="keyword">while</span> (count == <span class="number">0</span>)</span><br><span class="line">         notEmpty.await();</span><br><span class="line">       Object x = items[takeptr];</span><br><span class="line">       <span class="keyword">if</span> (++takeptr == items.length) takeptr = <span class="number">0</span>;</span><br><span class="line">       --count;</span><br><span class="line">       notFull.signal();</span><br><span class="line">       <span class="keyword">return</span> x;</span><br><span class="line">     &#125; <span class="keyword">finally</span> &#123; lock.unlock(); &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>和之前的对比：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200418/153847549.png" alt="mark"></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.PC;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Lock;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">        Data2 data2 = <span class="keyword">new</span> Data2();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    data2.increment();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    data2.decrement();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    data2.increment();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"C"</span>).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    data2.decrement();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"D"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 资源类</span></span><br><span class="line"><span class="comment">// 等待 业务 通知</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data2</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Condition取代了对象监视器</span></span><br><span class="line">    Condition condition = lock.newCondition();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// + 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (number != <span class="number">0</span>)&#123;</span><br><span class="line">                <span class="comment">// 等待操作</span></span><br><span class="line">                condition.await();</span><br><span class="line">            &#125;</span><br><span class="line">            number ++;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"---&gt;"</span>+number);</span><br><span class="line">            <span class="comment">// 通知线程 + 1完毕</span></span><br><span class="line">            condition.signalAll();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// - 1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">decrement</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 等待 业务 通知</span></span><br><span class="line">            <span class="keyword">while</span> (number == <span class="number">0</span>)&#123;</span><br><span class="line">                condition.await();</span><br><span class="line">            &#125;</span><br><span class="line">            number --;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"---&gt;"</span>+number);</span><br><span class="line">            <span class="comment">// 通知线程 - 1完毕</span></span><br><span class="line">            condition.signalAll();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>现在有了新的需求：</strong></p>
-<p><strong>之前：A,B,C,D 四条线程是无序的</strong></p>
-<p><strong>现在 要求 按照A B C D的顺序唤醒线程</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.PC;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Lock;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用于生产线 ： 下单 = 》 支付 = 》 到货</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">C</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        Data3 data3 = <span class="keyword">new</span> Data3();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                data3.printA();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"A"</span>).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                data3.printB();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"B"</span>).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                data3.printC();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">"C"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 资源类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Data3</span></span>&#123;</span><br><span class="line">    <span class="comment">// 要求 A 执行完 调用 B 执行完 调用 C</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">    Condition condition1 = lock.newCondition();</span><br><span class="line">    Condition condition2 = lock.newCondition();</span><br><span class="line">    Condition condition3 = lock.newCondition();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printA</span><span class="params">()</span></span>&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="comment">// 判断 业务 通知</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (number != <span class="number">1</span>)&#123;</span><br><span class="line">                <span class="comment">// 等待</span></span><br><span class="line">                condition1.await();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName()+<span class="string">"-&gt;A"</span>);</span><br><span class="line">            <span class="comment">// 唤醒指定的人</span></span><br><span class="line">            number = <span class="number">2</span>;</span><br><span class="line">            condition2.signal();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printB</span><span class="params">()</span></span>&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (number != <span class="number">2</span>)&#123;</span><br><span class="line">                condition2.await();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 唤醒3</span></span><br><span class="line">            number = <span class="number">3</span>;</span><br><span class="line">            condition3.signal();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">printC</span><span class="params">()</span></span>&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (number != <span class="number">3</span>)&#123;</span><br><span class="line">                condition3.await();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 唤醒A</span></span><br><span class="line">            number = <span class="number">1</span>;</span><br><span class="line">            condition1.signal();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-JUC/JUC-01-简介" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/17/JUC/JUC-01-%E7%AE%80%E4%BB%8B/"
-    >JUC-01-简介</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/04/17/JUC/JUC-01-%E7%AE%80%E4%BB%8B/" class="article-date">
-  <time datetime="2020-04-17T04:02:24.000Z" itemprop="datePublished">2020-04-17</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="JUC-01-简介"><a href="#JUC-01-简介" class="headerlink" title="JUC-01-简介"></a>JUC-01-简介</h1><h2 id="1-JUC-简介"><a href="#1-JUC-简介" class="headerlink" title="1. JUC 简介"></a>1. JUC 简介</h2><ul>
-<li><strong>JUC即java.util.concurrent(java的工具包)</strong></li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200416/220702037.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/04/17/JUC/JUC-01-%E7%AE%80%E4%BB%8B/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Communication/通信原理笔记-11-差错控制编码" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/17/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-11-%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E7%BC%96%E7%A0%81/"
-    >通信原理-11-差错控制编码</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/04/17/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-11-%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E7%BC%96%E7%A0%81/" class="article-date">
-  <time datetime="2020-04-17T03:02:24.000Z" itemprop="datePublished">2020-04-17</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="差错控制编码"><a href="#差错控制编码" class="headerlink" title="差错控制编码"></a>差错控制编码</h1><p><strong>目的：提高通信的可靠性</strong></p>
-<p>（原因：数字通信可能因为各种干扰（乘性，加性），使传送的数据流产生误码。）</p>
-<p>本质：是纠错编码，是一种<strong>信道编码</strong>。</p>
-<p>举个例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">发送   0	0	1	1	1	0	0	0	1	0	0</span><br><span class="line">接受	 0	0	0	0	1	0	1	0	1	0	0</span><br></pre></td></tr></table></figure>
-
-
-
+      <h1 id="Leecode-125-Valid-Palindrome"><a href="#Leecode-125-Valid-Palindrome" class="headerlink" title="Leecode-125-Valid Palindrome"></a>Leecode-125-<a href="https://leetcode-cn.com/problems/valid-palindrome/" target="_blank" rel="noopener">Valid Palindrome</a></h1><h2 id="思路：双指针"><a href="#思路：双指针" class="headerlink" title="思路：双指针"></a>思路：双指针</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个字符串，验证它是否是回文串，</p>
 <ul>
-<li>针对乘性干扰：采用均衡的措施（频域均衡，时域均衡）</li>
-<li><strong>针对加性干扰：合理选择调制方法/解调方法  ，增大发射功率。</strong></li>
+<li><strong>只考虑字母和数字字符，</strong>  (Character.isLettorOrDigit())</li>
+<li><strong>可以忽略字母的大小写。</strong>（toLowerCase()）</li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入: &quot;A man, a plan, a canal: Panama&quot;</span><br><span class="line">输出: true</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">输入: &quot;race a car&quot;</span><br><span class="line">输出: false</span><br></pre></td></tr></table></figure>
       
-      <a class="article-more-link" href="/2020/04/17/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-11-%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6%E7%BC%96%E7%A0%81/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/20/Leetcode/Leetcode-125-%E9%AA%8C%E8%AF%81%E5%9B%9E%E6%96%87%E4%B8%B2/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -305,7 +131,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/" rel="tag">通信原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
 
 
     </footer>
@@ -322,7 +148,7 @@
 
 </article>
     
-    <article id="post-Redis/Redis-12-缓存穿透和雪崩" class="article article-type-post" itemscope
+    <article id="post-Project/开源项目-01-ELAdmin" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -330,8 +156,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/16/Redis/Redis-12-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/"
-    >Redis-12-缓存穿透和雪崩</a
+  <a class="article-title" href="/2020/05/20/Project/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE-01-ELAdmin/"
+    >��Դ��Ŀ-01-ELAdmin</a
   >
 </h2>
   
@@ -341,8 +167,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/16/Redis/Redis-12-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" class="article-date">
-  <time datetime="2020-04-16T10:32:24.000Z" itemprop="datePublished">2020-04-16</time>
+      <a href="/2020/05/20/Project/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE-01-ELAdmin/" class="article-date">
+  <time datetime="2020-05-20T03:02:24.000Z" itemprop="datePublished">2020-05-20</time>
 </a>
       
       
@@ -360,11 +186,17 @@
       
 
       
-      <h1 id="Redis-12-缓存穿透和雪崩"><a href="#Redis-12-缓存穿透和雪崩" class="headerlink" title="Redis-12-缓存穿透和雪崩"></a>Redis-12-缓存穿透和雪崩</h1><p><strong>以下都是服务器的高可用问题</strong></p>
-<p><strong>面试高频，工作常用</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200416/183833025.png" alt="mark"></p>
+      <h1 id="��Դ��L-01-ELAdmin"><a href="#��Դ��L-01-ELAdmin" class="headerlink" title="��Դ��Ŀ-01-ELAdmin"></a>��Դ��Ŀ-01-ELAdmin</h1><h2 id="j��"><a href="#j��" class="headerlink" title="ǰ��"></a>ǰ��</h2><p>����ܻ�����඼ok��ʱ���������Ҹ���Դ��Ŀ��һ����</p>
+<p>�����и�����Ŀ�Դǰ��˷�����Ŀ-ELAdmin</p>
+<p>[][<a href="https://docs.auauz.net/]" target="_blank" rel="noopener">https://docs.auauz.net/]</a></p>
+<p>[][<a href="https://docs.auauz.net/]" target="_blank" rel="noopener">https://docs.auauz.net/]</a></p>
+<p>[����][<a href="https://docs.auauz.net/]" target="_blank" rel="noopener">https://docs.auauz.net/]</a></p>
+<p>[Gitee���ص�ַ��ǰ��][<a href="https://gitee.com/elunez/eladmin-web]" target="_blank" rel="noopener">https://gitee.com/elunez/eladmin-web]</a></p>
+<p>[Gitee���ص�ַ�����][<a href="https://gitee.com/elunez/eladmin]" target="_blank" rel="noopener">https://gitee.com/elunez/eladmin]</a></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200520/111839444.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200520/111901387.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/04/16/Redis/Redis-12-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/20/Project/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE-01-ELAdmin/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -375,7 +207,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/j%EF%BF%BD%EF%BF%BD%CB%B7%EF%BF%BD%EF%BF%BD%EF%BF%BD/" rel="tag">ǰ��˷���</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%EF%BF%BD%EF%BF%BD%D4%B4%EF%BF%BD%EF%BF%BDL/" rel="tag">��Դ��Ŀ</a></li></ul>
 
 
     </footer>
@@ -392,7 +224,7 @@
 
 </article>
     
-    <article id="post-Redis/Redis-11-主从复制" class="article article-type-post" itemscope
+    <article id="post-Spring/Spring-08-声明式事务" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -400,8 +232,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/15/Redis/Redis-11-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/"
-    >Redis-11-主从复制</a
+  <a class="article-title" href="/2020/05/20/Spring/Spring-08-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/"
+    >Spring-08-声明式事务</a
   >
 </h2>
   
@@ -411,8 +243,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/15/Redis/Redis-11-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" class="article-date">
-  <time datetime="2020-04-15T12:02:24.000Z" itemprop="datePublished">2020-04-15</time>
+      <a href="/2020/05/20/Spring/Spring-08-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="article-date">
+  <time datetime="2020-05-20T00:22:24.000Z" itemprop="datePublished">2020-05-20</time>
 </a>
       
       
@@ -430,11 +262,10 @@
       
 
       
-      <h1 id="Redis-11-主从复制"><a href="#Redis-11-主从复制" class="headerlink" title="Redis-11-主从复制"></a>Redis-11-主从复制</h1><h2 id="1-概念介绍"><a href="#1-概念介绍" class="headerlink" title="1. 概念介绍"></a>1. 概念介绍</h2><p>前面介绍Redis，我们都在一台服务器上进行操作的，也就是说读和写以及备份操作都是在一台Redis服务器上进行的，那么随着项目访问量的增加，对Redis服务器的操作也越加频繁，虽然Redis读写速度都很快，但是一定程度上也会造成一定的延时，那么为了解决访问量大的问题，通常会采取的一种方式是主从架构Master/Slave，Master 以写为主，Slave 以读为主，Master 主节点更新后根据配置，自动同步到从机Slave 节点。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200415/203631206.png" alt="mark"></p>
-<p><strong>最低需要一主二从（三台服务器）</strong></p>
+      <h1 id="Spring-08-声明式事务"><a href="#Spring-08-声明式事务" class="headerlink" title="Spring-08-声明式事务"></a>Spring-08-声明式事务</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>官网mybatis-spring : <a href="http://mybatis.org/spring/zh/index.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/index.html</a></p>
       
-      <a class="article-more-link" href="/2020/04/15/Redis/Redis-11-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/20/Spring/Spring-08-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -445,7 +276,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
 
 
     </footer>
@@ -462,7 +293,7 @@
 
 </article>
     
-    <article id="post-Redis/Redis-10-发布订阅" class="article article-type-post" itemscope
+    <article id="post-Spring/Spring-09-CGLIB" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -470,8 +301,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/15/Redis/Redis-10-%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/"
-    >Redis-10-发布订阅</a
+  <a class="article-title" href="/2020/05/20/Spring/Spring-09-CGLIB/"
+    >Spring-09-CGLIB</a
   >
 </h2>
   
@@ -481,8 +312,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/15/Redis/Redis-10-%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/" class="article-date">
-  <time datetime="2020-04-15T11:02:24.000Z" itemprop="datePublished">2020-04-15</time>
+      <a href="/2020/05/20/Spring/Spring-09-CGLIB/" class="article-date">
+  <time datetime="2020-05-20T00:22:24.000Z" itemprop="datePublished">2020-05-20</time>
 </a>
       
       
@@ -500,89 +331,16 @@
       
 
       
-      <h1 id="Redis-10-发布订阅"><a href="#Redis-10-发布订阅" class="headerlink" title="Redis-10-发布订阅"></a>Redis-10-发布订阅</h1><h2 id="1-原理简介"><a href="#1-原理简介" class="headerlink" title="1. 原理简介"></a>1. 原理简介</h2><p>进程间的一种消息通信模式：发送者(pub)发送消息，订阅者(sub)接收消息。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200415/201954003.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/04/15/Redis/Redis-10-%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Communication/通信原理笔记-10-信源编码" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/15/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-10-%E4%BF%A1%E6%BA%90%E7%BC%96%E7%A0%81/"
-    >通信原理-10-信源编码</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/04/15/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-10-%E4%BF%A1%E6%BA%90%E7%BC%96%E7%A0%81/" class="article-date">
-  <time datetime="2020-04-15T03:02:24.000Z" itemprop="datePublished">2020-04-15</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="1-时分复用TDM"><a href="#1-时分复用TDM" class="headerlink" title="1. 时分复用TDM"></a>1. 时分复用TDM</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p><strong>（书P9页）</strong></p>
-<p>传输多路信号有三种基本复用方式</p>
+      <h1 id="Spring-09-CGLIB"><a href="#Spring-09-CGLIB" class="headerlink" title="Spring-09-CGLIB"></a>Spring-09-CGLIB</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200805-150918958.png" alt="mark"></p>
 <ul>
-<li>频分复用</li>
-<li>时分复用</li>
-<li>码分复用</li>
-<li>空分复用（了解即可）</li>
+<li>CGLIB代理主要通过对字节码的操作，为对象引入间接级别，以控制对象的访问。</li>
+<li>我们知道Java中有一个动态代理也是做这个事情的，那我们为什么不直接使用Java动态代理，而要使用CGLIB呢？<strong>答案是CGLIB相比于JDK动态代理更加强大，JDK动态代理虽然简单易用，但是其有一个致命缺陷是，只能对接口进行代理</strong>。</li>
+<li>如果要代理的类为一个普通类、没有接口，那么Java动态代理就没法使用了。</li>
 </ul>
-<p>频分复用：用频谱搬移（<strong>调制</strong>）的方法使不同信号占据不同的频率范围</p>
-<p>时分复用：用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</p>
-<p>码分复用：用正交编码的方法分别携带不同的信号。</p>
-<p><strong>要想理解TDM，必须先要理解信源编码（抽样，量化，编码）</strong></p>
+<p>CGLIB底层使用了ASM（一个短小精悍的字节码操作框架）来操作字节码生成新的类。除了CGLIB库外，脚本语言（如Groovy何BeanShell）也使用ASM生成字节码。ASM使用类似SAX的解析器来实现高性能</p>
       
-      <a class="article-more-link" href="/2020/04/15/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-10-%E4%BF%A1%E6%BA%90%E7%BC%96%E7%A0%81/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/20/Spring/Spring-09-CGLIB/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -593,7 +351,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/" rel="tag">通信原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
 
 
     </footer>
@@ -610,7 +368,7 @@
 
 </article>
     
-    <article id="post-Redis/Redis-09-持久化" class="article article-type-post" itemscope
+    <article id="post-Spring/Spring-10-Bean的生命周期" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -618,8 +376,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/14/Redis/Redis-09-%E6%8C%81%E4%B9%85%E5%8C%96/"
-    >Redis-09-持久化</a
+  <a class="article-title" href="/2020/05/20/Spring/Spring-10-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/"
+    >Spring-10-Bean的生命周期</a
   >
 </h2>
   
@@ -629,8 +387,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/14/Redis/Redis-09-%E6%8C%81%E4%B9%85%E5%8C%96/" class="article-date">
-  <time datetime="2020-04-14T13:02:24.000Z" itemprop="datePublished">2020-04-14</time>
+      <a href="/2020/05/20/Spring/Spring-10-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" class="article-date">
+  <time datetime="2020-05-20T00:22:24.000Z" itemprop="datePublished">2020-05-20</time>
 </a>
       
       
@@ -648,14 +406,31 @@
       
 
       
-      <h1 id="Redis-09-持久化"><a href="#Redis-09-持久化" class="headerlink" title="Redis-09-持久化"></a>Redis-09-持久化</h1><h2 id="1-RDB"><a href="#1-RDB" class="headerlink" title="1. RDB"></a>1. RDB</h2><p><strong>参考博客</strong>：<a href="https://www.cnblogs.com/ysocean/p/9114268.html#_label0" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/9114268.html#_label0</a></p>
-<h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221658610.png" alt="mark"></p>
-<p>RDB是Redis用来进行持久化的一种方式，是把当前内存中的数据集快照写入磁盘，也就是 Snapshot 快照（数据库中所有键值对数据）。</p>
-<p>恢复时是将快照文件直接读到内存里。</p>
-<p>默认情况下是RDB，一般情况不需要修改配置</p>
-<p>有时候在公司里，会将rdb文件进行备份</p>
+      <h1 id="Spring-10-Bean的生命周期"><a href="#Spring-10-Bean的生命周期" class="headerlink" title="Spring-10-Bean的生命周期"></a>Spring-10-Bean的生命周期</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>Spring Bean的生命周期是Spring面试热点问题。这个问题即考察对Spring的微观了解，又考察对Spring的宏观认识，想要答好并不容易！本文希望能够从源码角度入手，帮助面试者彻底搞定Spring Bean的生命周期。</p>
+<p><strong>只有四个！</strong></p>
+<p>是的，Spring Bean的生命周期只有这四个阶段。把这四个阶段和每个阶段对应的扩展点糅合在一起虽然没有问题，但是这样非常凌乱，难以记忆。要彻底搞清楚Spring的生命周期，首先要把这四个阶段牢牢记住。实例化和属性赋值对应构造方法和setter方法的注入，初始化和销毁是用户能自定义扩展的两个阶段。在这四步之间穿插的各种扩展点，稍后会讲。</p>
+<ol>
+<li><strong>实例化 Instantiation</strong></li>
+<li><strong>属性赋值 Populate</strong></li>
+<li><strong>初始化 Initialization</strong></li>
+<li><strong>销毁 Destruction</strong></li>
+</ol>
+<p>实例化 -&gt; 属性赋值 -&gt; 初始化 -&gt; 销毁</p>
+<p>主要逻辑都在<code>doCreate()</code>方法中，逻辑很清晰，就是顺序调用以下三个方法，这三个方法与三个生命周期阶段一一对应，非常重要，在后续扩展接口分析中也会涉及。</p>
+<ol>
+<li><code>createBeanInstance()</code> -&gt; 实例化</li>
+<li><code>populateBean()</code> -&gt; 属性赋值</li>
+<li><code>initializeBean()</code> -&gt; 初始化</li>
+</ol>
+<p>源码如下，能证明实例化，属性赋值和初始化这三个生命周期的存在。关于本文的Spring源码都将忽略无关部分，便于理解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 忽略了无关代码</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doCreateBean</span><span class="params">(<span class="keyword">final</span> String beanName, <span class="keyword">final</span> RootBeanDefinition mbd, <span class="keyword">final</span> @Nullable Object[] args)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Instantiate the bean.</span></span><br><span class="line">   BeanWrapper instanceWrapper = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">if</span> (instanceWrapper == <span class="keyword">null</span>) &#123;</span><br><span class="line">       <span class="comment">// 实例化阶段！</span></span><br><span class="line">      instanceWrapper = createBeanInstance(beanName, mbd, args);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Initialize the bean instance.</span></span><br><span class="line">   Object exposedObject = bean;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="comment">// 属性赋值阶段！</span></span><br><span class="line">      populateBean(beanName, mbd, instanceWrapper);</span><br><span class="line">       <span class="comment">// 初始化阶段！</span></span><br><span class="line">      exposedObject = initializeBean(beanName, exposedObject, mbd);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>至于销毁，是在容器关闭时调用的，详见<code>ConfigurableApplicationContext#close()</code></p>
       
-      <a class="article-more-link" href="/2020/04/14/Redis/Redis-09-%E6%8C%81%E4%B9%85%E5%8C%96/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/20/Spring/Spring-10-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -666,7 +441,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" rel="tag">bean的生命周期</a></li></ul>
 
 
     </footer>
@@ -683,7 +458,7 @@
 
 </article>
     
-    <article id="post-Redis/Redis-08-Conf" class="article article-type-post" itemscope
+    <article id="post-GoF23/设计模式-代理模式" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -691,8 +466,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/14/Redis/Redis-08-Conf/"
-    >Redis-08-Conf</a
+  <a class="article-title" href="/2020/05/19/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"
+    >代理模式</a
   >
 </h2>
   
@@ -702,8 +477,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/14/Redis/Redis-08-Conf/" class="article-date">
-  <time datetime="2020-04-14T12:02:24.000Z" itemprop="datePublished">2020-04-14</time>
+      <a href="/2020/05/19/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" class="article-date">
+  <time datetime="2020-05-19T07:22:24.000Z" itemprop="datePublished">2020-05-19</time>
 </a>
       
       
@@ -721,10 +496,15 @@
       
 
       
-      <h1 id="Redis-08-Conf"><a href="#Redis-08-Conf" class="headerlink" title="Redis-08-Conf"></a>Redis-08-Conf</h1><p><strong>打开redis.conf文件</strong></p>
-<h2 id="1-单位"><a href="#1-单位" class="headerlink" title="1. 单位"></a>1. 单位</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/video/O_H3%28%29%7B221WX%7E9UE3%28HY452.png" alt=""></p>
+      <h1 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h1><p>为什么要学习代理模式，因为AOP的底层机制就是动态代理！</p>
+<p>代理模式：</p>
+<ul>
+<li>静态代理</li>
+<li>动态代理</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/193958809.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/04/14/Redis/Redis-08-Conf/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/19/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -735,7 +515,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="tag">设计者模式</a></li></ul>
 
 
     </footer>
@@ -752,7 +532,7 @@
 
 </article>
     
-    <article id="post-Redis/Redis-07-SpringBoot整合" class="article article-type-post" itemscope
+    <article id="post-Guide/读书笔记-阿里巴巴开发手册" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -760,8 +540,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/"
-    >Redis-07-SpringBoot整合</a
+  <a class="article-title" href="/2020/05/19/Guide/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/"
+    >读书笔记-阿里巴巴开发手册</a
   >
 </h2>
   
@@ -771,8 +551,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/" class="article-date">
-  <time datetime="2020-04-12T11:02:24.000Z" itemprop="datePublished">2020-04-12</time>
+      <a href="/2020/05/19/Guide/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/" class="article-date">
+  <time datetime="2020-05-19T04:30:53.000Z" itemprop="datePublished">2020-05-19</time>
 </a>
       
       
@@ -790,9 +570,16 @@
       
 
       
-      <h1 id="Redis-07-SpringBoot整合"><a href="#Redis-07-SpringBoot整合" class="headerlink" title="Redis-07-SpringBoot整合"></a>Redis-07-SpringBoot整合</h1><p>SpringBoot 操作数据： Spring-data (jpa,jdbc,mongodb,redis)</p>
+      <h1 id="读书笔记-阿里巴巴开发手册"><a href="#读书笔记-阿里巴巴开发手册" class="headerlink" title="读书笔记-阿里巴巴开发手册"></a>读书笔记-阿里巴巴开发手册</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>本笔记针对最新版本-<strong>泰山版</strong>开发手册进行阐述分析</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/123256378.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/123313920.png" alt="mark"></p>
+<p>希望各位未来可以有所大成，达到（会当凌绝顶，一览众山小）的境界。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/224430806.png" alt="mark"></p>
+<p>废话不多说，我们直接来看正文….</p>
       
-      <a class="article-more-link" href="/2020/04/12/Redis/Redis-07-SpringBoot%E6%95%B4%E5%90%88/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/05/19/Guide/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -803,7 +590,222 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/" rel="tag">开发手册</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-371-两整数之和" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/17/Leetcode/Leetcode-371-%E4%B8%A4%E6%95%B4%E6%95%B0%E4%B9%8B%E5%92%8C/"
+    >Leetcode-371-两整数之和</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/17/Leetcode/Leetcode-371-%E4%B8%A4%E6%95%B4%E6%95%B0%E4%B9%8B%E5%92%8C/" class="article-date">
+  <time datetime="2020-05-17T03:52:53.000Z" itemprop="datePublished">2020-05-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-371-Sum-of-Two-Integers"><a href="#Leecode-371-Sum-of-Two-Integers" class="headerlink" title="Leecode-371-Sum of Two Integers"></a>Leecode-371-<a href="https://leetcode-cn.com/problems/sum-of-two-integers/" target="_blank" rel="noopener">Sum of Two Integers</a></h1><h2 id="思路：位运算"><a href="#思路：位运算" class="headerlink" title="思路：位运算"></a>思路：位运算</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>不使用运算符 + 个 - ，计算两整数 a,b之和</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入: a &#x3D; 1, b &#x3D; 2</span><br><span class="line">输出: 3</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">输入: a &#x3D; -2, b &#x3D; 3</span><br><span class="line">输出: 1</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Solution：位运算</strong></p>
+<ul>
+<li>在二进制中的计算就是通过位操作来得到结果的低位和高位</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/05/17/Leetcode/Leetcode-371-%E4%B8%A4%E6%95%B4%E6%95%B0%E4%B9%8B%E5%92%8C/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/" rel="tag">位运算</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Spring/Spring-07-整合MyBatis" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/17/Spring/Spring-07-%E6%95%B4%E5%90%88MyBatis/"
+    >Spring-07-整合MyBatis</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/17/Spring/Spring-07-%E6%95%B4%E5%90%88MyBatis/" class="article-date">
+  <time datetime="2020-05-17T00:22:24.000Z" itemprop="datePublished">2020-05-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Spring-07-整合MyBatis"><a href="#Spring-07-整合MyBatis" class="headerlink" title="Spring-07-整合MyBatis"></a>Spring-07-整合MyBatis</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>官网mybatis-spring : <a href="http://mybatis.org/spring/zh/index.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/index.html</a></p>
+      
+      <a class="article-more-link" href="/2020/05/17/Spring/Spring-07-%E6%95%B4%E5%90%88MyBatis/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Spring/Spring-06-AOP" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/15/Spring/Spring-06-AOP/"
+    >Spring-06-AOP</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/15/Spring/Spring-06-AOP/" class="article-date">
+  <time datetime="2020-05-15T00:22:24.000Z" itemprop="datePublished">2020-05-15</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Spring-06-AOP"><a href="#Spring-06-AOP" class="headerlink" title="Spring-06-AOP"></a>Spring-06-AOP</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>上一讲中我们讲解了代理模式，这是AOP的基础，一定要先搞懂它</p>
+<p>那我们接下来就来聊聊AOP吧！</p>
+      
+      <a class="article-more-link" href="/2020/05/15/Spring/Spring-06-AOP/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
 
 
     </footer>
@@ -826,7 +828,7 @@
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/11/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/28/">28</a><a class="extend next" rel="next" href="/page/13/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/11/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/35/">35</a><a class="extend next" rel="next" href="/page/13/">下一页</a>
   </nav>
   
 </section>

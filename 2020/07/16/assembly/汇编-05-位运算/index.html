@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    汇编-05-位运算 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-assembly/汇编-05-位运算" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  汇编-05-位运算
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/07/16/assembly/%E6%B1%87%E7%BC%96-05-%E4%BD%8D%E8%BF%90%E7%AE%97/" class="article-date">
+  <time datetime="2020-07-16T07:40:41.000Z" itemprop="datePublished">2020-07-16</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.6k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="汇编-05-位运算"><a href="#汇编-05-位运算" class="headerlink" title="汇编-05-位运算"></a>汇编-05-位运算</h1><p>参考博客链接：<a href="https://www.cnblogs.com/findbetterme/p/10787118.html" target="_blank" rel="noopener">https://www.cnblogs.com/findbetterme/p/10787118.html</a></p>
+<a id="more"></a>
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>日常开发中位运算不是很常用，但是巧妙的使用位运算可以大量的减少运行的开销，优化算法。</li>
+<li>举个例子，翻转的操作比较常见，比如初始值是1，操作一次变成0，再操作一次变成1。 可能的做法是使用三木运算符，判断原始值是1还是0，如果是1，设置位0。否则设置位0，但是使用位运算，不用判断原始值，直接改变值就可以。<code>1^num //num</code> 为原始值。</li>
+<li>当然，一句代码可能对性能没有什么影响，到那时在高并发，大数据量的情况下可以节省很多开销。</li>
+<li>以下是整理的关于java位运算的部分内容，如有错误，还请指出，以共同进步，先行致谢。</li>
+</ul>
+<h2 id="1-位运算符"><a href="#1-位运算符" class="headerlink" title="1. 位运算符"></a>1. 位运算符</h2><h3 id="1-1-java支持的位运算符"><a href="#1-1-java支持的位运算符" class="headerlink" title="1.1 java支持的位运算符"></a>1.1 java支持的位运算符</h3><ul>
+<li>&amp; ： 按位与</li>
+<li>|  ：按位或</li>
+<li>~  ： 按位非</li>
+<li>^   :   按位异或</li>
+<li>&lt;&lt; :  左位移运算符</li>
+<li><code>&gt;&gt;</code> : 右位移运算符</li>
+<li><code>&gt;&gt;&gt;</code> 无符号右移运算符</li>
+<li><strong>注意：任何语言都没有无符号左移运算符</strong></li>
+</ul>
+<ul>
+<li>位运算符中：除 ~ 以外，其余均为二元运算符。<strong>操作数只能是整型和字符型数据。</strong></li>
+</ul>
+<p>Java使用补码来表示二进制数，在补码表示中，最高位是符号位，正数的符号位为0，负数为1。</p>
+<ul>
+<li>补码的规定如下：<strong>对于正数来说</strong>，最高位是0，其余各位代表数值本身的二进制表示，如 <code>+ 42 的 补码  是  0010 1010</code></li>
+<li><strong>补码对于负数来说，</strong>最高位是 1 ，把其余的位按位取反变成反码，然后对整个数+1，就是该数字的补码 ， <strong>如<code>-1 的补码是 1111 1111</code> （在java中 -1 的 补码 是 <code>1111 1111 1111 1111</code> ,因为java中的int是32位的）</strong></li>
+</ul>
+<h3 id="1-2-按位与（-amp-）"><a href="#1-2-按位与（-amp-）" class="headerlink" title="1.2 按位与（&amp;）"></a>1.2 按位与（&amp;）</h3><p>按位与的运算规则</p>
+<table>
+<thead>
+<tr>
+<th>操作数1</th>
+<th>0</th>
+<th>0</th>
+<th>1</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作数2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>&amp;</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p><strong>总结</strong></p>
+<ul>
+<li>两个数同时位1的时候，结果为1</li>
+<li>其余全为0（只要有一个操作数为0，结果就为0）</li>
+</ul>
+<p><strong>举例：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/084818815.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/084849124.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/084853301.png" alt="mark"></p>
+<h3 id="1-3-按位或（-）"><a href="#1-3-按位或（-）" class="headerlink" title="1.3 按位或（|）"></a>1.3 按位或（|）</h3><p>按位或的运算规则</p>
+<table>
+<thead>
+<tr>
+<th>操作数1</th>
+<th>0</th>
+<th>0</th>
+<th>1</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作数2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>按位或</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p><strong>总结</strong></p>
+<ul>
+<li>只有两个操作数对应位同时为0，结果才是0</li>
+<li>其余全是1（只要有一个1，那么结果就是1）</li>
+</ul>
+<h3 id="1-4-按位非（-）"><a href="#1-4-按位非（-）" class="headerlink" title="1.4 按位非（~）"></a>1.4 按位非（~）</h3><table>
+<thead>
+<tr>
+<th>操作数</th>
+<th>0</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>按位或</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p>在求负数的源码中使用过。</p>
+<h3 id="1-5-按位异或（-）"><a href="#1-5-按位异或（-）" class="headerlink" title="1.5 按位异或（^）"></a>1.5 按位异或（^）</h3><ul>
+<li>按位异或的运算规则</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>操作数1</th>
+<th>0</th>
+<th>0</th>
+<th>1</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作数2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>按位异或</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p><strong>总结：</strong></p>
+<ul>
+<li>不一样就是1，一样就是0</li>
+</ul>
+<h3 id="1-6-左位移（-lt-lt-）"><a href="#1-6-左位移（-lt-lt-）" class="headerlink" title="1.6 左位移（&lt;&lt;）"></a>1.6 左位移（&lt;&lt;）</h3><ul>
+<li>算数左移（<code>&lt;&lt;</code>） : 符号位不变，<strong>低位补0.</strong>  </li>
+<li>如 <code>2 &lt;&lt; 2</code> 的结果是8.</li>
+</ul>
+<p><strong>举例：<code>2 &lt;&lt; 2</code> 的结果是8.</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/092343752.png" alt="mark"></p>
+<p><strong>总结：</strong></p>
+<ul>
+<li>当移动的位数超过数字本身位数的时候，那么不就全部需要补0的操作吗？</li>
+<li>实际上不是的，<strong>java不可能做这么浪费资源的事情。</strong>在真正执行位移前，其对要移动的位数做了一些预处理，如32处理为0，-1处理为31</li>
+</ul>
+<h3 id="1-7-右位移（-gt-gt-）"><a href="#1-7-右位移（-gt-gt-）" class="headerlink" title="1.7 右位移（&gt;&gt;）"></a>1.7 右位移（&gt;&gt;）</h3><ul>
+<li>低位溢出，符号位不变，<strong>并用符号位补溢出的高位。</strong></li>
+<li>如 <code>-6 &gt;&gt; 2</code> 结果是 <code>-2</code> (相当于除3)</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/093302064.png" alt="mark"></p>
+<h3 id="1-8-无符号右移（-gt-gt-gt-）"><a href="#1-8-无符号右移（-gt-gt-gt-）" class="headerlink" title="1.8 无符号右移（&gt;&gt;&gt;）"></a>1.8 无符号右移（&gt;&gt;&gt;）</h3><ul>
+<li><strong>低位溢出，高位补0</strong></li>
+<li><strong>注意，无符号右移(&gt;&gt;&gt;) 中的符号位（最高位）也跟着在变。</strong></li>
+<li>无符号的意思是将符号位当作数字位来看待。</li>
+<li>如 <code>-1 &gt;&gt;&gt; 1</code> 的结果是<code>2141483647</code></li>
+</ul>
+<p>这个数字应该比较熟悉，看两个输出语句就知道是什么了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(Integer.toBinaryString(-<span class="number">1</span>&gt;&gt;&gt;<span class="number">1</span>));</span><br><span class="line">System.out.println(Integer.toBinaryString(Integer.MAX_VALUE));</span><br><span class="line"></span><br><span class="line">输出结果为：</span><br><span class="line"></span><br><span class="line"><span class="number">1111111111111111111111111111111</span></span><br><span class="line"><span class="number">1111111111111111111111111111111</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/101857332.png" alt="mark"></p>
+<p>除了使用-1&gt;&gt;&gt;1能得到Integer.MAX_VALUE，以下的也能得到同样的结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;maxInt</span><br><span class="line">System.out.println(~(1 &lt;&lt; 31));</span><br><span class="line">System.out.println((1 &lt;&lt; -1) -1);</span><br><span class="line">System.out.println(~(1 &lt;&lt; -1));</span><br></pre></td></tr></table></figure>
+
+<p>使用位运算往往能很巧妙的实现某些算法完成一些复杂的功能。</p>
+<h2 id="2-常见使用"><a href="#2-常见使用" class="headerlink" title="2. 常见使用"></a>2. 常见使用</h2><h3 id="2-1-m-2-n"><a href="#2-1-m-2-n" class="headerlink" title="2.1 m*2 ^n"></a>2.1 m*2 ^n</h3><ul>
+<li><p>可以使用 m &lt;&lt; n 求得结果：</p>
+<ul>
+<li>如 <code>System.*out*.println(&quot;2^3=&quot; + (1&lt;&lt;3));//2^3=8</code></li>
+<li><code>System.*out*.println(&quot;3*2^3=&quot; + (3&lt;&lt;3));//3*2^3=24</code></li>
+</ul>
+</li>
+<li><p>计算结果是不是很正确呢？ <strong>如果非要说 <code>2 &lt;&lt; -1</code> 为什么不等于0.5？ 前面说过，位运算的操作数只能是整型和字符型</strong>。再求int所能表示的最小值的时候，可以使用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># minInt</span><br><span class="line">System.out.println(<span class="number">1</span> &lt;&lt; <span class="number">31</span>);</span><br><span class="line">System.out.println(<span class="number">1</span> &lt;&lt; -<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li>可以发现左移31位和-1位所得的结果是一样的。同理，左移30位和左移-2所得的结果也是一样的。移动一个负数为，是不是等于右移该负数位的绝对值呢？输出一下发现结果不是的。</li>
+<li><strong>java中 Int 所能表示的最大值是31位，加上符号位共32位。在这里有如下的位移法则：</strong><ul>
+<li><strong>法则1： 任何数左移（右移）32的倍数位等于该数本身</strong></li>
+<li><strong>法则2：在位移运算 m &lt;&lt; n 的计算中，若n 是正数，则实际移动的位数是 n % 32；若 n是负数，则实际移动的位数是 （32 + n % 32） ，右移同理</strong></li>
+<li>左移是乘以2的幂，右移是除以2的幂。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-2-判断一个数的奇偶性"><a href="#2-2-判断一个数的奇偶性" class="headerlink" title="2.2 判断一个数的奇偶性"></a>2.2 判断一个数的奇偶性</h3><p><code>n &amp; 1 == 1? 奇数：偶数</code> </p>
+<ul>
+<li><strong>为什么与1能判断奇偶？</strong></li>
+<li><strong>所谓的二进制就是满2进1，那么好了，偶数的最低位肯定是0（恰好满2，对不对？）</strong></li>
+<li><strong>同理，奇数的最低为肯定是1，<code>对于int类型的1，前31位都是0，无论是1&amp;0 还是 0 &amp; 0结果都是0</code></strong></li>
+<li><strong>那么有区别的肯定就是最低为上的 1 了，若 n 的二进制最低位为是1（奇数），反则就是结果就是0（偶数）</strong></li>
+</ul>
+<h3 id="2-3-不使用临时变量交换两个数字"><a href="#2-3-不使用临时变量交换两个数字" class="headerlink" title="2.3 不使用临时变量交换两个数字"></a>2.3 不使用临时变量交换两个数字</h3><p><strong>在int[]数组首尾互换中，是不看到过这样的代码：</strong></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/07/16/assembly/%E6%B1%87%E7%BC%96-05-%E4%BD%8D%E8%BF%90%E7%AE%97/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/" rel="tag">位运算</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B1%87%E7%BC%96/" rel="tag">汇编</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E5%88%B6/" rel="tag">进制</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/07/17/assembly/%E6%B1%87%E7%BC%96-06-%E5%AF%84%E5%AD%98%E5%99%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            汇编-06-寄存器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/07/15/Leetcode/Leetcode-088-%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Leetcode-088-合并两个有序数组</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

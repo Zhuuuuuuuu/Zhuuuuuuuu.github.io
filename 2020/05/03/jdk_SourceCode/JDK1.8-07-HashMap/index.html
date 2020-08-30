@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">7.7k字</span>
+            <span class="post-count">8.8k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">32分钟</span>
+            <span class="post-count">36分钟</span>
         </span>
     </span>
 </div>
@@ -100,6 +100,7 @@
 
       
       <h1 id="JDK1-8源码-08-java-util-HashMap"><a href="#JDK1-8源码-08-java-util-HashMap" class="headerlink" title="JDK1.8源码-08-java.util.HashMap"></a>JDK1.8源码-08-java.util.HashMap</h1><p>本篇来介绍在 JDK1.8 中 HashMap 的源码实现，这也是最常用的一个集合。但是在介绍 HashMap 之前，我们先介绍什么是 Hash表。</p>
+<p><strong>B站很好的HashMap视频</strong>： <a href="https://www.bilibili.com/video/BV1LJ411W7dP" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1LJ411W7dP</a></p>
 <a id="more"></a>
 
 
@@ -121,13 +122,13 @@
 
 <p>汉语字典是哈希表的典型实现，但是我们仔细思考，会发现这样几个问题？</p>
 <p><strong>①、为什么要有散列函数？</strong></p>
-<p>对于第一个问题，散列函数的存在能够帮助我们更快的确定key和value的映射关系，试想一下，如果没有汉字和拼音的转换规则（或者汉字和偏旁部首的），给你一个汉字，你该如何从字典中找到该汉字？我想除了遍历整部字典，你没有什么更好的办法。</p>
+<p>对于第一个问题，<strong>散列函数的存在能够帮助我们更快的确定key和value的映射关系，</strong>试想一下，如果没有汉字和拼音的转换规则（或者汉字和偏旁部首的），给你一个汉字，你该如何从字典中找到该汉字？我想除了遍历整部字典，你没有什么更好的办法。</p>
 <p><strong>②、多个 key 通过散列函数会得到相同的值，这时候怎么办？</strong></p>
 <p>对于第二个问题，多个key通过散列函数得到相同的值，这其实也就是<strong>哈希表最大的问题–冲突</strong>，比如同音字汉字，我们得到的拼音就是相同的。那么我们该如何在字典中存放同音字汉字呢？有两种做法：</p>
 <ul>
 <li><p><strong>第一种：开放地址法</strong></p>
 <ul>
-<li>当我们遇到冲突了，这时候通过另一种函数再计算一遍，得到相应的映射关系。</li>
+<li>当我们遇到冲突了，这时候通过<strong>另一种函数再计算一遍，得到相应的映射关系。</strong></li>
 <li>比如对于汉语字典，一个字 “余”，拼音是“yu”，我们将其放在页码为567(假设在该位置)，这时候又来了一个汉字“于”，拼音也是“yu”，那么这时候我们要是按照转换规则，也得将其放在页码为567的位置，但是我们发现这个页码已经被占用了，这时候怎么办？我们可以在通过另一种函数，得到的值加1。那么汉字”于”就会被放在576+1=577的位置。</li>
 </ul>
 </li>
@@ -175,11 +176,11 @@
 
 <p>下面我们重点介绍上面几个字段：</p>
 <p><strong>①、Node&lt;K,V&gt;[] table</strong></p>
-<p>HashMap是有数组+链表+红黑树组成，<strong>这里的数组就是table字段</strong>。后面对其进行初始化长度默认是 <code>DEFAULT_INITIAL_CAPACITY= 16</code>。</p>
+<p>HashMap是有数组+链表+红黑树组成，<strong>这里的数组就是table字段</strong>。后面对其进行<strong>初始化长度默认是</strong> <code>DEFAULT_INITIAL_CAPACITY= 16</code>。</p>
 <p>而且jdk声明数组长度总是2的n次方（<strong>一定是合数</strong>：<em>合数</em>是指在大于1的整数中除了能被1和本身整除外，还能被其他数（0除外）整除的数。）。</p>
 <p>为什么这里要求是合数，一般我们知道<strong>哈希算法为了避免冲突都要求长度是质数</strong>，这里要求是合数。下面在介绍 HashMap 的hashCode() 方法(散列函数)，我们再进行讲解。</p>
 <p><strong>②、size</strong></p>
-<p>集合中存放key-value 的实时对数。</p>
+<p>集合中存放key-value 的<strong>数组大小</strong>。</p>
 <p><strong>③、loadFactor</strong></p>
 <p>装载因子，是用来衡量HashMap满的程度。计算HashMap的实时装载因子的方法为：size/capacity。而不是用占用桶的数量去除以capacity，capacity是桶的数量，也就是table的长度length。</p>
 <p><strong>默认的负载因子0.75 是对空间和时间效率的一个平衡选择，建议不要修改。</strong></p>
@@ -321,6 +322,64 @@
 <p><a href="https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html#" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html#</a></p>
 <p><a href="https://www.cnblogs.com/ysocean/p/8711071.html" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/8711071.html</a></p>
 <p><a href="https://www.cnblogs.com/nullllun/p/8327664.html" target="_blank" rel="noopener">https://www.cnblogs.com/nullllun/p/8327664.html</a></p>
+<h2 id="13-HashMap-死循环"><a href="#13-HashMap-死循环" class="headerlink" title="13. HashMap 死循环"></a>13. HashMap 死循环</h2><p><strong>参考博客</strong>：<a href="https://www.jianshu.com/p/1e9cf0ac07f4" target="_blank" rel="noopener">https://www.jianshu.com/p/1e9cf0ac07f4</a></p>
+<ul>
+<li>HashMap 在并发使用的时候可能发生死循环，导致cpu100%</li>
+<li><strong>如果是在单线程下使用HashMap，自然是没有问题的</strong>，如果后期由于代码优化，这段逻辑引入了多线程并发执行<ul>
+<li><strong>在一个未知的时间点，会发现CPU占用100%，居高不下，通过查看堆栈，会惊讶的发现，线程都则赛在hashMap 的 get() 方法上，服务器重启之后，问题消失，过段时间又出来了。</strong></li>
+<li>这是为什么？</li>
+</ul>
+</li>
+</ul>
+<p><strong>原因分析</strong></p>
+<ol>
+<li>在内部，hashMap 使用一个 Entry 数组保存key value, 当一对key value 被加入的时候，会通过hashmap的寻址算法得到数组下标index,算法很简单，根据key的hash值，对数组的大小取模 <code>hash &amp; (table.length - 1)</code>,并把结果插入数组的对应位置，如果该位置上已经有元素了，就说明存在hash冲突，这样会在index位置生成链表。</li>
+<li>如果存在hash冲突，最惨的情况，就是所有元素都定位到同一个位置，形成一个长长的链表，这样get一个值时，最坏情况需要遍历所有节点，性能变成了O(n)，所以元素的hash值算法和HashMap的初始化大小很重要。</li>
+<li>当插入一个新的节点时，如果不存在相同的key，则会判断当前内部元素是否已经达到阈值（默认是数组大小的0.75），如果已经达到阈值，会对数组进行扩容，也会对链表中的元素进行rehash.</li>
+</ol>
+<p><strong>举例分析</strong></p>
+<ul>
+<li>假设HashMap初始化大小为4，插入个3节点，不巧的是，这3个节点都hash到同一个位置，如果按照默认的负载因子的话，插入第3个节点就会扩容，为了验证效果，假设负载因子是1.</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">transfer</span><span class="params">(Entry[] newTable, <span class="keyword">boolean</span> rehash)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> newCapacity = newTable.length;</span><br><span class="line">    <span class="keyword">for</span> (Entry&lt;K,V&gt; e : table) &#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">null</span> != e) &#123;</span><br><span class="line">            Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">            <span class="keyword">if</span> (rehash) &#123;</span><br><span class="line">                e.hash = <span class="keyword">null</span> == e.key ? <span class="number">0</span> : hash(e.key);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">int</span> i = indexFor(e.hash, newCapacity);</span><br><span class="line">            e.next = newTable[i];</span><br><span class="line">            newTable[i] = e;</span><br><span class="line">            e = next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下是节点移动的相关逻辑。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164114218.png" alt="mark"></p>
+<ul>
+<li>插入第4个节点时，发生rehash，假设现在有两个线程同时进行，线程1和线程2，两个线程都会新建新的数组。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164146437.png" alt="mark"></p>
+<ol>
+<li>假设 <strong>线程2</strong> 在执行到<code>Entry&lt;K,V&gt; next = e.next;</code>之后，cpu时间片用完了，这时变量e指向节点a，变量next指向节点b。</li>
+<li><strong>线程1</strong>继续执行，很不巧，a、b、c节点rehash之后又是在同一个位置7，开始移动节点</li>
+<li>第一步，移动节点a </li>
+<li>第二步，移动节点b</li>
+<li>注意，这里的顺序是反过来的，继续移动节点c</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164301683.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164306846.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164311468.png" alt="mark"></p>
+<ol start="6">
+<li><p>这个时候 <strong>线程1</strong> 的时间片用完，内部的table还没有设置成新的newTable， <strong>线程2</strong> 开始执行，这时内部的引用关系如下：</p>
+</li>
+<li><p>这时，在 <strong>线程2</strong> 中，变量e指向节点a，变量next指向节点b，开始执行循环体的剩余逻辑。</p>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164455306.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Entry&lt;K,V&gt; next = e.next;</span><br><span class="line"><span class="keyword">int</span> i = indexFor(e.hash, newCapacity);</span><br><span class="line">e.next = newTable[i];</span><br><span class="line">newTable[i] = e;</span><br><span class="line">e = next;</span><br></pre></td></tr></table></figure>
+
+<p>执行之后的引用关系如下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164523603.png" alt="mark"></p>
+<ol start="9">
+<li>执行后，变量e指向节点b，因为e不是null，则继续执行循环体，执行后的引用关系</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164613761.png" alt="mark"></p>
+<p>变量e又重新指回节点a，只能继续执行循环体，这里仔细分析下：<br> 1、执行完<code>Entry&lt;K,V&gt; next = e.next;</code>，目前节点a没有next，所以变量next指向null；<br> 2、<code>e.next = newTable[i];</code> 其中 newTable[i] 指向节点b，那就是把a的next指向了节点b，这样a和b就相互引用了，形成了一个环；<br> 3、<code>newTable[i] = e</code> 把节点a放到了数组i位置；<br> 4、<code>e = next;</code> 把变量e赋值为null，因为第一步中变量next就是指向null；</p>
+<p>所以最终的引用关系是这样的：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200728-164736862.png" alt="mark"></p>
+<p><strong>节点a和b互相引用，形成了一个环，当在数组该位置get寻找对应的key时，就发生了死循环。</strong></p>
+<p><strong>另外，如果线程2把newTable设置成到内部的table，节点c的数据就丢了，看来还有数据遗失的问题。</strong></p>
+<p>所以在并发的情况，发生扩容时，可能会产生循环链表，在执行get的时候，会触发死循环，引起CPU的100%问题，所以一定要避免在并发环境下使用HashMap。</p>
 
       
       <!-- reward -->

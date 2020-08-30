@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3.8k字</span>
+            <span class="post-count">4.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">13分钟</span>
+            <span class="post-count">16分钟</span>
         </span>
     </span>
 </div>
@@ -99,21 +99,52 @@
       
 
       
-      <h1 id="Redis-09-持久化"><a href="#Redis-09-持久化" class="headerlink" title="Redis-09-持久化"></a>Redis-09-持久化</h1><h2 id="1-RDB"><a href="#1-RDB" class="headerlink" title="1. RDB"></a>1. RDB</h2><p><strong>参考博客</strong>：<a href="https://www.cnblogs.com/ysocean/p/9114268.html#_label0" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/9114268.html#_label0</a></p>
+      <h1 id="Redis-09-持久化"><a href="#Redis-09-持久化" class="headerlink" title="Redis-09-持久化"></a>Redis-09-持久化</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>Redis 为什么要持久化?</strong></p>
+<ul>
+<li>Redis 中的数据类型都支持 Push/Pop、Add/Remove 及取交集并集和差集及更丰富的操作，而且这些操作都是原子性的。</li>
+<li>在此基础上，Redis 支持各种不同方式的排序。与 Memcached 一样，为了保证效率，数据都是缓存在内存中。因为数据都是缓存在内存中的，当你重启系统或者关闭系统后，缓存在内存中的数据都会消失殆尽，再也找不回来了。</li>
+<li>所以，为了让数据能够长期保存，就要将 Redis 放在缓存中的数据做持久化存储。</li>
+</ul>
+<a id="more"></a>
+
+
+
+<p>在设计之初，Redis 就已经考虑到了这个问题。官方提供了多种不同级别的数据持久化的方式：</p>
+<ul>
+<li><strong>RDB 持久化方式能够在指定的时间间隔对你的数据进行快照存储。</strong></li>
+<li><strong>AOF 持久化方式记录每次对服务器写的操作，当服务器重启的时候会重新执行这些命令来恢复原始的数据，AOF 命令以 Redis 协议追加保存每次写的操作到文件末尾。</strong></li>
+</ul>
+<ul>
+<li>如果你只希望你的数据在服务器运行的时候存在，你也可以不使用任何持久化方式。</li>
+<li>你也可以同时开启两种持久化方式，在这种情况下，当 Redis 重启的时候会优先载入 AOF 文件来恢复原始的数据，因为在通常情况下 AOF 文件保存的数据集要比 RDB 文件保存的数据集要完整。</li>
+</ul>
+<h2 id="1-RDB"><a href="#1-RDB" class="headerlink" title="1. RDB"></a>1. RDB</h2><p><strong>参考博客</strong>：<a href="https://www.cnblogs.com/ysocean/p/9114268.html#_label0" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/9114268.html#_label0</a></p>
 <h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221658610.png" alt="mark"></p>
 <p>RDB是Redis用来进行持久化的一种方式，是把当前内存中的数据集快照写入磁盘，也就是 Snapshot 快照（数据库中所有键值对数据）。</p>
 <p>恢复时是将快照文件直接读到内存里。</p>
 <p>默认情况下是RDB，一般情况不需要修改配置</p>
 <p>有时候在公司里，会将rdb文件进行备份</p>
-<a id="more"></a>
-
+<ul>
+<li><p><strong>RDB 在保存 RDB 文件时父进程唯一需要做的就是 Fork 出一个子进程，接下来的工作全部由子进程来</strong></p>
+<p><strong>做，父进程不需要再做其他 IO 操作，所以 RDB 持久化方式可以最大化 Redis 的性能。</strong></p>
+</li>
+</ul>
 <p><strong>优点：</strong></p>
-<p><strong>RDB比AOF更加的高效</strong></p>
-<p><strong>适合大规模的数据恢复</strong></p>
-<p><strong>对数据的完整性要求不高</strong></p>
+<ul>
+<li><p><strong>RDB比AOF更加的高效</strong></p>
+</li>
+<li><p><strong>适合大规模的数据恢复</strong></p>
+</li>
+<li><p><strong>对数据的完整性要求不高</strong></p>
+</li>
+</ul>
 <p><strong>缺点：</strong></p>
-<p><strong>最后一次持久化可能会宕机，导致数据丢失</strong></p>
-<p><strong>fork进程的时候，会占用一定的内存空间</strong></p>
+<ul>
+<li><p><strong>最后一次持久化可能会宕机，导致数据丢失</strong></p>
+</li>
+<li><p><strong>fork进程的时候，会占用一定的内存空间</strong></p>
+</li>
+</ul>
 <h3 id="1-2-触发机制"><a href="#1-2-触发机制" class="headerlink" title="1.2 触发机制"></a>1.2 触发机制</h3><p><strong>rdb保存的是dump.rdb文件</strong></p>
 <p>RDB 有两种触发方式，分别是自动触发和手动触发。</p>
 <ol>
@@ -143,12 +174,18 @@
 <p>　　执行该命令时，Redis会在后台异步进行快照操作，快照同时还可以响应客户端请求。具体操作是Redis进程执行fork操作创建子进程，RDB持久化过程由子进程负责，完成后自动结束。阻塞只发生在fork阶段，一般时间很短。</p>
 <p>　　<strong>基本上 Redis 内部所有的RDB操作都是采用 bgsave 命令。</strong></p>
 <p>　　<strong>ps:执行执行 flushall 命令，也会产生dump.rdb文件，但里面是空的.</strong></p>
-<h3 id="1-3-恢复RDB"><a href="#1-3-恢复RDB" class="headerlink" title="1.3 恢复RDB"></a>1.3 恢复RDB</h3><p>将备份文件 (dump.rdb) 移动到 redis 安装目录并启动服务即可，redis就会自动加载文件数据至内存了。Redis 服务器在载入 RDB 文件期间，会一直处于阻塞状态，直到载入工作完成为止。</p>
-<p>获取 redis 的安装目录可以使用 config get dir 命令</p>
+<h3 id="1-3-恢复RDB"><a href="#1-3-恢复RDB" class="headerlink" title="1.3 恢复RDB"></a>1.3 恢复RDB</h3><ul>
+<li><p>将备份文件 (dump.rdb) 移动到 redis 安装目录并启动服务即可，redis就会自动加载文件数据至内存了。Redis 服务器在载入 RDB 文件期间，会一直处于阻塞状态，直到载入工作完成为止。</p>
+</li>
+<li><p>获取 redis 的安装目录可以使用 config get dir 命令</p>
+</li>
+</ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221418783.png" alt="mark"></p>
 <p>载入的标识是如下命令：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/221439368.png" alt="mark"></p>
-<h3 id="1-4-停止使用RDB持久化"><a href="#1-4-停止使用RDB持久化" class="headerlink" title="1.4 停止使用RDB持久化"></a>1.4 停止使用RDB持久化</h3><p>有些情况下，我们只想利用Redis的缓存功能，并不像使用 Redis 的持久化功能，那么这时候我们最好停掉 RDB 持久化。可以通过上面讲的在配置文件 redis.conf 中，可以注释掉所有的 save 行来停用保存功能或者直接一个空字符串来实现停用：save “”</p>
+<h3 id="1-4-停止使用RDB持久化"><a href="#1-4-停止使用RDB持久化" class="headerlink" title="1.4 停止使用RDB持久化"></a>1.4 停止使用RDB持久化</h3><ul>
+<li>有些情况下，我们只想利用Redis的缓存功能，并不像使用 Redis 的持久化功能，那么这时候我们最好停掉 RDB 持久化。可以通过上面讲的在配置文件 redis.conf 中，可以注释掉所有的 save 行来停用保存功能或者直接一个空字符串来实现停用：save “”</li>
+</ul>
 <p>　　也可以通过命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli config set save &#96;&#96;&quot; &quot;</span><br></pre></td></tr></table></figure>
 
@@ -161,13 +198,22 @@
 <p>　　2.生成RDB文件的时候，redis主进程会fork()一个子进程来处理所有保存工作，主进程不需要进行任何磁盘IO操作。</p>
 <p>　　3.RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。</p>
 <p>　　②、劣势</p>
-<p>　　1、RDB方式数据没办法做到实时持久化/秒级持久化。因为bgsave每次运行都要执行fork操作创建子进程，属于重量级操作，如果不采用压缩算法(内存中的数据被克隆了一份，大致2倍的膨胀性需要考虑)，频繁执行成本过高(影响性能)</p>
+<p>　　1、RDB方式数据没办法做到实时持久化/秒级持久化。<strong>因为bgsave每次运行都要执行fork操作创建子进程，属于重量级操作</strong>，如果不采用压缩算法(内存中的数据被克隆了一份，大致2倍的膨胀性需要考虑)，频繁执行成本过高(影响性能)</p>
 <p>　　2、RDB文件使用特定二进制格式保存，Redis版本演进过程中有多个格式的RDB版本，存在老版本Redis服务无法兼容新版RDB格式的问题(版本不兼容)</p>
-<p>　　3、在一定间隔时间做一次备份，所以如果redis意外down掉的话，就会丢失最后一次快照后的所有修改(数据有丢失)</p>
+<p>　　3、<strong>在一定间隔时间做一次备份，所以如果redis意外down掉的话，就会丢失最后一次快照后的所有修改(数据有丢失)</strong></p>
 <h2 id="2-AOF"><a href="#2-AOF" class="headerlink" title="2. AOF"></a>2. AOF</h2><p><strong>参考博客</strong>：<a href="https://www.cnblogs.com/ysocean/p/9114267.html" target="_blank" rel="noopener">https://www.cnblogs.com/ysocean/p/9114267.html</a></p>
 <h3 id="2-1-简介"><a href="#2-1-简介" class="headerlink" title="2.1 简介"></a>2.1 简介</h3><p> <strong>AOF(Append Only File)</strong></p>
-<p>以日志的形式将我们的所有命令都记录下来，history，恢复的时候就把这个文件全部重新执行一遍！</p>
+<ul>
+<li>以日志的形式将我们的所有命令都记录下来，history，恢复的时候就把这个文件全部重新执行一遍！</li>
+</ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/222040363.png" alt="mark"></p>
+<ul>
+<li>Redis 执行 fork() ，现在同时拥有父进程和子进程。</li>
+<li>子进程开始将新 AOF 文件的内容写入到临时文件。</li>
+<li>对于所有新执行的写入命令，父进程一边将它们累积到一个内存缓存中，一边将这些改动追加到现有 AOF 文件的末尾，这样即使在重写的中途发生停机，现有的 AOF 文件也还是安全的。</li>
+<li>当子进程完成重写工作时，它给父进程发送一个信号，父进程在接收到信号之后，将内存缓存中的所有数据追加到新 AOF 文件的末尾。</li>
+<li>现在 Redis 原子地用新文件替换旧文件，之后所有命令都会直接追加到新 AOF 文件的末尾。</li>
+</ul>
 <p><strong>AOF保存的是appendonly.aof文件</strong></p>
 <p>比如对于如下命令：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200414/222415585.png" alt="mark"></p>
@@ -179,7 +225,7 @@
 <p>　　③<strong>appendfsync：</strong>aof持久化策略的配置；</p>
 <p>　　　　　　no表示不执行fsync，由操作系统保证数据同步到磁盘，速度最快，但是不太安全；</p>
 <p>　　　　　　always表示每次写入都执行fsync，以保证数据同步到磁盘，效率很低；</p>
-<p>　　　　　　everysec表示每秒执行一次fsync，可能会导致丢失这1s数据。通常选择 everysec ，兼顾安全性和效率。</p>
+<p>　　　　　　<strong>everysec表示每秒执行一次fsync，可能会导致丢失这1s数据。通常选择 everysec ，兼顾安全性和效率。</strong></p>
 <p>　　④、no-appendfsync-on-rewrite：在aof重写或者写入rdb文件的时候，会执行大量IO，此时对于everysec和always的aof模式来说，执行fsync会造成阻塞过长时间，no-appendfsync-on-rewrite字段设置为默认设置为no。如果对延迟要求很高的应用，这个字段可以设置为yes，否则还是设置为no，这样对持久化特性来说这是更安全的选择。  设置为yes表示rewrite期间对新写操作不fsync,暂时存在内存中,等rewrite完成后再写入，默认为no，建议yes。Linux的默认fsync策略是30秒。可能丢失30秒数据。默认值为no。</p>
 <p>　　⑤、auto-aof-rewrite-percentage：默认值为100。aof自动重写配置，当目前aof文件大小超过上一次重写的aof文件大小的百分之多少进行重写，即当aof文件增长到一定大小的时候，Redis能够调用bgrewriteaof对日志文件进行重写。当前AOF文件大小是上次日志重写得到AOF文件大小的二倍（设置为100）时，自动启动新的日志重写过程。</p>
 <p>　　⑥、auto-aof-rewrite-min-size：64mb。设置允许重写的最小aof文件大小，避免了达到约定百分比但尺寸仍然很小的情况还要重写。</p>
@@ -212,8 +258,12 @@
 <p>　　①、对于具有相同数据的的 Redis，AOF 文件通常会比 RDF 文件体积更大。</p>
 <p>　　②、虽然 AOF 提供了多种同步的频率，默认情况下，每秒同步一次的频率也具有较高的性能。但在 Redis 的负载较高时，RDB 比 AOF 具好更好的性能保证。</p>
 <p>　　③、RDB 使用快照的形式来持久化整个 Redis 数据，而 AOF 只是将每次执行的命令追加到 AOF 文件中，因此从理论上说，RDB 比 AOF 方式更健壮。官方文档也指出，AOF 的确也存在一些 BUG，这些 BUG 在 RDB 没有存在。</p>
-<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>​    那么对于 AOF 和 RDB 两种持久化方式，我们应该如何选择呢？</p>
-<p>　如果可以忍受一小段时间内数据的丢失，毫无疑问使用 RDB 是最好的，定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，而且使用 RDB 还可以避免 AOF 一些隐藏的 bug；否则就使用 AOF 重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。Redis后期官方可能都有将两种持久化方式整合为一种持久化模型。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><ul>
+<li><p>那么对于 AOF 和 RDB 两种持久化方式，我们应该如何选择呢？</p>
+</li>
+<li><p>如果可以忍受一小段时间内数据的丢失，毫无疑问使用 RDB 是最好的，定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快，而且使用 RDB 还可以避免 AOF 一些隐藏的 bug；否则就使用 AOF 重写。但是一般情况下建议不要单独使用某一种持久化机制，而是应该两种一起用，在这种情况下,当redis重启的时候会优先载入AOF文件来恢复原始的数据，因为在通常情况下AOF文件保存的数据集要比RDB文件保存的数据集要完整。Redis后期官方可能都有将两种持久化方式整合为一种持久化模型。</p>
+</li>
+</ul>
 
       
       <!-- reward -->
