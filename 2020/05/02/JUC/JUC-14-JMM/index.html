@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3.3k字</span>
+            <span class="post-count">3.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">14分钟</span>
+            <span class="post-count">15分钟</span>
         </span>
     </span>
 </div>
@@ -169,7 +169,7 @@
 <ul>
 <li>CPU为了保证处理速度，CPU并不是直接和内存打交道，而是将系统内存缓存到CPU的高速缓存中（L1，L2等）</li>
 <li>如果多个CPU同时修改了缓存的值，并且同时写回到主内存就会出现问题</li>
-<li>在多个处理器的情况下，为了保证各个处理器的缓存是一致的。每个CPU会通过嗅探级制在总线上检查自己缓存的值是不是过期了，如果过期了，就直接将当前处理器的缓存行设置为无效状态，当处理器对这个数据进行修改的时候，会重新从系统内存中读取到处理器的缓存中。</li>
+<li>在多个处理器的情况下，为了保证各个处理器的缓存是一致的。每个CPU会通过<strong>嗅探级制在总线上检查自己缓存的值是不是过期了</strong>，如果过期了，就直接将当前处理器的缓存行设置为无效状态，当处理器对这个数据进行修改的时候，会重新从系统内存中读取到处理器的缓存中。</li>
 </ul>
 <h3 id="2-2-不保证原子性"><a href="#2-2-不保证原子性" class="headerlink" title="2.2 不保证原子性"></a>2.2 不保证原子性</h3><ul>
 <li>原子性：不可分割</li>
@@ -189,7 +189,7 @@
 <li><strong>什么是指令重排？</strong></li>
 </ol>
 <p><strong>举例分析</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> y = <span class="number">2</span>;	<span class="comment">// 2</span></span><br><span class="line">x = x + <span class="number">5</span>;	<span class="comment">// 3</span></span><br><span class="line">y = x * x;	<span class="comment">// 4</span></span><br><span class="line"></span><br><span class="line">我们以前所理解的顺序是 <span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span></span><br><span class="line">    但是计算机可能执行的顺序 <span class="number">1324</span> <span class="number">2134</span></span><br><span class="line">    但绝对不可能是 <span class="number">4123</span> 这样的</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> y = <span class="number">2</span>;	<span class="comment">// 2</span></span><br><span class="line">x = x + <span class="number">5</span>;	<span class="comment">// 3</span></span><br><span class="line">y = x * x;	<span class="comment">// 4</span></span><br><span class="line"></span><br><span class="line">我们以前所理解的顺序是 <span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span></span><br><span class="line">    但是计算机可能执行的顺序 <span class="number">1324</span> <span class="number">2134</span></span><br><span class="line">    但绝对不可能是 <span class="number">4123</span> 这样的</span><br><span class="line">    </span><br><span class="line">    我们都知道，为了性能优化，JMM在不改变正确语义的前提下，会允许编译器和处理器对指令序列进行重排序，那如果想阻止重排序要怎么办了？答案是可以添加内存屏障。</span><br></pre></td></tr></table></figure>
 
 
 <table>
@@ -238,6 +238,7 @@
 <ul>
 <li>可能出现 x = 2 , y = 1的诡异结果</li>
 </ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200901/213036214.png" alt="mark"></p>
 <p><strong>解决方案：volatile可以避免指令重排</strong></p>
 <ul>
 <li><strong>原理：内存屏障</strong><ul>
@@ -247,10 +248,23 @@
 </li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200503/210747591.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200901/213119984.png" alt="mark"></p>
+<p>“NO”表示禁止重排序。为了实现volatile内存语义时，编译器在生成字节码时，会在指令序列中插入内存屏障来禁止特定类型的<strong>处理器重排序</strong>。对于编译器来说，发现一个最优布置来最小化插入屏障的总数几乎是不可能的，为此，JMM采取了保守策略：</p>
+<ol>
+<li>在每个volatile写操作的<strong>前面</strong>插入一个StoreStore屏障；</li>
+<li>在每个volatile写操作的<strong>后面</strong>插入一个StoreLoad屏障；</li>
+<li>在每个volatile读操作的<strong>后面</strong>插入一个LoadLoad屏障；</li>
+<li>在每个volatile读操作的<strong>后面</strong>插入一个LoadStore屏障。</li>
+</ol>
+<p>需要注意的是：volatile写是在前面和后面<strong>分别插入内存屏障</strong>，而volatile读操作是在<strong>后面插入两个内存屏障</strong></p>
+<p><strong>StoreStore屏障</strong>：禁止上面的普通写和下面的volatile写重排序；</p>
+<p><strong>StoreLoad屏障</strong>：防止上面的volatile写与下面可能有的volatile读/写重排序</p>
+<p><strong>LoadLoad屏障</strong>：禁止下面所有的普通读操作和上面的volatile读重排序</p>
+<p><strong>LoadStore屏障</strong>：禁止下面所有的普通写操作和上面的volatile读重排序</p>
 <h2 id="3-单例模式详解"><a href="#3-单例模式详解" class="headerlink" title="3. 单例模式详解"></a>3. 单例模式详解</h2><p><strong>禁止指令重排最主要用在单例模式上：</strong></p>
 <h2 id="4-深入理解CAS"><a href="#4-深入理解CAS" class="headerlink" title="4. 深入理解CAS"></a>4. 深入理解CAS</h2><h3 id="4-1-底层原理"><a href="#4-1-底层原理" class="headerlink" title="4.1 底层原理"></a>4.1 底层原理</h3><p>CAS是如下的简称</p>
 <ul>
-<li><p><strong>compareAndSet</strong></p>
+<li><p><strong>compareAndSwap</strong></p>
 </li>
 <li><p><strong>比较并交换</strong></p>
 </li>
@@ -450,7 +464,7 @@
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JMM/" rel="tag">JMM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JMM/" rel="tag">JMM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/volatile/" rel="tag">volatile</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
 
 
     </footer>
@@ -461,19 +475,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/" class="article-nav-link">
+      <a href="/2020/05/03/jdk_SourceCode/JDK1.8-07-HashMap/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            JUC-13-异步回调
+            JDK1.8源码-07-java.util.HashMap
           
         </div>
       </a>
     
     
-      <a href="/2020/05/02/JUC/JUC-12-forkJoin/" class="article-nav-link">
+      <a href="/2020/05/02/JUC/JUC-13-%E5%BC%82%E6%AD%A5%E5%9B%9E%E8%B0%83/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">JUC-12-forkJoin</div>
+        <div class="article-nav-title">JUC-13-异步回调</div>
       </a>
     
   </nav>

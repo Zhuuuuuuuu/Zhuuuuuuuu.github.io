@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">534字</span>
+            <span class="post-count">1k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">4分钟</span>
         </span>
     </span>
 </div>
@@ -99,19 +99,48 @@
       
 
       
-      <h1 id="排序-01-堆排序"><a href="#排序-01-堆排序" class="headerlink" title="排序-01-堆排序"></a>排序-01-堆排序</h1><p>参考博客 ： <a href="https://www.cnblogs.com/skywang12345/p/3603935.html" target="_blank" rel="noopener">https://www.cnblogs.com/skywang12345/p/3603935.html</a></p>
-<p><a href="https://blog.csdn.net/qq_36186690/article/details/82505569" target="_blank" rel="noopener">https://blog.csdn.net/qq_36186690/article/details/82505569</a></p>
-<h2 id="1-堆排序介绍"><a href="#1-堆排序介绍" class="headerlink" title="1. 堆排序介绍"></a>1. 堆排序介绍</h2><ul>
+      <h1 id="排序-01-堆排序"><a href="#排序-01-堆排序" class="headerlink" title="排序-01-堆排序"></a>排序-01-堆排序</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>堆排序是利用<strong>堆</strong>这种数据结构而设计的一种排序算法，堆排序是一种<strong>选择排序，</strong>它的最坏，最好，平均时间复杂度均为O(nlogn)，它也是不稳定排序。首先简单了解下堆结构。</li>
+</ul>
+<h2 id="1-堆"><a href="#1-堆" class="headerlink" title="1. 堆"></a>1. 堆</h2><ul>
+<li>堆是具有如下性质的完全二叉树<ul>
+<li>每个节点的值都大于或者等于其左右孩子节点的值，成为大顶堆</li>
+<li>每个节点的值都小于或者等于其左右孩子节点的值，成为小顶堆</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200901/210713650.png" alt="mark"></p>
+<p>同时，将堆中节点按照层级进行编号，将这种逻辑结构映射到数组中就是如下的例子</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200901/210812092.png" alt="mark"></p>
+<p>该数组从逻辑上讲就是一个堆结构，我们用简单的公式来描述一下堆的定义就是：</p>
+<p><strong>大顶堆：arr[i] &gt;= arr[2i+1] &amp;&amp; arr[i] &gt;= arr[2i+2]</strong>  </p>
+<p><strong>小顶堆：arr[i] &lt;= arr[2i+1] &amp;&amp; arr[i] &lt;= arr[2i+2]</strong>  </p>
+<p>ok，了解了这些定义。接下来，我们来看看堆排序的基本思想及基本步骤：</p>
+<a id="more"></a>
+
+
+
+<h2 id="2-堆排序介绍"><a href="#2-堆排序介绍" class="headerlink" title="2. 堆排序介绍"></a>2. 堆排序介绍</h2><ul>
 <li>堆排序(Heap Sort) 是指利用堆这种数据结构所涉及的一种排序算法。</li>
-<li><strong>将无需序列构建成一个堆，根据升序降序需求选择大顶堆或小顶堆;</strong></li>
+<li><strong>将n个无序序列构建成一个堆，根据升序降序需求选择大顶堆或小顶堆;</strong></li>
 <li><strong>将堆顶元素与末尾元素交换，将最大元素”沉”到数组末端;</strong></li>
 <li><strong>重新调整结构，使其满足堆定义，然后继续交换堆顶元素与当前末尾元素，反复执行调整+交换步骤，直到整个序列有序。</strong></li>
 </ul>
+<p><strong>步骤一 构造初始堆。将给定无序序列构造成一个大顶堆（一般升序采用大顶堆，降序采用小顶堆)。</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200901/211132796.png" alt="mark"></p>
+<p><strong>步骤二 将堆顶元素与末尾元素进行交换，使末尾元素最大。然后继续调整堆，再将堆顶元素与末尾元素交换，得到第二大元素。如此反复进行交换、重建、交换。</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Administrator</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HeapSort</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String []args)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> []arr = &#123;<span class="number">7</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">11</span>,<span class="number">5</span>,<span class="number">12</span>,<span class="number">3</span>,<span class="number">0</span>,<span class="number">1</span>&#125;;</span><br><span class="line">        System.out.println(<span class="string">"排序前："</span>+Arrays.toString(arr));</span><br><span class="line">        sort(arr);</span><br><span class="line">        System.out.println(<span class="string">"排序前："</span>+Arrays.toString(arr));</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(<span class="keyword">int</span> []arr)</span></span>&#123;</span><br><span class="line">        <span class="comment">//1.构建大顶堆</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=arr.length/<span class="number">2</span>-<span class="number">1</span>;i&gt;=<span class="number">0</span>;i--)&#123;</span><br><span class="line">            <span class="comment">//从第一个非叶子结点从下至上，从右至左调整结构</span></span><br><span class="line">            adjustHeap(arr,i,arr.length);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//2.调整堆结构+交换堆顶元素与末尾元素</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=arr.length-<span class="number">1</span>;j&gt;<span class="number">0</span>;j--)&#123;</span><br><span class="line">            swap(arr,<span class="number">0</span>,j);<span class="comment">//将堆顶元素与末尾元素进行交换</span></span><br><span class="line">            adjustHeap(arr,<span class="number">0</span>,j);<span class="comment">//重新对堆进行调整</span></span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 调整大顶堆（仅是调整过程，建立在大顶堆已构建的基础上）</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> arr</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> i</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> length</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">adjustHeap</span><span class="params">(<span class="keyword">int</span> []arr,<span class="keyword">int</span> i,<span class="keyword">int</span> length)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> temp = arr[i];<span class="comment">//先取出当前元素i</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> k=i*<span class="number">2</span>+<span class="number">1</span>;k&lt;length;k=k*<span class="number">2</span>+<span class="number">1</span>)&#123;<span class="comment">//从i结点的左子结点开始，也就是2i+1处开始</span></span><br><span class="line">            <span class="keyword">if</span>(k+<span class="number">1</span>&lt;length &amp;&amp; arr[k]&lt;arr[k+<span class="number">1</span>])&#123;<span class="comment">//如果左子结点小于右子结点，k指向右子结点</span></span><br><span class="line">                k++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(arr[k] &gt;temp)&#123;<span class="comment">//如果子节点大于父节点，将子节点值赋给父节点（不用进行交换）</span></span><br><span class="line">                arr[i] = arr[k];</span><br><span class="line">                i = k;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        arr[i] = temp;<span class="comment">//将temp值放到最终的位置</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 交换元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> arr</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> a</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> b</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> []arr,<span class="keyword">int</span> a ,<span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> temp=arr[a];</span><br><span class="line">        arr[a] = arr[b];</span><br><span class="line">        arr[b] = temp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200812-202023330.gif" alt="mark"></p>
+<p>参考博客 ： <a href="https://www.cnblogs.com/skywang12345/p/3603935.html" target="_blank" rel="noopener">https://www.cnblogs.com/skywang12345/p/3603935.html</a></p>
+<p><a href="https://blog.csdn.net/qq_36186690/article/details/82505569" target="_blank" rel="noopener">https://blog.csdn.net/qq_36186690/article/details/82505569</a></p>
+<p><a href="https://www.cnblogs.com/chengxiao/p/6129630.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6129630.html</a></p>
+<p>再简单总结下堆排序的基本思路：</p>
+<p>　　<strong>a.将无序序列构建成一个堆，根据升序降序需求选择大顶堆或小顶堆;</strong></p>
+<p>　　<strong>b.将堆顶元素与末尾元素交换，将最大元素”沉”到数组末端;</strong></p>
+<p>　　<strong>c.重新调整结构，使其满足堆定义，然后继续交换堆顶元素与当前末尾元素，反复执行调整+交换步骤，直到整个序列有序。</strong></p>
 
       
       <!-- reward -->
@@ -186,7 +215,7 @@
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" rel="tag">排序算法</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A0%86%E6%8E%92%E5%BA%8F/" rel="tag">堆排序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" rel="tag">排序算法</a></li></ul>
 
 
     </footer>
@@ -207,9 +236,9 @@
       </a>
     
     
-      <a href="/2020/08/12/Mysql/Mysql-11-%E6%85%A2%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" class="article-nav-link">
+      <a href="/2020/08/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E5%BC%82%E5%B8%B8/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Mysql-11-慢查询优化</div>
+        <div class="article-nav-title">Java-基础-异常</div>
       </a>
     
   </nav>

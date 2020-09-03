@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3.1k字</span>
+            <span class="post-count">3.3k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">11分钟</span>
+            <span class="post-count">12分钟</span>
         </span>
     </span>
 </div>
@@ -103,11 +103,21 @@
 <a id="more"></a>
 
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="1-用户空间与内核空间"><a href="#1-用户空间与内核空间" class="headerlink" title="1. 用户空间与内核空间"></a>1. 用户空间与内核空间</h3><ul>
-<li>现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，它的寻址空间（虚拟存储空间）为4G（2的32次方）。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。为了保证用户进程不能直接操作内核（kernel），保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。针对linux操作系统而言，将最高的1G字节（从虚拟地址0xC0000000到0xFFFFFFFF），供内核使用，称为内核空间，而将较低的3G字节（从虚拟地址0x00000000到0xBFFFFFFF），供各个进程使用，称为用户空间。</li>
+<li>现在操作系统都是采用虚拟存储器，那么对32位操作系统而言，<strong>它的寻址空间（虚拟存储空间）为4G（2的32次方）</strong>。操作系统的核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。为了保证用户进程不能直接操作内核（kernel），保证内核的安全，操心系统将虚拟空间划分为两部分，一部分为内核空间，一部分为用户空间。</li>
+<li><strong>针对linux操作系统而言，将最高的1G字节（从虚拟地址<code>0xC0000000</code>到<code>0xFFFFFFFF</code>），供内核使用，称为内核空间，</strong></li>
+<li><strong>而将较低的3G字节（从虚拟地址<code>0x00000000</code>到<code>0xBFFFFFFF</code>），供各个进程使用，称为用户空间。</strong></li>
 </ul>
 <h3 id="2-进程切换"><a href="#2-进程切换" class="headerlink" title="2. 进程切换"></a>2. 进程切换</h3><ul>
 <li><p>为了控制进程的执行，内核必须有能力挂起正在CPU上运行的进程，并恢复以前挂起的某个进程的执行。这种行为被称为进程切换。因此可以说，任何进程都是在操作系统内核的支持下运行的，是与内核紧密相关的。</p>
-<p>从一个进程的运行转到另一个进程上运行，这个过程中经过下面这些变化：<br>\1. 保存处理机上下文，包括程序计数器和其他寄存器。<br>\2. 更新PCB信息。<br>\3. 把进程的PCB移入相应的队列，如就绪、在某事件阻塞等队列。<br>\4. 选择另一个进程执行，并更新其PCB。<br>\5. 更新内存管理的数据结构。<br>\6. 恢复处理机上下文。</p>
+<p>从一个进程的运行转到另一个进程上运行，这个过程中经过下面这些变化：</p>
+<ol>
+<li>保存处理机上下文，包括程序计数器和其他寄存器。</li>
+<li>更新PCB信息。</li>
+<li>把进程的PCB移入相应的队列，如就绪、在某事件阻塞等队列。</li>
+<li>选择另一个进程执行，并更新其PCB。</li>
+<li>更新内存管理的数据结构。</li>
+<li>恢复处理机上下文。</li>
+</ol>
 </li>
 </ul>
 <h3 id="3-进程阻塞"><a href="#3-进程阻塞" class="headerlink" title="3. 进程阻塞"></a>3. 进程阻塞</h3><ul>
@@ -115,10 +125,10 @@
 </ul>
 <h3 id="4-文件描述符fd"><a href="#4-文件描述符fd" class="headerlink" title="4. 文件描述符fd"></a>4. 文件描述符fd</h3><ul>
 <li>文件描述符（File descriptor）是计算机科学中的一个术语，是一个用于表述指向文件的引用的抽象化概念。</li>
-<li><strong>文件描述符在形式上是一个非负整数。实际上，它是一个索引值</strong>，指向内核为每一个进程所维护的该进程打开文件的记录表。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。在程序设计中，一些涉及底层的程序编写往往会围绕着文件描述符展开。但是文件描述符这一概念往往只适用于UNIX、Linux这样的操作系统。</li>
+<li><strong>文件描述符在形式上是一个非负整数。实际上，它是一个索引值</strong>，指向<strong>内核为每一个进程所维护的该进程打开文件的记录表</strong>。当程序打开一个现有文件或者创建一个新文件时，内核向进程返回一个文件描述符。在程序设计中，一些涉及底层的程序编写往往会围绕着文件描述符展开。但是文件描述符这一概念往往只适用于UNIX、Linux这样的操作系统。</li>
 </ul>
 <h2 id="IO模式"><a href="#IO模式" class="headerlink" title="IO模式"></a>IO模式</h2><ul>
-<li><p>刚才说了，对于一次IO访问（以read举例），数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。所以说，当一个read操作发生时，它会经历两个阶段：<br><strong>\1. 等待数据准备 (Waiting for the data to be ready)</strong><br><strong>\2. 将数据从内核拷贝到进程中 (Copying the data from the kernel to the process)</strong></p>
+<li><p>刚才说了，对于一次IO访问（以read举例），数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。所以说，当一个read操作发生时，它会经历两个阶段：<br><strong>1. 等待数据准备 (Waiting for the data to be ready)</strong><br><strong>2. 将数据从内核拷贝到进程中 (Copying the data from the kernel to the process)</strong></p>
 </li>
 <li><p><strong>正式因为这两个阶段，linux系统产生了下面五种网络模式的方案。</strong><br><strong>- 阻塞 I/O（blocking IO）</strong><br><strong>- 非阻塞 I/O（nonblocking IO）</strong><br><strong>- I/O 多路复用（ IO multiplexing）</strong><br><strong>- 信号驱动 I/O（ signal driven IO）</strong><br><strong>- 异步 I/O（asynchronous IO）</strong></p>
 </li>
@@ -128,7 +138,8 @@
 <li>在linux中，默认情况下所有的socket都是blocking，一个典型的读操作流程大概是这样：</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200818-162629646.png" alt="mark"></p>
-<p>当用户进程调用了recvfrom这个系统调用，kernel就开始了IO的第一个阶段：准备数据（对于网络IO来说，很多时候数据在一开始还没有到达。比如，还没有收到一个完整的UDP包。这个时候kernel就要等待足够的数据到来）。这个过程需要等待，也就是说数据被拷贝到操作系统内核的缓冲区中是需要一个过程的。而在用户进程这边，整个进程会被阻塞（当然，是进程自己选择的阻塞）。当kernel一直等到数据准备好了，它就会将数据从kernel中拷贝到用户内存，然后kernel返回结果，用户进程才解除block的状态，重新运行起来。</p>
+<p>当用户进程调用了recvfrom这个系统调用，kernel就开始了IO的第一个阶段：准备数据（对于网络IO来说，很多时候数据在一开始还没有到达。比如，还没有收到一个完整的UDP包。这个时候kernel就要等待足够的数据到来）。</p>
+<p>这个过程需要等待，也就是说数据被拷贝到操作系统内核的缓冲区中是需要一个过程的。而在用户进程这边，整个进程会被阻塞（当然，是进程自己选择的阻塞）。当kernel一直等到数据准备好了，它就会将数据从kernel中拷贝到用户内存，然后kernel返回结果，用户进程才解除block的状态，重新运行起来。</p>
 <blockquote>
 <p>所以，blocking IO的特点就是在IO执行的两个阶段都被block了。</p>
 </blockquote>
@@ -137,7 +148,9 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200818-163037584.png" alt="mark"></p>
 <ul>
-<li>当用户进程发出read操作时，如果kernel中的数据还没有准备好，那么它并不会block用户进程，而是立刻返回一个error。从用户进程角度讲 ，它发起一个read操作后，并不需要等待，而是马上就得到了一个结果。用户进程判断结果是一个error时，它就知道数据还没有准备好，于是它可以再次发送read操作。一旦kernel中的数据准备好了，并且又再次收到了用户进程的system call，那么它马上就将数据拷贝到了用户内存，然后返回。</li>
+<li>当用户进程发出read操作时，如果kernel中的数据还没有准备好，那么它并不会block用户进程，而是立刻返回一个error。</li>
+<li>从用户进程角度讲 ，它发起一个read操作后，并不需要等待，而是马上就得到了一个结果。</li>
+<li>用户进程判断结果是一个error时，它就知道数据还没有准备好，于是它可以再次发送read操作。一旦kernel中的数据准备好了，并且又再次收到了用户进程的system call，那么它马上就将数据拷贝到了用户内存，然后返回。</li>
 </ul>
 <blockquote>
 <p>所以，nonblocking IO的特点是用户进程需要<strong>不断的主动询问</strong>kernel数据好了没有。</p>
@@ -147,7 +160,7 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200818-164148525.png" alt="mark"></p>
 <h3 id="4-I-O-多路复用（-IO-multiplexing）"><a href="#4-I-O-多路复用（-IO-multiplexing）" class="headerlink" title="4. I/O 多路复用（ IO multiplexing）"></a>4. I/O 多路复用（ IO multiplexing）</h3><ul>
-<li>IO multiplexing就是我们说的<code>select，poll，epoll</code>，有些地方也称这种IO方式为<code>event driven IO。select/epol</code>l的好处就在于单个process就可以同时处理多个网络连接的IO。它的基本原理就是select，poll，epoll这个function会不断的轮询所负责的所有socket，当某个socket有数据到达了，就通知用户进程。</li>
+<li><code>IO multiplexing</code>就是我们说的<code>select，poll，epoll</code>，有些地方也称这种IO方式为<code>event driven IO select/epoll</code>的好处就在于单个process就可以同时处理多个网络连接的IO。它的基本原理就是<code>select，poll，epoll</code>这个function会不断的轮询所负责的所有socket，当某个socket有数据到达了，就通知用户进程。</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200818-165609923.png" alt="mark"></p>
 <ul>
@@ -158,17 +171,39 @@
 </li>
 <li><p>所以，如果处理的连接数不是很高的话，使用select/epoll的web server不一定比使用multi-threading + blocking IO的web server性能更好，可能延迟还更大。select/epoll的优势并不是对于单个连接能处理得更快，而是在于能处理更多的连接。）</p>
 </li>
-<li><p>在IO multiplexing Model中，实际中，对于每一个socket，一般都设置成为non-blocking，但是，如上图所示，整个用户的process其实是一直被block的。只不过process是被select这个函数block，而不是被socket IO给block。</p>
+<li><p>在IO multiplexing Model中，实际中，对于每一个<code>socket</code>，一般都设置成为<code>non-blocking</code>，但是，如上图所示，整个用户的<code>process</code>其实是一直被<code>block</code>的。只不过<code>process</code>是被<code>select</code>这个函数<code>block</code>，而不是被<code>socket IO</code>给<code>block</code>。</p>
 </li>
 </ul>
-<h2 id="select-poll-epoll-详解"><a href="#select-poll-epoll-详解" class="headerlink" title="select poll epoll 详解"></a>select poll epoll 详解</h2><p>(1)select==&gt;时间复杂度O(n)</p>
-<p>它仅仅知道了，有I/O事件发生了，却并不知道是哪那几个流（可能有一个，多个，甚至全部），我们只能无差别轮询所有流，找出能读出数据，或者写入数据的流，对他们进行操作。所以<strong>select具有O(n)的无差别轮询复杂度</strong>，同时处理的流越多，无差别轮询时间就越长。</p>
+<h2 id="select-poll-epoll-详解"><a href="#select-poll-epoll-详解" class="headerlink" title="select poll epoll 详解"></a>select poll epoll 详解</h2><p><strong>总结的不错的博客:</strong> <a href="https://blog.csdn.net/jiange_zh/article/details/50811553" target="_blank" rel="noopener">https://blog.csdn.net/jiange_zh/article/details/50811553</a></p>
+<p>(1)select==&gt;时间复杂度O(n)</p>
+<ul>
+<li>它仅仅知道了，有I/O事件发生了，却并不知道是哪那几个流（可能有一个，多个，甚至全部），我们只能无差别轮询所有流，找出能读出数据，或者写入数据的流，对他们进行操作。所以<strong>select具有O(n)的无差别轮询复杂度</strong>，同时处理的流越多，无差别轮询时间就越长。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200830/142733029.png" alt="mark"></p>
 <p>(2)poll==&gt;时间复杂度O(n)</p>
-<p>poll本质上和select没有区别，它将用户传入的数组拷贝到内核空间，然后查询每个fd对应的设备状态， <strong>但是它没有最大连接数的限制</strong>，原因是它是基于链表来存储的.</p>
+<ul>
+<li>poll本质上和select没有区别，它将用户传入的数组拷贝到内核空间，然后查询每个fd对应的设备状态， <strong>但是它没有最大连接数的限制</strong>，原因是它是基于链表来存储的.</li>
+</ul>
 <p>(3)epoll==&gt;时间复杂度O(1)</p>
-<p><strong>epoll可以理解为event poll</strong>，不同于忙轮询和无差别轮询，epoll会把哪个流发生了怎样的I/O事件通知我们。所以我们说epoll实际上是<strong>事件驱动（每个事件关联上fd）</strong>的，此时我们对这些流的操作都是有意义的。<strong>（复杂度降低到了O(1)）</strong></p>
+<ul>
+<li><strong>epoll可以理解为event poll</strong>，不同于忙轮询和无差别轮询，epoll会把哪个流发生了怎样的I/O事件通知我们。所以我们说epoll实际上是<strong>事件驱动（每个事件关联上fd）</strong>的，此时我们对这些流的操作都是有意义的。<strong>（复杂度降低到了O(1)）</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200830/142834510.png" alt="mark"></p>
 <p>select，poll，epoll都是IO多路复用的机制。I/O多路复用就通过一种机制，可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪），能够通知程序进行相应的读写操作。<strong>但select，poll，epoll本质上都是同步I/O，因为他们都需要在读写事件就绪后自己负责进行读写，也就是说这个读写过程是阻塞的</strong>，而异步I/O则无需自己负责进行读写，异步I/O的实现会负责把数据从内核拷贝到用户空间。 </p>
 <p>epoll跟select都能提供多路I/O复用的解决方案。在现在的Linux内核里有都能够支持，其中epoll是Linux所特有，而select则应该是POSIX所规定，一般操作系统均有实现</p>
+<p><strong>epoll的工作方式</strong></p>
+<p>epoll的两种工作方式：<strong>1.水平触发（LT）2.边缘触发（ET）</strong> </p>
+<p><strong>LT模式：</strong></p>
+<ul>
+<li>若就绪的事件一次没有处理完要做的事件，就会一直去处理。</li>
+<li>即就会将没有处理完的事件继续放回到就绪队列之中（即那个内核中的链表），一直进行处理。 </li>
+</ul>
+<p><strong>ET模式：</strong></p>
+<ul>
+<li>就绪的事件只能处理一次，若没有处理完会在下次的其它事件就绪时再进行处理。</li>
+<li>而若以后再也没有就绪的事件，那么剩余的那部分数据也会随之而丢失。 </li>
+</ul>
+<p>由此可见：ET模式的效率比LT模式的效率要高很多。只是如果使用ET模式，就要保证每次进行数据处理时，要将其处理完，不能造成数据丢失，这样对编写代码的人要求就比较高。<br>注意：ET模式只支持非阻塞的读写：为了保证数据的完整性。</p>
 <p><strong>总结：</strong></p>
 <p>（1）select，poll实现需要自己不断轮询所有fd集合，直到设备就绪，期间可能要睡眠和唤醒多次交替。而epoll其实也需要调用epoll_wait不断轮询就绪链表，期间也可能多次睡眠和唤醒交替，但是它是设备就绪时，调用回调函数，把就绪fd放入就绪链表中，并唤醒在epoll_wait中进入睡眠的进程。虽然都要睡眠和交替，但是select和poll在“醒着”的时候要遍历整个fd集合，而epoll在“醒着”的时候只要判断一下就绪链表是否为空就行了，这节省了大量的CPU时间。这就是回调机制带来的性能提升。</p>
 <p>（2）select，poll每次调用都要把fd集合从用户态往内核态拷贝一次，并且要把current往设备等待队列中挂一次，而epoll只要一次拷贝，而且把current往等待队列上挂也只挂一次（在epoll_wait的开始，注意这里的等待队列并不是设备等待队列，只是一个epoll内部定义的等待队列）。这也能节省不少的开销。</p>
@@ -180,7 +215,7 @@
 </ul>
 <p><strong>两者的区别就在于synchronous IO做”IO operation”的时候会将process阻塞。按照这个定义，之前所述的blocking IO，non-blocking IO，IO multiplexing都属于synchronous IO。</strong></p>
 <ul>
-<li><p>有人会说，non-blocking IO并没有被block啊。这里有个非常“狡猾”的地方，定义中所指的”IO operation”是指真实的IO操作，就是例子中的recvfrom这个system call。non-blocking IO在执行recvfrom这个system call的时候，如果kernel的数据没有准备好，这时候不会block进程。但是，当kernel中数据准备好的时候，recvfrom会将数据从kernel拷贝到用户内存中，这个时候进程是被block了，在这段时间内，进程是被block的。</p>
+<li><p>有人会说，non-blocking IO并没有被block啊。这里有个非常“狡猾”的地方，定义中所指的”IO operation”是指真实的IO操作，就是例子中的recvfrom这个system call。non-blocking IO在执行recvfrom这个system call的时候，如果kernel的数据没有准备好，这时候不会block进程。<strong>但是，当kernel中数据准备好的时候，recvfrom会将数据从kernel拷贝到用户内存中，这个时候进程是被block了，在这段时间内，进程是被block的。</strong></p>
 </li>
 <li><p>而asynchronous IO则不一样，当进程发起IO 操作之后，就直接返回再也不理睬了，直到kernel发送一个信号，告诉进程说IO完成。在这整个过程中，进程完全没有被block。</p>
 </li>
