@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">4字</span>
+            <span class="post-count">1.4k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">5分钟</span>
         </span>
     </span>
 </div>
@@ -99,7 +99,103 @@
       
 
       
-      <h1 id="Java-基础-interrupt"><a href="#Java-基础-interrupt" class="headerlink" title="Java-基础-interrupt()"></a>Java-基础-interrupt()</h1>
+      <h1 id="Java-基础-interrupt"><a href="#Java-基础-interrupt" class="headerlink" title="Java-基础-interrupt()"></a>Java-基础-interrupt()</h1><h2 id="1-InterruptedException"><a href="#1-InterruptedException" class="headerlink" title="1. InterruptedException"></a>1. InterruptedException</h2><ul>
+<li>当一个方法后面声明可能会抛出<code>InterruptedException</code>异常时，说明该方法是可能会花一点时间，但是可以取消的方法。</li>
+</ul>
+<ul>
+<li>抛<code>InterruptedException</code>的代表方法有：<ul>
+<li><code>java.lang.Object</code> 类的 wait 方法</li>
+<li><code>java.lang.Thread</code> 类的 sleep 方法</li>
+<li><code>java.lang.Thread</code> 类的 join 方法</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+
+
+<p>– 需要花点时间的方法</p>
+<ul>
+<li><p>执行<code>wait</code>方法的线程，会进入等待区等待被<code>notify/notify All</code>。在等待期间，线程不会活动。</p>
+</li>
+<li><p>执行<code>sleep</code>方法的线程，会暂停执行参数内所设置的时间。</p>
+</li>
+<li><p>执行<code>join</code>方法的线程，会等待到指定的线程结束为止。</p>
+</li>
+</ul>
+<p>因此，上面的方法都是需要花点时间的方法。</p>
+<p>– 可以取消的方法</p>
+<ul>
+<li>因为需要花时间的操作会降低程序的响应性，所以可能会取消/中途放弃执行这个方法。</li>
+<li>这里主要是通过interrupt方法来取消。</li>
+</ul>
+<ol>
+<li><strong>sleep方法与interrupt方法</strong></li>
+</ol>
+<ul>
+<li>interrupt方法是Thread类的实例方法，在执行的时候并不需要获取Thread实例的锁定，任何线程在任何时刻，都可以通过线程实例来调用其他线程的interrupt方法。</li>
+<li>当在sleep中的线程被调用interrupt方法时，就会放弃暂停的状态，并抛出<code>InterruptedException</code>异常，这样一来，线程的控制权就交给了捕捉这个异常的catch块了。</li>
+</ul>
+<ol start="2">
+<li><strong>wait方法和interrupt方法</strong></li>
+</ol>
+<ul>
+<li>当线程调用<code>wait</code>方法后，<strong>线程在进入等待区时，会把锁定解除</strong>。</li>
+<li>当对wait中的线程调用<code>interrupt</code>方法时，<strong>会先重新获取锁定</strong>，再抛出<code>InterruptedException</code>异常，获取锁定之前，无法抛出<code>InterruptedException</code>异常。</li>
+</ul>
+<ol start="3">
+<li><strong>join方法和interrupt方法</strong></li>
+</ol>
+<ul>
+<li>当线程以join方法等待其他线程结束时，一样可以使用interrupt方法取消。因为join方法不需要获取锁定，故而与sleep一样，会马上跳到catch程序块</li>
+</ul>
+<p><strong>线程中断</strong></p>
+<ul>
+<li>每一个线程都有一个boolean类型的标志，此标志意思是当前的请求是否请求中断，默认为false。</li>
+<li>当一个线程A调用了线程B的interrupt方法时，那么线程B的是否请求的中断标志变为true。而线程B可以调用方法检测到此标志的变化。</li>
+</ul>
+<ol>
+<li><strong>对于阻塞方法（join,sleep,wait）</strong></li>
+</ol>
+<ul>
+<li>如果线程B调用了阻塞方法，如果是否请求中断标志变为了true，那么它会抛出InterruptedException异常。<strong>抛出异常的同时它会将线程B的是否请求中断标志置为false</strong></li>
+</ul>
+<ol start="2">
+<li><strong>对于非阻塞方法</strong></li>
+</ol>
+<ul>
+<li>可以通过线程B的<code>isInterrupted</code>方法进行检测是否请求中断标志为true还是false</li>
+<li>另外还有一个静态的方法<code>interrupted</code>方法也可以检测标志。但是静态方法它检测完以后会自动的将是否请求中断标志位置为false</li>
+</ul>
+<h2 id="2-interrupt-方法"><a href="#2-interrupt-方法" class="headerlink" title="2. interrupt()方法"></a>2. interrupt()方法</h2><ul>
+<li><strong>interrupt方法其实只是改变了中断状态而已。</strong></li>
+<li><strong>而sleep、wait和join这些方法的内部会不断的检查中断状态的值，从而自己抛出InterruptEdException。</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">所以，如果在线程进行其他处理时，调用了它的interrupt方法，线程也不会抛出InterruptedException的，只有当线程走到了sleep, wait, join这些方法的时候，才会抛出InterruptedException。若是没有调用sleep, wait, join这些方法，或者没有在线程里自己检查中断状态，自己抛出InterruptedException，那InterruptedException是不会抛出来的。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-isInterrupted-方法"><a href="#3-isInterrupted-方法" class="headerlink" title="3. isInterrupted() 方法"></a>3. isInterrupted() 方法</h2><ul>
+<li>可以用来检查中断状态，并且不会清除</li>
+</ul>
+<h2 id="4-interrupted（）-方法"><a href="#4-interrupted（）-方法" class="headerlink" title="4. interrupted（） 方法"></a>4. interrupted（） 方法</h2><ul>
+<li>可以用来检查并清除中断状态。</li>
+</ul>
+<h2 id="5-InterruptedException-的处理"><a href="#5-InterruptedException-的处理" class="headerlink" title="5. InterruptedException 的处理"></a>5. InterruptedException 的处理</h2><ul>
+<li>现在知道线程可以检测到自身的标志位的变化，但是他只是一个标志，<strong>如果线程本身不处理的话，那么程序还是会执行下去</strong>，就好比，老师在学校叮嘱要好好学习，具体什么时候，如何好好学习还是看自身。</li>
+<li>因此<code>interrupt()</code> 方法并不能立即中断线程，该方法仅仅告诉线程外部已经有中断请求，至于是否中断还取决于线程自己</li>
+</ul>
+<p>简单的了解了什么是阻塞和中断以后，我们就该了解碰到<code>InterruptedException</code>异常该如何处理了。</p>
+<p><strong>一句话：不要不管不顾</strong></p>
+<ul>
+<li><strong>有时候阻塞的方法抛出<code>InterruptedException</code>异常并不合适</strong>，例如在<code>Runnable</code>中调用了可中断的方法，因为你的程序是实现了<code>Runnable</code>接口，然后在重写<code>Runnable</code>接口的<code>run</code>方法的时候，那么子类抛出的异常要小于等于父类的异常。而在<code>Runnable</code>中<code>run</code>方法是没有抛异常的。<strong>所以此时是不能抛出InterruptedException异常</strong>。</li>
+<li>如果<strong>此时你只是记录日志的话</strong>，那么就是一个<strong>不负责任的做法</strong>，<strong>因为在捕获<code>InterruptedException</code>异常的时候自动的将 是否请求中断标志置为了false。</strong></li>
+<li><strong>至少在捕获了<code>InterruptedException</code>异常之后，如果你什么也不想做，那么就将标志重新置为<code>true</code></strong>，<strong>以便栈中更高层的代码能知道中断，并且对中断作出响应。</strong></li>
+</ul>
+<p><strong>捕获到InterruptedException异常后恢复中断状态</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskRunner</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> BlockingQueue&lt;Task&gt; queue;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TaskRunner</span><span class="params">(BlockingQueue&lt;Task&gt; queue)</span> </span>&#123; </span><br><span class="line">        <span class="keyword">this</span>.queue = queue; </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">             <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                 Task task = queue.take(<span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line">                 task.execute();</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">catch</span> (InterruptedException e) &#123; </span><br><span class="line">             <span class="comment">// Restore the interrupted status</span></span><br><span class="line">             <span class="comment">// 向上保存中断的状态</span></span><br><span class="line">             Thread.currentThread().interrupt();</span><br><span class="line">         &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
       
       <!-- reward -->
       

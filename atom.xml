@@ -124,6 +124,30 @@
   </entry>
   
   <entry>
+    <title>计算机网络-06-数据链路层</title>
+    <link href="http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"/>
+    <id>http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/</id>
+    <published>2020-08-27T04:45:24.000Z</published>
+    <updated>2020-08-28T02:09:30.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="计算机网络-06-数据链路层"><a href="#计算机网络-06-数据链路层" class="headerlink" title="计算机网络-06-数据链路层"></a>计算机网络-06-数据链路层</h1><h2 id="前言-链路层的基本问题"><a href="#前言-链路层的基本问题" class="headerlink" title="前言 : 链路层的基本问题"></a>前言 : 链路层的基本问题</h2><h3 id="1-封装成帧"><a href="#1-封装成帧" class="headerlink" title="1. 封装成帧"></a>1. 封装成帧</h3><p>将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png" alt="mark"></p><a id="more"></a><h3 id="2-透明传输"><a href="#2-透明传输" class="headerlink" title="2. 透明传输"></a>2. 透明传输</h3><ul><li><p>透明表示一个实际存在的事物看起来好像不存在一样。</p></li><li><p>帧使用首部和尾部进行定界，<strong>如果帧的数据部分含有和首部尾部相同的内容</strong>，那么帧的开始和结束位置就会被错误的判定。</p></li><li><p>需要在数据部分出现首部尾部相同的内容前面插入转义字符。<strong>如果数据部分出现转义字符，那么就在转义字符前面再加个转义字符</strong>。在接收端进行处理之后可以还原出原始数据。这个过程透明传输的内容是转义字符，<strong>用户察觉不到转义字符的存在</strong>。</p></li></ul><h3 id="3-差错检测"><a href="#3-差错检测" class="headerlink" title="3. 差错检测"></a>3. 差错检测</h3><ul><li>目前数据链路层广泛使用了循环冗余检验（CRC）来检查比特差错。</li></ul><h1 id="信道分类"><a href="#信道分类" class="headerlink" title="信道分类"></a>信道分类</h1><h2 id="1-广播信道"><a href="#1-广播信道" class="headerlink" title="1. 广播信道"></a>1. 广播信道</h2><p>一对多通信，一个节点发送的数据能够被广播信道上所有的节点接收到。</p><p>所有的节点都在同一个广播信道上发送数据，因此需要有专门的控制方法进行协调，避免发生冲突（冲突也叫碰撞）。</p><p>主要有两种控制方法进行协调，一个是使用信道复用技术，一是使用 CSMA/CD 协议。</p><h2 id="2-点对点信道"><a href="#2-点对点信道" class="headerlink" title="2. 点对点信道"></a>2. 点对点信道</h2><p>一对一通信。</p><p>因为不会发生碰撞，因此也比较简单，使用 PPP 协议进行控制。</p><h1 id="CSMA-CD-协议"><a href="#CSMA-CD-协议" class="headerlink" title="CSMA/CD 协议"></a>CSMA/CD 协议</h1><p>CSMA/CD 表示载波监听多点接入 / 碰撞检测。</p><ul><li><strong>多点接入</strong>  ：说明这是总线型网络，许多主机以多点的方式连接到总线上。</li><li><strong>载波监听</strong>  ：每个主机都必须不停地监听信道。在发送前，如果监听到信道正在使用，就必须等待。</li><li><strong>碰撞检测</strong>  ：在发送中，如果监听到信道已有其它主机正在发送数据，就表示发生了碰撞。虽然每个主机在发送数据之前都已经监听到信道为空闲，但是由于电磁波的传播时延的存在，还是有可能会发生碰撞。</li></ul><p>记端到端的传播时延为 τ，最先发送的站点最多经过 2τ 就可以知道是否发生了碰撞，称 2τ 为   <strong>争用期</strong>  。只有经过争用期之后还没有检测到碰撞，才能肯定这次发送不会发生碰撞。</p><p>当发生碰撞时，站点要停止发送，等待一段时间再发送。这个时间采用   <strong>截断二进制指数退避算法</strong>   来确定。从离散的整数集合 {0, 1, .., (2<sup>k</sup>-1)} 中随机取出一个数，记作 r，然后取 r 倍的争用期作为重传等待时间。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-095659471.png" alt="mark"></p><h1 id="PPP-协议"><a href="#PPP-协议" class="headerlink" title="PPP 协议"></a>PPP 协议</h1><p>互联网用户通常需要连接到某个 ISP 之后才能接入到互联网，PPP 协议是用户计算机和 ISP 进行通信时所使用的数据链路层协议。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100345698.png" alt="mark"></p><p>PPP 的帧格式：</p><ul><li>F 字段为帧的定界符</li><li>A 和 C 字段暂时没有意义</li><li>FCS 字段是使用 CRC 的检验序列</li><li>信息部分的长度不超过 1500</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100434363.png" alt="mark"></p><h1 id="MAC-地址"><a href="#MAC-地址" class="headerlink" title="MAC 地址"></a>MAC 地址</h1><ul><li>MAC 地址是链路层地址，长度为 6 字节（48 位），用于唯一标识网络适配器（网卡）。</li><li>一台主机拥有多少个网络适配器就有多少个 MAC 地址。例如笔记本电脑普遍存在无线网络适配器和有线网络适配器，因此就有两个 MAC 地址。</li></ul><h1 id="局域网"><a href="#局域网" class="headerlink" title="局域网"></a>局域网</h1><p>局域网是一种典型的广播信道，主要特点是网络为一个单位所拥有，且地理范围和站点数目均有限。</p><p>主要有以太网、令牌环网、FDDI 和 ATM 等局域网技术，目前以太网占领着有线局域网市场。</p><p>可以按照网络拓扑结构对局域网进行分类：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100818521.png" alt="mark"></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;计算机网络-06-数据链路层&quot;&gt;&lt;a href=&quot;#计算机网络-06-数据链路层&quot; class=&quot;headerlink&quot; title=&quot;计算机网络-06-数据链路层&quot;&gt;&lt;/a&gt;计算机网络-06-数据链路层&lt;/h1&gt;&lt;h2 id=&quot;前言-链路层的基本问题&quot;&gt;&lt;a href=&quot;#前言-链路层的基本问题&quot; class=&quot;headerlink&quot; title=&quot;前言 : 链路层的基本问题&quot;&gt;&lt;/a&gt;前言 : 链路层的基本问题&lt;/h2&gt;&lt;h3 id=&quot;1-封装成帧&quot;&gt;&lt;a href=&quot;#1-封装成帧&quot; class=&quot;headerlink&quot; title=&quot;1. 封装成帧&quot;&gt;&lt;/a&gt;1. 封装成帧&lt;/h3&gt;&lt;p&gt;将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
+    
+      <category term="mac地址" scheme="http://zhuuu.work/tags/mac%E5%9C%B0%E5%9D%80/"/>
+    
+  </entry>
+  
+  <entry>
     <title>计算机网络-05-网络层</title>
     <link href="http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-05-%E7%BD%91%E7%BB%9C%E5%B1%82/"/>
     <id>http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-05-%E7%BD%91%E7%BB%9C%E5%B1%82/</id>
@@ -150,30 +174,6 @@
       <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
     
       <category term="ip" scheme="http://zhuuu.work/tags/ip/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>计算机网络-06-数据链路层</title>
-    <link href="http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"/>
-    <id>http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/</id>
-    <published>2020-08-27T04:45:24.000Z</published>
-    <updated>2020-08-28T02:09:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="计算机网络-06-数据链路层"><a href="#计算机网络-06-数据链路层" class="headerlink" title="计算机网络-06-数据链路层"></a>计算机网络-06-数据链路层</h1><h2 id="前言-链路层的基本问题"><a href="#前言-链路层的基本问题" class="headerlink" title="前言 : 链路层的基本问题"></a>前言 : 链路层的基本问题</h2><h3 id="1-封装成帧"><a href="#1-封装成帧" class="headerlink" title="1. 封装成帧"></a>1. 封装成帧</h3><p>将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png" alt="mark"></p><a id="more"></a><h3 id="2-透明传输"><a href="#2-透明传输" class="headerlink" title="2. 透明传输"></a>2. 透明传输</h3><ul><li><p>透明表示一个实际存在的事物看起来好像不存在一样。</p></li><li><p>帧使用首部和尾部进行定界，<strong>如果帧的数据部分含有和首部尾部相同的内容</strong>，那么帧的开始和结束位置就会被错误的判定。</p></li><li><p>需要在数据部分出现首部尾部相同的内容前面插入转义字符。<strong>如果数据部分出现转义字符，那么就在转义字符前面再加个转义字符</strong>。在接收端进行处理之后可以还原出原始数据。这个过程透明传输的内容是转义字符，<strong>用户察觉不到转义字符的存在</strong>。</p></li></ul><h3 id="3-差错检测"><a href="#3-差错检测" class="headerlink" title="3. 差错检测"></a>3. 差错检测</h3><ul><li>目前数据链路层广泛使用了循环冗余检验（CRC）来检查比特差错。</li></ul><h1 id="信道分类"><a href="#信道分类" class="headerlink" title="信道分类"></a>信道分类</h1><h2 id="1-广播信道"><a href="#1-广播信道" class="headerlink" title="1. 广播信道"></a>1. 广播信道</h2><p>一对多通信，一个节点发送的数据能够被广播信道上所有的节点接收到。</p><p>所有的节点都在同一个广播信道上发送数据，因此需要有专门的控制方法进行协调，避免发生冲突（冲突也叫碰撞）。</p><p>主要有两种控制方法进行协调，一个是使用信道复用技术，一是使用 CSMA/CD 协议。</p><h2 id="2-点对点信道"><a href="#2-点对点信道" class="headerlink" title="2. 点对点信道"></a>2. 点对点信道</h2><p>一对一通信。</p><p>因为不会发生碰撞，因此也比较简单，使用 PPP 协议进行控制。</p><h1 id="CSMA-CD-协议"><a href="#CSMA-CD-协议" class="headerlink" title="CSMA/CD 协议"></a>CSMA/CD 协议</h1><p>CSMA/CD 表示载波监听多点接入 / 碰撞检测。</p><ul><li><strong>多点接入</strong>  ：说明这是总线型网络，许多主机以多点的方式连接到总线上。</li><li><strong>载波监听</strong>  ：每个主机都必须不停地监听信道。在发送前，如果监听到信道正在使用，就必须等待。</li><li><strong>碰撞检测</strong>  ：在发送中，如果监听到信道已有其它主机正在发送数据，就表示发生了碰撞。虽然每个主机在发送数据之前都已经监听到信道为空闲，但是由于电磁波的传播时延的存在，还是有可能会发生碰撞。</li></ul><p>记端到端的传播时延为 τ，最先发送的站点最多经过 2τ 就可以知道是否发生了碰撞，称 2τ 为   <strong>争用期</strong>  。只有经过争用期之后还没有检测到碰撞，才能肯定这次发送不会发生碰撞。</p><p>当发生碰撞时，站点要停止发送，等待一段时间再发送。这个时间采用   <strong>截断二进制指数退避算法</strong>   来确定。从离散的整数集合 {0, 1, .., (2<sup>k</sup>-1)} 中随机取出一个数，记作 r，然后取 r 倍的争用期作为重传等待时间。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-095659471.png" alt="mark"></p><h1 id="PPP-协议"><a href="#PPP-协议" class="headerlink" title="PPP 协议"></a>PPP 协议</h1><p>互联网用户通常需要连接到某个 ISP 之后才能接入到互联网，PPP 协议是用户计算机和 ISP 进行通信时所使用的数据链路层协议。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100345698.png" alt="mark"></p><p>PPP 的帧格式：</p><ul><li>F 字段为帧的定界符</li><li>A 和 C 字段暂时没有意义</li><li>FCS 字段是使用 CRC 的检验序列</li><li>信息部分的长度不超过 1500</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100434363.png" alt="mark"></p><h1 id="MAC-地址"><a href="#MAC-地址" class="headerlink" title="MAC 地址"></a>MAC 地址</h1><ul><li>MAC 地址是链路层地址，长度为 6 字节（48 位），用于唯一标识网络适配器（网卡）。</li><li>一台主机拥有多少个网络适配器就有多少个 MAC 地址。例如笔记本电脑普遍存在无线网络适配器和有线网络适配器，因此就有两个 MAC 地址。</li></ul><h1 id="局域网"><a href="#局域网" class="headerlink" title="局域网"></a>局域网</h1><p>局域网是一种典型的广播信道，主要特点是网络为一个单位所拥有，且地理范围和站点数目均有限。</p><p>主要有以太网、令牌环网、FDDI 和 ATM 等局域网技术，目前以太网占领着有线局域网市场。</p><p>可以按照网络拓扑结构对局域网进行分类：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100818521.png" alt="mark"></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;计算机网络-06-数据链路层&quot;&gt;&lt;a href=&quot;#计算机网络-06-数据链路层&quot; class=&quot;headerlink&quot; title=&quot;计算机网络-06-数据链路层&quot;&gt;&lt;/a&gt;计算机网络-06-数据链路层&lt;/h1&gt;&lt;h2 id=&quot;前言-链路层的基本问题&quot;&gt;&lt;a href=&quot;#前言-链路层的基本问题&quot; class=&quot;headerlink&quot; title=&quot;前言 : 链路层的基本问题&quot;&gt;&lt;/a&gt;前言 : 链路层的基本问题&lt;/h2&gt;&lt;h3 id=&quot;1-封装成帧&quot;&gt;&lt;a href=&quot;#1-封装成帧&quot; class=&quot;headerlink&quot; title=&quot;1. 封装成帧&quot;&gt;&lt;/a&gt;1. 封装成帧&lt;/h3&gt;&lt;p&gt;将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
-    
-      <category term="mac地址" scheme="http://zhuuu.work/tags/mac%E5%9C%B0%E5%9D%80/"/>
     
   </entry>
   
@@ -248,29 +248,6 @@
   </entry>
   
   <entry>
-    <title>Linux-03-PV</title>
-    <link href="http://zhuuu.work/2020/08/25/Linux/Linux-03-PV/"/>
-    <id>http://zhuuu.work/2020/08/25/Linux/Linux-03-PV/</id>
-    <published>2020-08-25T08:52:53.000Z</published>
-    <updated>2020-08-25T05:46:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><p>进程通常分为就绪、运行和阻塞三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p><p>进程三个状态之间的转换就是靠PV操作来控制的。PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</p><a id="more"></a><p><strong>信号量</strong></p><p>信号量是最早出现的用来解决进程同步与互斥问题的机制。　</p><ul><li>信号量由一个值和一个指针组成，指针指向等待该信号量的进程。信号量的值表示相应资源的使用情况。</li><li>信号量<code>S&gt;=0</code>时，S表示可用资源的数量。执行一次P操作意味着请求分配一个资源，因此S的值减1；</li><li>当<code>S&lt;0</code>时，表示已经没有可用资源，S的绝对值表示当前等待该资源的进程数。请求者必须等待其他进程释放该类资源，才能继续运行。而执行一个V操作意味着释放一个资源，因此S的值加1；</li><li>若S&lt;0，表示有某些进程正在等待该资源，因此要唤醒一个等待状态的进程，使之运行下去。</li></ul><p>注意，信号量的值只能由PV操作来改变。</p><p><strong><em>\</em>关于PV操作容易产生的一些疑问：**</strong></p><p><strong>1，S大于0那就表示有临界资源可供使用，为什么不唤醒进程？</strong></p><ul><li>S大于0的确表示有临界资源可供使用，也就是说这个时候没有进程被阻塞在这个资源上，所以不需要唤醒。</li></ul><p><strong>2，S小于0应该是说没有临界资源可供使用，为什么还要唤醒进程？</strong></p><ul><li>V原语操作的本质在于：一个进程使用完临界资源后，释放临界资源，使S加1，以通知其它的进程，这个时候如果S&lt;0，表明有进程阻塞在该类资源上，因此要从阻塞队列里唤醒一个进程来“转手”该类资源。</li><li>比如，有两个某类资源，四个进程A、B、C、D要用该类资源，最开始S=2，当A进入，S=1，当B进入S=0，表明该类资源刚好用完， 当C进入时S=-1，表明有一个进程被阻塞了，D进入，S=-2。当A用完该类资源时，进行V操作，S=-1，释放该类资源，因为S&lt;0，表明有进程阻塞在该类资源上，于是唤醒一个。</li></ul><p><strong>3，如果是互斥信号量的话，应该设置信号量S=1，但是当有5个进程都访问的话，最后在该信号量的链表里会有4个在等待，也是说S=-4，那么第一个进程执行了V操作使S加1，释放了资源，下一个应该能够执行，但唤醒的这个进程在执行P操作时因S&lt;0，也还是执行不了，这是怎么回事呢？</strong></p><ul><li>当一个进程阻塞了的时候，它已经执行过了P操作，并卡在临界区那个地方。当唤醒它时就立即进入它自己的临界区，并不需要执行P操作了，当执行完了临界区的程序后，就执行V操作。</li></ul><p><strong>4，S的绝对值表示等待的进程数，同时又表示临界资源，这到底是怎么回事？</strong></p><p>当信号量S小于0时，其绝对值表示系统中因请求该类资源而被阻塞的进程数目.S大于0时表示可用的临界资源数。注意在不同情况下所表达的含义不一样。当等于0时，表示刚好用完。</p><h2 id="2-PV操作"><a href="#2-PV操作" class="headerlink" title="2. PV操作"></a>2. PV操作</h2><p><strong>临界区：</strong>我们把并发进程中与共享变量有关的程序段称为临界区。</p><p><strong>信号量S</strong>：信号量的值与相应资源的使用情况有关。当它的值大于0时，表示当前可用资源的数量；当它的值小于0时，其绝对值表示等待使用该资源的进程个数。</p><p>​    <strong>P操作P（S）</strong>：将信号量S减去1，若结果小于0，则把调用P（S）的进程置成等待信号量S的状态。即为请求资源。</p><p>​    <strong>V操作V（S）</strong>：将信号量S加上1，若结果不大于0，则释放一个等待信号量S的进程。即为释放资源。</p><p>正如老师上课时所举的父亲给孩子吃苹果的例子一样，假如一个盘子只能放一个苹果，父亲往盘子里放了一个苹果。如果儿子吃了（<strong>V操作</strong>），父亲才可以接着放（<strong>P操作</strong>）；如果儿子不吃，那父亲就不能放苹果，只能等着。</p><p><strong>伪代码如下</strong></p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Procedure P (Var S：Semaphore)</span><br><span class="line"></span><br><span class="line">begin</span><br><span class="line"></span><br><span class="line">S：=S - 1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> S&lt;0 <span class="keyword">then</span> W(S) </span><br><span class="line"></span><br><span class="line">end; &#123; P &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Procedure V (Var S：Semaphore)</span><br><span class="line"></span><br><span class="line">begin</span><br><span class="line"></span><br><span class="line">S：=S + 1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> S&lt; = 0 <span class="keyword">then</span> R(S) </span><br><span class="line"></span><br><span class="line">end; &#123; V &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#       W(S)：表示把调用P（S）的进程置成等待信号量S的状态。</span></span><br><span class="line"><span class="comment">#R(S)：表示释放一个等待信号量S的进程。</span></span><br></pre></td></tr></table></figure><h3 id="2-1-进程互斥"><a href="#2-1-进程互斥" class="headerlink" title="2.1 进程互斥"></a>2.1 进程互斥</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">    利用信号量和PV操作实现进程互斥的一般模型是：</span><br><span class="line">进程P1              进程P2           ……          进程Pn</span><br><span class="line">……                  ……                           ……</span><br><span class="line">P（S）；              P（S）；                         P（S）；</span><br><span class="line">临界区；             临界区；                        临界区；</span><br><span class="line">V（S）；              V（S）；                        V（S）；</span><br><span class="line">……                  ……            ……           ……</span><br></pre></td></tr></table></figure><pre><code>其中信号量S用于互斥，初值为1。使用PV操作实现进程互斥时应该注意的是：（1）每个程序中用户实现互斥的P、V操作必须成对出现，先做P操作，进临界区，后做V操作，出临界区。若有多个分支，要认真检查其成对性。（2）P、V操作应分别紧靠临界区的头尾部，临界区的代码应尽可能短，不能有死循环。（3）互斥信号量的初值一般为1。</code></pre><h3 id="2-2-进程同步"><a href="#2-2-进程同步" class="headerlink" title="2.2 进程同步"></a>2.2 进程同步</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">利用信号量和PV操作实现进程同步</span><br><span class="line">PV操作是典型的同步机制之一。用一个信号量与一个消息联系起来，当信号量的值为0时，表示期望的消息尚未产生；当信号量的值非0时，表示期望的消息已经存在。用PV操作实现进程同步时，调用P操作测试消息是否到达，调用V操作发送消息。</span><br><span class="line"></span><br><span class="line">    使用PV操作实现进程同步时应该注意的是：</span><br><span class="line"></span><br><span class="line">    （1）分析进程间的制约关系，确定信号量种类。在保持进程间有正确的同步关系情况下，哪个进程先执行，哪些进程后执行，彼此间通过什么资源（信号量）进行协调，从而明确要设置哪些信号量。</span><br><span class="line">    （2）信号量的初值与相应资源的数量有关，也与P、V操作在程序代码中出现的位置有关。</span><br><span class="line">    （3）同一信号量的P、V操作要成对出现，但它们分别在不同的进程代码中。</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Linux-03-PV&quot;&gt;&lt;a href=&quot;#Linux-03-PV&quot; class=&quot;headerlink&quot; title=&quot;Linux-03-PV&quot;&gt;&lt;/a&gt;Linux-03-PV&lt;/h1&gt;&lt;h2 id=&quot;1-疑惑解答&quot;&gt;&lt;a href=&quot;#1-疑惑解答&quot; class=&quot;headerlink&quot; title=&quot;1. 疑惑解答&quot;&gt;&lt;/a&gt;1. 疑惑解答&lt;/h2&gt;&lt;p&gt;进程通常分为就绪、运行和阻塞三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;p&gt;进程三个状态之间的转换就是靠PV操作来控制的。PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="进程通信方式" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Linux-04-僵尸进程,孤儿进程</title>
     <link href="http://zhuuu.work/2020/08/25/Linux/Linux-04-%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B,%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/"/>
     <id>http://zhuuu.work/2020/08/25/Linux/Linux-04-%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B,%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/</id>
@@ -294,6 +271,29 @@
       <category term="僵尸进程" scheme="http://zhuuu.work/tags/%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B/"/>
     
       <category term="孤儿进程" scheme="http://zhuuu.work/tags/%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux-03-PV</title>
+    <link href="http://zhuuu.work/2020/08/25/Linux/Linux-03-PV/"/>
+    <id>http://zhuuu.work/2020/08/25/Linux/Linux-03-PV/</id>
+    <published>2020-08-25T08:52:53.000Z</published>
+    <updated>2020-08-25T05:46:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><p>进程通常分为就绪、运行和阻塞三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p><p>进程三个状态之间的转换就是靠PV操作来控制的。PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</p><a id="more"></a><p><strong>信号量</strong></p><p>信号量是最早出现的用来解决进程同步与互斥问题的机制。　</p><ul><li>信号量由一个值和一个指针组成，指针指向等待该信号量的进程。信号量的值表示相应资源的使用情况。</li><li>信号量<code>S&gt;=0</code>时，S表示可用资源的数量。执行一次P操作意味着请求分配一个资源，因此S的值减1；</li><li>当<code>S&lt;0</code>时，表示已经没有可用资源，S的绝对值表示当前等待该资源的进程数。请求者必须等待其他进程释放该类资源，才能继续运行。而执行一个V操作意味着释放一个资源，因此S的值加1；</li><li>若S&lt;0，表示有某些进程正在等待该资源，因此要唤醒一个等待状态的进程，使之运行下去。</li></ul><p>注意，信号量的值只能由PV操作来改变。</p><p><strong><em>\</em>关于PV操作容易产生的一些疑问：**</strong></p><p><strong>1，S大于0那就表示有临界资源可供使用，为什么不唤醒进程？</strong></p><ul><li>S大于0的确表示有临界资源可供使用，也就是说这个时候没有进程被阻塞在这个资源上，所以不需要唤醒。</li></ul><p><strong>2，S小于0应该是说没有临界资源可供使用，为什么还要唤醒进程？</strong></p><ul><li>V原语操作的本质在于：一个进程使用完临界资源后，释放临界资源，使S加1，以通知其它的进程，这个时候如果S&lt;0，表明有进程阻塞在该类资源上，因此要从阻塞队列里唤醒一个进程来“转手”该类资源。</li><li>比如，有两个某类资源，四个进程A、B、C、D要用该类资源，最开始S=2，当A进入，S=1，当B进入S=0，表明该类资源刚好用完， 当C进入时S=-1，表明有一个进程被阻塞了，D进入，S=-2。当A用完该类资源时，进行V操作，S=-1，释放该类资源，因为S&lt;0，表明有进程阻塞在该类资源上，于是唤醒一个。</li></ul><p><strong>3，如果是互斥信号量的话，应该设置信号量S=1，但是当有5个进程都访问的话，最后在该信号量的链表里会有4个在等待，也是说S=-4，那么第一个进程执行了V操作使S加1，释放了资源，下一个应该能够执行，但唤醒的这个进程在执行P操作时因S&lt;0，也还是执行不了，这是怎么回事呢？</strong></p><ul><li>当一个进程阻塞了的时候，它已经执行过了P操作，并卡在临界区那个地方。当唤醒它时就立即进入它自己的临界区，并不需要执行P操作了，当执行完了临界区的程序后，就执行V操作。</li></ul><p><strong>4，S的绝对值表示等待的进程数，同时又表示临界资源，这到底是怎么回事？</strong></p><p>当信号量S小于0时，其绝对值表示系统中因请求该类资源而被阻塞的进程数目.S大于0时表示可用的临界资源数。注意在不同情况下所表达的含义不一样。当等于0时，表示刚好用完。</p><h2 id="2-PV操作"><a href="#2-PV操作" class="headerlink" title="2. PV操作"></a>2. PV操作</h2><p><strong>临界区：</strong>我们把并发进程中与共享变量有关的程序段称为临界区。</p><p><strong>信号量S</strong>：信号量的值与相应资源的使用情况有关。当它的值大于0时，表示当前可用资源的数量；当它的值小于0时，其绝对值表示等待使用该资源的进程个数。</p><p>​    <strong>P操作P（S）</strong>：将信号量S减去1，若结果小于0，则把调用P（S）的进程置成等待信号量S的状态。即为请求资源。</p><p>​    <strong>V操作V（S）</strong>：将信号量S加上1，若结果不大于0，则释放一个等待信号量S的进程。即为释放资源。</p><p>正如老师上课时所举的父亲给孩子吃苹果的例子一样，假如一个盘子只能放一个苹果，父亲往盘子里放了一个苹果。如果儿子吃了（<strong>V操作</strong>），父亲才可以接着放（<strong>P操作</strong>）；如果儿子不吃，那父亲就不能放苹果，只能等着。</p><p><strong>伪代码如下</strong></p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Procedure P (Var S：Semaphore)</span><br><span class="line"></span><br><span class="line">begin</span><br><span class="line"></span><br><span class="line">S：=S - 1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> S&lt;0 <span class="keyword">then</span> W(S) </span><br><span class="line"></span><br><span class="line">end; &#123; P &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Procedure V (Var S：Semaphore)</span><br><span class="line"></span><br><span class="line">begin</span><br><span class="line"></span><br><span class="line">S：=S + 1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> S&lt; = 0 <span class="keyword">then</span> R(S) </span><br><span class="line"></span><br><span class="line">end; &#123; V &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#       W(S)：表示把调用P（S）的进程置成等待信号量S的状态。</span></span><br><span class="line"><span class="comment">#R(S)：表示释放一个等待信号量S的进程。</span></span><br></pre></td></tr></table></figure><h3 id="2-1-进程互斥"><a href="#2-1-进程互斥" class="headerlink" title="2.1 进程互斥"></a>2.1 进程互斥</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">    利用信号量和PV操作实现进程互斥的一般模型是：</span><br><span class="line">进程P1              进程P2           ……          进程Pn</span><br><span class="line">……                  ……                           ……</span><br><span class="line">P（S）；              P（S）；                         P（S）；</span><br><span class="line">临界区；             临界区；                        临界区；</span><br><span class="line">V（S）；              V（S）；                        V（S）；</span><br><span class="line">……                  ……            ……           ……</span><br></pre></td></tr></table></figure><pre><code>其中信号量S用于互斥，初值为1。使用PV操作实现进程互斥时应该注意的是：（1）每个程序中用户实现互斥的P、V操作必须成对出现，先做P操作，进临界区，后做V操作，出临界区。若有多个分支，要认真检查其成对性。（2）P、V操作应分别紧靠临界区的头尾部，临界区的代码应尽可能短，不能有死循环。（3）互斥信号量的初值一般为1。</code></pre><h3 id="2-2-进程同步"><a href="#2-2-进程同步" class="headerlink" title="2.2 进程同步"></a>2.2 进程同步</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">利用信号量和PV操作实现进程同步</span><br><span class="line">PV操作是典型的同步机制之一。用一个信号量与一个消息联系起来，当信号量的值为0时，表示期望的消息尚未产生；当信号量的值非0时，表示期望的消息已经存在。用PV操作实现进程同步时，调用P操作测试消息是否到达，调用V操作发送消息。</span><br><span class="line"></span><br><span class="line">    使用PV操作实现进程同步时应该注意的是：</span><br><span class="line"></span><br><span class="line">    （1）分析进程间的制约关系，确定信号量种类。在保持进程间有正确的同步关系情况下，哪个进程先执行，哪些进程后执行，彼此间通过什么资源（信号量）进行协调，从而明确要设置哪些信号量。</span><br><span class="line">    （2）信号量的初值与相应资源的数量有关，也与P、V操作在程序代码中出现的位置有关。</span><br><span class="line">    （3）同一信号量的P、V操作要成对出现，但它们分别在不同的进程代码中。</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Linux-03-PV&quot;&gt;&lt;a href=&quot;#Linux-03-PV&quot; class=&quot;headerlink&quot; title=&quot;Linux-03-PV&quot;&gt;&lt;/a&gt;Linux-03-PV&lt;/h1&gt;&lt;h2 id=&quot;1-疑惑解答&quot;&gt;&lt;a href=&quot;#1-疑惑解答&quot; class=&quot;headerlink&quot; title=&quot;1. 疑惑解答&quot;&gt;&lt;/a&gt;1. 疑惑解答&lt;/h2&gt;&lt;p&gt;进程通常分为就绪、运行和阻塞三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;p&gt;进程三个状态之间的转换就是靠PV操作来控制的。PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="进程通信方式" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"/>
     
   </entry>
   
@@ -630,16 +630,23 @@
     <link href="http://zhuuu.work/2020/08/17/JavaInterview/Java-%E5%9F%BA%E7%A1%80-interrupt()/"/>
     <id>http://zhuuu.work/2020/08/17/JavaInterview/Java-%E5%9F%BA%E7%A1%80-interrupt()/</id>
     <published>2020-08-17T03:38:38.000Z</published>
-    <updated>2020-08-17T00:54:48.000Z</updated>
+    <updated>2020-09-07T11:11:15.172Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="Java-基础-interrupt"><a href="#Java-基础-interrupt" class="headerlink" title="Java-基础-interrupt()"></a>Java-基础-interrupt()</h1>]]></content>
+    <content type="html"><![CDATA[<h1 id="Java-基础-interrupt"><a href="#Java-基础-interrupt" class="headerlink" title="Java-基础-interrupt()"></a>Java-基础-interrupt()</h1><h2 id="1-InterruptedException"><a href="#1-InterruptedException" class="headerlink" title="1. InterruptedException"></a>1. InterruptedException</h2><ul><li>当一个方法后面声明可能会抛出<code>InterruptedException</code>异常时，说明该方法是可能会花一点时间，但是可以取消的方法。</li></ul><ul><li>抛<code>InterruptedException</code>的代表方法有：<ul><li><code>java.lang.Object</code> 类的 wait 方法</li><li><code>java.lang.Thread</code> 类的 sleep 方法</li><li><code>java.lang.Thread</code> 类的 join 方法</li></ul></li></ul><a id="more"></a><p>– 需要花点时间的方法</p><ul><li><p>执行<code>wait</code>方法的线程，会进入等待区等待被<code>notify/notify All</code>。在等待期间，线程不会活动。</p></li><li><p>执行<code>sleep</code>方法的线程，会暂停执行参数内所设置的时间。</p></li><li><p>执行<code>join</code>方法的线程，会等待到指定的线程结束为止。</p></li></ul><p>因此，上面的方法都是需要花点时间的方法。</p><p>– 可以取消的方法</p><ul><li>因为需要花时间的操作会降低程序的响应性，所以可能会取消/中途放弃执行这个方法。</li><li>这里主要是通过interrupt方法来取消。</li></ul><ol><li><strong>sleep方法与interrupt方法</strong></li></ol><ul><li>interrupt方法是Thread类的实例方法，在执行的时候并不需要获取Thread实例的锁定，任何线程在任何时刻，都可以通过线程实例来调用其他线程的interrupt方法。</li><li>当在sleep中的线程被调用interrupt方法时，就会放弃暂停的状态，并抛出<code>InterruptedException</code>异常，这样一来，线程的控制权就交给了捕捉这个异常的catch块了。</li></ul><ol start="2"><li><strong>wait方法和interrupt方法</strong></li></ol><ul><li>当线程调用<code>wait</code>方法后，<strong>线程在进入等待区时，会把锁定解除</strong>。</li><li>当对wait中的线程调用<code>interrupt</code>方法时，<strong>会先重新获取锁定</strong>，再抛出<code>InterruptedException</code>异常，获取锁定之前，无法抛出<code>InterruptedException</code>异常。</li></ul><ol start="3"><li><strong>join方法和interrupt方法</strong></li></ol><ul><li>当线程以join方法等待其他线程结束时，一样可以使用interrupt方法取消。因为join方法不需要获取锁定，故而与sleep一样，会马上跳到catch程序块</li></ul><p><strong>线程中断</strong></p><ul><li>每一个线程都有一个boolean类型的标志，此标志意思是当前的请求是否请求中断，默认为false。</li><li>当一个线程A调用了线程B的interrupt方法时，那么线程B的是否请求的中断标志变为true。而线程B可以调用方法检测到此标志的变化。</li></ul><ol><li><strong>对于阻塞方法（join,sleep,wait）</strong></li></ol><ul><li>如果线程B调用了阻塞方法，如果是否请求中断标志变为了true，那么它会抛出InterruptedException异常。<strong>抛出异常的同时它会将线程B的是否请求中断标志置为false</strong></li></ul><ol start="2"><li><strong>对于非阻塞方法</strong></li></ol><ul><li>可以通过线程B的<code>isInterrupted</code>方法进行检测是否请求中断标志为true还是false</li><li>另外还有一个静态的方法<code>interrupted</code>方法也可以检测标志。但是静态方法它检测完以后会自动的将是否请求中断标志位置为false</li></ul><h2 id="2-interrupt-方法"><a href="#2-interrupt-方法" class="headerlink" title="2. interrupt()方法"></a>2. interrupt()方法</h2><ul><li><strong>interrupt方法其实只是改变了中断状态而已。</strong></li><li><strong>而sleep、wait和join这些方法的内部会不断的检查中断状态的值，从而自己抛出InterruptEdException。</strong></li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">所以，如果在线程进行其他处理时，调用了它的interrupt方法，线程也不会抛出InterruptedException的，只有当线程走到了sleep, wait, join这些方法的时候，才会抛出InterruptedException。若是没有调用sleep, wait, join这些方法，或者没有在线程里自己检查中断状态，自己抛出InterruptedException，那InterruptedException是不会抛出来的。</span><br></pre></td></tr></table></figure><h2 id="3-isInterrupted-方法"><a href="#3-isInterrupted-方法" class="headerlink" title="3. isInterrupted() 方法"></a>3. isInterrupted() 方法</h2><ul><li>可以用来检查中断状态，并且不会清除</li></ul><h2 id="4-interrupted（）-方法"><a href="#4-interrupted（）-方法" class="headerlink" title="4. interrupted（） 方法"></a>4. interrupted（） 方法</h2><ul><li>可以用来检查并清除中断状态。</li></ul><h2 id="5-InterruptedException-的处理"><a href="#5-InterruptedException-的处理" class="headerlink" title="5. InterruptedException 的处理"></a>5. InterruptedException 的处理</h2><ul><li>现在知道线程可以检测到自身的标志位的变化，但是他只是一个标志，<strong>如果线程本身不处理的话，那么程序还是会执行下去</strong>，就好比，老师在学校叮嘱要好好学习，具体什么时候，如何好好学习还是看自身。</li><li>因此<code>interrupt()</code> 方法并不能立即中断线程，该方法仅仅告诉线程外部已经有中断请求，至于是否中断还取决于线程自己</li></ul><p>简单的了解了什么是阻塞和中断以后，我们就该了解碰到<code>InterruptedException</code>异常该如何处理了。</p><p><strong>一句话：不要不管不顾</strong></p><ul><li><strong>有时候阻塞的方法抛出<code>InterruptedException</code>异常并不合适</strong>，例如在<code>Runnable</code>中调用了可中断的方法，因为你的程序是实现了<code>Runnable</code>接口，然后在重写<code>Runnable</code>接口的<code>run</code>方法的时候，那么子类抛出的异常要小于等于父类的异常。而在<code>Runnable</code>中<code>run</code>方法是没有抛异常的。<strong>所以此时是不能抛出InterruptedException异常</strong>。</li><li>如果<strong>此时你只是记录日志的话</strong>，那么就是一个<strong>不负责任的做法</strong>，<strong>因为在捕获<code>InterruptedException</code>异常的时候自动的将 是否请求中断标志置为了false。</strong></li><li><strong>至少在捕获了<code>InterruptedException</code>异常之后，如果你什么也不想做，那么就将标志重新置为<code>true</code></strong>，<strong>以便栈中更高层的代码能知道中断，并且对中断作出响应。</strong></li></ul><p><strong>捕获到InterruptedException异常后恢复中断状态</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TaskRunner</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> BlockingQueue&lt;Task&gt; queue;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TaskRunner</span><span class="params">(BlockingQueue&lt;Task&gt; queue)</span> </span>&#123; </span><br><span class="line">        <span class="keyword">this</span>.queue = queue; </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">             <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                 Task task = queue.take(<span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line">                 task.execute();</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">catch</span> (InterruptedException e) &#123; </span><br><span class="line">             <span class="comment">// Restore the interrupted status</span></span><br><span class="line">             <span class="comment">// 向上保存中断的状态</span></span><br><span class="line">             Thread.currentThread().interrupt();</span><br><span class="line">         &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     
     <summary type="html">
     
-      
-      
-        &lt;h1 id=&quot;Java-基础-interrupt&quot;&gt;&lt;a href=&quot;#Java-基础-interrupt&quot; class=&quot;headerlink&quot; title=&quot;Java-基础-interrupt()&quot;&gt;&lt;/a&gt;Java-基础-interrupt()&lt;/h1&gt;
-      
+      &lt;h1 id=&quot;Java-基础-interrupt&quot;&gt;&lt;a href=&quot;#Java-基础-interrupt&quot; class=&quot;headerlink&quot; title=&quot;Java-基础-interrupt()&quot;&gt;&lt;/a&gt;Java-基础-interrupt()&lt;/h1&gt;&lt;h2 id=&quot;1-InterruptedException&quot;&gt;&lt;a href=&quot;#1-InterruptedException&quot; class=&quot;headerlink&quot; title=&quot;1. InterruptedException&quot;&gt;&lt;/a&gt;1. InterruptedException&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;当一个方法后面声明可能会抛出&lt;code&gt;InterruptedException&lt;/code&gt;异常时，说明该方法是可能会花一点时间，但是可以取消的方法。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;抛&lt;code&gt;InterruptedException&lt;/code&gt;的代表方法有：&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;java.lang.Object&lt;/code&gt; 类的 wait 方法&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;java.lang.Thread&lt;/code&gt; 类的 sleep 方法&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;java.lang.Thread&lt;/code&gt; 类的 join 方法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
@@ -856,31 +863,6 @@
   </entry>
   
   <entry>
-    <title>Java-基础-接口和抽象类</title>
-    <link href="http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
-    <id>http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/</id>
-    <published>2020-08-10T09:38:38.000Z</published>
-    <updated>2020-08-10T05:45:18.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Java-基础-接口和抽象类"><a href="#Java-基础-接口和抽象类" class="headerlink" title="Java-基础-接口和抽象类"></a>Java-基础-接口和抽象类</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png" alt="mark"></p><h2 id="1-抽象类"><a href="#1-抽象类" class="headerlink" title="1. 抽象类"></a>1. 抽象类</h2><h4 id="（1）抽象类的含义"><a href="#（1）抽象类的含义" class="headerlink" title="（1）抽象类的含义"></a>（1）抽象类的含义</h4><p>  包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的（否则，编译器会报错）</p><h4 id="（2）抽象类的点"><a href="#（2）抽象类的点" class="headerlink" title="（2）抽象类的点"></a>（2）抽象类的点</h4><p>1.含有abstract修饰符的class即为抽象类，abstract类不能创建实例对象。<br> 2.含有abstract方法的类必须定义为abstract class，abstract class类中的方法不必是抽象的。<br> 3.abstract class类中定义抽象方法必须在具体(Concrete)子类中实现，所以，不能有抽象构造方法或抽象静态方法。<br> 4.如果子类没有实现抽象父类中的所有抽象方法，那么子类也必须定义为abstract类型。</p><a id="more"></a><h2 id="2-接口"><a href="#2-接口" class="headerlink" title="2. 接口"></a>2. 接口</h2><h4 id="（1）接口的含义"><a href="#（1）接口的含义" class="headerlink" title="（1）接口的含义"></a>（1）接口的含义</h4><p>  可以说成是抽象类的一种特例，接口中的所有方法都必须是抽象的。能有的内容是：static final的静态成员变量、public abstract的抽象方法（可以使用abstract关键字也可以不使用）</p><h4 id="（2）接口的点"><a href="#（2）接口的点" class="headerlink" title="（2）接口的点"></a>（2）接口的点</h4><p>1.接口中的域隐式地是static和final的；<br> 2.接口可以嵌套在类或其他接口中；<br> 3.接口是实现多重继承的途径；<br> 4.接口中的方法定义默认为public abstract类型，接口中的成员变量类型默认为public static final。<br> 5.接口不能有构造器；<br> 6.接口中不能有main()方法；</p><h2 id="3、语法的区别"><a href="#3、语法的区别" class="headerlink" title="3、语法的区别"></a>3、语法的区别</h2><p>1.普通成员变量：抽象类中可以有普通成员变量，接口中没有普通成员变量（static final变量）；<br> 2.方法：抽象类中可以包含非抽象的普通方法，接口中的所有方法必须都是抽象的，不能有非抽象的普通方法；<br> 3.静态成员变量：抽象类和接口中都可以包含静态成员变量，抽象类中的静态成员变量的访问类型可以任意，但接口中定义的变量只能是public static final类型，并且默认即为public static final类型。<br> 4.静态方法：抽象类中可以包含静态方法，但不能是抽象静态方法；接口中不能包含静态方法（静态的方法不能被覆写）<br> 5.构造方法（静态的）：抽象类可以有构造方法，接口中不能有构造方法；<br> 6.方法访问权限：抽象类中的抽象方法的访问类型可以是public，protected和（默认类型,虽然eclipse下不报错，但应该也不行），但接口中的抽象方法只能是public类型的，并且默认即为public abstract类型。<br> 7.子类实现和继承： 一个类可以实现多个接口，但只能继承一个抽象类。<br> 8.初始化过程：当一个类在初始化时，要求其父类全部都已经初始化过了；但是一个接口在初始化时，并不要求其父接口全部都完成初始化，只有在真正使用父接口的时候（如引用接口中定义的常量），才会初始化。</p><h2 id="4、应用上的区别"><a href="#4、应用上的区别" class="headerlink" title="4、应用上的区别"></a>4、应用上的区别</h2><p>  接口更多的是在系统架构设计方法发挥作用，主要用于定义模块之间的通信契约；而抽象类在代码实现方面发挥作用，可以实现代码的重用。<br>  例如，模板方法设计模式是抽象类的一个典型应用，假设某个项目的所有Servlet类都要用相同的方式进行权限判断、记录访问日志和处理异常，那么就可以定义一个抽象的基类，让所有的Servlet都继承这个抽象基类，在抽象基类的service方法中完成权限判断、记录访问日志和处理异常的代码，在各个子类中只是完成各自的业务逻辑代码。</p><h2 id="5-使用接口的原因"><a href="#5-使用接口的原因" class="headerlink" title="5. 使用接口的原因"></a>5. 使用接口的原因</h2><p>1）为了能够向上转型为多个基类型（由此而带来的灵活性）；<br> 2）与使用抽象基类相同：防止客户端程序员创建该类的对象，并确保这仅仅是建立一个接口。</p><h2 id="6、问题：使用接口还是抽象类"><a href="#6、问题：使用接口还是抽象类" class="headerlink" title="6、问题：使用接口还是抽象类"></a>6、问题：使用接口还是抽象类</h2><p>答：如果要创建不带任何方法定义和成员变量的基类，就应该选择接口而不是抽象类。抽象类为了代码的复用，接口为了多态性。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;a href=&quot;#Java-基础-接口和抽象类&quot; class=&quot;headerlink&quot; title=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;/a&gt;Java-基础-接口和抽象类&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;1-抽象类&quot;&gt;&lt;a href=&quot;#1-抽象类&quot; class=&quot;headerlink&quot; title=&quot;1. 抽象类&quot;&gt;&lt;/a&gt;1. 抽象类&lt;/h2&gt;&lt;h4 id=&quot;（1）抽象类的含义&quot;&gt;&lt;a href=&quot;#（1）抽象类的含义&quot; class=&quot;headerlink&quot; title=&quot;（1）抽象类的含义&quot;&gt;&lt;/a&gt;（1）抽象类的含义&lt;/h4&gt;&lt;p&gt;  包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的（否则，编译器会报错）&lt;/p&gt;
-&lt;h4 id=&quot;（2）抽象类的点&quot;&gt;&lt;a href=&quot;#（2）抽象类的点&quot; class=&quot;headerlink&quot; title=&quot;（2）抽象类的点&quot;&gt;&lt;/a&gt;（2）抽象类的点&lt;/h4&gt;&lt;p&gt;1.含有abstract修饰符的class即为抽象类，abstract类不能创建实例对象。&lt;br&gt; 2.含有abstract方法的类必须定义为abstract class，abstract class类中的方法不必是抽象的。&lt;br&gt; 3.abstract class类中定义抽象方法必须在具体(Concrete)子类中实现，所以，不能有抽象构造方法或抽象静态方法。&lt;br&gt; 4.如果子类没有实现抽象父类中的所有抽象方法，那么子类也必须定义为abstract类型。&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="接口" scheme="http://zhuuu.work/tags/%E6%8E%A5%E5%8F%A3/"/>
-    
-      <category term="抽象类" scheme="http://zhuuu.work/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Java-基础-并发详解</title>
     <link href="http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E5%B9%B6%E5%8F%91%E8%AF%A6%E8%A7%A3/"/>
     <id>http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E5%B9%B6%E5%8F%91%E8%AF%A6%E8%A7%A3/</id>
@@ -905,6 +887,31 @@
       <category term="锁" scheme="http://zhuuu.work/tags/%E9%94%81/"/>
     
       <category term="并发" scheme="http://zhuuu.work/tags/%E5%B9%B6%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java-基础-接口和抽象类</title>
+    <link href="http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
+    <id>http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/</id>
+    <published>2020-08-10T09:38:38.000Z</published>
+    <updated>2020-08-10T05:45:18.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Java-基础-接口和抽象类"><a href="#Java-基础-接口和抽象类" class="headerlink" title="Java-基础-接口和抽象类"></a>Java-基础-接口和抽象类</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png" alt="mark"></p><h2 id="1-抽象类"><a href="#1-抽象类" class="headerlink" title="1. 抽象类"></a>1. 抽象类</h2><h4 id="（1）抽象类的含义"><a href="#（1）抽象类的含义" class="headerlink" title="（1）抽象类的含义"></a>（1）抽象类的含义</h4><p>  包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的（否则，编译器会报错）</p><h4 id="（2）抽象类的点"><a href="#（2）抽象类的点" class="headerlink" title="（2）抽象类的点"></a>（2）抽象类的点</h4><p>1.含有abstract修饰符的class即为抽象类，abstract类不能创建实例对象。<br> 2.含有abstract方法的类必须定义为abstract class，abstract class类中的方法不必是抽象的。<br> 3.abstract class类中定义抽象方法必须在具体(Concrete)子类中实现，所以，不能有抽象构造方法或抽象静态方法。<br> 4.如果子类没有实现抽象父类中的所有抽象方法，那么子类也必须定义为abstract类型。</p><a id="more"></a><h2 id="2-接口"><a href="#2-接口" class="headerlink" title="2. 接口"></a>2. 接口</h2><h4 id="（1）接口的含义"><a href="#（1）接口的含义" class="headerlink" title="（1）接口的含义"></a>（1）接口的含义</h4><p>  可以说成是抽象类的一种特例，接口中的所有方法都必须是抽象的。能有的内容是：static final的静态成员变量、public abstract的抽象方法（可以使用abstract关键字也可以不使用）</p><h4 id="（2）接口的点"><a href="#（2）接口的点" class="headerlink" title="（2）接口的点"></a>（2）接口的点</h4><p>1.接口中的域隐式地是static和final的；<br> 2.接口可以嵌套在类或其他接口中；<br> 3.接口是实现多重继承的途径；<br> 4.接口中的方法定义默认为public abstract类型，接口中的成员变量类型默认为public static final。<br> 5.接口不能有构造器；<br> 6.接口中不能有main()方法；</p><h2 id="3、语法的区别"><a href="#3、语法的区别" class="headerlink" title="3、语法的区别"></a>3、语法的区别</h2><p>1.普通成员变量：抽象类中可以有普通成员变量，接口中没有普通成员变量（static final变量）；<br> 2.方法：抽象类中可以包含非抽象的普通方法，接口中的所有方法必须都是抽象的，不能有非抽象的普通方法；<br> 3.静态成员变量：抽象类和接口中都可以包含静态成员变量，抽象类中的静态成员变量的访问类型可以任意，但接口中定义的变量只能是public static final类型，并且默认即为public static final类型。<br> 4.静态方法：抽象类中可以包含静态方法，但不能是抽象静态方法；接口中不能包含静态方法（静态的方法不能被覆写）<br> 5.构造方法（静态的）：抽象类可以有构造方法，接口中不能有构造方法；<br> 6.方法访问权限：抽象类中的抽象方法的访问类型可以是public，protected和（默认类型,虽然eclipse下不报错，但应该也不行），但接口中的抽象方法只能是public类型的，并且默认即为public abstract类型。<br> 7.子类实现和继承： 一个类可以实现多个接口，但只能继承一个抽象类。<br> 8.初始化过程：当一个类在初始化时，要求其父类全部都已经初始化过了；但是一个接口在初始化时，并不要求其父接口全部都完成初始化，只有在真正使用父接口的时候（如引用接口中定义的常量），才会初始化。</p><h2 id="4、应用上的区别"><a href="#4、应用上的区别" class="headerlink" title="4、应用上的区别"></a>4、应用上的区别</h2><p>  接口更多的是在系统架构设计方法发挥作用，主要用于定义模块之间的通信契约；而抽象类在代码实现方面发挥作用，可以实现代码的重用。<br>  例如，模板方法设计模式是抽象类的一个典型应用，假设某个项目的所有Servlet类都要用相同的方式进行权限判断、记录访问日志和处理异常，那么就可以定义一个抽象的基类，让所有的Servlet都继承这个抽象基类，在抽象基类的service方法中完成权限判断、记录访问日志和处理异常的代码，在各个子类中只是完成各自的业务逻辑代码。</p><h2 id="5-使用接口的原因"><a href="#5-使用接口的原因" class="headerlink" title="5. 使用接口的原因"></a>5. 使用接口的原因</h2><p>1）为了能够向上转型为多个基类型（由此而带来的灵活性）；<br> 2）与使用抽象基类相同：防止客户端程序员创建该类的对象，并确保这仅仅是建立一个接口。</p><h2 id="6、问题：使用接口还是抽象类"><a href="#6、问题：使用接口还是抽象类" class="headerlink" title="6、问题：使用接口还是抽象类"></a>6、问题：使用接口还是抽象类</h2><p>答：如果要创建不带任何方法定义和成员变量的基类，就应该选择接口而不是抽象类。抽象类为了代码的复用，接口为了多态性。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;a href=&quot;#Java-基础-接口和抽象类&quot; class=&quot;headerlink&quot; title=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;/a&gt;Java-基础-接口和抽象类&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;1-抽象类&quot;&gt;&lt;a href=&quot;#1-抽象类&quot; class=&quot;headerlink&quot; title=&quot;1. 抽象类&quot;&gt;&lt;/a&gt;1. 抽象类&lt;/h2&gt;&lt;h4 id=&quot;（1）抽象类的含义&quot;&gt;&lt;a href=&quot;#（1）抽象类的含义&quot; class=&quot;headerlink&quot; title=&quot;（1）抽象类的含义&quot;&gt;&lt;/a&gt;（1）抽象类的含义&lt;/h4&gt;&lt;p&gt;  包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的（否则，编译器会报错）&lt;/p&gt;
+&lt;h4 id=&quot;（2）抽象类的点&quot;&gt;&lt;a href=&quot;#（2）抽象类的点&quot; class=&quot;headerlink&quot; title=&quot;（2）抽象类的点&quot;&gt;&lt;/a&gt;（2）抽象类的点&lt;/h4&gt;&lt;p&gt;1.含有abstract修饰符的class即为抽象类，abstract类不能创建实例对象。&lt;br&gt; 2.含有abstract方法的类必须定义为abstract class，abstract class类中的方法不必是抽象的。&lt;br&gt; 3.abstract class类中定义抽象方法必须在具体(Concrete)子类中实现，所以，不能有抽象构造方法或抽象静态方法。&lt;br&gt; 4.如果子类没有实现抽象父类中的所有抽象方法，那么子类也必须定义为abstract类型。&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="接口" scheme="http://zhuuu.work/tags/%E6%8E%A5%E5%8F%A3/"/>
+    
+      <category term="抽象类" scheme="http://zhuuu.work/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
     
   </entry>
   
@@ -1012,34 +1019,6 @@
   </entry>
   
   <entry>
-    <title>JUC-20-ThreadPoolExecutor</title>
-    <link href="http://zhuuu.work/2020/08/03/JUC/JUC-20-ThreadPoolExecutor/"/>
-    <id>http://zhuuu.work/2020/08/03/JUC/JUC-20-ThreadPoolExecutor/</id>
-    <published>2020-08-03T08:02:24.000Z</published>
-    <updated>2020-08-24T09:14:04.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="JUC-20-ThreadPoolExecutor"><a href="#JUC-20-ThreadPoolExecutor" class="headerlink" title="JUC-20-ThreadPoolExecutor"></a>JUC-20-ThreadPoolExecutor</h2><p><a href="https://blog.csdn.net/leilifengxingmw/article/details/79533006" target="_blank" rel="noopener">https://blog.csdn.net/leilifengxingmw/article/details/79533006</a></p><p><a href="https://www.cnblogs.com/dolphin0520/p/3932921.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3932921.html</a></p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h2 id=&quot;JUC-20-ThreadPoolExecutor&quot;&gt;&lt;a href=&quot;#JUC-20-ThreadPoolExecutor&quot; class=&quot;headerlink&quot; title=&quot;JUC-20-ThreadPoolExecutor&quot;&gt;&lt;/a&gt;JUC-20-Thre
-      
-    
-    </summary>
-    
-    
-    
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
-      <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
-    
-  </entry>
-  
-  <entry>
     <title>JUC-19-AQS</title>
     <link href="http://zhuuu.work/2020/08/03/JUC/JUC-19-AQS/"/>
     <id>http://zhuuu.work/2020/08/03/JUC/JUC-19-AQS/</id>
@@ -1064,6 +1043,34 @@
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="AQS" scheme="http://zhuuu.work/tags/AQS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JUC-20-ThreadPoolExecutor</title>
+    <link href="http://zhuuu.work/2020/08/03/JUC/JUC-20-ThreadPoolExecutor/"/>
+    <id>http://zhuuu.work/2020/08/03/JUC/JUC-20-ThreadPoolExecutor/</id>
+    <published>2020-08-03T08:02:24.000Z</published>
+    <updated>2020-08-24T09:14:04.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="JUC-20-ThreadPoolExecutor"><a href="#JUC-20-ThreadPoolExecutor" class="headerlink" title="JUC-20-ThreadPoolExecutor"></a>JUC-20-ThreadPoolExecutor</h2><p><a href="https://blog.csdn.net/leilifengxingmw/article/details/79533006" target="_blank" rel="noopener">https://blog.csdn.net/leilifengxingmw/article/details/79533006</a></p><p><a href="https://www.cnblogs.com/dolphin0520/p/3932921.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3932921.html</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;JUC-20-ThreadPoolExecutor&quot;&gt;&lt;a href=&quot;#JUC-20-ThreadPoolExecutor&quot; class=&quot;headerlink&quot; title=&quot;JUC-20-ThreadPoolExecutor&quot;&gt;&lt;/a&gt;JUC-20-Thre
+      
+    
+    </summary>
+    
+    
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
   </entry>
   
@@ -2616,9 +2623,9 @@
     
     
     
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
       <category term="位运算" scheme="http://zhuuu.work/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
       <category term="进制转换" scheme="http://zhuuu.work/tags/%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2/"/>
     
@@ -2679,9 +2686,9 @@
     
     
     
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
       <category term="位运算" scheme="http://zhuuu.work/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
   </entry>
   
