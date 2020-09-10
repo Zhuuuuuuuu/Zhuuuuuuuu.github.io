@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3.4k字</span>
+            <span class="post-count">4.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">13分钟</span>
+            <span class="post-count">17分钟</span>
         </span>
     </span>
 </div>
@@ -100,10 +100,10 @@
 
       
       <h1 id="JUC-19-AQS"><a href="#JUC-19-AQS" class="headerlink" title="JUC-19-AQS"></a>JUC-19-AQS</h1><h2 id="1-AQS结构"><a href="#1-AQS结构" class="headerlink" title="1. AQS结构"></a>1. AQS结构</h2><ul>
-<li>AQS（AbstractQueuedSynchronizer）是Java众多锁以及并发工具的基础类，底层采用乐观锁，大量采用CAS操作保证其原子性，并且在并发冲突时，采用自旋方法重试。实现了轻量高效的获取锁。</li>
+<li>AQS（<code>AbstractQueuedSynchronizer</code>）是Java众多锁以及并发工具的基础类，底层采用乐观锁，大量采用CAS操作保证其原子性，并且在并发冲突时，采用自旋方法重试。实现了轻量高效的获取锁。</li>
 </ul>
 <h3 id="1-1-信号量"><a href="#1-1-信号量" class="headerlink" title="1.1 信号量"></a>1.1 信号量</h3><ul>
-<li>在AQS中，状态是由volatile state来表示。</li>
+<li>在AQS中，状态是由<code>volatile state</code>来表示。</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> state;</span><br></pre></td></tr></table></figure>
 
@@ -123,6 +123,8 @@
 
 
 
+<a id="more"></a>
+
 <h3 id="1-2-等待队列"><a href="#1-2-等待队列" class="headerlink" title="1.2 等待队列"></a>1.2 等待队列</h3><ul>
 <li>等待队列采用悲观锁的思想，表示当前所等待的资源，状态或条件短时间内可能无法满足，而调用<code>park</code>方法（借助操作系统）来完成线程的阻塞。</li>
 <li>在AQS中，队列时一个双端链表，将当前线程包装成某种类型的数据结构扔到等待队列中。</li>
@@ -131,9 +133,9 @@
 
 <p>一般在独占锁下，我们需要关注的就是下面几个参数：</p>
 <ul>
-<li>thread：当前Node所代表的线程；</li>
-<li>waitStatus：表示节点所处的等待状态；</li>
-<li>prev next：节点的前驱和后继</li>
+<li><code>thread</code>：当前Node所代表的线程；</li>
+<li><code>waitStatus</code>：表示节点所处的等待状态；</li>
+<li><code>prev next</code>节点的前驱和后继</li>
 </ul>
 <h3 id="1-3-CAS操作"><a href="#1-3-CAS操作" class="headerlink" title="1.3 CAS操作"></a>1.3 CAS操作</h3><ul>
 <li>CAS采用乐观锁机制，保证操作的原子性。一般是改变状态或改变指针（引用）指向。</li>
@@ -146,18 +148,27 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">//锁的状态</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> state;</span><br><span class="line"><span class="comment">//当前持有锁的线程</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> Thread exclusiveOwnerThread;</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>sync queue相关的属性</li>
+<li><code>sync queue</code>相关的属性</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//thread属性为null</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> Node head; </span><br><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> Node tail; <span class="comment">// 队尾，新入队的节点</span></span><br></pre></td></tr></table></figure>
 
 <ol start="3">
-<li>Node相关属性</li>
+<li><code>Node</code>相关属性</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 节点所代表的线程</span></span><br><span class="line"><span class="keyword">volatile</span> Thread thread;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 双向链表，每个节点需要保存自己的前驱节点和后继节点的引用</span></span><br><span class="line"><span class="keyword">volatile</span> Node prev;</span><br><span class="line"><span class="keyword">volatile</span> Node next;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 线程所处的等待锁的状态，初始化时，该值为0</span></span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">int</span> waitStatus;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CANCELLED =  <span class="number">1</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SIGNAL    = -<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="2-ReentrantLock实现"><a href="#2-ReentrantLock实现" class="headerlink" title="2. ReentrantLock实现"></a>2. ReentrantLock实现</h2><h3 id="2-1-加锁逻辑"><a href="#2-1-加锁逻辑" class="headerlink" title="2.1 加锁逻辑"></a>2.1 加锁逻辑</h3><p><code>ReentrantLock</code>有公平锁和非公平锁两种实现，默认实现非公平锁。但是可配置为公平锁：</p>
+<h2 id="2-lock-接口"><a href="#2-lock-接口" class="headerlink" title="2. lock 接口"></a>2. lock 接口</h2><p>Lock是一个接口，方法定义如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void lock() &#x2F;&#x2F; 如果锁可用就获得锁，如果锁不可用就阻塞直到锁释放</span><br><span class="line">void lockInterruptibly() &#x2F;&#x2F; 和 lock()方法相似, 但阻塞的线程可中断，抛出 java.lang.InterruptedException异常</span><br><span class="line">boolean tryLock() &#x2F;&#x2F; 非阻塞获取锁;尝试获取锁，如果成功返回true</span><br><span class="line">boolean tryLock(long timeout, TimeUnit timeUnit) &#x2F;&#x2F;带有超时时间的获取锁方法</span><br><span class="line">void unlock() &#x2F;&#x2F; 释放锁</span><br></pre></td></tr></table></figure>
+
+<p>实现Lock接口的类有很多，以下为几个常见的锁实现</p>
+<ul>
+<li><strong>ReentrantLock：表示重入锁</strong>，它是唯一一个实现了Lock接口的类。重入锁指的是线程在获得锁之后，再次获取该锁不需要阻塞，而是直接关联一次计数器增加重入次数</li>
+<li><strong>ReentrantReadWriteLock：重入读写锁，它实现了ReadWriteLock接口</strong>，在这个类中维护了两个锁，一个是ReadLock，一个是WriteLock，他们都分别实现了Lock接口。读写锁是一种适合读多写少的场景下解决线程安全问题的工具，基本原则是：<code>读和读不互斥、读和写互斥、写和写互斥</code>。也就是说涉及到影响数据变化的操作都会存在互斥。</li>
+<li><strong>StampedLock： stampedLock是JDK8引入的新的锁机制，可以简单认为是读写锁的一个改进版本</strong>，读写锁虽然通过分离读和写的功能使得读和读之间可以完全并发，但是读和写是有冲突的，如果大量的读线程存在，可能会引起写线程的饥饿。stampedLock是一种乐观的读策略，使得乐观锁完全不会阻塞写线程</li>
+</ul>
+<h2 id="3-ReentrantLock实现"><a href="#3-ReentrantLock实现" class="headerlink" title="3. ReentrantLock实现"></a>3. ReentrantLock实现</h2><h3 id="3-1-加锁逻辑"><a href="#3-1-加锁逻辑" class="headerlink" title="3.1 加锁逻辑"></a>3.1 加锁逻辑</h3><p><code>ReentrantLock</code>有公平锁和非公平锁两种实现，<strong>默认实现非公平锁。但是可配置为公平锁</strong>：</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock <span class="keyword">lock</span>=<span class="keyword">new</span> ReentrantLock(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
 
 <p>调用公平锁加锁逻辑：</p>
@@ -184,7 +195,7 @@
 <li><p>而AQS为了不改变用户标识。再次调用<code>selfInterrupt</code>恢复用户行为。</p>
 </li>
 </ul>
-<h3 id="2-2-构建等待队列-addWaiter"><a href="#2-2-构建等待队列-addWaiter" class="headerlink" title="2.2 构建等待队列 addWaiter"></a>2.2 构建等待队列 addWaiter</h3><ul>
+<h3 id="3-2-构建等待队列-addWaiter"><a href="#3-2-构建等待队列-addWaiter" class="headerlink" title="3.2 构建等待队列 addWaiter"></a>3.2 构建等待队列 addWaiter</h3><ul>
 <li>我们使用<code>ReentrantLock</code>独占锁时，等待队列是<code>延迟加载</code>的。</li>
 <li>也就是说<strong>若是线程交替执行</strong>，那么借助<code>信号量（状态）</code>来保证。</li>
 <li>若是<strong>线程并发执行</strong>，就需要将阻塞线程放入到队列中。</li>
@@ -217,8 +228,8 @@
 <p>执行完<code>步骤2</code>，但<code>步骤3</code>还未执行时，恰好有线程从头节点开始往后遍历。<strong>此时（旧）尾结点中的next域还为null。</strong>它是遍历不到新加进来的尾结点的。这显然是不合理的。</p>
 <p>但此时<code>步骤1</code>是执行成功的，所以<strong>若是tail节点往前遍历，实际上是可以遍历到所有节点的</strong>，这也是为什么在AQS源码中，有时候常常会出现<strong>从尾结点开始逆向遍历链表的情况</strong>。</p>
 <p>那些“分叉”的节点，肯定会入队失败。那么继续自旋，等待所有的线程节点全部入队成功。</p>
-<h3 id="2-3-尝试获取锁-tryAcquire"><a href="#2-3-尝试获取锁-tryAcquire" class="headerlink" title="2.3 尝试获取锁 tryAcquire"></a>2.3 尝试获取锁 tryAcquire</h3><ul>
-<li>根据标志位state，来判断锁是否被占用。此时可能锁未被占用，由于是公平锁，于是会去判断<code>sync queue</code>中是否有人在排队。</li>
+<h3 id="3-3-尝试获取锁-tryAcquire"><a href="#3-3-尝试获取锁-tryAcquire" class="headerlink" title="3.3 尝试获取锁 tryAcquire"></a>3.3 尝试获取锁 tryAcquire</h3><ul>
+<li><strong>根据标志位state，来判断锁是否被占用</strong>。此时可能锁未被占用，由于是公平锁，于是会去判断<code>sync queue</code>中是否有人在排队。</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryAcquire</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123;  </span><br><span class="line">    <span class="comment">//获取当前线程</span></span><br><span class="line">    <span class="keyword">final</span> Thread current = Thread.currentThread();  </span><br><span class="line">    <span class="comment">//获取Lock对象的上锁情况，0-表示无线程持有；1-表示被线程持有；大于1-表示锁被重入</span></span><br><span class="line">    <span class="keyword">int</span> c = getState();  </span><br><span class="line">    <span class="comment">//若此刻无人占有锁</span></span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;  </span><br><span class="line">        <span class="keyword">if</span> (!hasQueuedPredecessors() &amp;&amp;    <span class="comment">//判断队列中是否有前辈。若返回false代表没有，开始尝试加锁</span></span><br><span class="line">            compareAndSetState(<span class="number">0</span>, acquires)) &#123;   <span class="comment">//此刻队列中没有存在前辈，尝试加锁</span></span><br><span class="line">            setExclusiveOwnerThread(current);   <span class="comment">//将当前线程修改为持有锁的线程（后续判断可重入）</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="comment">//若是当前线程是持有锁的线程</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) &#123;  </span><br><span class="line">        <span class="comment">//当前状态+1</span></span><br><span class="line">        <span class="keyword">int</span> nextc = c + acquires;  </span><br><span class="line">        <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>)  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Maximum lock count exceeded"</span>);  </span><br><span class="line">        setState(nextc);  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="comment">//否则，代表加锁失败</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -240,7 +251,7 @@
 
 <p>同一时刻，只有一个线程可以成功改变state的状态。记录该线程为独占锁线程，一般后续可以重入。</p>
 <p>没成功获取锁那么会调用<code>2.2 中的方法，将该线程加入到阻塞队列中</code>。</p>
-<h3 id="2-4-阻塞线程-acquireQueued"><a href="#2-4-阻塞线程-acquireQueued" class="headerlink" title="2.4 阻塞线程 acquireQueued"></a>2.4 阻塞线程 acquireQueued</h3><ul>
+<h3 id="3-4-阻塞线程-acquireQueued"><a href="#3-4-阻塞线程-acquireQueued" class="headerlink" title="3.4 阻塞线程 acquireQueued"></a>3.4 阻塞线程 acquireQueued</h3><ul>
 <li>若执行到该方法，说明<code>addWaiter</code>方法已经成功将该线程包装为Node节点放到了队尾。</li>
 <li>在该方法中依旧尝试获取锁；</li>
 <li>再次获取锁失败后，会将其阻塞；</li>
@@ -267,12 +278,12 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">parkAndCheckInterrupt</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    <span class="comment">//将线程挂起</span></span><br><span class="line">    LockSupport.park(<span class="keyword">this</span>);  </span><br><span class="line">    <span class="comment">//线程被唤起时，查看线程的中断标识（注意，查看完毕后，中断标识归位）</span></span><br><span class="line">    <span class="keyword">return</span> Thread.interrupted();  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>需要注意的是：当前节点在阻塞之前，会将前驱节点的<code>waitStatus</code>设置为-1，就可保证前驱节点在适当的时机唤醒自己。</strong></p>
-<h2 id="3-附录"><a href="#3-附录" class="headerlink" title="3. 附录"></a>3. 附录</h2><h3 id="3-1-CAS对象"><a href="#3-1-CAS对象" class="headerlink" title="3.1 CAS对象"></a>3.1 CAS对象</h3><p>开始我认为对象的CAS算法，实际上会是B对象去覆盖堆内存上的A对象，其实不然。比较交换的是引用。</p>
+<h2 id="4-附录"><a href="#4-附录" class="headerlink" title="4. 附录"></a>4. 附录</h2><h3 id="4-1-CAS对象"><a href="#4-1-CAS对象" class="headerlink" title="4.1 CAS对象"></a>4.1 CAS对象</h3><p>开始我认为对象的CAS算法，实际上会是B对象去覆盖堆内存上的A对象，其实不然。比较交换的是引用。</p>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//该方法是获取引用。而非堆上的内存。</span></span><br><span class="line"><span class="keyword">static</span> &#123;  </span><br><span class="line">    <span class="keyword">try</span> &#123;  </span><br><span class="line">        valueOffset = unsafe.objectFieldOffset  </span><br><span class="line">            (AtomicReference.class.getDeclaredField(<span class="string">"value"</span>));  </span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception ex) &#123; <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(ex); &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="4-加锁总结"><a href="#4-加锁总结" class="headerlink" title="4. 加锁总结"></a>4. 加锁总结</h2><ol>
+<h2 id="5-加锁总结"><a href="#5-加锁总结" class="headerlink" title="5. 加锁总结"></a>5. 加锁总结</h2><ol>
 <li>因为AQS的等待队列是延迟加载，只有多个线程并发访问时，才会开始维护队列。</li>
 <li>因为head节点中不包含<code>thread</code>属性的值，又被称为<code>哑节点</code>。</li>
 <li>head是正在办理业务的节点，而他的后继节点是第一个排队节点。</li>
@@ -303,6 +314,37 @@
 <li>判断node节点是否为head节点的后续节点（第一个排队节点），若是的话，尝试获取锁。若获取到，将其设置为head节点，并将其设置为哑节点；</li>
 <li>在阻塞前，会将自己的前驱节点的<code>waitStatus</code>设置为<code>SIGNAL</code>。以便可以唤醒自己。</li>
 </ol>
+<h2 id="6-锁的释放"><a href="#6-锁的释放" class="headerlink" title="6. 锁的释放"></a>6. 锁的释放</h2><h3 id="ReentrantLock-unlock"><a href="#ReentrantLock-unlock" class="headerlink" title="ReentrantLock.unlock"></a>ReentrantLock.unlock</h3><p>加锁的过程分析完以后，再来分析一下释放锁的过程，调用release方法，这个方法里面做两件事，</p>
+<p>1，释放锁 ；</p>
+<p>2，唤醒park的线程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">release</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (tryRelease(arg)) &#123;</span><br><span class="line">        Node h = head;</span><br><span class="line">        <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h.waitStatus != <span class="number">0</span>)</span><br><span class="line">            unparkSuccessor(h);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="tryRelease"><a href="#tryRelease" class="headerlink" title="tryRelease"></a>tryRelease</h3><ul>
+<li>这个动作可以认为就是一个设置锁状态的操作，而且是将状态减掉传入的参数值（参数是1），如果结果状态为0，就将排它锁的Owner设置为null，以使得其它的线程有机会进行执行。</li>
+<li>在排它锁中，加锁的时候状态会增加1（当然可以自己修改这个值），在解锁的时候减掉1，同一个锁，在可以重入后，可能会被叠加为2、3、4这些值，只有unlock()的次数与lock()的次数对应才会将Owner线程设置为空，而且也只有这种情况下才会返回true。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryRelease</span><span class="params">(<span class="keyword">int</span> releases)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> c = getState() - releases; <span class="comment">// 这里是将锁的数量减1</span></span><br><span class="line">    <span class="keyword">if</span> (Thread.currentThread() != getExclusiveOwnerThread())<span class="comment">// 如果释放的线程和获取锁的线程不是同一个，抛出非法监视器状态异常</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalMonitorStateException();</span><br><span class="line">    <span class="keyword">boolean</span> free = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123; </span><br><span class="line"><span class="comment">// 由于重入的关系，不是每次释放锁c都等于0，</span></span><br><span class="line">    <span class="comment">// 直到最后一次释放锁时，才会把当前线程释放</span></span><br><span class="line">        free = <span class="keyword">true</span>;</span><br><span class="line">        setExclusiveOwnerThread(<span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    setState(c);</span><br><span class="line">    <span class="keyword">return</span> free;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="unparkSuccessor"><a href="#unparkSuccessor" class="headerlink" title="unparkSuccessor"></a>unparkSuccessor</h3><ul>
+<li>在方法unparkSuccessor(Node)中，就意味着真正要释放锁了，它传入的是head节点（head节点是占用锁的节点），当前线程被释放之后，需要唤醒下一个节点的线程</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">unparkSuccessor</span><span class="params">(Node node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> ws = node.waitStatus;</span><br><span class="line">    <span class="keyword">if</span> (ws &lt; <span class="number">0</span>)</span><br><span class="line">        compareAndSetWaitStatus(node, ws, <span class="number">0</span>);</span><br><span class="line">    Node s = node.next;</span><br><span class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.waitStatus &gt; <span class="number">0</span>) &#123;<span class="comment">//判断后继节点是否为空或者是否是取消状态,</span></span><br><span class="line">        s = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (Node t = tail; t != <span class="keyword">null</span> &amp;&amp; t != node; t = t.prev)</span><br><span class="line">            <span class="keyword">if</span> (t.waitStatus &lt;= <span class="number">0</span>) <span class="comment">//然后从队列尾部向前遍历找到最前面的一个waitStatus小于0的节点, 至于为什么从尾部开始向前遍历，因为在doAcquireInterruptibly.cancelAcquire方法的处理过程中只设置了next的变化，没有设置prev的变化，在最后有这样一行代码：node.next = node，如果这时执行了unparkSuccessor方法，并且向后遍历的话，就成了死循环了，所以这时只有prev是稳定的</span></span><br><span class="line">                s = t;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//内部首先会发生的动作是获取head节点的next节点，如果获取到的节点不为空，则直接通过：“LockSupport.unpark()”方法来释放对应的被挂起的线程，这样一来将会有一个节点唤醒后继续进入循环进一步尝试tryAcquire()方法来获取锁</span></span><br><span class="line">    <span class="keyword">if</span> (s != <span class="keyword">null</span>)</span><br><span class="line">        LockSupport.unpark(s.thread); <span class="comment">//释放许可</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
 <p><strong>参考博客</strong></p>
 <p><a href="https://www.jianshu.com/p/dcc608274b88" target="_blank" rel="noopener">https://www.jianshu.com/p/dcc608274b88</a></p>
 <p><a href="https://segmentfault.com/a/1190000017372067" target="_blank" rel="noopener">https://segmentfault.com/a/1190000017372067</a></p>
@@ -392,19 +434,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/08/03/JUC/JUC-20-ThreadPoolExecutor/" class="article-nav-link">
+      <a href="/2020/08/03/Mysql/Mysql-10-%E4%B9%90%E8%A7%82%E9%94%81%E5%92%8C%E6%82%B2%E8%A7%82%E9%94%81/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            JUC-20-ThreadPoolExecutor
+            Mysql-10-乐观锁和悲观锁
           
         </div>
       </a>
     
     
-      <a href="/2020/08/01/JVM_Notes/JVM-12-%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B/" class="article-nav-link">
+      <a href="/2020/08/03/JUC/JUC-20-ThreadPoolExecutor/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">JVM-12-四种引用类型</div>
+        <div class="article-nav-title">JUC-20-ThreadPoolExecutor</div>
       </a>
     
   </nav>
