@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.4k字</span>
+            <span class="post-count">1.8k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">5分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -127,7 +127,7 @@
 <p>– 可以取消的方法</p>
 <ul>
 <li>因为需要花时间的操作会降低程序的响应性，所以可能会取消/中途放弃执行这个方法。</li>
-<li>这里主要是通过interrupt方法来取消。</li>
+<li>这里主要是通过<code>interrupt</code>方法来取消。</li>
 </ul>
 <ol>
 <li><strong>sleep方法与interrupt方法</strong></li>
@@ -167,6 +167,12 @@
 <li>可以通过线程B的<code>isInterrupted</code>方法进行检测是否请求中断标志为true还是false</li>
 <li>另外还有一个静态的方法<code>interrupted</code>方法也可以检测标志。但是静态方法它检测完以后会自动的将是否请求中断标志位置为false</li>
 </ul>
+<p><strong>讲下列三个方法的时候先给出总结：</strong></p>
+<ul>
+<li><strong>调用interrupt()方法仅仅是在当前线程中打了一个停止的标记，并不是真正的停止线程</strong></li>
+<li><strong>interrupted()测试当前线程是否已经是中断状态，执行后具有清除中断状态flag的功能</strong></li>
+<li><strong>isInterrupted()测试线程Thread对象是否已经是中断状态，但不清除中断状态flag</strong></li>
+</ul>
 <h2 id="2-interrupt-方法"><a href="#2-interrupt-方法" class="headerlink" title="2. interrupt()方法"></a>2. interrupt()方法</h2><ul>
 <li><strong>interrupt方法其实只是改变了中断状态而已。</strong></li>
 <li><strong>而sleep、wait和join这些方法的内部会不断的检查中断状态的值，从而自己抛出InterruptEdException。</strong></li>
@@ -175,15 +181,27 @@
 
 
 
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200910/204151515.png" alt="mark"></p>
 <h2 id="3-isInterrupted-方法"><a href="#3-isInterrupted-方法" class="headerlink" title="3. isInterrupted() 方法"></a>3. isInterrupted() 方法</h2><ul>
 <li>可以用来检查中断状态，并且不会清除</li>
 </ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InterruptTest3</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Thread thread = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">" i = "</span> + i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        thread.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// main thread interrupt</span></span><br><span class="line">        Thread.currentThread().interrupt();</span><br><span class="line"></span><br><span class="line">        System.out.println(thread.getName() + <span class="string">":"</span> + thread.isInterrupted());</span><br><span class="line">        System.out.println(thread.getName() + <span class="string">":"</span> + thread.isInterrupted());</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">":"</span> + Thread.currentThread().isInterrupted());</span><br><span class="line">        System.out.println(Thread.currentThread().getName() + <span class="string">":"</span> + Thread.currentThread().isInterrupted());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// thread interrupt</span></span><br><span class="line">        thread.interrupt();</span><br><span class="line"></span><br><span class="line">        System.out.println(thread.getName() + <span class="string">":"</span> + thread.isInterrupted());</span><br><span class="line">        System.out.println(thread.getName() + <span class="string">":"</span> + thread.isInterrupted());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200910/204610315.png" alt="mark"></p>
 <h2 id="4-interrupted（）-方法"><a href="#4-interrupted（）-方法" class="headerlink" title="4. interrupted（） 方法"></a>4. interrupted（） 方法</h2><ul>
 <li>可以用来检查并清除中断状态。</li>
 </ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InterruptTest2</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Thread thread = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + <span class="string">" i = "</span> + i);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (i == <span class="number">5</span>) &#123;</span><br><span class="line">                    Thread.currentThread().interrupt();</span><br><span class="line"></span><br><span class="line">                    System.out.println(<span class="string">"interrupted 1: "</span> + Thread.interrupted());</span><br><span class="line"></span><br><span class="line">                    System.out.println(<span class="string">"interrupted 2: "</span> + Thread.interrupted());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        thread.start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200910/204321165.png" alt="mark"></p>
+<ul>
+<li>控制台第一次打印的结果是true，第二次为false；</li>
+<li>Java Doc中给出的解释是：测试当前线程是否已经中断，线程的中断状态由该方法清除。即如果连续两次调用该方法，则第二次调用将返回false（在第一次调用已清除flag后以及第二次调用检查中断状态之前，当前线程再次中断的情况除外）</li>
+<li>所以，interrupted()方法具有清除状态flag的功能 </li>
+</ul>
 <h2 id="5-InterruptedException-的处理"><a href="#5-InterruptedException-的处理" class="headerlink" title="5. InterruptedException 的处理"></a>5. InterruptedException 的处理</h2><ul>
 <li>现在知道线程可以检测到自身的标志位的变化，但是他只是一个标志，<strong>如果线程本身不处理的话，那么程序还是会执行下去</strong>，就好比，老师在学校叮嘱要好好学习，具体什么时候，如何好好学习还是看自身。</li>
-<li>因此<code>interrupt()</code> 方法并不能立即中断线程，该方法仅仅告诉线程外部已经有中断请求，至于是否中断还取决于线程自己</li>
+<li><strong>因此<code>interrupt()</code> 方法并不能立即中断线程，该方法仅仅告诉线程外部已经有中断请求，至于是否中断还取决于线程自己</strong></li>
 </ul>
 <p>简单的了解了什么是阻塞和中断以后，我们就该了解碰到<code>InterruptedException</code>异常该如何处理了。</p>
 <p><strong>一句话：不要不管不顾</strong></p>

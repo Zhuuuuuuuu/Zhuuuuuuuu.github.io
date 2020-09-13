@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">658字</span>
+            <span class="post-count">678字</span>
         </span>
     </span>
 
@@ -115,15 +115,17 @@
 
 
 
-<p>2、Integer变量和int变量比较时，只要两个变量的值是向等的，则结果为true（因为包装类Integer和基本数据类型int比较时，<strong>java会自动拆包装为int</strong>，然后进行比较，实际上就变为两个int变量的比较）</p>
+<p>2、Integer变量和int变量比较时，只要两个变量的值是相等的，则结果为true（因为包装类Integer和基本数据类型int比较时，<strong>java会自动拆包装为int</strong>，然后进行比较，实际上就变为两个int变量的比较）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Integer i &#x3D; new Integer(100);</span><br><span class="line">int j &#x3D; 100；</span><br><span class="line">System.out.print(i &#x3D;&#x3D; j); &#x2F;&#x2F;true</span><br></pre></td></tr></table></figure>
+
+
 
 <p>3、<strong>非new生成的Integer变量和new Integer()生成的变量比较时，结果为false</strong>。（因为 ①当变量值在-128<del>127之间时，非new生成的Integer变量指向的是java常量池中的对象，而new Integer()生成的变量指向堆中新建的对象，两者在内存中的地址不同；②**当变量值在-128</del>127之间时**，非new生成Integer变量时，java API中最终会按照new Integer(i)进行处理（参考下面第4条），最终两个Interger的地址同样是不相同的）</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Integer i &#x3D; new Integer(100);</span><br><span class="line">Integer j &#x3D; 100;</span><br><span class="line">System.out.print(i &#x3D;&#x3D; j); &#x2F;&#x2F;false</span><br></pre></td></tr></table></figure>
 
 
 
-<p>4、对于两个非new生成的Integer对象，进行比较时，如果两个变量的值在区间-128到127之间，则比较结果为true，如果两个变量的值不在此区间，则比较结果为false</p>
+<p>4、<strong>对于两个非new生成的Integer对象，进行比较时，如果两个变量的值在区间-128到127之间，则比较结果为true，如果两个变量的值不在此区间，则比较结果为false（运用到的设计模式：享元模式 对象池连接的思想）</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Integer i &#x3D; 100;</span><br><span class="line">Integer j &#x3D; 100;</span><br><span class="line">System.out.print(i &#x3D;&#x3D; j); &#x2F;&#x2F;true</span><br><span class="line">Integer i &#x3D; 128;</span><br><span class="line">Integer j &#x3D; 128;</span><br><span class="line">System.out.print(i &#x3D;&#x3D; j); &#x2F;&#x2F;false</span><br></pre></td></tr></table></figure>
 
 <p>对于第4条的原因：<br>java在编译Integer i = 100 ;时，会翻译成为<code>Integer i = Integer.valueOf(100)</code>；，而java API中对Integer类型的valueOf的定义如下：</p>
