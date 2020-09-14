@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.8k字</span>
+            <span class="post-count">2k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">6分钟</span>
+            <span class="post-count">7分钟</span>
         </span>
     </span>
 </div>
@@ -99,17 +99,22 @@
       
 
       
-      <h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><p>进程通常分为就绪、运行和阻塞三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</p>
+      <h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><ul>
+<li>进程通常分为<strong>就绪、运行和阻塞</strong>三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</li>
+</ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p>
-<p>进程三个状态之间的转换就是靠PV操作来控制的。PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</p>
+<p>进程三个状态之间的转换就是靠PV操作来控制的。</p>
+<p><strong>PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</strong></p>
 <a id="more"></a>
 
+
+
 <p><strong>信号量</strong></p>
-<p>信号量是最早出现的用来解决进程同步与互斥问题的机制。　</p>
+<p>信号量是最早出现的用来解决<strong>进程同步与互斥问题</strong>的机制。　</p>
 <ul>
 <li>信号量由一个值和一个指针组成，指针指向等待该信号量的进程。信号量的值表示相应资源的使用情况。</li>
-<li>信号量<code>S&gt;=0</code>时，S表示可用资源的数量。执行一次P操作意味着请求分配一个资源，因此S的值减1；</li>
-<li>当<code>S&lt;0</code>时，表示已经没有可用资源，S的绝对值表示当前等待该资源的进程数。请求者必须等待其他进程释放该类资源，才能继续运行。而执行一个V操作意味着释放一个资源，因此S的值加1；</li>
+<li>信号量<code>S&gt;=0</code>时，S表示可用资源的数量。<strong>执行一次P操作意味着请求分配一个资源，因此S的值减1；</strong></li>
+<li>当<code>S&lt;0</code>时，表示已经没有可用资源，S的绝对值表示当前等待该资源的进程数。请求者必须等待其他进程释放该类资源，才能继续运行。而执行<strong>一个V操作意味着释放一个资源，因此S的值加1；</strong></li>
 <li>若S&lt;0，表示有某些进程正在等待该资源，因此要唤醒一个等待状态的进程，使之运行下去。</li>
 </ul>
 <p>注意，信号量的值只能由PV操作来改变。</p>
@@ -128,9 +133,38 @@
 <li>当一个进程阻塞了的时候，它已经执行过了P操作，并卡在临界区那个地方。当唤醒它时就立即进入它自己的临界区，并不需要执行P操作了，当执行完了临界区的程序后，就执行V操作。</li>
 </ul>
 <p><strong>4，S的绝对值表示等待的进程数，同时又表示临界资源，这到底是怎么回事？</strong></p>
-<p>当信号量S小于0时，其绝对值表示系统中因请求该类资源而被阻塞的进程数目.S大于0时表示可用的临界资源数。注意在不同情况下所表达的含义不一样。当等于0时，表示刚好用完。</p>
-<h2 id="2-PV操作"><a href="#2-PV操作" class="headerlink" title="2. PV操作"></a>2. PV操作</h2><p><strong>临界区：</strong>我们把并发进程中与共享变量有关的程序段称为临界区。</p>
-<p><strong>信号量S</strong>：信号量的值与相应资源的使用情况有关。当它的值大于0时，表示当前可用资源的数量；当它的值小于0时，其绝对值表示等待使用该资源的进程个数。</p>
+<ul>
+<li>当信号量S小于0时，其绝对值表示系统中因请求该类资源而被阻塞的进程数目</li>
+<li>S大于0时表示可用的临界资源数。注意在不同情况下所表达的含义不一样。当等于0时，表示刚好用完。</li>
+</ul>
+<h2 id="2-临界区和临界资源"><a href="#2-临界区和临界资源" class="headerlink" title="2. 临界区和临界资源"></a>2. 临界区和临界资源</h2><ol>
+<li><strong>临界区</strong></li>
+</ol>
+<ul>
+<li>每个进程中访问临界资源的那段<strong>程序代码称为临界区</strong></li>
+<li>每次只准许一个进程进入临界区，进入后不允许其他进程进入。</li>
+</ul>
+<ol start="2">
+<li><strong>临界资源</strong></li>
+</ol>
+<ul>
+<li>临界资源是一次<strong>仅允许一个进程使用的共享资源</strong></li>
+</ul>
+<ol start="3">
+<li><strong>进程进入临界区的调度原则是：</strong></li>
+</ol>
+<ul>
+<li>如果有若干进程要求进入空闲的临界区，一次仅允许一个进程进入</li>
+<li>任何时候，处于临界区内的进程不可多于一个。如已有进程进入自己的临界区，则其它所有试图进入临界区的进程必须等待。</li>
+<li>进入临界区的进程要在有限时间内退出，以便其它进程能及时进入自己的临界区</li>
+<li>如果进程不能进入自己的临界区，则应让出CPU，避免进程出现“忙等”现象。</li>
+</ul>
+<h2 id="3-PV操作"><a href="#3-PV操作" class="headerlink" title="3. PV操作"></a>3. PV操作</h2><p><strong>临界区：</strong>我们把并发进程中与共享变量有关的<strong>程序段称为临界区。</strong></p>
+<p><strong>信号量S</strong>：</p>
+<ul>
+<li>信号量的值与相应资源的使用情况有关。当它的值大于0时，表示当前可用资源的数量；</li>
+<li>当它的值小于0时，其绝对值表示等待使用该资源的进程个数。</li>
+</ul>
 <p>​    <strong>P操作P（S）</strong>：将信号量S减去1，若结果小于0，则把调用P（S）的进程置成等待信号量S的状态。即为请求资源。</p>
 <p>​    <strong>V操作V（S）</strong>：将信号量S加上1，若结果不大于0，则释放一个等待信号量S的进程。即为释放资源。</p>
 <p>正如老师上课时所举的父亲给孩子吃苹果的例子一样，假如一个盘子只能放一个苹果，父亲往盘子里放了一个苹果。如果儿子吃了（<strong>V操作</strong>），父亲才可以接着放（<strong>P操作</strong>）；如果儿子不吃，那父亲就不能放苹果，只能等着。</p>
@@ -139,13 +173,15 @@
 
 
 
-<h3 id="2-1-进程互斥"><a href="#2-1-进程互斥" class="headerlink" title="2.1 进程互斥"></a>2.1 进程互斥</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">    利用信号量和PV操作实现进程互斥的一般模型是：</span><br><span class="line">进程P1              进程P2           ……          进程Pn</span><br><span class="line">……                  ……                           ……</span><br><span class="line">P（S）；              P（S）；                         P（S）；</span><br><span class="line">临界区；             临界区；                        临界区；</span><br><span class="line">V（S）；              V（S）；                        V（S）；</span><br><span class="line">……                  ……            ……           ……</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-进程互斥"><a href="#3-1-进程互斥" class="headerlink" title="3.1 进程互斥"></a>3.1 进程互斥</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">    利用信号量和PV操作实现进程互斥的一般模型是：</span><br><span class="line">进程P1              进程P2           ……          进程Pn</span><br><span class="line">……                  ……                           ……</span><br><span class="line">P（S）；              P（S）；                         P（S）；</span><br><span class="line">临界区；             临界区；                        临界区；</span><br><span class="line">V（S）；              V（S）；                        V（S）；</span><br><span class="line">……                  ……            ……           ……</span><br></pre></td></tr></table></figure>
 
 <pre><code>其中信号量S用于互斥，初值为1。
 使用PV操作实现进程互斥时应该注意的是：
 （1）每个程序中用户实现互斥的P、V操作必须成对出现，先做P操作，进临界区，后做V操作，出临界区。若有多个分支，要认真检查其成对性。
 （2）P、V操作应分别紧靠临界区的头尾部，临界区的代码应尽可能短，不能有死循环。
-（3）互斥信号量的初值一般为1。</code></pre><h3 id="2-2-进程同步"><a href="#2-2-进程同步" class="headerlink" title="2.2 进程同步"></a>2.2 进程同步</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">利用信号量和PV操作实现进程同步</span><br><span class="line">PV操作是典型的同步机制之一。用一个信号量与一个消息联系起来，当信号量的值为0时，表示期望的消息尚未产生；当信号量的值非0时，表示期望的消息已经存在。用PV操作实现进程同步时，调用P操作测试消息是否到达，调用V操作发送消息。</span><br><span class="line"></span><br><span class="line">    使用PV操作实现进程同步时应该注意的是：</span><br><span class="line"></span><br><span class="line">    （1）分析进程间的制约关系，确定信号量种类。在保持进程间有正确的同步关系情况下，哪个进程先执行，哪些进程后执行，彼此间通过什么资源（信号量）进行协调，从而明确要设置哪些信号量。</span><br><span class="line">    （2）信号量的初值与相应资源的数量有关，也与P、V操作在程序代码中出现的位置有关。</span><br><span class="line">    （3）同一信号量的P、V操作要成对出现，但它们分别在不同的进程代码中。</span><br></pre></td></tr></table></figure>
+（3）互斥信号量的初值一般为1。</code></pre><h3 id="3-2-进程同步"><a href="#3-2-进程同步" class="headerlink" title="3.2 进程同步"></a>3.2 进程同步</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">利用信号量和PV操作实现进程同步</span><br><span class="line">PV操作是典型的同步机制之一。用一个信号量与一个消息联系起来，当信号量的值为0时，表示期望的消息尚未产生；当信号量的值非0时，表示期望的消息已经存在。用PV操作实现进程同步时，调用P操作测试消息是否到达，调用V操作发送消息。</span><br><span class="line"></span><br><span class="line">    使用PV操作实现进程同步时应该注意的是：</span><br><span class="line"></span><br><span class="line">    （1）分析进程间的制约关系，确定信号量种类。在保持进程间有正确的同步关系情况下，哪个进程先执行，哪些进程后执行，彼此间通过什么资源（信号量）进行协调，从而明确要设置哪些信号量。</span><br><span class="line">    （2）信号量的初值与相应资源的数量有关，也与P、V操作在程序代码中出现的位置有关。</span><br><span class="line">    （3）同一信号量的P、V操作要成对出现，但它们分别在不同的进程代码中。</span><br></pre></td></tr></table></figure>
+
+
 
 
       
