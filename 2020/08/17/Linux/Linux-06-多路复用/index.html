@@ -101,10 +101,10 @@
       
       <h1 id="Linux-06-多路复用"><a href="#Linux-06-多路复用" class="headerlink" title="Linux-06-多路复用"></a>Linux-06-多路复用</h1><h2 id="1-BIO-的缺陷"><a href="#1-BIO-的缺陷" class="headerlink" title="1. BIO 的缺陷"></a>1. BIO 的缺陷</h2><ul>
 <li>BIO中的B 是 <code>Blocking</code> 的阻塞的意思</li>
-<li>作为服务端开发，使用<code>ServerSocket</code> 绑定端口号之后会监听该端口,等待<code>accept</code>时间，<code>accept</code>是会阻塞当前线程</li>
+<li>作为<strong>服务端开发</strong>，使用<code>ServerSocket</code> 绑定端口号之后会监听该端口,等待<code>accept</code>时间，<code>accept</code>是会阻塞当前线程</li>
 <li>当我们收到accept事件的时候，程序就会拿到客户端与当前服务端连接的<code>Socket</code></li>
 <li>针对这个socket我们可以进行读写，但是呢，这个socket读写都是会阻塞当前线程的。</li>
-<li>一般我们会有使用多线程方式进行c/s交互，但是这样很难做到C10K（比如说：1W个客户端就需要和服务端用1W个线程支持，这样的话CPU肯定就爆炸了，同时线程上下文切换也会把机器负载给拉飞。）</li>
+<li>一般我们会有使用<strong>多线程方式进行c/s交互，但是这样很难做到C10K</strong>（比如说：1W个客户端就需要和服务端用1W个线程支持，这样的话CPU肯定就爆炸了，同时线程上下文切换也会把机器负载给拉飞。）</li>
 </ul>
 <a id="more"></a>
 
@@ -115,24 +115,30 @@
 <li>这个阻塞BIO之所以需要给每个socket长连接指定一个线程，就是因为它阻塞嘛</li>
 <li>现在这个NIO API具有非阻塞的特性了，就可以用1个线程去检查n个socket</li>
 <li>在 java 层面，nio 提供了一个这样的选择器selector</li>
-<li>然后我们需要把需要检查的socket注册到这个socket 中，然后主线程阻塞在selector的select 方法中。</li>
-<li>主选择器发现socket就绪了，某个socket就绪了。就会唤醒主线程，然后咱们可以通过selector 获取就绪状态的socket 进行相应的处理。</li>
+<li>然后我们需要把需要检查的socket注册到这个selector中，然后主线程阻塞在selector的select 方法中。</li>
+<li>当选择器发现socket就绪了，某个socket就绪了。就会唤醒主线程，然后咱们可以通过selector 获取就绪状态的socket 进行相应的处理。</li>
 </ul>
 <p><strong>其实这里selector 里面是native api ,底层Jvm调用SystemCall kernel去实现的</strong></p>
 <h2 id="3-select-…-实现原理"><a href="#3-select-…-实现原理" class="headerlink" title="3. select(…) 实现原理"></a>3. select(…) 实现原理</h2><ul>
-<li>每次调用<code>kernel</code> 的 select函数，都会涉及到用户态/内核态的切换，还需要传递需要检查的socket集合，其实就是需要检查的fd(文件描述符)集合</li>
+<li><strong>每次调用<code>kernel</code> 的 select函数，都会涉及到用户态/内核态的切换</strong>，<strong>还需要传递需要检查的socket集合</strong>，其实就是需要检查的fd(文件描述符)集合<ul>
 <li>因为咱的程序都是运行在linux或者unix操作系统上，这种操作系统，一切皆文件，socket也不例外，这里传递的fd其实就是文件系统中对应socket生成的文件描述符</li>
-<li>操作系统 这个select 函数被调用以后，首先会去fd集合中去检查内存中socket套接字的状态，这个时间复杂度是O(N)的，然后检查完一遍之后，如果有就绪状态的socket,那么就会直接返回，不会阻塞当前线程。否则的话，那个就说明当前指定fd集合对应的socket没有就绪状态，那么就需要阻塞当前调用线程了，直到有某个socket有数据之后，才唤醒线程。</li>
+</ul>
+</li>
+<li>操作系统 这个<code>select</code>函数被调用以后，首先会去fd集合中去检查内存中<code>socket</code>套接字的状态，这个时间复杂度是<code>O(N)</code>的，然后检查完一遍之后，如果有就绪状态的socket,那么就会直接返回，不会阻塞当前线程。否则的话，那个就说明当前指定fd集合对应的socket没有就绪状态，那么就需要阻塞当前调用线程了，直到有某个socket有数据之后，才唤醒线程。</li>
 </ul>
 <p><strong>select(…) 对监听socket有1024的大小限制</strong></p>
 <ul>
-<li>这个是因为fd集合这个结构是一个bitmap位图的结构，这个位图结构就是一个长的二进制数,类似0101这种</li>
-<li>这个bitmap默认长度是1024个bit,想要修改长度非常麻烦，需要重新编译操作系统内核</li>
-<li>处于某种性能考虑,select函数做了两件事<ul>
-<li>第一件事，跑到就绪状态的socket对应的fd文件中设置一个标记mask,表示这个fd对应的socket就绪了</li>
-<li>第二件事，返回select函数，对应的也就是唤醒java线程，站在java层面，他会收到一个int结果值，表示有几个socket处于就绪状态</li>
-<li>但是具体是哪个socket就绪，java是不知道的，所以接下来会是一个O(N)的系统调用，检查fd集合中每一个socket的就绪状态，其实就是检查文件系统中指定so cket的文件描述符的状态，涉及到用户态和内核态的来回切换，如果bitmap再大，就非常耗费性能</li>
+<li>这个是因为<code>fd</code>集合这个结构是一个<strong><code>bitmap</code>位图的结构</strong>，这个位图结构就是一个长的二进制数,类似<code>0101</code>这种<ul>
+<li>这个<code>bitmap</code>默认长度是<code>1024个bit</code>,想要修改长度非常麻烦，需要<strong>重新编译操作系统内核</strong></li>
+</ul>
+</li>
+<li>处于某种性能考虑,<code>select</code>函数做了两件事<ul>
+<li><strong>第一件事</strong>，跑到就绪状态的socket对应的fd文件中设置一个标记mask,表示这个fd对应的socket就绪了</li>
+<li><strong>第二件事</strong>，返回select函数，对应的也就是唤醒java线程，站在java层面，他会收到一个int结果值，表示有几个socket处于就绪状态<ul>
+<li>但是具体是哪个socket就绪，java是不知道的，所以接下来会是一个O(N)的系统调用，检查fd集合中每一个socket的就绪状态，其实就是检查文件系统中指定<code>socket</code>的文件描述符的状态，涉及到用户态和内核态的来回切换，如果<code>bitmap</code>再大，就非常耗费性能</li>
 <li>还有就是系统调用涉及到参数的数据拷贝，如果数据太庞大，他也不利于系统的调用速度</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -143,8 +149,8 @@
 </ol>
 <ul>
 <li>cpu同一时刻，它只能运行一个进程，操作系统做主要的任务就是系统调度，就是有n个进程，然后让这n个进程在cpu上切换进行</li>
-<li>未挂起的进程都在工作队列内，都有机会获取到cpu的执行权</li>
-<li>挂起的进程就会从这个工作队列里移除出去，反映到咱们java层面就是线程阻塞了</li>
+<li><strong>未挂起的进程都在工作队列内</strong>，都有机会获取到cpu的执行权</li>
+<li><strong>挂起的进程就会从这个工作队列里移除出去</strong>，反映到咱们java层面就是线程阻塞了</li>
 <li>linux系统线程其实就是轻量级进程</li>
 </ul>
 <ol start="2">
@@ -163,22 +169,22 @@
 <p><strong>回到最开始的问题</strong></p>
 <ul>
 <li>这个<code>select</code>函数，它第一遍轮询，没有发现就绪状态的socket的话，它就会把当前进程保留给需要检查的socket等待队列中</li>
-<li><code>socket</code> 结构 有三块核心区域，分别就是读缓存，写缓存还有这个等待队列</li>
+<li><code>socket</code> 结构 有三块核心区域，分别就是<strong>读缓存，写缓存还有这个等待队列</strong></li>
 <li>这个 <code>select</code> 函数，它会把当前进程保留到每个需要检查的socket 的等待队列中，就会把当前进程从工作队列里面移除了，移除了之后其实就是挂起了当前线程，然后这个select 函数也就不会再运行了</li>
-<li>下一个阶段，假设我们客户端往当前服务器发送了数据，数据通过网线到网卡，网卡再到DMA硬件的这种方式直接将数据写到内存里面，然后整个过程，CPU是不参与的</li>
+<li><strong>下一个阶段，假设我们客户端往当前服务器发送了数据</strong>，数据通过网线到网卡，网卡再到DMA硬件的这种方式直接将数据写到内存里面，然后整个过程，CPU是不参与的</li>
 <li>当传输完成以后，它就会触发网络数据传输完毕的中断程序，这个中断程序它会把cpu正在执行的进程给顶掉，然后cpu就会执行咱这个中断程序的逻辑<ul>
 <li>对应的逻辑是：根据内存中的数据包，然后分析出来数据包是哪个socket的数据，</li>
-<li>同时tcp/ip它又是保证传输的时候是有端口号的，然后根据端口号就能找到对用的socket实例，找到socket实例以后，就会把数据导入到socket读缓冲里面</li>
-<li>导入完成以后，它就开始去检查socket等待队列，看是不是有等待者，如果有等待者的话，就会把等待者移动到工作队列里面去，中断程序到这一步就执行完了</li>
+<li>同时tcp/ip它又是保证传输的时候是有端口号的，然后根据端口号就能找到对用的socket实例，找到socket实例以后，就会<strong>把数据导入到socket读缓冲里面</strong></li>
+<li><strong>导入完成以后，它就开始去检查socket等待队列</strong>，看是不是有等待者，如果有等待者的话，就会把等待者移动到工作队列里面去，中断程序到这一步就执行完了</li>
 <li>这样咱们的进程就又回到了工作队列，又有机会获取到cpu时间片了</li>
 </ul>
 </li>
-<li>然后当前进程执行的seleclt函数再次检查，就会发现这个就绪的socket了,就会给就绪的socket的fd文件描述符打标记，然后select函数就执行完了，返回到java层面就涉及到内核态和用户态的转换，后面的事情就是轮询检查每一个socket的fd是否被打了标记，然后就是处理被打了标记的socket就ok了</li>
+<li>然后当前进程执行的<code>select</code>函数再次检查，就会发现这个就绪的<code>socket了</code>,就会给就绪的<code>socket</code>的<code>fd</code>文件描述符打标记，然后<code>select</code>函数就执行完了，返回到java层面就涉及到内核态和用户态的转换，<strong>后面的事情就是轮询检查</strong>每一个socket的fd是否被打了标记，然后就是处理被打了标记的socket就ok了</li>
 </ul>
 <h2 id="5-poll-和-select-区别"><a href="#5-poll-和-select-区别" class="headerlink" title="5. poll() 和 select()区别"></a>5. poll() 和 select()区别</h2><ul>
 <li><strong>传参不一样</strong> <ul>
 <li><strong>select 用的是bitmap ，</strong>它表示需要检查的socket集合</li>
-<li><strong>poll 使用的是 链表结构，</strong>表示需要检查的socket集合（主要是为了检查socket监听长度超过1024的socket的限制）</li>
+<li><strong>poll 使用的是 链表结构，</strong>表示需要检查的socket集合（主要是为了检查socket监听长度超过1024的<code>socket</code>的限制）</li>
 </ul>
 </li>
 </ul>
