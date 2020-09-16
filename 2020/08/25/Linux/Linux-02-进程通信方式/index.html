@@ -102,7 +102,7 @@
       <h1 id="Linux-02-进程通信方式"><a href="#Linux-02-进程通信方式" class="headerlink" title="Linux-02-进程通信方式"></a>Linux-02-进程通信方式</h1><h2 id="一、管道"><a href="#一、管道" class="headerlink" title="一、管道"></a>一、管道</h2><p>管道，通常指无名管道，是 UNIX 系统IPC最古老的形式。</p>
 <h3 id="1、特点"><a href="#1、特点" class="headerlink" title="1、特点"></a>1、特点</h3><ol>
 <li>它是半双工的（即数据只能在一个方向上流动），具有固定的读端和写端。</li>
-<li>它只能用于具有亲缘关系的进程之间的通信（也是父子进程或者兄弟进程之间）。</li>
+<li>它只能用于具有<strong>亲缘关系的进程之间的通信（也是父子进程或者兄弟进程之间）</strong>。</li>
 <li>它可以看成是一种特殊的文件，对于它的读写也可以使用普通的read、write 等函数。但是它不是普通的文件，并不属于其他任何文件系统，并且只存在于内存中。</li>
 </ol>
 <h3 id="2、原型"><a href="#2、原型" class="headerlink" title="2、原型"></a>2、原型</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 #include &lt;unistd.h&gt;</span><br><span class="line">2 int pipe(int fd[2]);    &#x2F;&#x2F; 返回值：若成功返回0，失败返回-1</span><br></pre></td></tr></table></figure>
@@ -121,7 +121,7 @@
 
 <h2 id="二、FIFO"><a href="#二、FIFO" class="headerlink" title="二、FIFO"></a>二、FIFO</h2><p>FIFO，也称为命名管道，它是一种文件类型。</p>
 <h3 id="1、特点-1"><a href="#1、特点-1" class="headerlink" title="1、特点"></a>1、特点</h3><ol>
-<li>FIFO可以在无关的进程之间交换数据，与无名管道不同。</li>
+<li><strong>FIFO可以在无关的进程之间交换数据，与无名管道不同。</strong></li>
 <li>FIFO有路径名与之相关联，它以一种特殊设备文件形式存在于文件系统中。</li>
 </ol>
 <h3 id="2、原型-1"><a href="#2、原型-1" class="headerlink" title="2、原型"></a>2、原型</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 #include &lt;sys&#x2F;stat.h&gt;</span><br><span class="line">2 &#x2F;&#x2F; 返回值：成功返回0，出错返回-1</span><br><span class="line">3 int mkfifo(const char *pathname, mode_t mode);</span><br></pre></td></tr></table></figure>
@@ -148,11 +148,11 @@
 
 <p>上述例子可以扩展成 客户进程—服务器进程 通信的实例，<code>write_fifo</code>的作用类似于客户端，可以打开多个客户端向一个服务器发送请求信息，<code>read_fifo</code>类似于服务器，它适时监控着FIFO的读端，当有数据时，读出并进行处理，但是有一个关键的问题是，每一个客户端必须预先知道服务器提供的FIFO接口，下图显示了这种安排：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-100921142.png" alt="mark"></p>
-<h2 id="三、消息队列"><a href="#三、消息队列" class="headerlink" title="三、消息队列"></a>三、消息队列</h2><p>消息队列，是消息的链接表，存放在内核中。一个消息队列由一个标识符（即队列ID）来标识。</p>
+<h2 id="三、消息队列"><a href="#三、消息队列" class="headerlink" title="三、消息队列"></a>三、消息队列</h2><p><strong>消息队列，是消息的链接表，存放在内核中</strong>。一个消息队列由一个标识符（即队列ID）来标识。</p>
 <h3 id="1、特点-2"><a href="#1、特点-2" class="headerlink" title="1、特点"></a>1、特点</h3><ol>
 <li>消息队列是面向记录的，其中的消息具有特定的格式以及特定的优先级。</li>
-<li>消息队列独立于发送与接收进程。进程终止时，消息队列及其内容并不会被删除。</li>
-<li>消息队列可以实现消息的随机查询,消息不一定要以先进先出的次序读取,也可以按消息的类型读取。</li>
+<li><strong>消息队列独立于发送与接收进程。进程终止时，消息队列及其内容并不会被删除。</strong></li>
+<li><strong>消息队列可以实现消息的随机查询,消息不一定要以先进先出的次序读取,也可以按消息的类型读取。</strong></li>
 </ol>
 <h3 id="2、原型-2"><a href="#2、原型-2" class="headerlink" title="2、原型"></a>2、原型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="comment">// 创建或打开消息队列：成功返回队列ID，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgget</span><span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">int</span> flag)</span></span>;</span><br><span class="line"><span class="comment">// 添加消息：成功返回0，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgsnd</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">const</span> <span class="keyword">void</span> *ptr, <span class="keyword">size_t</span> size, <span class="keyword">int</span> flag)</span></span>;</span><br><span class="line"><span class="comment">// 读取消息：成功返回消息数据的长度，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgrcv</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">void</span> *ptr, <span class="keyword">size_t</span> size, <span class="keyword">long</span> type,<span class="keyword">int</span> flag)</span></span>;</span><br><span class="line"><span class="comment">// 控制消息队列：成功返回0，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">msgctl</span><span class="params">(<span class="keyword">int</span> msqid, <span class="keyword">int</span> cmd, struct msqid_ds *buf)</span></span>;</span><br></pre></td></tr></table></figure>
 
@@ -177,10 +177,10 @@
 
 
 
-<h2 id="四、信号量"><a href="#四、信号量" class="headerlink" title="四、信号量"></a>四、信号量</h2><p><strong>信号量</strong>（semaphore）与已经介绍过的 IPC 结构不同，它是一个计数器。信号量用于实现进程间的互斥与同步，而不是用于存储进程间通信数据。</p>
+<h2 id="四、信号量"><a href="#四、信号量" class="headerlink" title="四、信号量"></a>四、信号量</h2><p><strong>信号量</strong>（semaphore）与已经介绍过的 IPC 结构不同，它是一个计数器。<strong>信号量用于实现进程间的互斥与同步，</strong>而不是用于存储进程间通信数据。</p>
 <h3 id="1、特点-3"><a href="#1、特点-3" class="headerlink" title="1、特点"></a>1、特点</h3><ol>
 <li>信号量用于进程间同步，若要在进程间传递数据需要结合共享内存。</li>
-<li>信号量基于操作系统的 PV 操作，程序对信号量的操作都是原子操作。</li>
+<li><strong>信号量基于操作系统的 PV 操作</strong>，程序对信号量的操作都是原子操作。</li>
 <li>每次对信号量的 PV 操作不仅限于对信号量值加 1 或减 1，而且可以加减任意正整数。</li>
 <li>支持信号量组。</li>
 </ol>
@@ -259,7 +259,7 @@
 <h3 id="1、特点-4"><a href="#1、特点-4" class="headerlink" title="1、特点"></a>1、特点</h3><ol>
 <li>共享内存是最快的一种 IPC，因为进程是直接对内存进行存取。</li>
 <li>因为多个进程可以同时操作，所以需要进行同步。</li>
-<li>信号量+共享内存通常结合在一起使用，信号量用来同步对共享内存的访问。</li>
+<li><strong>信号量+共享内存通常结合在一起使用，信号量用来同步对共享内存的访问。</strong></li>
 </ol>
 <h3 id="2、原型-4"><a href="#2、原型-4" class="headerlink" title="2、原型"></a>2、原型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/shm.h&gt;</span></span></span><br><span class="line"><span class="comment">// 创建或获取一个共享内存：成功返回共享内存ID，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shmget</span><span class="params">(<span class="keyword">key_t</span> key, <span class="keyword">size_t</span> size, <span class="keyword">int</span> flag)</span></span>;</span><br><span class="line"><span class="comment">// 连接共享内存到当前进程的地址空间：成功返回指向共享内存的指针，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">shmat</span><span class="params">(<span class="keyword">int</span> shm_id, <span class="keyword">const</span> <span class="keyword">void</span> *addr, <span class="keyword">int</span> flag)</span></span>;</span><br><span class="line"><span class="comment">// 断开与共享内存的连接：成功返回0，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shmdt</span><span class="params">(<span class="keyword">void</span> *addr)</span></span>;</span><br><span class="line"><span class="comment">// 控制共享内存的相关信息：成功返回0，失败返回-1</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">shmctl</span><span class="params">(<span class="keyword">int</span> shm_id, <span class="keyword">int</span> cmd, struct shmid_ds *buf)</span></span>;</span><br></pre></td></tr></table></figure>
 
