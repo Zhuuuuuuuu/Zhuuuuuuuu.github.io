@@ -101,7 +101,7 @@
       
       <h1 id="Linux-06-多路复用"><a href="#Linux-06-多路复用" class="headerlink" title="Linux-06-多路复用"></a>Linux-06-多路复用</h1><h2 id="1-BIO-的缺陷"><a href="#1-BIO-的缺陷" class="headerlink" title="1. BIO 的缺陷"></a>1. BIO 的缺陷</h2><ul>
 <li>BIO中的B 是 <code>Blocking</code> 的阻塞的意思</li>
-<li>作为<strong>服务端开发</strong>，使用<code>ServerSocket</code> 绑定端口号之后会监听该端口,等待<code>accept</code>时间，<code>accept</code>是会阻塞当前线程</li>
+<li>作为<strong>服务端开发</strong>，使用<code>ServerSocket</code> 绑定端口号之后会监听该端口,等待<code>accept</code>事件，<code>accept</code>是会阻塞当前线程</li>
 <li>当我们收到<code>accept</code>事件的时候，程序就会拿到客户端与当前服务端连接的<code>Socket</code></li>
 <li>针对这个<code>socket</code>我们可以进行读写，但是呢，这个<code>socket</code>读写都是会阻塞当前线程的。</li>
 <li>一般我们会有使用<strong>多线程方式进行c/s交互，但是这样很难做到C10K</strong>（比如说：1W个客户端就需要和服务端用1W个线程支持，这样的话CPU肯定就爆炸了，同时线程上下文切换也会把机器负载给拉飞。）</li>
@@ -111,13 +111,13 @@
 
 
 <h2 id="2-NIO-解决C10K问题"><a href="#2-NIO-解决C10K问题" class="headerlink" title="2. NIO 解决C10K问题"></a>2. NIO 解决C10K问题</h2><h3 id="2-1-Java角度"><a href="#2-1-Java角度" class="headerlink" title="2.1 Java角度"></a>2.1 Java角度</h3><ul>
-<li>站在java 角度去看，NIO包提供了一套非阻塞的接口，这样就不需要我们为每一个c/s长连接保留一个单独的处理线程了。</li>
-<li>这个阻塞BIO之所以需要给每个socket长连接指定一个线程，就是因为它阻塞嘛</li>
-<li>现在这个NIO API具有非阻塞的特性了，就可以用1个线程去检查n个socket</li>
+<li>站在java 角度去看，NIO包提供了一套非阻塞的接口，这样就<strong>不需要我们为每一个c/s长连接保留一个单独的处理线程了。</strong></li>
+<li>这个<strong>阻塞BIO之所以需要给每个socket长连接指定一个线程，就是因为它阻塞</strong>嘛</li>
+<li>现在这个NIO API具有非阻塞的特性了，就可以<strong>用1个线程去检查n个socket</strong></li>
 <li>在 java 层面，nio 提供了一个这样的选择器<code>selector</code></li>
 <li>然后我们<strong>需要把需要检查的socket注册到这个<code>selector</code>中</strong>，然后主线程阻塞在<code>selector</code>的<code>select</code>方法中。</li>
-<li>当选择器发现socket就绪了，某个socket就绪了。就会唤醒主线程，</li>
-<li>然后咱们可以通过selector 获取就绪状态的socket 进行相应的处理。</li>
+<li>当选择器发现<code>socket</code>就绪了，某个socket就绪了。就会唤醒主线程，</li>
+<li>然后咱们可以通过<code>selector</code> 获取就绪状态的<code>socket</code> 进行相应的处理。</li>
 </ul>
 <p><strong>其实这里selector 里面是native api ,底层Jvm调用SystemCall kernel去实现的</strong></p>
 <h2 id="3-select-…-实现原理"><a href="#3-select-…-实现原理" class="headerlink" title="3. select(…) 实现原理"></a>3. select(…) 实现原理</h2><ul>
@@ -195,7 +195,7 @@
 </ul>
 <h2 id="6-epoll-的-产生背景"><a href="#6-epoll-的-产生背景" class="headerlink" title="6. epoll 的 产生背景"></a>6. epoll 的 产生背景</h2><ul>
 <li><strong>select 和 poll 的共有缺陷</strong><ul>
-<li><strong>第一个缺陷：</strong> <code>select</code> 和 <code>poll</code> 函数，这两系统函数每次调用都需要我们提供给它所有的需要监听的socket文件描述符集合，而且主线程是死循环调用<code>select/poll</code>函数的,这里面涉及到用户空间数据到内核空间拷贝的过程<ul>
+<li><strong>第一个缺陷：</strong> <code>select</code> 和 <code>poll</code> 函数，<strong>这两系统函数每次调用都需要我们提供给它所有的需要监听的socket文件描述符集合，而且主线程是死循环调用<code>select/poll</code>函数的,这里面涉及到用户空间数据到内核空间拷贝的过程</strong><ul>
 <li>咱们需要监听的socket集合，<strong>数据变化非常小</strong></li>
 <li><strong>每次就一到两个socket_fd需要更改，但是没有办法，因为select和poll函数，只是一个很单纯的函数</strong></li>
 <li><strong>它在kernel层面，不会保留任何的数据信息，所以说每次调用都进行了数据拷贝</strong></li>
