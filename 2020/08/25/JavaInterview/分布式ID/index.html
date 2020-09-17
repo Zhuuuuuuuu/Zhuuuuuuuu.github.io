@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.9k字</span>
+            <span class="post-count">4.4k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">7分钟</span>
+            <span class="post-count">18分钟</span>
         </span>
     </span>
 </div>
@@ -104,12 +104,14 @@
 </ul>
 <p><strong>1、什么是分布式ID？</strong></p>
 <p>拿MySQL数据库举个栗子：</p>
-<p>在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。</p>
-<p>但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有<code>唯一ID</code>做标识。此时一个能够生成<code>全局唯一ID</code>的系统是非常必要的。那么这个<code>全局唯一ID</code>就叫<code>分布式ID</code>。</p>
+<ul>
+<li>在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。</li>
+<li>但随着数据日渐增长，主从同步也扛不住了，就需要<strong>对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据</strong>，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有<code>唯一ID</code>做标识。此时一个能够生成<code>全局唯一ID</code>的系统是非常必要的。那么这个<code>全局唯一ID</code>就叫<code>分布式ID</code>。</li>
+</ul>
 <p><strong>2、那么分布式ID需要满足那些条件？</strong></p>
 <ul>
 <li>全局唯一：必须保证ID是全局性唯一的，基本要求</li>
-<li>高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈</li>
+<li>高性能：高可用低延时，ID生成响应要快，否则反倒会成为业务瓶颈</li>
 <li>高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性</li>
 <li>好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单</li>
 <li>趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求</li>
@@ -160,8 +162,10 @@
 <li>DB单点存在宕机风险，无法扛住高并发场景</li>
 </ul>
 <p><strong>3、基于数据库集群模式</strong></p>
-<p>前边说了单点数据库方式不可取，那对上边的方式做一些高可用优化，换成主从模式集群。害怕一个主节点挂掉没法用，那就做双主模式集群，也就是两个Mysql实例都能单独的生产自增ID。</p>
-<p>那这样还会有个问题，两个MySQL实例的自增ID都从1开始，<strong>会生成重复的ID怎么办？</strong></p>
+<ul>
+<li>前边说了单点数据库方式不可取，那对上边的方式做一些高可用优化，换成主从模式集群。害怕一个主节点挂掉没法用，那就做双主模式集群，也就是两个Mysql实例都能单独的生产自增ID。</li>
+<li>那这样还会有个问题，两个MySQL实例的自增ID都从1开始，<strong>会生成重复的ID怎么办？</strong></li>
+</ul>
 <p><strong>解决方案</strong>：设置<code>起始值</code>和<code>自增步长</code></p>
 <p>MySQL_1 配置：</p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224410327.png" alt="mark"></p>
@@ -184,7 +188,7 @@
 </ul>
 <p><strong>4、基于数据库的号段模式</strong></p>
 <ul>
-<li>号段模式是当下分布式ID生成器的主流实现方式之一，号段模式可以理解为从数据库批量的获取自增ID，每次从数据库取出一个号段范围</li>
+<li>号段模式是当下<strong>分布式ID生成器的主流实现方式之一</strong>，号段模式可以理解为从数据库批量的获取自增ID，每次从数据库取出一个号段范围</li>
 <li>例如 (1,1000] 代表1000个ID，具体的业务服务将本号段，生成1~1000的自增ID并加载到内存。表结构如下：</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE id_generator (</span><br><span class="line">  id int(10) NOT NULL,</span><br><span class="line">  max_id bigint(20) NOT NULL COMMENT &#39;当前最大id&#39;,</span><br><span class="line">  step int(20) NOT NULL COMMENT &#39;号段的布长&#39;,</span><br><span class="line">  biz_type    int(20) NOT NULL COMMENT &#39;业务类型&#39;,</span><br><span class="line">  version int(20) NOT NULL COMMENT &#39;版本号&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
@@ -213,8 +217,106 @@
 <li><code>AOF</code>会对每条写命令进行持久化，即使<code>Redis</code>挂掉了也不会出现ID重复的情况，但由于incr命令的特殊性，会导致<code>Redis</code>重启恢复的数据时间过长。</li>
 </ul>
 <p><strong>6、基于雪花算法（Snowflake）模式</strong></p>
-<p>雪花算法（Snowflake）是twitter公司内部分布式项目采用的ID生成算法，开源后广受国内大厂的好评，在该算法影响下各大公司相继开发出各具特色的分布式生成器。</p>
-<p><a href="https://zhuanlan.zhihu.com/p/152179727?utm_source" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/152179727?utm_source</a></p>
+<ul>
+<li>雪花算法（<code>Snowflake</code>）是<code>twitter</code>公司内部分布式项目采用的ID生成算法，开源后广受国内大厂的好评，在该算法影响下各大公司相继开发出各具特色的分布式生成器。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/161626004.png" alt="mark"></p>
+<ul>
+<li><code>Snowflake</code>生成的是Long类型的ID，一个Long类型占8个字节，每个字节占8比特，也就是说一个Long类型占64个比特。<ul>
+<li><code>Snowflake</code> ID组成结构：<code>正数位</code>（占1比特）+ <code>时间戳</code>（占41比特）+ <code>机器ID</code>（占5比特）+ <code>数据中心</code>（占5比特）+ <code>自增值</code>（占12比特），总共64比特组成的一个Long类型。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">第一个bit位（1bit）：Java中long的最高位是符号位代表正负，正数是0，负数是1，一般生成ID都为正数，所以默认为0。</span><br><span class="line">时间戳部分（41bit）：毫秒级的时间，不建议存当前时间戳，而是用（当前时间戳 - 固定开始时间戳）的差值，可以使产生的ID从更小的值开始；41位的时间戳可以使用69年，(1L &lt;&lt; 41) &#x2F; (1000L * 60 * 60 * 24 * 365) &#x3D; 69年</span><br><span class="line">工作机器id（10bit）：也被叫做workId，这个可以灵活配置，机房或者机器号组合都可以。</span><br><span class="line">序列号部分（12bit），自增值支持同一毫秒内同一个节点可以生成4096个ID</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>根据这个算法的逻辑，只需要将这个算法用Java语言实现出来，封装为一个工具方法，那么各个业务应用可以直接使用该工具方法来获取分布式ID，只需保证每个业务应用有自己的工作机器id即可，而不需要单独去搭建一个获取分布式ID的应用。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Twitter的SnowFlake算法,使用SnowFlake算法生成一个整数，然后转化为62进制变成一个短地址URL</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * https://github.com/beyondfengyu/SnowFlake</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SnowFlakeShortUrl</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 起始的时间戳</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> START_TIMESTAMP = <span class="number">1480166465631L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 每一部分占用的位数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> SEQUENCE_BIT = <span class="number">12</span>;   <span class="comment">//序列号占用的位数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MACHINE_BIT = <span class="number">5</span>;     <span class="comment">//机器标识占用的位数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> DATA_CENTER_BIT = <span class="number">5</span>; <span class="comment">//数据中心占用的位数</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 每一部分的最大值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MAX_SEQUENCE = -<span class="number">1L</span> ^ (-<span class="number">1L</span> &lt;&lt; SEQUENCE_BIT);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MAX_MACHINE_NUM = -<span class="number">1L</span> ^ (-<span class="number">1L</span> &lt;&lt; MACHINE_BIT);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MAX_DATA_CENTER_NUM = -<span class="number">1L</span> ^ (-<span class="number">1L</span> &lt;&lt; DATA_CENTER_BIT);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 每一部分向左的位移</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MACHINE_LEFT = SEQUENCE_BIT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> DATA_CENTER_LEFT = SEQUENCE_BIT + MACHINE_BIT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> TIMESTAMP_LEFT = DATA_CENTER_LEFT + DATA_CENTER_BIT;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> dataCenterId;  <span class="comment">//数据中心</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> machineId;     <span class="comment">//机器标识</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> sequence = <span class="number">0L</span>; <span class="comment">//序列号</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> lastTimeStamp = -<span class="number">1L</span>;  <span class="comment">//上一次时间戳</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">getNextMill</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> mill = getNewTimeStamp();</span><br><span class="line">        <span class="keyword">while</span> (mill &lt;= lastTimeStamp) &#123;</span><br><span class="line">            mill = getNewTimeStamp();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> mill;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">getNewTimeStamp</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> System.currentTimeMillis();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据指定的数据中心ID和机器标志ID生成指定的序列号</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dataCenterId 数据中心ID</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> machineId    机器标志ID</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SnowFlakeShortUrl</span><span class="params">(<span class="keyword">long</span> dataCenterId, <span class="keyword">long</span> machineId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (dataCenterId &gt; MAX_DATA_CENTER_NUM || dataCenterId &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"DtaCenterId can't be greater than MAX_DATA_CENTER_NUM or less than 0！"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (machineId &gt; MAX_MACHINE_NUM || machineId &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"MachineId can't be greater than MAX_MACHINE_NUM or less than 0！"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.dataCenterId = dataCenterId;</span><br><span class="line">        <span class="keyword">this</span>.machineId = machineId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 产生下一个ID</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">long</span> <span class="title">nextId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> currTimeStamp = getNewTimeStamp();</span><br><span class="line">        <span class="keyword">if</span> (currTimeStamp &lt; lastTimeStamp) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Clock moved backwards.  Refusing to generate id"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (currTimeStamp == lastTimeStamp) &#123;</span><br><span class="line">            <span class="comment">//相同毫秒内，序列号自增</span></span><br><span class="line">            sequence = (sequence + <span class="number">1</span>) &amp; MAX_SEQUENCE;</span><br><span class="line">            <span class="comment">//同一毫秒的序列数已经达到最大</span></span><br><span class="line">            <span class="keyword">if</span> (sequence == <span class="number">0L</span>) &#123;</span><br><span class="line">                currTimeStamp = getNextMill();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//不同毫秒内，序列号置为0</span></span><br><span class="line">            sequence = <span class="number">0L</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        lastTimeStamp = currTimeStamp;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (currTimeStamp - START_TIMESTAMP) &lt;&lt; TIMESTAMP_LEFT <span class="comment">//时间戳部分</span></span><br><span class="line">                | dataCenterId &lt;&lt; DATA_CENTER_LEFT       <span class="comment">//数据中心部分</span></span><br><span class="line">                | machineId &lt;&lt; MACHINE_LEFT             <span class="comment">//机器标识部分</span></span><br><span class="line">                | sequence;                             <span class="comment">//序列号部分</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SnowFlakeShortUrl snowFlake = <span class="keyword">new</span> SnowFlakeShortUrl(<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; (<span class="number">1</span> &lt;&lt; <span class="number">4</span>); i++) &#123;</span><br><span class="line">            <span class="comment">//10进制</span></span><br><span class="line">            System.out.println(snowFlake.nextId());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>7、百度（uid-generator）</strong></p>
+<ul>
+<li><code>uid-generator</code>是由百度技术部开发，项目GitHub地址 </li>
+<li><code>uid-generator</code>是基于<code>Snowflake</code>算法实现的，与原始的<code>snowflake</code>算法不同在于，<code>uid-generator</code>支持自<code>定义时间戳</code>、<code>工作机器ID</code>和 <code>序列号</code> 等各部分的位数，而且<code>uid-generator</code>中采用用户自定义<code>workId</code>的生成策略。</li>
+<li><code>uid-generator</code>需要与数据库配合使用，需要新增一个<code>WORKER_NODE</code>表。当应用启动时会向数据库表中去插入一条数据，插入成功后返回的自增ID就是该机器的<code>workId</code>数据由host，port组成。</li>
+</ul>
+<p><strong>对于<code>uid-generator</code> ID组成结构</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#96;workId&#96;，占用了22个bit位，时间占用了28个bit位，序列化占用了13个bit位，</span><br><span class="line">需要注意的是，和原始的&#96;snowflake&#96;不太一样，时间的单位是秒，而不是毫秒，</span><br><span class="line">&#96;workId&#96;也不一样，而且同一应用每次重启就会消费一个&#96;workId&#96;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>8、美团（Leaf）</strong></p>
+<p><code>Leaf</code>由美团开发，github地址：<a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2FMeituan-Dianping%2FLeaf">https://github.com/Meituan-Dianping/Leaf</a><br><code>Leaf</code>同时支持号段模式和<code>snowflake</code>算法模式，可以切换使用。</p>
+<p><strong>号段模式</strong></p>
+<ul>
+<li>先导入源码 <a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2FMeituan-Dianping%2FLeaf">https://github.com/Meituan-Dianping/Leaf</a> ，在建一张表<code>leaf_alloc</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DROP TABLE IF EXISTS &#96;leaf_alloc&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;leaf_alloc&#96; (</span><br><span class="line">  &#96;biz_tag&#96; varchar(128)  NOT NULL DEFAULT &#39;&#39; COMMENT &#39;业务key&#39;,</span><br><span class="line">  &#96;max_id&#96; bigint(20) NOT NULL DEFAULT &#39;1&#39; COMMENT &#39;当前已经分配了的最大id&#39;,</span><br><span class="line">  &#96;step&#96; int(11) NOT NULL COMMENT &#39;初始步长，也是动态调整的最小步长&#39;,</span><br><span class="line">  &#96;description&#96; varchar(256)  DEFAULT NULL COMMENT &#39;业务key的描述&#39;,</span><br><span class="line">  &#96;update_time&#96; timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#39;数据库维护的更新时间&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;biz_tag&#96;)</span><br><span class="line">) ENGINE&#x3D;InnoDB;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>然后在项目中开启<code>号段模式</code>，配置对应的数据库信息，并关闭<code>snowflake</code>模</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">leaf.name&#x3D;com.sankuai.leaf.opensource.test</span><br><span class="line">leaf.segment.enable&#x3D;true</span><br><span class="line">leaf.jdbc.url&#x3D;jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;leaf_test?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf8&amp;characterSetResults&#x3D;utf8</span><br><span class="line">leaf.jdbc.username&#x3D;root</span><br><span class="line">leaf.jdbc.password&#x3D;root</span><br><span class="line"></span><br><span class="line">leaf.snowflake.enable&#x3D;false</span><br><span class="line">#leaf.snowflake.zk.address&#x3D;</span><br><span class="line">#leaf.snowflake.port&#x3D;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动<code>leaf-server</code> 模块的 <code>LeafServerApplication</code>项目就跑起来了</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">号段模式获取分布式自增ID的测试url ：http：&#x2F;&#x2F;localhost：8080&#x2F;api&#x2F;segment&#x2F;get&#x2F;leaf-segment-test</span><br><span class="line"></span><br><span class="line">监控号段模式：http:&#x2F;&#x2F;localhost:8080&#x2F;cache</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>snowflake模式</strong></p>
+<ul>
+<li><code>Leaf</code>的snowflake模式依赖于<code>ZooKeeper</code>，不同于<code>原始snowflake</code>算法也主要是在<code>workId</code>的生成上</li>
+<li><code>Leaf</code>中<code>workId</code>是基于<code>ZooKeeper</code>的顺序Id来生成的，每个应用在使用<code>Leaf-snowflake</code>时，启动时都会都在<code>Zookeeper</code>中生成一个顺序Id，相当于一台机器对应一个顺序节点，也就是一个<code>workId</code>。</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163411884.png" alt="mark" style="zoom:200%;" />
+
+
+
+<ul>
+<li>snowflake模式获取分布式自增ID的测试url：[<a href="http://localhost:8080/api/snowflake/get/test]" target="_blank" rel="noopener">http://localhost:8080/api/snowflake/get/test]</a></li>
+</ul>
+<p><strong>9、滴滴（Tinyid）</strong></p>
+<p><code>Tinyid</code>由滴滴开发，Github地址：<a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2Fdidi%2Ftinyid">https://github.com/didi/tinyid</a>。</p>
+<p><code>Tinyid</code>是基于号段模式原理实现的与<code>Leaf</code>如出一辙，每个服务获取一个号段（1000,2000]、（2000,3000]、（3000,4000]</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163635480.png" alt="mark"></p>
+<p><strong>Http方式接入</strong></p>
+<p>（1）导入Tinyid源码：<br>git clone <a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2Fdidi%2Ftinyid.git">https://github.com/didi/tinyid.git</a></p>
+<p>（2）创建数据表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE &#96;tiny_id_info&#96; (</span><br><span class="line">  &#96;id&#96; bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT &#39;自增主键&#39;,</span><br><span class="line">  &#96;biz_type&#96; varchar(63) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;业务类型，唯一&#39;,</span><br><span class="line">  &#96;begin_id&#96; bigint(20) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;开始id，仅记录初始值，无其他含义。初始化时begin_id和max_id应相同&#39;,</span><br><span class="line">  &#96;max_id&#96; bigint(20) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;当前最大id&#39;,</span><br><span class="line">  &#96;step&#96; int(11) DEFAULT &#39;0&#39; COMMENT &#39;步长&#39;,</span><br><span class="line">  &#96;delta&#96; int(11) NOT NULL DEFAULT &#39;1&#39; COMMENT &#39;每次id增量&#39;,</span><br><span class="line">  &#96;remainder&#96; int(11) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;余数&#39;,</span><br><span class="line">  &#96;create_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;创建时间&#39;,</span><br><span class="line">  &#96;update_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;更新时间&#39;,</span><br><span class="line">  &#96;version&#96; bigint(20) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;版本号&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;),</span><br><span class="line">  UNIQUE KEY &#96;uniq_biz_type&#96; (&#96;biz_type&#96;)</span><br><span class="line">) ENGINE&#x3D;InnoDB AUTO_INCREMENT&#x3D;1 DEFAULT CHARSET&#x3D;utf8 COMMENT &#39;id信息表&#39;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;tiny_id_token&#96; (</span><br><span class="line">  &#96;id&#96; int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT &#39;自增id&#39;,</span><br><span class="line">  &#96;token&#96; varchar(255) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;token&#39;,</span><br><span class="line">  &#96;biz_type&#96; varchar(63) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;此token可访问的业务类型标识&#39;,</span><br><span class="line">  &#96;remark&#96; varchar(255) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;备注&#39;,</span><br><span class="line">  &#96;create_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;创建时间&#39;,</span><br><span class="line">  &#96;update_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;更新时间&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;)</span><br><span class="line">) ENGINE&#x3D;InnoDB AUTO_INCREMENT&#x3D;1 DEFAULT CHARSET&#x3D;utf8 COMMENT &#39;token信息表&#39;;</span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_info&#96; (&#96;id&#96;, &#96;biz_type&#96;, &#96;begin_id&#96;, &#96;max_id&#96;, &#96;step&#96;, &#96;delta&#96;, &#96;remainder&#96;, &#96;create_time&#96;, &#96;update_time&#96;, &#96;version&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (1, &#39;test&#39;, 1, 1, 100000, 1, 0, &#39;2018-07-21 23:52:58&#39;, &#39;2018-07-22 23:19:27&#39;, 1);</span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_info&#96; (&#96;id&#96;, &#96;biz_type&#96;, &#96;begin_id&#96;, &#96;max_id&#96;, &#96;step&#96;, &#96;delta&#96;, &#96;remainder&#96;, &#96;create_time&#96;, &#96;update_time&#96;, &#96;version&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (2, &#39;test_odd&#39;, 1, 1, 100000, 2, 1, &#39;2018-07-21 23:52:58&#39;, &#39;2018-07-23 00:39:24&#39;, 3);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_token&#96; (&#96;id&#96;, &#96;token&#96;, &#96;biz_type&#96;, &#96;remark&#96;, &#96;create_time&#96;, &#96;update_time&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (1, &#39;0f673adf80504e2eaa552f5d791b644c&#39;, &#39;test&#39;, &#39;1&#39;, &#39;2017-12-14 16:36:46&#39;, &#39;2017-12-14 16:36:48&#39;);</span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_token&#96; (&#96;id&#96;, &#96;token&#96;, &#96;biz_type&#96;, &#96;remark&#96;, &#96;create_time&#96;, &#96;update_time&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (2, &#39;0f673adf80504e2eaa552f5d791b644c&#39;, &#39;test_odd&#39;, &#39;1&#39;, &#39;2017-12-14 16:36:46&#39;, &#39;2017-12-14 16:36:48&#39;);</span><br></pre></td></tr></table></figure>
+
+<p>（3）配置数据库：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">datasource.tinyid.names&#x3D;primary</span><br><span class="line">datasource.tinyid.primary.driver-class-name&#x3D;com.mysql.jdbc.Driver</span><br><span class="line">datasource.tinyid.primary.url&#x3D;jdbc:mysql:&#x2F;&#x2F;ip:port&#x2F;databaseName?autoReconnect&#x3D;true&amp;useUnicode&#x3D;true&amp;characterEncoding&#x3D;UTF-8</span><br><span class="line">datasource.tinyid.primary.username&#x3D;root</span><br><span class="line">datasource.tinyid.primary.password&#x3D;123456</span><br></pre></td></tr></table></figure>
+
+<p>（4）启动<code>tinyid-server</code>后测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">获取分布式自增ID: http:&#x2F;&#x2F;localhost:9999&#x2F;tinyid&#x2F;id&#x2F;nextIdSimple?bizType&#x3D;test&amp;token&#x3D;0f673adf80504e2eaa552f5d791b644c&#39;</span><br><span class="line">返回结果: 3</span><br><span class="line"></span><br><span class="line">批量获取分布式自增ID:</span><br><span class="line">http:&#x2F;&#x2F;localhost:9999&#x2F;tinyid&#x2F;id&#x2F;nextIdSimple?bizType&#x3D;test&amp;token&#x3D;0f673adf80504e2eaa552f5d791b644c&amp;batchSize&#x3D;10&#39;</span><br><span class="line">返回结果:  4,5,6,7,8,9,10,11,12,13</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>Java客户端方式接入</strong></p>
+<ul>
+<li>重复Http方式的（2）（3）操作</li>
+<li>引入依赖</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163740832.png" alt="mark"></p>
+<ul>
+<li>配置文件</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163753437.png" alt="mark"></p>
+<ul>
+<li><code>test</code> 、<code>tinyid.token</code>是在数据库表中预先插入的数据，<code>test</code> 是具体业务类型，<code>tinyid.token</code>表示可访问的业务类型</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163811537.png" alt="mark"></p>
+<h2 id="二-总结"><a href="#二-总结" class="headerlink" title="二. 总结"></a><strong>二. 总结</strong></h2><ul>
+<li>本文只是简单介绍一下每种分布式ID生成器，旨在给大家一个详细学习的方向，每种生成方式都有它自己的优缺点，具体如何使用还要看具体的业务需求。</li>
+</ul>
 <p><strong>参考博客 ：</strong> <a href="https://zhuanlan.zhihu.com/p/152179727?utm_source" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/152179727?utm_source</a></p>
 
       
@@ -290,7 +392,7 @@
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" rel="tag">分布式锁</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/" rel="tag">雪花算法</a></li></ul>
 
 
     </footer>
@@ -311,9 +413,9 @@
       </a>
     
     
-      <a href="/2020/08/25/Linux/Linux-03-PV/" class="article-nav-link">
+      <a href="/2020/08/25/JavaInterview/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Linux-03-PV</div>
+        <div class="article-nav-title">分布式事务</div>
       </a>
     
   </nav>
