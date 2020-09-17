@@ -456,7 +456,7 @@
 
 </article>
     
-    <article id="post-Linux/Linux-03-PV" class="article article-type-post" itemscope
+    <article id="post-JavaInterview/分布式ID" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -464,8 +464,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/08/25/Linux/Linux-03-PV/"
-    >Linux-03-PV</a
+  <a class="article-title" href="/2020/08/25/JavaInterview/%E5%88%86%E5%B8%83%E5%BC%8FID/"
+    >分布式ID</a
   >
 </h2>
   
@@ -475,8 +475,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/08/25/Linux/Linux-03-PV/" class="article-date">
-  <time datetime="2020-08-25T08:52:53.000Z" itemprop="datePublished">2020-08-25</time>
+      <a href="/2020/08/25/JavaInterview/%E5%88%86%E5%B8%83%E5%BC%8FID/" class="article-date">
+  <time datetime="2020-08-25T09:38:38.000Z" itemprop="datePublished">2020-08-25</time>
 </a>
       
       
@@ -494,14 +494,23 @@
       
 
       
-      <h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><ul>
-<li>进程通常分为<strong>就绪、运行和阻塞</strong>三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</li>
+      <h1 id="分布式ID"><a href="#分布式ID" class="headerlink" title="分布式ID"></a>分布式ID</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？</li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p>
-<p>进程三个状态之间的转换就是靠PV操作来控制的。</p>
-<p><strong>PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</strong></p>
+<p><strong>1、什么是分布式ID？</strong></p>
+<p>拿MySQL数据库举个栗子：</p>
+<p>在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。</p>
+<p>但随着数据日渐增长，主从同步也扛不住了，就需要对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有<code>唯一ID</code>做标识。此时一个能够生成<code>全局唯一ID</code>的系统是非常必要的。那么这个<code>全局唯一ID</code>就叫<code>分布式ID</code>。</p>
+<p><strong>2、那么分布式ID需要满足那些条件？</strong></p>
+<ul>
+<li>全局唯一：必须保证ID是全局性唯一的，基本要求</li>
+<li>高性能：高可用低延时，ID生成响应要块，否则反倒会成为业务瓶颈</li>
+<li>高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性</li>
+<li>好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单</li>
+<li>趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求</li>
+</ul>
       
-      <a class="article-more-link" href="/2020/08/25/Linux/Linux-03-PV/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/08/25/JavaInterview/%E5%88%86%E5%B8%83%E5%BC%8FID/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -512,7 +521,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/" rel="tag">进程通信方式</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" rel="tag">分布式锁</a></li></ul>
 
 
     </footer>
@@ -585,6 +594,79 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B/" rel="tag">僵尸进程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/" rel="tag">孤儿进程</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Linux/Linux-03-PV" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/25/Linux/Linux-03-PV/"
+    >Linux-03-PV</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/25/Linux/Linux-03-PV/" class="article-date">
+  <time datetime="2020-08-25T08:52:53.000Z" itemprop="datePublished">2020-08-25</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><ul>
+<li>进程通常分为<strong>就绪、运行和阻塞</strong>三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p>
+<p>进程三个状态之间的转换就是靠PV操作来控制的。</p>
+<p><strong>PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</strong></p>
+      
+      <a class="article-more-link" href="/2020/08/25/Linux/Linux-03-PV/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/" rel="tag">进程通信方式</a></li></ul>
 
 
     </footer>
@@ -746,94 +828,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/" rel="tag">进程通信方式</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mysql/Mysql-12-一对多,多对一，多对多问题" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/25/Mysql/Mysql-12-%E4%B8%80%E5%AF%B9%E5%A4%9A,%E5%A4%9A%E5%AF%B9%E4%B8%80%EF%BC%8C%E5%A4%9A%E5%AF%B9%E5%A4%9A%E9%97%AE%E9%A2%98/"
-    >Mysql-12-一对多,多对一，多对多问题</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/25/Mysql/Mysql-12-%E4%B8%80%E5%AF%B9%E5%A4%9A,%E5%A4%9A%E5%AF%B9%E4%B8%80%EF%BC%8C%E5%A4%9A%E5%AF%B9%E5%A4%9A%E9%97%AE%E9%A2%98/" class="article-date">
-  <time datetime="2020-08-25T06:28:27.000Z" itemprop="datePublished">2020-08-25</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Mysql-12-一对多-多对一，多对多问题"><a href="#Mysql-12-一对多-多对一，多对多问题" class="headerlink" title="Mysql-12-一对多,多对一，多对多问题"></a>Mysql-12-一对多,多对一，多对多问题</h1><h2 id="1-总结"><a href="#1-总结" class="headerlink" title="1. 总结"></a>1. 总结</h2><p>​    一对一关系示例：</p>
-<ul>
-<li><ul>
-<li>一个学生对应一个学生档案材料，或者每个人都有唯一的身份证编号。</li>
-</ul>
-</li>
-</ul>
-<p>​    一对多关系示例：</p>
-<ul>
-<li><ul>
-<li>一个学生只属于一个班，但是一个班级有多名学生。</li>
-</ul>
-</li>
-</ul>
-<p>​    多对多关系示例：</p>
-<ul>
-<li><ul>
-<li>一个学生可以选择多门课，一门课也有多名学生。</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/08/25/Mysql/Mysql-12-%E4%B8%80%E5%AF%B9%E5%A4%9A,%E5%A4%9A%E5%AF%B9%E4%B8%80%EF%BC%8C%E5%A4%9A%E5%AF%B9%E5%A4%9A%E9%97%AE%E9%A2%98/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%BB%BA%E8%A1%A8%E5%85%B3%E7%B3%BB/" rel="tag">数据库建表关系</a></li></ul>
 
 
     </footer>

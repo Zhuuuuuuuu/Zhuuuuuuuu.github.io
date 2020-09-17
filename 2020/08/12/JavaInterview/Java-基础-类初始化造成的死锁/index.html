@@ -147,13 +147,13 @@
 <p>我们来分析下造成死锁的原因：</p>
 <ul>
 <li>线程t1执行时会触发Child类的初始化，线程t2执行时会触发Parent类的初始化；</li>
-<li>紧接着线程t1持有Child.class锁，t2持有Parent.class锁，t1初始化时需要先初始化其父类Parent</li>
+<li>紧接着线程<code>t1</code>持有<code>Child.class</code>锁，<code>t2</code>持有<code>Parent.class</code>锁，<code>t1</code>初始化时需要先初始化其父类<code>Parent</code></li>
 <li>而类Parent有个常量定义“<strong>public static final Parent EMPTY = new Child();</strong>”，这样类Parent在初始化时需要初始化Child；</li>
-<li>这样线程t1要初始化Parent，尝试获取Parent.class锁，线程t2要初始化Child，尝试获取Child.class锁，彼此互相不能释放资源，因此造成死锁。</li>
+<li>这样线程t1要初始化Parent，尝试获取<code>Parent.class</code>锁，线程t2要初始化Child，尝试获取<code>Child.class</code>锁，彼此互相不能释放资源，因此造成死锁。</li>
 </ul>
 <h2 id="3-解决方案"><a href="#3-解决方案" class="headerlink" title="3. 解决方案"></a>3. 解决方案</h2><ul>
 <li>在上面这个案例中，我们知道是类初始化时造成了死锁。子类依赖了父类，而父类在初始化过程中又依赖了子类，为了避免这种情况，</li>
-<li>我们采取了预先在主线程中将数据库相关类全部初始化的方式。<br> 在应用入口处，我们作了如下处理：</li>
+<li>我们<strong>采取了预先在主线程中将数据库相关类全部初始化的方式。</strong><br> 在应用入口处，我们作了如下处理：</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Class c1 = Class.forName(<span class="string">"AnnouncementInfo"</span>);</span><br><span class="line">Class c2 = Class.forName(<span class="string">"......"</span>);</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
 

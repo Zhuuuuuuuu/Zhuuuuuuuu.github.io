@@ -210,9 +210,9 @@
 <p><strong>分析：</strong></p>
 <ul>
 <li>FutureTask除了实现了Future接口外还实现了Runnable接口，因此FutureTask也可以直接提交给Executor执行。 当然也可以调用线程直接执行（FutureTask.run()）。接下来我们根据FutureTask.run()的执行时机来分析其所处的3种状态：<ul>
-<li><strong>未启动，</strong>FutureTask.run()方法还没有被执行之前，FutureTask处于未启动状态，当创建一个FutureTask，而且没有执行FutureTask.run()方法前，这个FutureTask也处于未启动状态。</li>
-<li><strong>已启动</strong>，<code>FutureTask.run()</code>被执行的过程中，<code>FutureTask</code>处于已启动状态。</li>
-<li><strong>已完成，</strong><code>FutureTask.run()</code>方法执行完正常结束，或者被取消或者抛出异常而结束，FutureTask都处于完成状态。</li>
+<li><strong>未启动（NEW），</strong>FutureTask.run()方法还没有被执行之前，FutureTask处于未启动状态，当创建一个FutureTask，而且没有执行FutureTask.run()方法前，这个FutureTask也处于未启动状态。</li>
+<li><strong>已启动(Completing)</strong>，<code>FutureTask.run()</code>被执行的过程中，<code>FutureTask</code>处于已启动状态。</li>
+<li><strong>已完成(Normal)，</strong><code>FutureTask.run()</code>方法执行完正常结束，或者被取消或者抛出异常而结束，FutureTask都处于完成状态。</li>
 </ul>
 </li>
 </ul>
@@ -265,10 +265,10 @@
 <h3 id="4-3-补充"><a href="#4-3-补充" class="headerlink" title="4.3 补充"></a>4.3 补充</h3><ul>
 <li>Runnable是自从java1.1就有了，而Callable是1.5之后才加上去的。</li>
 <li>Callable规定的方法是call(),Runnable规定的方法是run()。</li>
-<li>Callable的任务执行后可返回值，而Runnable的任务是不能返回值(是void)。</li>
-<li>call方法可以抛出异常，run方法不可以。</li>
+<li><strong>Callable的任务执行后可返回值，而Runnable的任务是不能返回值(是void)。</strong></li>
+<li><strong>call方法可以抛出异常，run方法不可以。</strong></li>
 <li>运行Callable的 任务可以拿到一个Future对象，表示异步计算的结果。它提供了检查计算是否完成的方法，以等待计算的完成，并检索计算的结果。通过Future对象可以了解任务执行情况，可取消任务的执行，还可获取执行结果</li>
-<li>加入线程池运行，Runnable使用ExecutorService的execute方法，Callable使用submit方法。</li>
+<li><strong>加入线程池运行，Runnable使用ExecutorService的execute方法，Callable使用submit方法。</strong></li>
 </ul>
 <p><a href="https://www.cnblogs.com/dolphin0520/p/3932921.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3932921.html</a></p>
 <p><strong>参考博客</strong> : <a href="https://blog.csdn.net/leilifengxingmw/article/details/79533006" target="_blank" rel="noopener">https://blog.csdn.net/leilifengxingmw/article/details/79533006</a></p>
