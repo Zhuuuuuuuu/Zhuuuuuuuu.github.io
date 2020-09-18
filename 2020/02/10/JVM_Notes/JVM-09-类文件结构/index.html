@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    JVM-09-类文件结构 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-JVM_Notes/JVM-09-类文件结构" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JVM-09-类文件结构
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/02/10/JVM_Notes/JVM-09-%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" class="article-date">
+  <time datetime="2020-02-10T00:38:38.000Z" itemprop="datePublished">2020-02-10</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.3k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JVM-09-类文件结构"><a href="#JVM-09-类文件结构" class="headerlink" title="JVM-09-类文件结构"></a>JVM-09-类文件结构</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>​    </p>
+<p>计算机是由晶体管、电路板等组装而成的电子设备，而这些电子设备其实只能识别0与1的信号。</p>
+<p>那么问题来了，在操作系统上编写的Java代码（由字母，数字等各种符号组成），打包后部署到服务器上，是如何被计算机所识别并运行的呢？</p>
+<p>另外操作系统有很多种，包括Windows系统，Linux系统，Mac OS系统等，而我们同样的Java代码，却可以不做任何处理在不同系统上运行，这又是为什么呢？</p>
+<p>带着这些疑问，你将在下面的内容中找到答案！！！</p>
+<a id="more"></a>
+
+
+
+<h2 id="1-JVM的两个特性"><a href="#1-JVM的两个特性" class="headerlink" title="1. JVM的两个特性"></a>1. JVM的两个特性</h2><h3 id="1-1-语言无关"><a href="#1-1-语言无关" class="headerlink" title="1.1 语言无关"></a>1.1 语言无关</h3><p>对于Java语言，我们通过编辑器编写的<strong>Java代码</strong>，后缀一般是.java。通过javac编译器编译后，<strong>会变成.class结尾的字节码文件</strong>，只有编译后的.class文件，才能在Java虚拟机上运行。（解压部署在服务器上的jar包，全是编译后的class文件）</p>
+<p>再比如对于 JRuby 语言，通过编辑器编写的代码后缀是.rb。通过jrubyc 编译器编译后，也会<strong>变成 .class 结尾的字节码文件</strong>，然后也能在Java虚拟机上运行。</p>
+<p>在比如已正式成为Android官方支持开发语言的Kotlin。<strong>也可以编译成.class字节码文件</strong>，然后在虚拟机上运行。</p>
+<p>我们可以用下面这幅图来表示：</p>
+<p><img src="https://images2018.cnblogs.com/blog/1120165/201807/1120165-20180721133224710-1719932704.png" alt="img"></p>
+<h3 id="1-2-平台无关"><a href="#1-2-平台无关" class="headerlink" title="1.2 平台无关"></a>1.2 平台无关</h3><p><strong>Write once, run everywhere（一次编写，到处运行）</strong></p>
+<p>这是Java语言诞生之处就宣传的一个口号。Java语言之所以能够跨平台运行，其实就是因为Java虚拟机对各个平台的适配，在不同的系统下安装不同的Java虚拟机，我们程序当然能够在不同的系统上运行。</p>
+<p>对于文章开头提出的问题，<strong>同样的程序能够在不同的系统上正常运行的原因，就是因为不同的操作系统上装了不同的JVM。</strong></p>
+<h2 id="2-class-字节码文件介绍"><a href="#2-class-字节码文件介绍" class="headerlink" title="2. class 字节码文件介绍"></a>2. class 字节码文件介绍</h2><p>搞清楚了Java代码的跨平台原理，我们接着来介绍为什么编写的Java代码能够被计算机所识别。</p>
+<h3 id="2-1-字节码文件"><a href="#2-1-字节码文件" class="headerlink" title="2.1 字节码文件"></a>2.1 字节码文件</h3><ul>
+<li>这其实是上面所说的语言无关性这个特性重要文件——class字节码文件的功劳。</li>
+<li><strong>Java所有的指令大概有200个左右，一个字节（8位）可以存储256种不同的信息，我们将这样一个字节称为字节码（ByteCode）</strong></li>
+<li><strong>而class文件便是一组以8位字节为基础单位流的二进制流</strong>，各个数据项目严格按照顺序紧凑的排列在class文件之中，中间没有添加任何分隔符。</li>
+<li>所以整个class文件中存储的内容几乎都是程序运行时必要的数据，没有任何冗余。</li>
+<li>当遇到需要占用8个字节以上空间的数据项时，则会按照高位在前的方式分割成若干个8位字节进行存储。</li>
+</ul>
+<p>比如，对于如下这段代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们将生成的class 文件，通过十六进制编辑器打开（在IDEA中，可以下载HexView插件，安装完成后，选择这个class文件，右键 HexView）</p>
+<p><img src="https://img2018.cnblogs.com/blog/1120165/201909/1120165-20190903214808635-2060178663.png" alt="img"></p>
+<p>打开后的文件如下：（下面的介绍也都是以这张图为例）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/091215165.png" alt="mark"></p>
+<p>下面我们会介绍这些十六进制分别代表什么意思。</p>
+<h3 id="2-2-javap命令"><a href="#2-2-javap命令" class="headerlink" title="2.2 javap命令"></a>2.2 javap命令</h3><ul>
+<li>另外，为了更好的查看 Class 文件字节码结构，JDK 还为我们提供了一个命令行工具 javap。使用语法如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javap &lt;options&gt; &lt;classes&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 javap -help 命令，可以查看相关参数作用：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/091356812.png" alt="mark"></p>
+<ul>
+<li>我们将 ClassTest.class 文件，通过 javap -v ClassTest.class 命令，执行后如下：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/091450208.png" alt="mark"></p>
+<p>这些内容下面也会详细介绍。</p>
+<h2 id="3-无符号数和表"><a href="#3-无符号数和表" class="headerlink" title="3. 无符号数和表"></a>3. 无符号数和表</h2><p>在介绍这些十六进制之前，我们先介绍class文件的数据类型。</p>
+<ul>
+<li><strong>Class文件采用一种类似于C语言结构体的伪结构来存储，这种伪结构只有两种数据类型</strong><ul>
+<li><strong>无符号数</strong></li>
+<li><strong>表</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-1-无符号数"><a href="#3-1-无符号数" class="headerlink" title="3.1 无符号数"></a>3.1 无符号数</h3><ul>
+<li><p>这是一种基本数据类型，以<code>u1,u2,u4,u8</code> 来代表1个字节、2个字节、4个字节、8个字节的无符号数。</p>
+</li>
+<li><p><strong>无符号</strong>数可以用来描述数字，索引引用，数值量或按照UTF-8编码构成的字符串。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/093704711.png" alt="mark"></p>
+<h3 id="3-2-表"><a href="#3-2-表" class="headerlink" title="3.2 表"></a>3.2 表</h3><ul>
+<li>表是由多个无符号数或者其他表作为数据项所构成的符合数据类型，所有表都习惯行以”_info”为结尾。表用于描述有层次关系的复合结构数据。</li>
+</ul>
+<p>整个class文件本质上就是一张表，结构如下：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/092254316.png" alt="mark"></p>
+<p><strong>PS:</strong></p>
+<p>由于Class文件结构没有任何的分隔符，所以无论是每个数据项的顺序还是数量，都是严格限定的，<strong>哪个字节代码什么含义</strong>，<strong>长度是多少</strong>，<strong>先后顺序如何</strong>，<strong>都是不允许改变的。</strong></p>
+<p>下面，我们就来分别介绍这些数据项代表什么含义。　</p>
+<h2 id="4-魔数"><a href="#4-魔数" class="headerlink" title="4. 魔数"></a>4. 魔数</h2><ul>
+<li>每个Class文件的<strong>头4个字节</strong>称为魔术（Magic Number）</li>
+<li><strong>它的唯一作用是：标识该文件是一个Java类文件</strong>。如果没有识别到该标志，则说明该文件不是Java类文件或者文件已受损。</li>
+</ul>
+<p>由上内存图可以看到的是，<strong>前四个字节是cafe babe</strong>。这是Gosling定义的一个魔法数，意思是Coffee Baby。</p>
+<p><strong>PS:</strong></p>
+<p>其实很多文件存储标准中都是以魔数进行身份识别的，比如gif和jpeg，使用魔数而不是使用扩展名来进行识别的主要基于安全考虑，因为文件扩展名可以随意改动。</p>
+<h2 id="5-Class-文件的版本号"><a href="#5-Class-文件的版本号" class="headerlink" title="5. Class 文件的版本号"></a>5. Class 文件的版本号</h2><p>紧随魔数的4个字节存储的是class文件的版本号</p>
+<ul>
+<li>第五和第六个字节是次版本号（Minor Version）</li>
+<li>第七和第八个字节是主版本号（Major Version）</li>
+</ul>
+<ul>
+<li>Java的版本号是从 45 开始的，JDK1.1 之后的每个 JDK 大版本发布主版本号向上加1（JDK1.0<del>JDK1.1使用了45.0</del>45.3的版本号），<strong>高版本的 JDK 能向下兼容以前版本的 Class 文件，但不能运行以后版本的 Class 文件，即使文件格式未发生变化。</strong></li>
+<li>上图中第5、6、7、8个字节为<code>00 00 00 34</code> 。换算成十进制是52，代表JDK8的内部版本号。</li>
+</ul>
+<h2 id="6-常量池"><a href="#6-常量池" class="headerlink" title="6. 常量池"></a>6. 常量池</h2><p>紧随主版本号后的是常量池的入口，是class文件中第一个出现的表类型数据项目，也是占用class文件空间最大的项目之一，更是class文件结构中与其他项目关联最多的数据结构。</p>
+<h3 id="6-1-常量池容量计数值"><a href="#6-1-常量池容量计数值" class="headerlink" title="6.1 常量池容量计数值"></a>6.1 常量池容量计数值</h3><ul>
+<li>因为常量池中的常量数目是不固定的，所以在常量池的入口要放置意向 u2 类型的数据，代表常量池容量计数值（constant_pool_count）。</li>
+</ul>
+<p><strong>PS:</strong></p>
+<p><strong>注意常量池容量计数值从1开始的，而不是从0开始的。</strong></p>
+<p>将0空出来，是为了满足后面某些只想常量池的索引值的数据在特定情况下需要表达“不引用任何一个常量池项目”的意思。</p>
+<ul>
+<li><strong>Class文件中，只有常量池的容量是从1开始的，其他的集合类型都是从0开始的。</strong></li>
+</ul>
+<p>看上图的十六进制文件，常量池的容量计数为：0x0025，即十进制的37。这就表示常量池中有36项常量，索引值分别为1~36（通过上面的javap命令生成字节码文件可以很明显的看出来有36个）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/201751262.png" alt="mark"></p>
+<h3 id="6-2-常量池的内容"><a href="#6-2-常量池的内容" class="headerlink" title="6.2 常量池的内容"></a>6.2 常量池的内容</h3><p>常量池主要存放两大类常量</p>
+<ul>
+<li><strong>字面量</strong>（Literal）：字面量比较接近于Java语言层面中常量的概念，比如：文本字符串，被声明为final 的常量值等。</li>
+<li><strong>符号引用</strong>（Symbolic References） : 符号引用属于编译原理方面的概念，包括下面三类常量<ul>
+<li>类和接口的权限定名（Fully Qualified Name）</li>
+<li>字段的名称和描述符（Descriptor）</li>
+<li>方法的名称和描述符</li>
+</ul>
+</li>
+</ul>
+<p>需要说明的是：Java代码在进行javac 编译的时候，并不像C和C++那样有“连接”这一步骤，而是在虚拟机加载Class文件的时候进行动态连接。</p>
+<p>也就是说，在Class文件中不会保存各个方法和字段的最终内存布局信息，因此这些字段和方法的符号引用不经过转换的话是无法被虚拟机使用的。</p>
+<p>当虚拟机运行的时候，需要从常量池中获得对应的符号引用，再在类创建时候解析并翻译到具体的内存地址中。关于类创建和动态连接的过程，将在下一篇中详细介绍。</p>
+<p><strong>常量池中的每一项都是一个表</strong>，在JDK1.8中共有14种结构各不相同的表结构数据，每个表结构的第一位是一个 u1 类型的标志位（tag,取值是1~18，缺少的标识位是2，13，14，17的数据类型）。代表当前这个常量属于哪种常量类型。</p>
+<p>14 种常量类型所代表的具体含义如下：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/203021764.png" alt="mark"></p>
+<p>接着我们来看十六进制文件，紧跟常量池的数量是0x0a，这是一个标志位，0x0a的十进制数是10，查看常量池项目表接口可以得到，表示的类型是 <code>CONSTANT_Methodref_info。</code></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/203201095.png" alt="mark"></p>
+<p>也就是说，接下来的u2类型0x0006，其十进制值为6，紧跟后面的u2类型十六进制为0x0017，其十进制值为23，这两个都是索引值，分别指向第索引值是6的常量和索引值是23的常量。</p>
+<p>整个十六进制字节码就不一一进行推导了，下面是各个数据类型的结构：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/203523479.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/203528142.png" alt="mark"></p>
+<h2 id="7-访问标志"><a href="#7-访问标志" class="headerlink" title="7. 访问标志"></a>7. 访问标志</h2><p>常量池结束之后用的两个字节表示访问标志（access_flags），这个表示用于识别一些类或者接口层次的访问信息。</p>
+<p>包括：这个Class是类还是接口，是否定义为public类型，是否定义为abstract类型，如果是类的话，是否被声明是final等。</p>
+<p>具体的标志位和标志含义如下：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/203706561.png" alt="mark"></p>
+<p>上面定义了8个标志位，但是我们说访问标志是一个 u2 类型，一共有32个标志位可以使用，如果出现了上图没有定义的标志位一律是0。</p>
+<h2 id="8-类索引，父类索引和接口索引集合"><a href="#8-类索引，父类索引和接口索引集合" class="headerlink" title="8. 类索引，父类索引和接口索引集合"></a>8. 类索引，父类索引和接口索引集合</h2><p>类索引，父类索引和接口索引按顺序排列在访问标志位之后。</p>
+<ul>
+<li>类索引：用于确定这个类的全限定名，是一个 u2 类型的数据</li>
+<li>父类索引：用于确定这个类的父类全限类名，也是一个 u2 类型的数据。因为Java是单继承的，除了 java.lang.Object 类以外，所有的类都有父类。所以除了Object类之外，所有的Java类的父类索引都不为0。</li>
+<li>接口索引：用于描述这个类实现了哪些接口，是一个u2类型的数据集合，第一项是u2类型的接口计数器，表示实现接口的个数。如果没有实现任何接口，则为0。</li>
+</ul>
+<h2 id="9-字段表集合"><a href="#9-字段表集合" class="headerlink" title="9. 字段表集合"></a>9. 字段表集合</h2><p><strong>字段表（field_info）：描述接口或类中声明的变量</strong>。（不包括方法内部声明的变量）</p>
+<p>描述的信息包括：</p>
+<ul>
+<li>字段的作用域（public，protected，private修饰）</li>
+<li>是类级变量还是实例级变量（static修饰）</li>
+<li>是否可变（final 修饰）</li>
+<li>并分可见性（volatile修饰，是否强制主从读写）</li>
+<li>是否可序列化（transien修饰）</li>
+<li>字段数据类型（8种基本数据类型，对象，数组等引用类型）</li>
+<li>字段名称</li>
+</ul>
+<p>前面五个修饰符，都是布尔值，用标志位来表示；后面两个字段名称和类型，都是无法固定的，只能引用常量池的常量来表示。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/204718775.png" alt="mark"></p>
+<p>access_flags 是一个 u2 类型，表示各种修饰符。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/204727408.png" alt="mark"></p>
+<h2 id="10-方法表集合"><a href="#10-方法表集合" class="headerlink" title="10. 方法表集合"></a>10. 方法表集合</h2><p>Class 文件存储格式中对方法的描述和字段的描述基本上是一致的。也是依次包括</p>
+<ul>
+<li>访问标志（access_flags）</li>
+<li>名称索引（name_index）</li>
+<li>描述索引符（descriptor_index）</li>
+<li>属性表集合数量（attributes_count）</li>
+<li>属性表集合（attributes）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/205005207.png" alt="mark"></p>
+<p>方法访问标志如下（access_flags）：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/205025246.png" alt="mark"></p>
+<h2 id="11-属性表集合"><a href="#11-属性表集合" class="headerlink" title="11. 属性表集合"></a>11. 属性表集合</h2><p>在前面介绍了<strong>字段表集合，方法表集合中都包括了属性表集合（attributes），其实就是引用的这里。</strong></p>
+<p>根据《Java虚拟机规范第二版》中，预定义了 9 项虚拟机实现应当能够识别的属性。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200526/205232552.png" alt="mark"></p>
+<p>对于每一项属性，它的名称都要从常量池中引用一个<code>CONSTANT_Utf8_info</code> 来表示，其属性值的结构则是完全自定义的，只需要说明属性值所占用的位数长度即可。 </p>
+<p>参考文档：<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/" target="_blank" rel="noopener">https://docs.oracle.com/javase/specs/jvms/se8/html/</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/02/10/JVM_Notes/JVM-09-%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/02/12/JVM_Notes/JVM-10-%E7%B1%BB%E5%8A%A0%E8%BD%BD/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JVM-10-类加载
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/02/08/personal_server/GitHub-hexo-%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">GitHub+hexo搭建个人博客</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Docker-06-数据卷技术 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Docker/Docker-06-数据卷技术" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Docker-06-数据卷技术
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/25/Docker/Docker-06-%E6%95%B0%E6%8D%AE%E5%8D%B7%E6%8A%80%E6%9C%AF/" class="article-date">
+  <time datetime="2020-05-25T04:44:24.000Z" itemprop="datePublished">2020-05-25</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.5k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">14分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Docker-06-数据卷技术"><a href="#Docker-06-数据卷技术" class="headerlink" title="Docker-06-数据卷技术"></a>Docker-06-数据卷技术</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200528/200523893.png" alt="mark"></p>
+<a id="more"></a>
+
+<h2 id="1-什么是数据卷？"><a href="#1-什么是数据卷？" class="headerlink" title="1. 什么是数据卷？"></a>1. 什么是数据卷？</h2><p>数据卷是一个可供容器使用的特殊目录，它绕过文件系统，可以提供很多有用的特性：</p>
+<ol>
+<li>数据卷可以在容器之间共享和重用。</li>
+<li>对数据卷的更改会立即生效。</li>
+<li>对数据卷的更新不会影响镜像。</li>
+<li>数据卷会一直存在，直到没有容器使用。</li>
+</ol>
+<p>数据卷的使用，类似于 linux 下对目录或文件进行 mount 操作。</p>
+<h2 id="2-使用数据卷的场景"><a href="#2-使用数据卷的场景" class="headerlink" title="2. 使用数据卷的场景"></a>2. 使用数据卷的场景</h2><ul>
+<li><p>在多个容器之间共享数据，多个容器可以同时以只读或者读写的方式挂载同一个数据卷，从而共享数据卷中的数据。</p>
+</li>
+<li><p>当宿主机不能保证一定存在某个目录或一些固定路径的文件时，使用数据卷可以规避这种限制带来的问题。</p>
+</li>
+<li><p>当你想把容器中的数据存储在宿主机之外的地方时，比如远程主机上或云存储上。</p>
+</li>
+<li><p>当你需要把容器数据在不同的宿主机之间备份、恢复或迁移时，数据卷是很好的选择。</p>
+</li>
+</ul>
+<h2 id="3-数据卷原理"><a href="#3-数据卷原理" class="headerlink" title="3. 数据卷原理"></a>3. 数据卷原理</h2><p>下图描述了 docker 容器挂载数据的三种方式： </p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200528/200523893.png" alt="mark"></p>
+<p>docker数据卷的本质是容器中一个特殊目录。在容器创建过程中，docker会将宿主机上的指定目录（一个以数据卷ID为名称的目录）挂在到容器指定的目录上。这里使用的挂载方式是（bind mount），所以挂载完成后的宿主机目录和目标目录表现一致。</p>
+<p>比如我们执行下面的命令创建数据卷 hello，并挂载到容器 testcon 的 /world 目录：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker volume create hello</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker run -id --name testcon --mount <span class="built_in">type</span>=volume,<span class="built_in">source</span>=hello,target=/world ubuntu /bin/bash</span></span><br></pre></td></tr></table></figure>
+
+<p>实际上在容器的创建过程中，类似于在容器中执行了下面的代码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 将数据卷 hello 在宿主机上的目录绑定挂载到 rootfs 中指定的挂载点 /world 上</span><br><span class="line">mount("/var/lib/docker/volumes/hello/_data", "rootfs/world", "none", MS_BIND, NULL)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-具名挂载-匿名挂载"><a href="#4-具名挂载-匿名挂载" class="headerlink" title="4. 具名挂载 匿名挂载"></a>4. 具名挂载 匿名挂载</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如何确定是具名挂载还是匿名挂载，还是指定路径挂载</span></span><br><span class="line">-v 容器内路径        <span class="comment"># 匿名挂载</span></span><br><span class="line">-v 卷名:容器内路径   <span class="comment"># 具名挂载</span></span><br><span class="line">-v /宿主机路径:容器内路径 <span class="comment"># 指定路径挂载</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ro   read-only</span></span><br><span class="line"><span class="comment"># rw   read-write</span></span><br><span class="line"><span class="comment"># 如果设置了ro，说明只能通过外部宿主机改变容器内操作，容器内部无法操作。</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-数据卷的创建，挂载"><a href="#5-数据卷的创建，挂载" class="headerlink" title="5. 数据卷的创建，挂载"></a>5. 数据卷的创建，挂载</h2><ol>
+<li><strong>创建随机名字的volume，并挂载到容器的/data目录(匿名挂载)</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker  run  -it  -d --name u1  -v /data  ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：  在用 docker run 命令的时候，使用 -v 标记可以在容器内创建一个数据卷。多次使用 -v 标记可以创建多个数据卷</strong></p>
+<ol start="2">
+<li><strong>创建命名的数据卷并挂载（具名挂载）</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">法1:</span><br><span class="line">docker volume create  u1_vol <span class="comment">#创建</span></span><br><span class="line">docker run -it -d --name u1 -v u1_vol:/data  ubuntu <span class="comment">#将数据卷u1_vol挂载到容器的/data目录</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">法2：</span><br><span class="line">直接下面这条命令会创建命名数据卷后挂载。</span><br><span class="line">docker run -it -d --name u1 -v u1_vol:/data</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li><strong>将宿主机目录 挂载到容器(指定路径挂载)</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run  -it -d  --name u1  -v /tmp:/opt  ubuntu  /bin/bash</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li><strong>将单个文件作为volume挂载到容器中.</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#将当前目录下的t.txt 文件挂载为 容器的/opt/t.txt</span></span><br><span class="line">docker run  -it -d  --name u1  -v $(<span class="built_in">pwd</span>)/t.txt:/opt/t.txt  ubuntu  /bin/bash</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="5">
+<li><strong>挂载数据卷为只读 ro</strong></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -d --name u1 -v u1_vol:/data:ro  ubuntu</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="6">
+<li><strong>使用Dockerfile 添加volume</strong> </li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#使用VOLUME 指令向容器添加volume，与上面(1)相同</span></span><br><span class="line">VOLUME  /data</span><br><span class="line"></span><br><span class="line">VOLUME [<span class="string">"/data1"</span>,<span class="string">"/data2"</span>] <span class="comment">#添加多个</span></span><br></pre></td></tr></table></figure>
+
+<p>在使用 docker build 命令生成镜像并且以该镜像启动容器时会挂载一个数据卷到 /data 目录。根据我们已知的数据覆盖规则，如果镜像中存在 /data 目录，这个目录中的内容将全部被复制到宿主机中对应的目录中，并且根据容器中的文件设置合适的权限和所有者。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li><p><strong>VOLUME 指定不能挂载主机中的指定目录。这是为了保证DockerFile的一致性，因为不能保证所有的宿主机都有对应的目录。</strong></p>
+</li>
+<li><p>在实际的使用中，还有一个陷阱需要大家注意：<strong>在Dockerfile使用VOLUME指令之后的代码，如果尝试对这个数据卷进行修改，这些修改都不会生效</strong></p>
+</li>
+</ul>
+<p>下面是一个这样的例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">RUN useradd nick</span><br><span class="line">VOLUME /data     #VOLUME添加数据卷</span><br><span class="line">RUN touch /data/test.txt   #对上面的数据卷修改是不会生效的</span><br><span class="line">RUN chown -R nick:nick /data</span><br></pre></td></tr></table></figure>
+
+
+
+<p>通过这个 Dockerfile 创建镜像并启动容器后，该容器中存在用户 nick，并且能够看到 /data 目录挂载的数据卷。<strong>但是 /data 目录内并没有文件 test.txt，更别说 test.txt 文件的所有者属性了</strong>。要解释这个现象需要我们了解通过 Dockerfile 创建镜像的过程：<br>Dockerfile 中除了 FROM 指令的<strong>每一行都是基于上一行生成的临时镜像运行一个容器</strong>，执行一条指令并执行类似 docker commit 的命令得到一个新的镜像。这条类似 docker commit 的命令不会对挂载的数据卷进行保存。<br>所以上面的 Dockerfile 最后两行执行时，都会在一个临时的容器上挂载 /data，并对这个临时的数据卷进行操作，<strong>但是这一行指令执行并提交后，这个临时的数据卷并没有被保存</strong>。因而我们最终通过镜像创建的容器所挂载的数据卷是没有被最后两条指令操作过的。我们姑且叫它 “Dockerfile 中数据卷的初始化问题”。</p>
+<p><strong>下面的写法可以解决 Dockerfile 中数据卷的初始化问题：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">RUN useradd nick</span><br><span class="line">RUN mkdir /data &amp;&amp; touch /data/test.txt</span><br><span class="line">RUN chown -R nick:nick /data</span><br><span class="line">VOLUME /data</span><br></pre></td></tr></table></figure>
+
+<p>通过这个 Dockerfile 创建镜像并启动容器后，数据卷的初始化是符合预期的。这是由于在挂载数据卷时，/data 已经存在，/data 中的文件以及它们的权限和所有者设置会被复制到数据卷中。<br><strong>还有另外一种方法可以解决 Dockerfile 中数据卷的初始化问题。就是利用 CMD 指令和 ENTRYPOINT 指令的执行特点：与 RUN 指令在镜像构建过程中执行不同，CMD 指令和 ENTRYPOINT 指令是在容器启动时执行。</strong>因此使用下面的 Dockerfile 也可以达到对数据卷的初始化目的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu</span><br><span class="line">RUN useradd nick</span><br><span class="line">VOLUME /data</span><br><span class="line">CMD touch /data/test.txt &amp;&amp; chown -R nick:nick /data &amp;&amp; /bin/bash</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-数据的覆盖问题"><a href="#6-数据的覆盖问题" class="headerlink" title="6. 数据的覆盖问题"></a>6. 数据的覆盖问题</h2><ul>
+<li>如果挂载一个空的数据卷到容器的一个非空目录中，那么这个目录下的文件会被复制到数据卷中</li>
+<li>如果挂载一个非空的数据卷到容器的一个目录中，那么容器中的目录会显示数据卷的数据。如果原来容器中的目录有数据，那么这些原始数据会被隐藏掉</li>
+</ul>
+<p>总结：</p>
+<p>灵活利用第一个规则可以帮助我们初始化数据卷中的内容。</p>
+<p>掌握第二条规则可以保证挂载数据卷后的数据总是你期望的数据。</p>
+<h2 id="7-共享数据卷与数据卷容器"><a href="#7-共享数据卷与数据卷容器" class="headerlink" title="7. 共享数据卷与数据卷容器"></a>7. 共享数据卷与数据卷容器</h2><p>数据卷的共享有两种方式:</p>
+<h3 id="7-1-两个docker之间直接共享数据卷"><a href="#7-1-两个docker之间直接共享数据卷" class="headerlink" title="7.1 两个docker之间直接共享数据卷"></a>7.1 两个docker之间直接共享数据卷</h3><p><code>--volumes-from</code>:相当于继承的概念</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~# docker run  -it -d  --name u1  -v share_vol:/opt   ubuntu:14.04  /bin/bash  #将数据卷share_vol挂载到容器的/opt</span><br><span class="line">7c9bcad41f3d9172699f0add3d6ba65d4a50c6ebac57fc5a042938198896e951</span><br><span class="line">root@ubuntu:~# docker run  -it -d  --name u2  --volumes-from u1  ubuntu:14.04  /bin/bash   #u2 使用u1的数据卷</span><br><span class="line">58a1a4dad1bed5372d9c30d6a8d13644f376426c1fa603de5bab5b52199a6095</span><br><span class="line">root@ubuntu:~# docker exec -it u1 /bin/bash    #在容器u1 /opt 中新建文件</span><br><span class="line">root@7c9bcad41f3d:/# cd opt/</span><br><span class="line">root@7c9bcad41f3d:/opt# echo "u1"&gt;&gt;1.txt</span><br><span class="line">root@7c9bcad41f3d:/opt# exit</span><br><span class="line">root@ubuntu:~# docker exec -it u2 /bin/bash   #容器u2与u1用的是共享数据卷，所以也能看见u1创建的文件,反之.</span><br><span class="line">root@58a1a4dad1be:/# cd opt/</span><br><span class="line">root@58a1a4dad1be:/opt# ls</span><br><span class="line">1.txt</span><br><span class="line">root@58a1a4dad1be:/opt#</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="7-2-单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式"><a href="#7-2-单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式" class="headerlink" title="7.2 单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式"></a>7.2 单独创建一个数据容器，其他容器与之共享volume，推荐使用这种方式</h3><p><code>--volumes-from</code>:相当于继承的概念</p>
+<ul>
+<li><p>如果用户需要在容器之间共享一些持续更新的数据，最简单的方式是使用数据卷容器。数据卷容器其实就是一个普通的容器，专门用它提供数据卷供其他容器挂载。</p>
+</li>
+<li><p>一个容器挂载了一个volume，即使这个容器停止运行，该volume仍然存在，其他容器也可以使用<code>--volumes-from</code> 与这个容器共享卷</p>
+</li>
+</ul>
+<ol>
+<li>创建数据卷容器，给容器挂载一个 volume后容器停止，好节约资源.</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name share_docker  -v share_vol:&#x2F;data  ubuntu &#x2F;bin&#x2F;bash</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>然后再其他容器中使用 <code>--volumes-from</code> 来挂在 share_docker 容器中的数据卷</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~# docker run -it -d --name u1 --volumes-from share_docker  ubuntu /bin/bash</span><br><span class="line">fdc15fca2a7e2545b0751315797cbe8fe868b7fd37c295cff8df8189f3254e5f</span><br><span class="line">root@ubuntu:~# docker run -it -d --name u2 --volumes-from share_docker  ubuntu /bin/bash</span><br><span class="line">98e511fb3ef5e6fe3a06ac0b6aa3a97e8881ffaeb48ccb585d3b8cd92b429d1d</span><br><span class="line"></span><br><span class="line">(注意，命令中没有指定数据卷的信息，也就是说新容器中挂载数据卷的目录和源容器中是一样的。)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="8-备份，恢复或者迁移-volume"><a href="#8-备份，恢复或者迁移-volume" class="headerlink" title="8. 备份，恢复或者迁移 volume"></a>8. 备份，恢复或者迁移 volume</h2><p>volume作为数据的载体，在很多情况下需要对其中的数据进行备份迁移。</p>
+<p>一个很容易想到的办法是使用 docker inspect 查找到volume 在宿主机上对应的文件夹的位置，然后复制其中的内容或者打包。这种做法不推荐，推荐使用  –volumes-from来实现.</p>
+<h3 id="8-1-备份"><a href="#8-1-备份" class="headerlink" title="8.1 备份"></a>8.1 备份</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:~<span class="comment"># docker run --rm --volumes-from share_docker -v $(pwd):/backup ubuntu tar cvf /backup/data.tar /data</span></span><br><span class="line">/data/</span><br><span class="line">/data/2.txt</span><br><span class="line">/data/1.txt</span><br><span class="line">tar: Removing leading `/<span class="string">' from member names</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">说明：share_docker容器包含了我们希望备份的一个volume,上面这行命令启动了另外一个临时容器，这个容器挂载了两个volume，第一个volume来自 share_docker 的共享，也就是需要备份的volume。第二个volume将宿主机的当前目录挂载到临时容器的/backup目录。容器运行后要将备份内容(/data文件夹)备份到容器的/backup/data.tar.然后删除容器，备份后的data.tar就留在了宿主机的当前目录.</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-2-恢复"><a href="#8-2-恢复" class="headerlink" title="8.2 恢复"></a>8.2 恢复</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">创建需要恢复数据的目标容器：</span><br><span class="line">root@ubuntu:~<span class="comment"># docker run -it -d --name back_docker -v  back_vol:/data ubuntu /bin/bash </span></span><br><span class="line">e24b5e898c2016b7ebda93a266a351c6d9a47e6a3f828dac3c8a56cadfc0ce26</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">启动临时容器用于恢复。</span><br><span class="line">docker run --rm --volumes-from  back_docker -v $(<span class="built_in">pwd</span>):/backup ubuntu tar xvf /backup/data.tar -C /</span><br><span class="line"></span><br><span class="line">data/</span><br><span class="line">data/2.txt</span><br><span class="line">data/1.txt</span><br><span class="line">root@ubuntu:~<span class="comment"># docker exec  -it back_docker  /bin/bash  #查看发现数据恢复</span></span><br><span class="line">root@e24b5e898c20:/<span class="comment"># cd data/</span></span><br><span class="line">root@e24b5e898c20:/data<span class="comment"># ls</span></span><br><span class="line">1.txt  2.txt</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="9-使用mount语法挂载数据卷"><a href="#9-使用mount语法挂载数据卷" class="headerlink" title="9. 使用mount语法挂载数据卷"></a>9. 使用mount语法挂载数据卷</h2><p>之前我们使用 –volume(-v) 选项来挂载数据卷，现在docker提供了更强大的 –mount 选项来管理数据卷。</p>
+<p>mount 选项可以通过逗号分割多个键值对一次提供多个配置项，因此mount 选项可以提供比volume 选项更详细的配置</p>
+<p>使用 mount 选项的常用配置如下：</p>
+<ul>
+<li><strong>type</strong> 指定挂载方式，我们这里用到的是 volume，其实还可以有 bind 和 tmpfs。</li>
+<li><strong>volume-driver</strong> 指定挂载数据卷的驱动程序，默认值是 local。</li>
+<li><strong>source</strong> 指定挂载的源，对于一个命名的数据卷，这里应该指定这个数据卷的名称。在使用时可以写 source，也可以简写为 src。</li>
+<li><strong>destination</strong> 指定挂载的数据在容器中的路径。在使用时可以写 destination，也可以简写为 dst 或 target。</li>
+<li><strong>readonly</strong> 指定挂载的数据为只读。</li>
+<li><strong>volume-opt</strong> 可以指定多次，用来提高更多的 mount 相关的配置。</li>
+</ul>
+<p>下面我们来看具体的例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker volume create hello</span><br><span class="line">$ docker run -id --mount <span class="built_in">type</span>=volume,<span class="built_in">source</span>=hello,target=/world ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>我们创建了名称为 hello 的数据卷，然后把它挂在到容器中的 /world 目录。通过 inspect 命令查看容器的详情中的 “Mounts” 信息可以验证实际的数据卷挂载结果.</p>
+<ul>
+<li><strong>使用volume driver 把数据存储到别的地方（远程）</strong></li>
+</ul>
+<p>除了默认的把数据卷中的数据存储在宿主机，docker 还允许我们通过指定 volume driver 的方式把数据卷中的数据存储在其它的地方，比如 Azrue Storge 或 AWS 的 S3。<br>简单起见，我们接下来的 demo 演示如何通过 vieux/sshfs 驱动把数据卷的存储在其它的主机上。</p>
+<ol>
+<li>docker 默认是不安装 vieux/sshfs 插件的，我们可以通过下面的命令进行安装：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker plugin install --grant-all-permissions vieux/sshfs</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>然后通过 vieux/sshfs 驱动创建数据卷，并指定远程主机的登录用户名、密码和数据存放目录：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker volume create --driver vieux/sshfs \</span><br><span class="line">    -o sshcmd=nick@39.106.171.56:/home/nick/sshvolume \</span><br><span class="line">    -o password=yourpassword \</span><br><span class="line">    mysshvolume</span><br></pre></td></tr></table></figure>
+
+<p>注意，请确保你指定的远程主机上的挂载点目录是存在的(demo 中是 /home/nick/sshvolume 目录)，否则在启动容器时会报错。</p>
+<ol start="3">
+<li>最后在启动容器的时候指定挂载这个数据卷：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -id \</span><br><span class="line">    --name testcon \</span><br><span class="line">    --mount type=volume,volume-driver=vieux/sshfs,source=mysshvolume,target=/world \</span><br><span class="line">    ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>你在容器中 /world 目录下操作的文件都存储在远程主机的 /home/nick/sshvolume 目录中。进入容器testcon然后在 /world 目录下创建一个文件，然后打开远程主机/home/nick/sshvolume 目录进行查看，你新建的文件看看是不是已经在那里了！</p>
+<ul>
+<li><strong>docker volume 使用NFS存储</strong></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">NFS服务端,配置nfs共享</span></span><br><span class="line">yum install nfs-utils rpcbind -y</span><br><span class="line">mkdir -p /data/nfs/docker</span><br><span class="line">echo "/data/nfs *(rw,no_root_squash,sync)"&gt;&gt;/etc/exports</span><br><span class="line">exportfs -r</span><br><span class="line">systemctl start rpcbind nfs-server</span><br><span class="line">systemctl enable rpcbind nfs-server</span><br><span class="line">showmount -e localhost</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">nfs客户端</span></span><br><span class="line">yum install -y nfs-utils rpcbind</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">创建volume 连接 39.106.171.56:/data/nfs</span></span><br><span class="line">docker volume create --driver local \</span><br><span class="line">  --opt type=nfs \</span><br><span class="line">  --opt o=addr=39.106.171.56,rw \</span><br><span class="line">  --opt device=:/data/nfs \</span><br><span class="line">  volume-nfs</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">查看</span></span><br><span class="line">docker volume ls</span><br><span class="line">docker volume inspect volume-nfs</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">容器使用volume-nfs</span></span><br><span class="line">docker run -dit --name busybox7 -v volume-nfs:/nfs busybox</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">查看</span></span><br><span class="line">docker inspect -f &#123;&#123;.Mounts&#125;&#125; busybox7</span><br><span class="line">df -h |grep /data/nfs</span><br><span class="line"><span class="meta"> #</span><span class="bash">volume目录/var/lib/docker/volumes/volume-nfs/_data自动挂载到了nfs服务上</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"> #</span><span class="bash">容器创文件测试</span></span><br><span class="line">docker exec busybox7 touch /nfs/testfiles.txt</span><br></pre></td></tr></table></figure>
+
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/05/25/Docker/Docker-06-%E6%95%B0%E6%8D%AE%E5%8D%B7%E6%8A%80%E6%9C%AF/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Docker/" rel="tag">Docker</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/05/25/Leetcode/Leetcode-287-%E5%AF%BB%E6%89%BE%E9%87%8D%E5%A4%8D%E6%95%B0%E5%AD%97/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Leetcode-287-寻找重复数字
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/25/Docker/Docker-05-%E9%95%9C%E5%83%8F%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Docker-05-镜像原理</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    通信原理-10-信源编码 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Communication/通信原理笔记-10-信源编码" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  通信原理-10-信源编码
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/15/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-10-%E4%BF%A1%E6%BA%90%E7%BC%96%E7%A0%81/" class="article-date">
+  <time datetime="2020-04-15T03:02:24.000Z" itemprop="datePublished">2020-04-15</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="1-时分复用TDM"><a href="#1-时分复用TDM" class="headerlink" title="1. 时分复用TDM"></a>1. 时分复用TDM</h1><h2 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h2><p><strong>（书P9页）</strong></p>
+<p>传输多路信号有三种基本复用方式</p>
+<ul>
+<li>频分复用</li>
+<li>时分复用</li>
+<li>码分复用</li>
+<li>空分复用（了解即可）</li>
+</ul>
+<p>频分复用：用频谱搬移（<strong>调制</strong>）的方法使不同信号占据不同的频率范围</p>
+<p>时分复用：用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</p>
+<p>码分复用：用正交编码的方法分别携带不同的信号。</p>
+<p><strong>要想理解TDM，必须先要理解信源编码（抽样，量化，编码）</strong></p>
+<a id="more"></a>
+
+
+<h2 id="1-2-信源编码"><a href="#1-2-信源编码" class="headerlink" title="1.2 信源编码"></a>1.2 信源编码</h2><p>信源编码两个基本的功能：（P279）</p>
+<ul>
+<li>压缩编码 ： 减少数据冗余，提高通信的有效性</li>
+<li>数字化（模/数转换）</li>
+</ul>
+<p><strong>为什么要数字化？（P006）</strong></p>
+<ul>
+<li>抗干扰能力强</li>
+<li>传输差错可控</li>
+<li>便于用DSP技术多数字信息进行处理。</li>
+<li>易于集成</li>
+<li>易于加密处理</li>
+</ul>
+<p><strong>数字化过程的步骤？（P279）</strong></p>
+<ul>
+<li>抽样</li>
+<li>量化</li>
+<li>编码</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/184218130.png" alt="mark"></p>
+<p>编码的方式：</p>
+<ul>
+<li><strong>PCM(重要)</strong></li>
+<li>DPCM</li>
+<li>Delta M</li>
+</ul>
+<h2 id="1-3-抽样"><a href="#1-3-抽样" class="headerlink" title="1.3 抽样"></a>1.3 抽样</h2><p><strong>低通抽样和带通抽样 这两种抽样都叫做理想抽样。</strong></p>
+<h3 id="1-3-1-低通模拟信号抽样定理（P280-282）"><a href="#1-3-1-低通模拟信号抽样定理（P280-282）" class="headerlink" title="1.3.1 低通模拟信号抽样定理（P280-282）"></a>1.3.1 低通模拟信号抽样定理（P280-282）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185305861.png" alt="mark"></p>
+<p>如上图所示，左边的是描述对模拟信号的抽样，抽样可以理解为对原始信号幅度等（时间）间隔进行采样。右边的是描述抽样后得到的频域信号。</p>
+<p><strong>那么抽样定理到底是什么呢？请看下图</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185725602.png" alt="mark"></p>
+<p>上图中<strong>fs</strong>是两个抽样点的频率间隔，通信最基本的要求就是没有干扰性，所以要求以fs为采样间隔的时候信号不能有重叠，所以fs &gt;= 2fh，即如下所示</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/185944555.png" alt="mark"></p>
+<p>如果不满足这个间隔，信号将会发生混叠失真。</p>
+<p><strong>（这里先了解一下电话的抽样频率，后面讲PDH的时候会仔细在讲解。）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190320962.png" alt="mark"></p>
+<h3 id="1-3-2-带通信号的-抽样定理（P283）"><a href="#1-3-2-带通信号的-抽样定理（P283）" class="headerlink" title="1.3.2 带通信号的 抽样定理（P283）"></a>1.3.2 带通信号的 抽样定理（P283）</h3><ul>
+<li>如何分辨低通信号或者带通信号？</li>
+</ul>
+<p><strong>低通信号就是最低频率小于带宽</strong></p>
+<p><strong>反之带通信号就是最低频率大于带宽。</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190631762.png" alt="mark"></p>
+<p>那么既然有了低通抽样定理，为什么还需要单独要提出一个带通抽样定理呢？</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/190838592.png" alt="mark"></p>
+<p>解答：在图中可以明显的看出 0 到 fL这个区间是没有信号的，如果使用低通抽样定理，那么势必在低频域范围会浪费抽样的频率，导致系统效率低下，所以才有了带通抽样定理（证明不做要求）</p>
+<h3 id="1-3-3-模拟脉冲调制-P285"><a href="#1-3-3-模拟脉冲调制-P285" class="headerlink" title="1.3.3 模拟脉冲调制(P285)"></a>1.3.3 模拟脉冲调制(P285)</h3><p>有以下三种模拟脉冲调制方式：</p>
+<ul>
+<li><strong>PAM：脉冲幅度调制(重要)</strong></li>
+<li>PPM:   脉冲宽度调制</li>
+<li>PPM：脉冲位置调制</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191516355.png" alt="mark"></p>
+<h3 id="1-3-4-实际抽样"><a href="#1-3-4-实际抽样" class="headerlink" title="1.3.4 实际抽样"></a>1.3.4 实际抽样</h3><p>上述低通抽样和带通抽样都叫做理想抽样（因为现实做不到这样的抽样）</p>
+<p><strong>那么什么是实际抽样呢？</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/191651614.png" alt="mark"></p>
+<p>如上图所示：</p>
+<p>实际抽样使用一个有宽度的脉冲代替了箭头脉冲。</p>
+<p>理解完了上面实际抽样和理想抽样的区别，我们来看看两种实际抽样的方式。（了解即可）</p>
+<ul>
+<li>第一种：自然抽样PAM（幅度随原信号幅度改变）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192041205.png" alt="mark"></p>
+<ul>
+<li>第二种：平顶抽样PAM（每个样值脉冲顶部是平坦的）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192133992.png" alt="mark"></p>
+<h3 id="1-3-4-抽样小结"><a href="#1-3-4-抽样小结" class="headerlink" title="1.3.4 抽样小结"></a>1.3.4 抽样小结</h3><p><strong>抽样的本质：将取值连续，时间连续的模拟信号——&gt;取值仍然连续，但时间离散的PAM信号</strong></p>
+<p><strong>实际抽样的两种方式：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192327476.png" alt="mark"></p>
+<p><strong>理想抽样定理：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192354532.png" alt="mark"></p>
+<h2 id="1-4-量化"><a href="#1-4-量化" class="headerlink" title="1.4 量化"></a>1.4 量化</h2><p>量化就是对抽样信号后的幅度进行离散化。</p>
+<p>（本质：用有限个量化电平表示无限个抽样值）</p>
+<p>量化过程：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192543863.png" alt="mark"></p>
+<p>上图中：</p>
+<ul>
+<li>mi : 分层电平</li>
+<li>qi : 量化电平</li>
+<li>delta vi :量化间隔</li>
+</ul>
+<p>这里公式都不用去记（<strong>只要记得在同一个范围内的抽样电平都算做同一个值</strong>）</p>
+<p>例如（横轴上4Ts和6Ts对应的量化电平在同一个区间，所以都算做同一个）</p>
+<p>这样，无限个抽样值就变成了有限个量化信号值。（P287）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/192856427.png" alt="mark"></p>
+<h3 id="1-4-1-均匀量化"><a href="#1-4-1-均匀量化" class="headerlink" title="1.4.1 均匀量化"></a>1.4.1 均匀量化</h3><p>设模拟抽样信号的取值范围在a和b之间，量化电平数数M，则在均匀量化时的量化间隔为：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193123555.png" alt="mark"></p>
+<p>所以每个量化分层的端点mi就是：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193157063.png" alt="mark"></p>
+<p>均匀量化了解到这里即可。</p>
+<h3 id="1-4-2-非均匀量化（重要）"><a href="#1-4-2-非均匀量化（重要）" class="headerlink" title="1.4.2 非均匀量化（重要）"></a>1.4.2 非均匀量化（重要）</h3><p>(P289)</p>
+<p>在非均匀量化时，量化间隔是随信号抽样值的不同而变化的，即信号抽样值小的时候，量化间隔delta v就小，量化间隔大的时候，量化间隔delta v就大。</p>
+<p><strong>本质是：在进行量化之前，先将信号抽样值压缩，再进行均匀量化。（这里了解即可）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193609945.png" alt="mark"></p>
+<p><strong>非均匀量化有两种标准：</strong></p>
+<p>（ITU:国际电信联盟制定的）</p>
+<ul>
+<li><strong>A律（中国用的）</strong></li>
+<li><strong>u律（不用看：北美 日本用的）</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193730135.png" alt="mark"></p>
+<h3 id="A律13折线（P292）"><a href="#A律13折线（P292）" class="headerlink" title="A律13折线（P292）"></a>A律13折线（P292）</h3><p>A律使用13折线来实现近似，这里A=87.6</p>
+<p><strong>规律：每次对半分（如下图  1/2  1/4  1/8……. 1/128）</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/193944014.png" alt="mark"></p>
+<p>上图仔细数数才8道折线，那么为什么叫做13折线？</p>
+<p>答案：看下图，因为负极性还有8条折线（其中把原点左边的4条折线近似合并成一条 因为这四条折线的斜率近似相等）</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194255212.png" alt="mark"></p>
+<p>所以一共是 ： 8+8-3 = 13条折线</p>
+<h2 id="1-5-编码"><a href="#1-5-编码" class="headerlink" title="1.5 编码"></a>1.5 编码</h2><p><strong>1. PCM编码原理框图：</strong></p>
+<p>对于发送端而言：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194626823.png" alt="mark"></p>
+<p>对于接收端而言：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194717234.png" alt="mark"></p>
+<p><strong>2. 量化和编码的关系：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/194746570.png" alt="mark"></p>
+<p><strong>那么PCM的本质就是把数字信号变成计算机能看得懂的0101二进制信号罢了。</strong></p>
+<p><strong>3. A律13折线的PCM编码（二进制编码规则）：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195007957.png" alt="mark"></p>
+<p>具体每位码代表什么呢？看下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195043795.png" alt="mark"></p>
+<p>那这里和13折线有什么关系？请看下图</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/195318463.png" alt="mark"></p>
+<p>上图就是用13折线非均匀量化的规律，把量化间隔进行细分。</p>
+<p><strong>这里了解到这里即可。</strong></p>
+<h2 id="1-6-时分复用"><a href="#1-6-时分复用" class="headerlink" title="1.6 时分复用"></a>1.6 时分复用</h2><h3 id="1-6-1简介"><a href="#1-6-1简介" class="headerlink" title="1.6.1简介"></a>1.6.1简介</h3><ol>
+<li>时分复用TDM（Time Division Multiplexing）</li>
+</ol>
+<ul>
+<li>用<strong>脉冲调制</strong>的方法使不同的信号占据不同的时间区间。</li>
+<li><strong>主要用在电话上</strong></li>
+</ul>
+<p>学习了上面抽样定理之后，我们举个例子</p>
+<p>有两路信号 一路是 m1(t) 另外一路是m2(t)，同时对它们进行时间上的采样。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200143616.png" alt="mark"></p>
+<p>采样结果如下图所示：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200202524.png" alt="mark"></p>
+<p><strong>从图中可以明显看出，采样后的信号没有重叠。</strong></p>
+<h3 id="1-6-2-原理分析"><a href="#1-6-2-原理分析" class="headerlink" title="1.6.2 原理分析"></a>1.6.2 原理分析</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200313856.png" alt="mark"></p>
+<p>时分复用的特点就是将时间划分为上图（A B C D） 一段段等长的时间复用帧（Frame），每一个时分复用的用户在每一个TDM帧中占用固定序号的时隙。</p>
+<p>接下来以三路信号为例：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200502920.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200530262.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200537269.png" alt="mark"></p>
+<p>注意到上面三张图的区别了吗？</p>
+<p>答案：图中在<strong>发送端和接收端分别有一个机械旋转开关</strong>，他们以相同的抽样频率同步的旋转。<strong>在抽样定理中已经证明：时间上连续的信号可以用它的离散抽样进行标识，只要抽样速率足够的高。</strong>所以各路信号是断续的发送的，接收端会根据时隙进行还原。</p>
+<p>这里例子具体的话：</p>
+<p>时隙为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200831049.png" alt="mark"></p>
+<p>这样的话就可以扩展到n路信号：如下图所示</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/200938276.png" alt="mark"></p>
+<p>相应的，时隙宽度变为<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201023428.png" alt="mark"></p>
+<p>码元周期变为：<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201056540.png" alt="mark"></p>
+<h2 id="1-7-准同步数字体系"><a href="#1-7-准同步数字体系" class="headerlink" title="1.7 准同步数字体系"></a>1.7 准同步数字体系</h2><ol>
+<li>ITU制定了两种准同步数字体系</li>
+</ol>
+<ul>
+<li><strong>PCM30/32(A律)  重要：因为中国用的</strong>  </li>
+<li>PCM24路（u律） <strong>不用看</strong></li>
+</ul>
+<ol start="2">
+<li><strong>PCM的一次帧结构（重点）</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201346438.png" alt="mark"></p>
+<ul>
+<li><p>共有32路组成（有32个时隙  TS0  TS1 …… TS31）</p>
+</li>
+<li><p>每帧时间间隔为125us（即采样周期）</p>
+</li>
+<li><p>TS0 专门用于帧同步</p>
+</li>
+<li><p>TS16 专门用于传送信令</p>
+</li>
+<li><p>PCM的一次群比特率（2.048M/s = Ts *  256 = 125us * 8 * 32）(P311页)</p>
+</li>
+</ul>
+<ol start="3">
+<li>高次帧结构（E体系）</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200421/201906231.png" alt="mark"></p>
+<p>规律： 四个PCM复用为新的一次群</p>
+<p>2.048 * 1 =   2.048Mbit/s      一次群</p>
+<p>2.048 * 4 = 8.448Mbit/s        二次群</p>
+<p>2.048 *  16 = 34.368Mbit/s  三次次群</p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/04/15/Communication/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0-10-%E4%BF%A1%E6%BA%90%E7%BC%96%E7%A0%81/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/" rel="tag">通信原理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/04/15/Redis/Redis-10-%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Redis-10-发布订阅
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/04/14/Redis/Redis-09-%E6%8C%81%E4%B9%85%E5%8C%96/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Redis-09-持久化</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    JDK1.8源码-03-java.lang.String |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-jdk_SourceCode/JDK1.8-03-String" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JDK1.8源码-03-java.lang.String
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/03/29/jdk_SourceCode/JDK1.8-03-String/" class="article-date">
+  <time datetime="2020-03-29T02:52:53.000Z" itemprop="datePublished">2020-03-29</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">7.3k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">33分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JDK1-8源码-03-java-lang-String"><a href="#JDK1-8源码-03-java-lang-String" class="headerlink" title="JDK1.8源码-03-java.lang.String"></a>JDK1.8源码-03-java.lang.String</h1><p>String 类也是java.lang 包下的一个类，算是日常编码中最常用的一个类了</p>
+<a id="more"></a>
+
+<h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">String</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">Comparable</span>&lt;<span class="title">String</span>&gt;, <span class="title">CharSequence</span> </span>&#123;</span><br></pre></td></tr></table></figure>
+
+<p>和上一篇Integer类一样，这也是一个用final声明的常量类，不能被任何类所继承，而且<strong>一旦一个String对象被创建，包含在这个对象中的字符序列是不可以改变的，包括该类后续的所有方法都不能修改这个对象，直至对象被销毁，这是我们需要特别注意的（该类的一些方法看似改变了字符串，其实内部都是创建了一个新的字符串，下面讲解的时候会介绍）</strong>。</p>
+<p>接着这个类实现了Serializable接口，这个是一个序列化标志接口，还实现了Comparable接口，用于比较两个字符串的大小（按照字符的ASCII码进行排列），后续还会介绍具体方法的实现。</p>
+<p>最后实现了CharSequence接口，表示一个有序的字符集合，相应的后续也会介绍。</p>
+<h2 id="2-字段属性"><a href="#2-字段属性" class="headerlink" title="2. 字段属性"></a>2. 字段属性</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">/** The value is used for character storage. */</span></span><br><span class="line"><span class="comment">// 用来存储字符串的char数组</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">char</span> value[];</span><br><span class="line"></span><br><span class="line">   <span class="comment">/** Cache the hash code for the string */</span></span><br><span class="line"><span class="comment">// 用来缓存字符串的哈希码</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">int</span> hash; <span class="comment">// Default to 0</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">/** use serialVersionUID from JDK 1.0.2 for interoperability */</span></span><br><span class="line"><span class="comment">// 实现序列化标识</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -<span class="number">6849794470754667710L</span>;</span><br></pre></td></tr></table></figure>
+
+<p>一个String字符串实际上是一个char数组。</p>
+<h2 id="3-构造方法"><a href="#3-构造方法" class="headerlink" title="3. 构造方法"></a>3. 构造方法</h2><p>String类型的构造方法很多，可以通过初始化一个字符串，或者字符数组，或者字节数组等等来创建一个String对象。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200424/111702712.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="string">"abc"</span>;</span><br><span class="line">String str2 = <span class="keyword">new</span> String(<span class="string">"abc"</span>);</span><br><span class="line">String str3 = <span class="keyword">new</span> String(<span class="keyword">new</span> <span class="keyword">char</span>[]&#123;<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>&#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-equals-Object-anObject-方法"><a href="#4-equals-Object-anObject-方法" class="headerlink" title="4. equals(Object anObject) 方法"></a>4. equals(Object anObject) 方法</h2><p>String类重写了equals方法，比较的是组成字符串的每一个字符是否相同,</p>
+<p>如果相同返回true,</p>
+<p>不相同则返回false.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Compares this string to the specified object.  The result is &#123;<span class="doctag">@code</span></span></span><br><span class="line"><span class="comment"> * true&#125; if and only if the argument is not &#123;<span class="doctag">@code</span> null&#125; and is a &#123;<span class="doctag">@code</span></span></span><br><span class="line"><span class="comment"> * String&#125; object that represents the same sequence of characters as this</span></span><br><span class="line"><span class="comment"> * object.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>  anObject</span></span><br><span class="line"><span class="comment"> *         The object to compare this &#123;<span class="doctag">@code</span> String&#125; against</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  &#123;<span class="doctag">@code</span> true&#125; if the given object represents a &#123;<span class="doctag">@code</span> String&#125;</span></span><br><span class="line"><span class="comment"> *          equivalent to this string, &#123;<span class="doctag">@code</span> false&#125; otherwise</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span>  #compareTo(String)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span>  #equalsIgnoreCase(String)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object anObject)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> == anObject) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (anObject <span class="keyword">instanceof</span> String) &#123;</span><br><span class="line">        String anotherString = (String)anObject;</span><br><span class="line">        <span class="keyword">int</span> n = value.length;</span><br><span class="line">        <span class="keyword">if</span> (n == anotherString.value.length) &#123;</span><br><span class="line">            <span class="keyword">char</span> v1[] = value;</span><br><span class="line">            <span class="keyword">char</span> v2[] = anotherString.value;</span><br><span class="line">            <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> (n-- != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (v1[i] != v2[i])</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-hashCode-方法"><a href="#5-hashCode-方法" class="headerlink" title="5. hashCode() 方法"></a>5. hashCode() 方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a hash code for this string. The hash code for a</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@code</span> String&#125; object is computed as</span></span><br><span class="line"><span class="comment"> * &lt;blockquote&gt;&lt;pre&gt;</span></span><br><span class="line"><span class="comment"> * s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]</span></span><br><span class="line"><span class="comment"> * &lt;/pre&gt;&lt;/blockquote&gt;</span></span><br><span class="line"><span class="comment"> * using &#123;<span class="doctag">@code</span> int&#125; arithmetic, where &#123;<span class="doctag">@code</span> s[i]&#125; is the</span></span><br><span class="line"><span class="comment"> * &lt;i&gt;i&lt;/i&gt;th character of the string, &#123;<span class="doctag">@code</span> n&#125; is the length of</span></span><br><span class="line"><span class="comment"> * the string, and &#123;<span class="doctag">@code</span> ^&#125; indicates exponentiation.</span></span><br><span class="line"><span class="comment"> * (The hash value of the empty string is zero.)</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  a hash code value for this object.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h = hash;</span><br><span class="line">    <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">char</span> val[] = value;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">            h = <span class="number">31</span> * h + val[i];</span><br><span class="line">        &#125;</span><br><span class="line">        hash = h;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>String 类的 hashCode 算法很简单，主要就是中间的 for 循环，计算公式如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s[<span class="number">0</span>]*<span class="number">31</span>^(n-<span class="number">1</span>) + s[<span class="number">1</span>]*<span class="number">31</span>^(n-<span class="number">2</span>) + ...s[n-<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+
+<p>s 数组即源码中的 val 数组，也就是构成字符串的字符数组。</p>
+<p><strong>这里有个数字31，为什么选择31作为乘积因子而没有用一个常量来表示？</strong></p>
+<p>主要原因有两个：</p>
+<ul>
+<li>31是一个不大不小的质数，是作为hashCode乘子的优选质数之一</li>
+<li>31可以被JVM优化，<code>31*i= （i &lt;&lt;5）- i</code> 。因为移位运算比乘法运行更快更省性能。</li>
+</ul>
+<p>具体请参考此篇文章：[科普String 用31作为因子][<a href="https://www.cnblogs.com/nullllun/p/8350178.html]" target="_blank" rel="noopener">https://www.cnblogs.com/nullllun/p/8350178.html]</a></p>
+<h2 id="6-charAt-int-index-方法"><a href="#6-charAt-int-index-方法" class="headerlink" title="6. charAt(int index) 方法"></a>6. charAt(int index) 方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns the &#123;<span class="doctag">@code</span> char&#125; value at the</span></span><br><span class="line"><span class="comment"> * specified index. An index ranges from &#123;<span class="doctag">@code</span> 0&#125; to</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@code</span> length() - 1&#125;. The first &#123;<span class="doctag">@code</span> char&#125; value of the sequence</span></span><br><span class="line"><span class="comment"> * is at index &#123;<span class="doctag">@code</span> 0&#125;, the next at index &#123;<span class="doctag">@code</span> 1&#125;,</span></span><br><span class="line"><span class="comment"> * and so on, as for array indexing.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;If the &#123;<span class="doctag">@code</span> char&#125; value specified by the index is a</span></span><br><span class="line"><span class="comment"> * &lt;a href="Character.html#unicode"&gt;surrogate&lt;/a&gt;, the surrogate</span></span><br><span class="line"><span class="comment"> * value is returned.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>      index   the index of the &#123;<span class="doctag">@code</span> char&#125; value.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>     the &#123;<span class="doctag">@code</span> char&#125; value at the specified index of this string.</span></span><br><span class="line"><span class="comment"> *             The first &#123;<span class="doctag">@code</span> char&#125; value is at index &#123;<span class="doctag">@code</span> 0&#125;.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@exception</span>  IndexOutOfBoundsException  if the &#123;<span class="doctag">@code</span> index&#125;</span></span><br><span class="line"><span class="comment"> *             argument is negative or not less than the length of this</span></span><br><span class="line"><span class="comment"> *             string.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">char</span> <span class="title">charAt</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//如果传入的索引大于字符串的长度或者小于0，直接抛出索引越界异常</span></span><br><span class="line">    <span class="keyword">if</span> ((index &lt; <span class="number">0</span>) || (index &gt;= value.length)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(index);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 返回指定索引的单个字符</span></span><br><span class="line">    <span class="keyword">return</span> value[index];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一个字符串由一个字符数组组成，这个方法是通过传入的索引（数组下标），返回指定索引的单个字符。</p>
+<h2 id="7-compareTo-方法"><a href="#7-compareTo-方法" class="headerlink" title="7. compareTo() 方法"></a>7. compareTo() 方法</h2><h3 id="7-1-compareTo-String-anotherString"><a href="#7-1-compareTo-String-anotherString" class="headerlink" title="7.1 compareTo(String anotherString)"></a>7.1 compareTo(String anotherString)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> * <span class="meta">@param</span>   anotherString   the &#123;<span class="meta">@code</span> String&#125; to be compared.</span><br><span class="line"> * <span class="meta">@return</span>  the value &#123;<span class="meta">@code</span> <span class="number">0</span>&#125; <span class="keyword">if</span> the argument string is equal to</span><br><span class="line"> *          <span class="keyword">this</span> string; a value less than &#123;<span class="meta">@code</span> <span class="number">0</span>&#125; <span class="keyword">if</span> <span class="keyword">this</span> string</span><br><span class="line"> *          is lexicographically less than the string argument; and a</span><br><span class="line"> *          value greater than &#123;<span class="meta">@code</span> <span class="number">0</span>&#125; <span class="keyword">if</span> <span class="keyword">this</span> string is</span><br><span class="line"> *          lexicographically greater than the string argument.</span><br><span class="line"> */</span><br><span class="line">     </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(String anotherString)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> len1 = value.length;</span><br><span class="line">    <span class="keyword">int</span> len2 = anotherString.value.length;</span><br><span class="line">    <span class="keyword">int</span> lim = Math.min(len1, len2);</span><br><span class="line">    <span class="keyword">char</span> v1[] = value;</span><br><span class="line">    <span class="keyword">char</span> v2[] = anotherString.value;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> k = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (k &lt; lim) &#123;</span><br><span class="line">        <span class="keyword">char</span> c1 = v1[k];</span><br><span class="line">        <span class="keyword">char</span> c2 = v2[k];</span><br><span class="line">        <span class="keyword">if</span> (c1 != c2) &#123;</span><br><span class="line">            <span class="keyword">return</span> c1 - c2;</span><br><span class="line">        &#125;</span><br><span class="line">        k++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> len1 - len2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的源码也很好理解，该方法是按字母的顺序比较两个字符串，是基于字符串中每个字符的Unicode值。</p>
+<p>当两个字符串的某个位置的字符不同时，返回的是这一位置的字符Unicode值的差，当两个字符串都相同时，返回的事两个字符串长度的差。</p>
+<h3 id="7-2-compareTolgnoreCase-String-str"><a href="#7-2-compareTolgnoreCase-String-str" class="headerlink" title="7.2 compareTolgnoreCase(String str)"></a>7.2 compareTolgnoreCase(String str)</h3><p>compareToIgnoreCase(String str) 方法实在compareTo方法的基础上忽略大小写，我们知道大写字母是比小写字母的Unicode值小32的。</p>
+<p>底层都是先都转换成大写比较，然后都转换成小写比较。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareToIgnoreCase</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> CASE_INSENSITIVE_ORDER.compare(<span class="keyword">this</span>, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * A Comparator that orders &#123;<span class="doctag">@code</span> String&#125; objects as by</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> compareToIgnoreCase&#125;. This comparator is serializable.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * Note that this Comparator does &lt;em&gt;not&lt;/em&gt; take locale into account,</span></span><br><span class="line"><span class="comment">     * and will result in an unsatisfactory ordering for certain locales.</span></span><br><span class="line"><span class="comment">     * The java.text package provides &lt;em&gt;Collators&lt;/em&gt; to allow</span></span><br><span class="line"><span class="comment">     * locale-sensitive ordering.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     java.text.Collator#compare(String, String)</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@since</span>   1.2</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Comparator&lt;String&gt; CASE_INSENSITIVE_ORDER</span><br><span class="line">                                         = <span class="keyword">new</span> CaseInsensitiveComparator();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">CaseInsensitiveComparator</span></span></span><br><span class="line"><span class="class">            <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">String</span>&gt;, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">        <span class="comment">// use serialVersionUID from JDK 1.2.2 for interoperability</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">8575799808933029326L</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(String s1, String s2)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">int</span> n1 = s1.length();</span><br><span class="line">            <span class="keyword">int</span> n2 = s2.length();</span><br><span class="line">            <span class="keyword">int</span> min = Math.min(n1, n2);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; min; i++) &#123;</span><br><span class="line">                <span class="keyword">char</span> c1 = s1.charAt(i);</span><br><span class="line">                <span class="keyword">char</span> c2 = s2.charAt(i);</span><br><span class="line">                <span class="keyword">if</span> (c1 != c2) &#123;</span><br><span class="line">                    c1 = Character.toUpperCase(c1);</span><br><span class="line">                    c2 = Character.toUpperCase(c2);</span><br><span class="line">                    <span class="keyword">if</span> (c1 != c2) &#123;</span><br><span class="line">                        c1 = Character.toLowerCase(c1);</span><br><span class="line">                        c2 = Character.toLowerCase(c2);</span><br><span class="line">                        <span class="keyword">if</span> (c1 != c2) &#123;</span><br><span class="line">                            <span class="comment">// No overflow because of numeric promotion</span></span><br><span class="line">                            <span class="keyword">return</span> c1 - c2;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> n1 - n2;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/** Replaces the de-serialized object. */</span></span><br><span class="line">        <span class="function"><span class="keyword">private</span> Object <span class="title">readResolve</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> CASE_INSENSITIVE_ORDER; &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="8-concat-String-str-方法"><a href="#8-concat-String-str-方法" class="headerlink" title="8. concat(String str) 方法"></a>8. concat(String str) 方法</h2><p>该方法是将指定的字符串连接到此字符串的末尾。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Concatenates the specified string to the end of this string.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * If the length of the argument string is &#123;<span class="doctag">@code</span> 0&#125;, then this</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@code</span> String&#125; object is returned. Otherwise, a</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@code</span> String&#125; object is returned that represents a character</span></span><br><span class="line"><span class="comment"> * sequence that is the concatenation of the character sequence</span></span><br><span class="line"><span class="comment"> * represented by this &#123;<span class="doctag">@code</span> String&#125; object and the character</span></span><br><span class="line"><span class="comment"> * sequence represented by the argument string.&lt;p&gt;</span></span><br><span class="line"><span class="comment"> * Examples:</span></span><br><span class="line"><span class="comment"> * &lt;blockquote&gt;&lt;pre&gt;</span></span><br><span class="line"><span class="comment"> * "cares".concat("s") returns "caress"</span></span><br><span class="line"><span class="comment"> * "to".concat("get").concat("her") returns "together"</span></span><br><span class="line"><span class="comment"> * &lt;/pre&gt;&lt;/blockquote&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>   str   the &#123;<span class="doctag">@code</span> String&#125; that is concatenated to the end</span></span><br><span class="line"><span class="comment"> *                of this &#123;<span class="doctag">@code</span> String&#125;.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  a string that represents the concatenation of this object's</span></span><br><span class="line"><span class="comment"> *          characters followed by the string argument's characters.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">concat</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> otherLen = str.length();</span><br><span class="line">    <span class="comment">// 首先判断要拼接的字符串长度是否为0，如果为0，则直接返回原字符串。</span></span><br><span class="line">    <span class="keyword">if</span> (otherLen == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> len = value.length;</span><br><span class="line">    <span class="comment">// 如果不为0,则通过Arrays工具类的copyOf方法创建一个新的字符数组，长度为原字符和要拼接的字符串之和，前面填充的是原字符串，后面为空。</span></span><br><span class="line">    <span class="keyword">char</span> buf[] = Arrays.copyOf(value, len + otherLen);</span><br><span class="line">    <span class="comment">// 接着通过getChars方法将要拼接的字符串放入新字符串后面空的位置。</span></span><br><span class="line">    str.getChars(buf, len);</span><br><span class="line">    <span class="comment">// 注意返回值是new String(buf,true)。也就是重新通过new关键字创建了一个新的字符串，原字符串不是变的。</span></span><br><span class="line">    <span class="comment">// 这就是我们前面说的一旦一个String对象被创建，包含在这个对象的字符序列是不可改变的。</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> String(buf, <span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    首先判断要拼接的字符串长度是否为0，如果为0，则直接返回原字符串。如果不为0，则通过 Arrays 工具类（后面会详细介绍这个工具类）的copyOf方法创建一个新的字符数组，长度为原字符串和要拼接的字符串之和，前面填充原字符串，后面为空。接着在通过 getChars 方法将要拼接的字符串放入新字符串后面为空的位置。</p>
+<p>　　<strong>注意：</strong>返回值是 new String(buf, true)，也就是重新通过 new 关键字创建了一个新的字符串，原字符串是不变的。这也是前面我们说的<strong>一旦一个String对象被创建, 包含在这个对象中的字符序列是不可改变的。</strong></p>
+<h2 id="9-indexOf-方法"><a href="#9-indexOf-方法" class="headerlink" title="9. indexOf() 方法"></a>9. indexOf() 方法</h2><h3 id="9-1-indexOf-int-ch"><a href="#9-1-indexOf-int-ch" class="headerlink" title="9.1 indexOf(int ch)"></a>9.1 indexOf(int ch)</h3><p>indexOf(int ch)，参数ch其实是字符的Unicode值，这里也可以放单个字符（默认转成int），作用是返回指定字符第一次出现的此字符串的索引。</p>
+<p>其内部是调用indexOf(int ch, int fromIndex)，只不过这里的fromIndex = 0,因为是从0开始搜索。而indexOf(int ch.int fromIndex)作用也是返回首次出现次字符串的内索引，但是从指定索引处开始搜索。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(<span class="keyword">int</span> ch)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> indexOf(ch, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="9-2-indexOf-int-ch-int-fromIndex"><a href="#9-2-indexOf-int-ch-int-fromIndex" class="headerlink" title="9.2 indexOf(int ch,int fromIndex)"></a>9.2 indexOf(int ch,int fromIndex)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"> * &lt;p&gt;All indices are specified in &#123;<span class="meta">@code</span> <span class="keyword">char</span>&#125; values</span><br><span class="line"> * (Unicode code units).</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@param</span>   <span class="function">ch          a <span class="title">character</span> <span class="params">(Unicode code point)</span>.</span></span><br><span class="line"><span class="function"> * @param   fromIndex   the index to start the search from.</span></span><br><span class="line"><span class="function"> * @return  the index of the first occurrence of the character in the</span></span><br><span class="line"><span class="function"> *          character sequence represented by <span class="keyword">this</span> object that is greater</span></span><br><span class="line"><span class="function"> *          than or equal to </span>&#123;<span class="meta">@code</span> fromIndex&#125;, or &#123;<span class="meta">@code</span> -<span class="number">1</span>&#125;</span><br><span class="line"> *          <span class="keyword">if</span> the character does not occur.</span><br><span class="line"> */</span><br><span class="line">     </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(<span class="keyword">int</span> ch, <span class="keyword">int</span> fromIndex)</span> </span>&#123;</span><br><span class="line">     <span class="comment">// max等于字符的长度</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> max = value.length;</span><br><span class="line">     <span class="comment">// 指定索引的位置如果小于0，默认从 0 开始搜索</span></span><br><span class="line">    <span class="keyword">if</span> (fromIndex &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        fromIndex = <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (fromIndex &gt;= max) &#123;</span><br><span class="line">        <span class="comment">// 如果指定索引值大于等于字符的长度，（数组的下标最多是max-1）</span></span><br><span class="line">        <span class="comment">// 直接返回-1</span></span><br><span class="line">        <span class="comment">// Note: fromIndex might be near -1&gt;&gt;&gt;1.</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">// 一个char占用两个字节</span></span><br><span class="line">     <span class="comment">// 如果char小于2的16次方（65535），绝对部分字符都在这个范围内</span></span><br><span class="line">    <span class="keyword">if</span> (ch &lt; Character.MIN_SUPPLEMENTARY_CODE_POINT) &#123;</span><br><span class="line">        <span class="comment">// handle most cases here (ch is a BMP code point or a</span></span><br><span class="line">        <span class="comment">// negative value (invalid code point))</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">char</span>[] value = <span class="keyword">this</span>.value;</span><br><span class="line">        <span class="comment">// for循环判断遍历是否和指定字符相等</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = fromIndex; i &lt; max; i++) &#123;</span><br><span class="line">            <span class="comment">// //存在相等的字符，返回第一次出现该字符的索引位置，并终止循环</span></span><br><span class="line">            <span class="keyword">if</span> (value[i] == ch) &#123;</span><br><span class="line">                <span class="keyword">return</span> i;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 不存在相等，则返回-1</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果存在大于65535的情况，该方法先会判断是否是有效字符，然后依次进行比较</span></span><br><span class="line">        <span class="keyword">return</span> indexOfSupplementary(ch, fromIndex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="10-split-方法"><a href="#10-split-方法" class="headerlink" title="10. split() 方法"></a>10. split() 方法</h2><h3 id="10-1-split-String-regex"><a href="#10-1-split-String-regex" class="headerlink" title="10.1 split(String regex)"></a>10.1 split(String regex)</h3><p>split(String regex) 将该字符串拆分为给定正则表达式的匹配。</p>
+<p>对于 split(String regex) 没什么好说的，内部调用 split(regex, 0) 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> * <span class="meta">@param</span>  regex</span><br><span class="line"> *         the delimiting regular expression</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@return</span>  the array of strings computed by splitting <span class="keyword">this</span> string</span><br><span class="line"> *          around matches of the given regular expression</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@throws</span>  PatternSyntaxException</span><br><span class="line"> *          <span class="keyword">if</span> the regular expression<span class="string">'s syntax is invalid</span></span><br><span class="line"><span class="string"> *</span></span><br><span class="line"><span class="string"> * @see java.util.regex.Pattern</span></span><br><span class="line"><span class="string"> *</span></span><br><span class="line"><span class="string"> * @since 1.4</span></span><br><span class="line"><span class="string"> * @spec JSR-51</span></span><br><span class="line"><span class="string"> */</span></span><br><span class="line"><span class="string">     </span></span><br><span class="line"><span class="string">public String[] split(String regex) &#123;</span></span><br><span class="line"><span class="string">    return split(regex, 0);</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="10-2-split-String-regex-int-limit"><a href="#10-2-split-String-regex-int-limit" class="headerlink" title="10.2 split(String regex,int limit)"></a>10.2 split(String regex,int limit)</h3><p>split(String regex , int limit) 也是一样，不过对于 limit 的取值有三种情况：</p>
+<ol>
+<li><strong>limit  &gt; 0 ,则pattern（模式）应用 n-1次</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"a,b,c"</span>;</span><br><span class="line">String[] c1 = str.split(<span class="string">","</span>, <span class="number">2</span>);</span><br><span class="line">System.out.println(c1.length);   <span class="comment">// 2 </span></span><br><span class="line">System.out.println(Arrays.toString(c1));  <span class="comment">// &#123;"a","b,c"&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>limit = 0 ，则pattern（模式）应用无限次并且忽略末尾的空字符串。</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str2 = <span class="string">"a,b,c,,"</span>;</span><br><span class="line">String[] c2 = str2.split(<span class="string">","</span>, <span class="number">0</span>);</span><br><span class="line">System.out.println(c2.length);   <span class="comment">// 3</span></span><br><span class="line">System.out.println(Arrays.toString(c2)); 	<span class="comment">//&#123;"a","b","c"&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>limit &lt; 0 ,则pattern（模式）应用无限次</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String str3 = <span class="string">"a,b,c,,"</span>;</span><br><span class="line">String[] c3 = str3.split(<span class="string">","</span>, -<span class="number">1</span>);</span><br><span class="line">System.out.println(c3.length);  <span class="comment">//5</span></span><br><span class="line">System.out.println(Arrays.toString(c3));    <span class="comment">// &#123;"a","b","c","",""&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>下面看看底层的源码实现,重点看 split(String regex, int limit) 的方法实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"> * <span class="meta">@param</span>  regex</span><br><span class="line"> *         the delimiting regular expression</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@param</span>  limit</span><br><span class="line"> *         the result threshold, as described above</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@return</span>  the array of strings computed by splitting <span class="keyword">this</span> string</span><br><span class="line"> *          around matches of the given regular expression</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@throws</span>  PatternSyntaxException</span><br><span class="line"> *          <span class="keyword">if</span> the regular expression<span class="string">'s syntax is invalid</span></span><br><span class="line"><span class="string"> *</span></span><br><span class="line"><span class="string"> * @see java.util.regex.Pattern</span></span><br><span class="line"><span class="string"> *</span></span><br><span class="line"><span class="string"> * @since 1.4</span></span><br><span class="line"><span class="string"> * @spec JSR-51</span></span><br><span class="line"><span class="string"> */</span></span><br><span class="line"><span class="string">     </span></span><br><span class="line"><span class="string">public String[] split(String regex, int limit) &#123;</span></span><br><span class="line"><span class="string">    /* fastpath if the regex is a</span></span><br><span class="line"><span class="string">     (1)one-char String and this character is not one of the</span></span><br><span class="line"><span class="string">        RegEx'</span>s meta characters <span class="string">".$|()[&#123;^?*+\\"</span>, or</span><br><span class="line">     (<span class="number">2</span>)two-<span class="keyword">char</span> String and the first <span class="keyword">char</span> is the backslash and</span><br><span class="line">        the second is not the ascii digit or ascii letter.</span><br><span class="line">     */</span><br><span class="line">     <span class="comment">// 单个字符，且不是".$|()[&#123;^?*+\\"的其中一个</span></span><br><span class="line">     <span class="comment">// 两个字符，第一个是"/",</span></span><br><span class="line">    <span class="keyword">char</span> ch = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (((regex.value.length == <span class="number">1</span> &amp;&amp;</span><br><span class="line">         <span class="string">".$|()[&#123;^?*+\\"</span>.indexOf(ch = regex.charAt(<span class="number">0</span>)) == -<span class="number">1</span>) ||</span><br><span class="line">         (regex.length() == <span class="number">2</span> &amp;&amp;</span><br><span class="line">          regex.charAt(<span class="number">0</span>) == <span class="string">'\\'</span> &amp;&amp;</span><br><span class="line">          (((ch = regex.charAt(<span class="number">1</span>))-<span class="string">'0'</span>)|(<span class="string">'9'</span>-ch)) &lt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">          ((ch-<span class="string">'a'</span>)|(<span class="string">'z'</span>-ch)) &lt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">          ((ch-<span class="string">'A'</span>)|(<span class="string">'Z'</span>-ch)) &lt; <span class="number">0</span>)) &amp;&amp;</span><br><span class="line">        (ch &lt; Character.MIN_HIGH_SURROGATE ||</span><br><span class="line">         ch &gt; Character.MAX_LOW_SURROGATE))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> off = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> next = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// limited == true ，反之limited = false</span></span><br><span class="line">        <span class="keyword">boolean</span> limited = limit &gt; <span class="number">0</span>;</span><br><span class="line">        ArrayList&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">while</span> ((next = indexOf(ch, off)) != -<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="comment">// 当limit小于&lt;=0 或者 集合list的长度小于limit-1</span></span><br><span class="line">            <span class="keyword">if</span> (!limited || list.size() &lt; limit - <span class="number">1</span>) &#123;</span><br><span class="line">                list.add(substring(off, next));</span><br><span class="line">                off = next + <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;    <span class="comment">// last one</span></span><br><span class="line">                <span class="comment">//assert (list.size() == limit - 1);</span></span><br><span class="line">                <span class="comment">// 判断最后一个list.size（）==limit-1</span></span><br><span class="line">                list.add(substring(off, value.length));</span><br><span class="line">                off = value.length;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// If no match was found, return this</span></span><br><span class="line">        <span class="comment">// 如果没有一个能匹配上的，返回一个新的字符串，内容和原来一样</span></span><br><span class="line">        <span class="keyword">if</span> (off == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> String[]&#123;<span class="keyword">this</span>&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Add remaining segment</span></span><br><span class="line">        <span class="comment">// 当limit&lt;=0时，limited=false，或者集合长度小于limit时，截取添加剩下的字符串。</span></span><br><span class="line">        <span class="keyword">if</span> (!limited || list.size() &lt; limit)</span><br><span class="line">            list.add(substring(off, value.length));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Construct result</span></span><br><span class="line">        <span class="comment">// 当limit == 0 如果末尾添加的元素为空，则集合长度不断减1，直到末尾不为空</span></span><br><span class="line">        <span class="keyword">int</span> resultSize = list.size();</span><br><span class="line">        <span class="keyword">if</span> (limit == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">while</span> (resultSize &gt; <span class="number">0</span> &amp;&amp; list.get(resultSize - <span class="number">1</span>).length() == <span class="number">0</span>) &#123;</span><br><span class="line">                resultSize--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        String[] result = <span class="keyword">new</span> String[resultSize];</span><br><span class="line">        <span class="keyword">return</span> list.subList(<span class="number">0</span>, resultSize).toArray(result);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> Pattern.compile(regex).split(<span class="keyword">this</span>, limit);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="11-replace-方法"><a href="#11-replace-方法" class="headerlink" title="11. replace()  方法"></a>11. replace()  方法</h2><h3 id="11-1-replace-char-oldChar-char-newChar"><a href="#11-1-replace-char-oldChar-char-newChar" class="headerlink" title="11.1 replace (char oldChar, char newChar)"></a>11.1 replace (char oldChar, char newChar)</h3><p>replace (char oldChar, char newChar)  ： 将原来字符串的所有oldChar字符都替换成newChar字符，返回一个新的字符串。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a string resulting from replacing all occurrences of</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@code</span> oldChar&#125; in this string with &#123;<span class="doctag">@code</span> newChar&#125;.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * If the character &#123;<span class="doctag">@code</span> oldChar&#125; does not occur in the</span></span><br><span class="line"><span class="comment"> * character sequence represented by this &#123;<span class="doctag">@code</span> String&#125; object,</span></span><br><span class="line"><span class="comment"> * then a reference to this &#123;<span class="doctag">@code</span> String&#125; object is returned.</span></span><br><span class="line"><span class="comment"> * Otherwise, a &#123;<span class="doctag">@code</span> String&#125; object is returned that</span></span><br><span class="line"><span class="comment"> * represents a character sequence identical to the character sequence</span></span><br><span class="line"><span class="comment"> * represented by this &#123;<span class="doctag">@code</span> String&#125; object, except that every</span></span><br><span class="line"><span class="comment"> * occurrence of &#123;<span class="doctag">@code</span> oldChar&#125; is replaced by an occurrence</span></span><br><span class="line"><span class="comment"> * of &#123;<span class="doctag">@code</span> newChar&#125;.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * Examples:</span></span><br><span class="line"><span class="comment"> * &lt;blockquote&gt;&lt;pre&gt;</span></span><br><span class="line"><span class="comment"> * "mesquite in your cellar".replace('e', 'o')</span></span><br><span class="line"><span class="comment"> *         returns "mosquito in your collar"</span></span><br><span class="line"><span class="comment"> * "the war of baronets".replace('r', 'y')</span></span><br><span class="line"><span class="comment"> *         returns "the way of bayonets"</span></span><br><span class="line"><span class="comment"> * "sparring with a purple porpoise".replace('p', 't')</span></span><br><span class="line"><span class="comment"> *         returns "starring with a turtle tortoise"</span></span><br><span class="line"><span class="comment"> * "JonL".replace('q', 'x') returns "JonL" (no change)</span></span><br><span class="line"><span class="comment"> * &lt;/pre&gt;&lt;/blockquote&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>   oldChar   the old character.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>   newChar   the new character.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  a string derived from this string by replacing every</span></span><br><span class="line"><span class="comment"> *          occurrence of &#123;<span class="doctag">@code</span> oldChar&#125; with &#123;<span class="doctag">@code</span> newChar&#125;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">replace</span><span class="params">(<span class="keyword">char</span> oldChar, <span class="keyword">char</span> newChar)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (oldChar != newChar) &#123;</span><br><span class="line">        <span class="keyword">int</span> len = value.length;</span><br><span class="line">        <span class="keyword">int</span> i = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">char</span>[] val = value; <span class="comment">/* avoid getfield opcode */</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (++i &lt; len) &#123;</span><br><span class="line">            <span class="keyword">if</span> (val[i] == oldChar) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i &lt; len) &#123;</span><br><span class="line">            <span class="keyword">char</span> buf[] = <span class="keyword">new</span> <span class="keyword">char</span>[len];</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; i; j++) &#123;</span><br><span class="line">                buf[j] = val[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span> (i &lt; len) &#123;</span><br><span class="line">                <span class="keyword">char</span> c = val[i];</span><br><span class="line">                buf[i] = (c == oldChar) ? newChar : c;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> String(buf, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-2-String-replaceAll-String-regex-String-replacement"><a href="#11-2-String-replaceAll-String-regex-String-replacement" class="headerlink" title="11.2 String replaceAll(String regex, String replacement)"></a>11.2 String replaceAll(String regex, String replacement)</h3><p>将匹配的正则表达式regex的匹配箱都换成replacement字符串，返回一个新的字符串。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"> * <span class="meta">@see</span> java.util.regex.Pattern</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@since</span> <span class="number">1.4</span></span><br><span class="line"> * <span class="meta">@spec</span> JSR-<span class="number">51</span></span><br><span class="line"> */</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">replaceAll</span><span class="params">(String regex, String replacement)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> Pattern.compile(regex).matcher(<span class="keyword">this</span>).replaceAll(replacement);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> * <span class="meta">@param</span>  replacement</span><br><span class="line"> *         The replacement string</span><br><span class="line"> *</span><br><span class="line"> * <span class="meta">@return</span>  The string constructed by replacing each matching subsequence</span><br><span class="line"> *          by the replacement string, substituting captured subsequences</span><br><span class="line"> *          as needed</span><br><span class="line"> */</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">replaceAll</span><span class="params">(String replacement)</span> </span>&#123;</span><br><span class="line">    reset();</span><br><span class="line">    <span class="keyword">boolean</span> result = find();</span><br><span class="line">    <span class="keyword">if</span> (result) &#123;</span><br><span class="line">        StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            appendReplacement(sb, replacement);</span><br><span class="line">            result = find();</span><br><span class="line">        &#125; <span class="keyword">while</span> (result);</span><br><span class="line">        appendTail(sb);</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> text.toString();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Compiles the given regular expression into a pattern.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>  regex</span></span><br><span class="line"><span class="comment"> *         The expression to be compiled</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the given regular expression compiled into a pattern</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span>  PatternSyntaxException</span></span><br><span class="line"><span class="comment"> *          If the expression's syntax is invalid</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Pattern <span class="title">compile</span><span class="params">(String regex)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Pattern(regex, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="12-substring-方法"><a href="#12-substring-方法" class="headerlink" title="12. substring() 方法"></a>12. substring() 方法</h2><h3 id="12-1-substring-int-beginIndex"><a href="#12-1-substring-int-beginIndex" class="headerlink" title="12.1 substring(int beginIndex)"></a>12.1 substring(int beginIndex)</h3><p>substring(int beginIndex)返回的事一个索引从beginIndex开始一直到结尾的字符串。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Returns a string that is a substring of this string. The</span></span><br><span class="line"><span class="comment">  * substring begins with the character at the specified index and</span></span><br><span class="line"><span class="comment">  * extends to the end of this string. &lt;p&gt;</span></span><br><span class="line"><span class="comment">  * Examples:</span></span><br><span class="line"><span class="comment">  * &lt;blockquote&gt;&lt;pre&gt;</span></span><br><span class="line"><span class="comment">  * "unhappy".substring(2) returns "happy"</span></span><br><span class="line"><span class="comment">  * "Harbison".substring(3) returns "bison"</span></span><br><span class="line"><span class="comment">  * "emptiness".substring(9) returns "" (an empty string)</span></span><br><span class="line"><span class="comment">  * &lt;/pre&gt;&lt;/blockquote&gt;</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span>      beginIndex   the beginning index, inclusive.</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span>     the specified substring.</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@exception</span>  IndexOutOfBoundsException  if</span></span><br><span class="line"><span class="comment">  *             &#123;<span class="doctag">@code</span> beginIndex&#125; is negative or larger than the</span></span><br><span class="line"><span class="comment">  *             length of this &#123;<span class="doctag">@code</span> String&#125; object.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"></span><br><span class="line"> <span class="function"><span class="keyword">public</span> String <span class="title">substring</span><span class="params">(<span class="keyword">int</span> beginIndex)</span> </span>&#123;</span><br><span class="line">     <span class="comment">// 如果索引的小于0，直接抛出异常</span></span><br><span class="line">     <span class="keyword">if</span> (beginIndex &lt; <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(beginIndex);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">// subLen等于字符串长度减去索引</span></span><br><span class="line">     <span class="keyword">int</span> subLen = value.length - beginIndex;</span><br><span class="line">     <span class="comment">// 如果subLen小于0，也是直接抛出异常</span></span><br><span class="line">     <span class="keyword">if</span> (subLen &lt; <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(subLen);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">// 1. 如果索引值beginIndex == 0,直接返回原字符串</span></span><br><span class="line">     <span class="comment">// 2. 如果beginIndex不等于0，返回从beginIndex开始（一直到结尾）的新字符串</span></span><br><span class="line">     <span class="keyword">return</span> (beginIndex == <span class="number">0</span>) ? <span class="keyword">this</span> : <span class="keyword">new</span> String(value, beginIndex, subLen);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="12-2-substring-int-beginIndex-int-endIndex"><a href="#12-2-substring-int-beginIndex-int-endIndex" class="headerlink" title="12.2 substring(int beginIndex, int endIndex)"></a>12.2 substring(int beginIndex, int endIndex)</h3><p>substring(int beginIndex, int endIndex)</p>
+<ul>
+<li>从一个索引beginIndex开始，到endIndex结尾的子字符串。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a string that is a substring of this string. The</span></span><br><span class="line"><span class="comment"> * substring begins at the specified &#123;<span class="doctag">@code</span> beginIndex&#125; and</span></span><br><span class="line"><span class="comment"> * extends to the character at index &#123;<span class="doctag">@code</span> endIndex - 1&#125;.</span></span><br><span class="line"><span class="comment"> * Thus the length of the substring is &#123;<span class="doctag">@code</span> endIndex-beginIndex&#125;.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * Examples:</span></span><br><span class="line"><span class="comment"> * &lt;blockquote&gt;&lt;pre&gt;</span></span><br><span class="line"><span class="comment"> * "hamburger".substring(4, 8) returns "urge"</span></span><br><span class="line"><span class="comment"> * "smiles".substring(1, 5) returns "mile"</span></span><br><span class="line"><span class="comment"> * &lt;/pre&gt;&lt;/blockquote&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>      beginIndex   the beginning index, inclusive.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span>      endIndex     the ending index, exclusive.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>     the specified substring.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@exception</span>  IndexOutOfBoundsException  if the</span></span><br><span class="line"><span class="comment"> *             &#123;<span class="doctag">@code</span> beginIndex&#125; is negative, or</span></span><br><span class="line"><span class="comment"> *             &#123;<span class="doctag">@code</span> endIndex&#125; is larger than the length of</span></span><br><span class="line"><span class="comment"> *             this &#123;<span class="doctag">@code</span> String&#125; object, or</span></span><br><span class="line"><span class="comment"> *             &#123;<span class="doctag">@code</span> beginIndex&#125; is larger than</span></span><br><span class="line"><span class="comment"> *             &#123;<span class="doctag">@code</span> endIndex&#125;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">substring</span><span class="params">(<span class="keyword">int</span> beginIndex, <span class="keyword">int</span> endIndex)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 起始索引小于0</span></span><br><span class="line">    <span class="keyword">if</span> (beginIndex &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(beginIndex);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 结束索引大于长度</span></span><br><span class="line">    <span class="keyword">if</span> (endIndex &gt; value.length) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(endIndex);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// // subLen等于结束索引减去起始索引</span></span><br><span class="line">    <span class="keyword">int</span> subLen = endIndex - beginIndex;</span><br><span class="line">    <span class="keyword">if</span> (subLen &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(subLen);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 1. 如果beginIndex == 0 并且 endIndex == 字符串长度 返回字符串自己</span></span><br><span class="line">    <span class="comment">// 2. 如果不等，就返回新的字符串、</span></span><br><span class="line">    <span class="keyword">return</span> ((beginIndex == <span class="number">0</span>) &amp;&amp; (endIndex == value.length)) ? <span class="keyword">this</span></span><br><span class="line">            : <span class="keyword">new</span> String(value, beginIndex, subLen);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="13-常量池"><a href="#13-常量池" class="headerlink" title="13. 常量池"></a>13. 常量池</h2><p>在前面讲解构造函数的时候，我们知道最常见的两种声明一个字符串对象的形式有两种：</p>
+<ol>
+<li>通过“字面量”的形式直接赋值</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"hello"</span>;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>通过new关键字调用构造函数创建对象</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="keyword">new</span> String(<span class="string">"hello"</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<p>那么这两种声明方式有什么区别呢？</p>
+<p>在讲解之前，我们先介绍 <strong>JDK1.7（不包括1.7）</strong>以前的 JVM 的内存分布：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200425/141906866.png" alt="mark"></p>
+<ul>
+<li><p>程序计数器：也就是PC 寄存器，保存的是程序当前执行的指令地址（也可以说是保存下一条指令所在存储单元的地址。）当CPU需要执行指令的时候，需要从程序计数器中得到当前要执行的指令所在的存储单元的地址，然后根据得到的地址获取到指令，在等到指令之后，程序计数器便会自动加1或者根据转移指针得到下一条指令的地址，如此循环，直到执行完所有的指令，（<strong>线程私有的</strong>）</p>
+</li>
+<li><p>操作数栈：所有的基本数据类型，对象的引用都放在这里。（<strong>线程私有的</strong>）</p>
+</li>
+<li><p>本地方法栈：操作数栈是为java提供服务的。而本地方法栈则是执行本地方法的（Native Method）服务。在JVM规范中，并没有对本地方法栈的具体实现方法和数据结构有强制规定，不同的虚拟机可以自由实现它。在HotSpot虚拟机中直接把本地方法栈和操作数栈合二为一。</p>
+</li>
+<li><p>方法区：存储了每个类的信息（包括class文件，方法信息，字段信息），静态变量，常量以及编译器编译后的代码等。注意：在class文件中除了类的字段，方法，接口的描述信息以外，还有一项信息是<strong>常量池</strong>，用来存储编译期间生成的字面量和符号引用。</p>
+</li>
+<li><p>堆：用来存储对象本身以及数组（当然，数组的引用在java栈中）</p>
+</li>
+</ul>
+<p><strong>在 JDK1.7 以后，方法区中的常量池放在了堆中,如下图所示：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200425/143040459.png" alt="mark"></p>
+<ul>
+<li>常量池： <strong>java运行时会维护一个String Pool(String 池)</strong>，也就是“<strong>字符串缓冲区”</strong>。String池用来存放运行时产生的各种字符串，并且池中的字符串不会有重复。</li>
+</ul>
+<ol>
+<li><strong>字面量创建的字符串或者纯字符串（常量）拼接字符串会先在字符串池中进行查找，看是否有相等的对象，没有的话就在字符串池中创建该对象；有的话就直接用池中的引用，避免重复创建对象。</strong></li>
+<li><strong>new关键字创建时，直接在堆中创建一个新对象，变量所引用的都是这个新对象的地址。但是如果通过new关键字创建的字符串内容在常量池中存在了，那么会由堆在指向常量池的对应字符。但是反过来，如果new关键字创建的字符串对象在常量池中没有，那么通过new关键词创建的字符串对象是不会额外在常量池中维护的。</strong></li>
+<li><strong>使用包含变量表达式来创建String对象，则不仅会检查维护字符串池，还会在堆中创建这个对象，最后是指向堆内存的对象。</strong></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 字面量创建字符串或者纯字符串（常量）</span></span><br><span class="line">String str1 = <span class="string">"hello"</span>;</span><br><span class="line">String str2 = <span class="string">"hello"</span>;</span><br><span class="line"><span class="comment">// new关键字创建时</span></span><br><span class="line">String str3 = <span class="keyword">new</span> String(<span class="string">"hello"</span>);</span><br><span class="line"></span><br><span class="line">System.out.println(str1 == str2);  <span class="comment">// true</span></span><br><span class="line">System.out.println(str1 == str3);  <span class="comment">// false</span></span><br><span class="line">System.out.println(str2 == str3);  <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">System.out.println(str1.equals(str2));  <span class="comment">// true</span></span><br><span class="line">System.out.println(str1.equals(str3));  <span class="comment">// true</span></span><br><span class="line">System.out.println(str2.equals(str3));  <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>对于上面的情况（具体解释）</p>
+<p>首先<code>String str1 = &quot;hello&quot;</code> 会先到常量池中检查是否有相等的对象，这里发现是没有相等的对象的，于是在常量池中创建了<code>&quot;hello&quot;</code>对象，并将常量池中的引用赋值给<code>str1</code>;</p>
+<p>然后，第二个字面量<code>String str2 = &quot;hello&quot;;</code>  ,在常量池中检测到了该对象了，直接将引用赋值给str2;</p>
+<p>最后，第三个<code>String str3 = new String(&quot;hello&quot;);</code> , 通过new创建对象时候，常量池中有了该对象了，不用在常量池中创建，在堆中创建该对象后，将堆中的对象引用赋值给了str3，再将该对象 指向常量池。</p>
+<p>具体过程如下图所示:</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200425/152054606.png" alt="mark"></p>
+<p><strong>注意：看上图hello指向hello的箭头，通过new 关键字创建字符串的对象，如果常量池中存在了，会将堆中创建的对象指向常量池的引用。后面可以通过intern()方法进行验证。</strong></p>
+<p><strong>使用包含变量表达式创建对象：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    String str1 = <span class="string">"hello"</span>;</span><br><span class="line">    String str2 = <span class="string">"helloworld"</span>;</span><br><span class="line">    String str3 = str1 + <span class="string">"world"</span>;    <span class="comment">// 编译器不能确定是常量（会在堆中创建一个String对象）</span></span><br><span class="line">    String str4 = <span class="string">"hello"</span> + <span class="string">"world"</span>; <span class="comment">// 编译器确定为常量，直接到常量池中引用</span></span><br><span class="line"></span><br><span class="line">    System.out.println(str2 == str3);  <span class="comment">// false</span></span><br><span class="line">    System.out.println(str2 == str4);  <span class="comment">// true</span></span><br><span class="line">    System.out.println(str3 == str4);  <span class="comment">// false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200425/152953600.png" alt="mark">s</p>
+<p>上述例子中 <code>str3</code> 由于含有变量<code>str1</code>,编译器不能确定是不是常量，会在堆中创建一个String对象。而<code>str4</code>是两个常量的相加，直接引用常量池中的对象即可。</p>
+<h2 id="14-intern-方法"><a href="#14-intern-方法" class="headerlink" title="14. intern() 方法"></a>14. intern() 方法</h2><p>这是一个本地方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a canonical representation for the string object.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * A pool of strings, initially empty, is maintained privately by the</span></span><br><span class="line"><span class="comment"> * class &#123;<span class="doctag">@code</span> String&#125;.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * When the intern method is invoked, if the pool already contains a</span></span><br><span class="line"><span class="comment"> * string equal to this &#123;<span class="doctag">@code</span> String&#125; object as determined by</span></span><br><span class="line"><span class="comment"> * the &#123;<span class="doctag">@link</span> #equals(Object)&#125; method, then the string from the pool is</span></span><br><span class="line"><span class="comment"> * returned. Otherwise, this &#123;<span class="doctag">@code</span> String&#125; object is added to the</span></span><br><span class="line"><span class="comment"> * pool and a reference to this &#123;<span class="doctag">@code</span> String&#125; object is returned.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * It follows that for any two strings &#123;<span class="doctag">@code</span> s&#125; and &#123;<span class="doctag">@code</span> t&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@code</span> s.intern() == t.intern()&#125; is &#123;<span class="doctag">@code</span> true&#125;</span></span><br><span class="line"><span class="comment"> * if and only if &#123;<span class="doctag">@code</span> s.equals(t)&#125; is &#123;<span class="doctag">@code</span> true&#125;.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * All literal strings and string-valued constant expressions are</span></span><br><span class="line"><span class="comment"> * interned. String literals are defined in section 3.10.5 of the</span></span><br><span class="line"><span class="comment"> * &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span>  a string that has the same contents as this string, but is</span></span><br><span class="line"><span class="comment"> *          guaranteed to be from a pool of unique strings.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> String <span class="title">intern</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>当调用intern方法时候，如果池中已经包含了一个与该String确定的字符串相同equals（Object）的字符串，则返回该字符串。否则，将此String添加到池中，并返回这个对象的引用。</strong></p>
+<p>这句话什么意思呢？就是说调用一个String对象的intern（）方法的时候，如果常量池中已经有该对象了，直接返回该字符串的引用（存在堆中就返回堆中的，存在池中就返回池中的），如果没有，就将该对象添加到池中，并返回池中的引用。</p>
+<p>具体理解请看下面的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 字面量 只会在常量池中创建对象</span></span><br><span class="line">    String str1 = <span class="string">"hello"</span>;</span><br><span class="line">    String str2 = str1.intern();</span><br><span class="line">    System.out.println(str1 == str2);  <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// new 只会在堆中创建对象</span></span><br><span class="line">    String str3 = <span class="keyword">new</span> String(<span class="string">"world"</span>);  <span class="comment">// 堆中的引用</span></span><br><span class="line">    String str4 = str3.intern();    <span class="comment">// 常量池中没有，添加到池中，并返回池中的引用</span></span><br><span class="line">    System.out.println(str3 == str4);   <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 变量拼接的字符串，会在常量池中和堆中都创建对象(堆中)</span></span><br><span class="line">    String str5 = str1 + str3;</span><br><span class="line">    <span class="comment">// 这里由于池子中已经有对象了，直接返回对象本身，也就是堆中的对象（堆中）</span></span><br><span class="line">    String str6 = str5.intern();</span><br><span class="line">    System.out.println(str5 == str6);  <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 常量拼接的字符串，只会在常量池中创建对象</span></span><br><span class="line">    String str7 = <span class="string">"hello1"</span> + <span class="string">"hello2"</span>;</span><br><span class="line">    String str8 = str7.intern();</span><br><span class="line">    System.out.println(str7 == str8); <span class="comment">// true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="15-String-真的不可变吗？"><a href="#15-String-真的不可变吗？" class="headerlink" title="15. String 真的不可变吗？"></a>15. String 真的不可变吗？</h2><p><strong>答案：引用不可变，内容可以通过反射来修改。</strong></p>
+<p>前面介绍了String使用final关键字修饰的，所以我们认为它是不可变的对象。但是真的不可变吗？</p>
+<p><strong>每个字符串都是由许多单个字符组成的，我们知道其源码是char[] value字符数组的构成。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">String</span></span></span><br><span class="line"><span class="class">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">Comparable</span>&lt;<span class="title">String</span>&gt;, <span class="title">CharSequence</span> </span>&#123;</span><br><span class="line">    <span class="comment">/** The value is used for character storage. */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">char</span> value[];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Cache the hash code for the string */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> hash; <span class="comment">// Default to 0</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>value是被final修饰的，只能保证引用不被改变。但是value所指向的堆中的数组，才是真实的数据，只要能够操作堆中的数组，依旧能改变数据。</p>
+</li>
+<li><p>而且value是基本类型构成，那么一定是可变的，<strong>即使被private修饰，也可以通过反射来改变。</strong></p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException </span>&#123;</span><br><span class="line"></span><br><span class="line">    String str = <span class="string">"vue"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印原字符</span></span><br><span class="line">    System.out.println(str);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 拿到反射字段</span></span><br><span class="line">    Field fieldStr = String.class.getDeclaredField("value");</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 修改反射权限</span></span><br><span class="line">    fieldStr.setAccessible(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取str对象上的value属性值</span></span><br><span class="line">    <span class="keyword">char</span>[] value = (<span class="keyword">char</span>[]) fieldStr.get(str);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将数组第一个字符修改为V</span></span><br><span class="line">    value[<span class="number">0</span>] = <span class="string">'V'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印修改后的字符数组（字符串）</span></span><br><span class="line">    System.out.println(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>通过前后两次打印的结果，我们可以看到 String 被改变了，但是在代码里，几乎不会使用反射的机制去操作 String 字符串，所以，我们会认为 String 类型是不可变的。</strong></p>
+<p>那么String为什么被设计成不可变的呢？我们可以从安全方面和性能考虑：</p>
+<ul>
+<li><p>安全：</p>
+<ul>
+<li>引发安全问题，譬如，数据库的用户名、密码都是以字符串的形式传入来获得数据库的连接，或者在socket编程中，主机名和端口都是以字符串的形式传入。因为字符串是不可变的，所以它的值是不可改变的，否则黑客们可以钻到空子，改变字符串指向的对象的值，造成安全漏洞。</li>
+<li>保证线程安全，在并发场景下，多个线程同时读写资源时，会引竞态条件，由于 String 是不可变的，不会引发线程的问题而保证了线程。</li>
+<li>HashCode，当 String 被创建出来的时候，hashcode也会随之被缓存，hashcode的计算与value有关，若 String 可变，那么 hashcode 也会随之变化，针对于 Map、Set 等容器，他们的键值需要保证唯一性和一致性，<strong>因此,String的不可变性让它比任何对象都适合作键值。</strong></li>
+</ul>
+</li>
+<li><p>性能：</p>
+<ul>
+<li>当字符串不可变时，字符串常量池才有意义。</li>
+<li>字符串常量池的出现，可以减少创建相同字面量的字符串，让不同的引用指向池中同一个字符串，<strong>为运行节约了很多堆内存。</strong></li>
+<li>若字符串可变，字符串常量池就失去了意义，基于常量池的intern()方法也就失效了，每次创建新的String将在堆中开辟出新的空间，占据更多的内存。</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考文档：</strong></p>
+<p><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html" target="_blank" rel="noopener">https://docs.oracle.com/javase/8/docs/api/java/lang/String.html</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/03/29/jdk_SourceCode/JDK1.8-03-String/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">JDK源码分析</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            SpringBoot-10-项目实战
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/03/28/SpringBoot/SpringBoot-08-MVC%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">SpringBoot-08-MVC自动配置原理</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>
