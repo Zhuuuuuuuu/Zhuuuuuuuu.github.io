@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">4.5k字</span>
+            <span class="post-count">4.7k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">17分钟</span>
+            <span class="post-count">18分钟</span>
         </span>
     </span>
 </div>
@@ -315,8 +315,8 @@
 <li>在阻塞前，会将自己的前驱节点的<code>waitStatus</code>设置为<code>SIGNAL</code>。以便可以唤醒自己。</li>
 </ol>
 <h2 id="6-锁的释放"><a href="#6-锁的释放" class="headerlink" title="6. 锁的释放"></a>6. 锁的释放</h2><h3 id="ReentrantLock-unlock"><a href="#ReentrantLock-unlock" class="headerlink" title="ReentrantLock.unlock"></a>ReentrantLock.unlock</h3><p>加锁的过程分析完以后，再来分析一下释放锁的过程，调用release方法，这个方法里面做两件事，</p>
-<p>1，释放锁 ；</p>
-<p>2，唤醒park的线程</p>
+<p><strong>1，释放锁 ；</strong></p>
+<p><strong>2，唤醒park的线程</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">release</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (tryRelease(arg)) &#123;</span><br><span class="line">        Node h = head;</span><br><span class="line">        <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h.waitStatus != <span class="number">0</span>)</span><br><span class="line">            unparkSuccessor(h);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
@@ -338,13 +338,21 @@
 
 
 
-
-
-
-
-
-
-
+<p><strong>移除锁的节点图文解析</strong></p>
+<ul>
+<li>head节点表示获取锁成功的节点，当头结点在释放同步状态时，会唤醒后继节点，如果后继节点获得锁成功，会把自己设置为头结点，节点的变化过程如下</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200918/103308919.png" alt="mark"></p>
+<p>这个过程也是涉及到两个变化</p>
+<ul>
+<li>修改head节点指向下一个获得锁的节点</li>
+<li>新的获得锁的节点，将prev的指针指向null</li>
+</ul>
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>这里有一个小的变化，就是设置head节点不需要用CAS，原因是设置head节点是由获得锁的线程来完成的，而同步锁只能由一个线程获得，所以不需要CAS保证</strong></li>
+<li><strong>只需要把head节点设置为原首节点的后继节点，并且断开原head节点的next引用即可</strong></li>
+</ul>
 <p><strong>参考博客</strong></p>
 <p><a href="https://www.jianshu.com/p/dcc608274b88" target="_blank" rel="noopener">https://www.jianshu.com/p/dcc608274b88</a></p>
 <p><a href="https://segmentfault.com/a/1190000017372067" target="_blank" rel="noopener">https://segmentfault.com/a/1190000017372067</a></p>

@@ -134,16 +134,20 @@
 <h2 id="2-Hello-World"><a href="#2-Hello-World" class="headerlink" title="2. Hello,World"></a>2. Hello,World</h2><h3 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h3><p>​    学习如何快速的创建一个Spring Boot应用，并且实现一个简单的Http请求处理。通过这个例子对Spring Boot有一个初步的了解，并体验其结构简单、开发快速的特性。</p>
 <p>我的环境准备：</p>
 <ul>
-<li>java version “1.8.0_181”</li>
-<li>Maven-3.6.1</li>
-<li>SpringBoot 2.x 最新版</li>
+<li><code>java version &quot;1.8.0_181&quot;</code></li>
+<li><code>Maven-3.6.1</code></li>
+<li><code>SpringBoot 2.x 最新版</code></li>
 </ul>
 <p>开发工具：</p>
 <ul>
 <li>IDEA</li>
 </ul>
-<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
-<p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+<h3 id="2-2-创建项目的两种方式"><a href="#2-2-创建项目的两种方式" class="headerlink" title="2.2 创建项目的两种方式"></a>2.2 创建项目的两种方式</h3><ul>
+<li><p>Spring官方提供了非常方便的工具让我们快速构建应用</p>
+</li>
+<li><p>Spring Initializr：<a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
+</li>
+</ul>
 <h4 id="2-2-1-项目创建方式一"><a href="#2-2-1-项目创建方式一" class="headerlink" title="2.2.1 项目创建方式一"></a>2.2.1 项目创建方式一</h4><p> <strong>项目创建方式一：</strong>使用Spring Initializr 的 Web页面创建项目</p>
 <p>1、打开  <a href="https://start.spring.io/" target="_blank" rel="noopener">https://start.spring.io/</a></p>
 <p>2、填写项目信息</p>
@@ -153,7 +157,7 @@
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200325090429.png" alt=""></p>
 <h4 id="2-2-2-项目创建方式二"><a href="#2-2-2-项目创建方式二" class="headerlink" title="2.2.2  项目创建方式二"></a>2.2.2  项目创建方式二</h4><p><strong>项目创建方式二</strong>：使用 IDEA 直接创建项目</p>
 <p>1、创建一个新项目</p>
-<p>2、选择spring initalizr ， 可以看到默认就是去官网的快速构建工具那里实现</p>
+<p>2、选择<code>spring initalizr</code> ， 可以看到默认就是去官网的快速构建工具那里实现</p>
 <p>3、填写项目信息</p>
 <p>4、选择初始化的组件（初学勾选 Web 即可）</p>
 <p>5、填写项目路径</p>
@@ -162,17 +166,19 @@
 <h3 id="2-3-项目结构分析"><a href="#2-3-项目结构分析" class="headerlink" title="2.3 项目结构分析"></a>2.3 项目结构分析</h3><p>通过上面步骤完成了基础项目的创建。就会自动生成以下文件。</p>
 <ul>
 <li>程序的主启动类</li>
-<li>一个application.properties配置文件</li>
+<li>一个<code>application.properties</code>配置文件</li>
 <li>一个测试类</li>
 <li>一个pom.xml</li>
 </ul>
 <h4 id="2-3-1-pom-xml-分析"><a href="#2-3-1-pom-xml-分析" class="headerlink" title="2.3.1 pom.xml 分析"></a>2.3.1 pom.xml 分析</h4><p>打开pom.xml，看看Spring Boot项目的依赖：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 父依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.5.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- web场景启动器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- springboot单元测试 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 剔除依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.junit.vintage<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit-vintage-engine<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 打包插件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+
+
 <h3 id="2-4-编写一个http接口"><a href="#2-4-编写一个http接口" class="headerlink" title="2.4 编写一个http接口"></a>2.4 编写一个http接口</h3><ol>
-<li><p>在主程序的同级目录下，新建一个controller包，<strong>一定要在同级目录下，否则识别不到</strong></p>
+<li><p>在主程序的同级目录下，新建一个<code>controller</code>包，<strong>一定要在同级目录下，否则识别不到</strong></p>
 </li>
-<li><p>在包中新建一个HelloController类</p>
+<li><p>在包中新建一个<code>HelloController</code>类</p>
 </li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
