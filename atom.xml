@@ -69,9 +69,9 @@
     
     
     
-      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
-    
       <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
+    
+      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
     
   </entry>
   
@@ -377,9 +377,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
@@ -1067,9 +1067,9 @@
     
     
     
-      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
-    
       <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
+    
+      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
     
   </entry>
   
@@ -1355,9 +1355,9 @@
     
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
-      <category term="并发" scheme="http://zhuuu.work/tags/%E5%B9%B6%E5%8F%91/"/>
-    
       <category term="锁" scheme="http://zhuuu.work/tags/%E9%94%81/"/>
+    
+      <category term="并发" scheme="http://zhuuu.work/tags/%E5%B9%B6%E5%8F%91/"/>
     
   </entry>
   
@@ -1449,16 +1449,13 @@
     <link href="http://zhuuu.work/2020/08/03/Mysql/Mysql-10-%E4%B9%90%E8%A7%82%E9%94%81%E5%92%8C%E6%82%B2%E8%A7%82%E9%94%81/"/>
     <id>http://zhuuu.work/2020/08/03/Mysql/Mysql-10-%E4%B9%90%E8%A7%82%E9%94%81%E5%92%8C%E6%82%B2%E8%A7%82%E9%94%81/</id>
     <published>2020-08-03T08:02:27.000Z</published>
-    <updated>2020-09-03T11:39:58.308Z</updated>
+    <updated>2020-09-19T13:54:22.677Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="Mysql-10-乐观锁和悲观锁"><a href="#Mysql-10-乐观锁和悲观锁" class="headerlink" title="Mysql-10-乐观锁和悲观锁"></a>Mysql-10-乐观锁和悲观锁</h1><h2 id="1-乐观锁和悲观锁"><a href="#1-乐观锁和悲观锁" class="headerlink" title="1. 乐观锁和悲观锁"></a>1. 乐观锁和悲观锁</h2><p><strong>参考博客 ：</strong></p><p> <a href="https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight</a></p><p>  <a href="https://blog.csdn.net/L_BestCoder/article/details/79298417" target="_blank" rel="noopener">https://blog.csdn.net/L_BestCoder/article/details/79298417</a></p><p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p><p><strong>也就是一句话：读用乐观锁，写用悲观锁。</strong></p><a id="more"></a><h3 id="1-1-乐观锁"><a href="#1-1-乐观锁" class="headerlink" title="1.1 乐观锁"></a>1.1 乐观锁</h3><ul><li>总是认为不会产生并发问题，每次去<strong>取数据的时候总认为不会有其他线程对数据进行修改</strong>，因此不会上锁，但是在<strong>更新时会判断其他线程在这之前有没有对数据进行修改</strong>，</li><li>一般会使用<strong>版本号机制</strong>或<strong>CAS操作实现</strong>。</li><li>乐观锁适用于多读的应用类型，这样可以提高吞吐量</li></ul><ol><li><strong>version方式</strong>：一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。当线程A要更新数据值时，在读取数据的同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</li></ol><p>   核心SQL代码：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">table</span> <span class="keyword">set</span> x=x+<span class="number">1</span>, <span class="keyword">version</span>=<span class="keyword">version</span>+<span class="number">1</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="comment">#&#123;id&#125; and version=#&#123;version&#125;;</span></span><br></pre></td></tr></table></figure><ol start="2"><li><strong>CAS操作方式：</strong>即<code>compare and swap</code> 或者 <code>compare and set</code>，涉及到三个操作数，数据所在的内存值，预期值，新值。当需要更新时，判断当前内存值与之前取到的值是否相等，若相等，则用新值更新，若失败则重试，一般情况下是一个<strong>自旋操作</strong>，即不断的重试。</li></ol><h3 id="1-2-悲观锁"><a href="#1-2-悲观锁" class="headerlink" title="1.2 悲观锁"></a>1.2 悲观锁</h3><ul><li>悲观锁(Pessimistic Lock), 顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。</li><li>传统的关系型数据库里边就用到了很多这种锁机制，比如<strong>行锁，表锁等，读锁，写锁</strong>等，都是在做操作之前先上锁。它指的是对数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。悲观锁的实现，往往依靠数据库提供的锁机制</li></ul><p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p><p>案例：</p><p>某商品，用户购买后库存数应-1，而某两个或多个用户同时购买，此时三个执行程序均同时读得库存为“<strong>n</strong>”，之后进行了一些操作，最后将均执行<em>update table set 库存数=n-1</em>，那么，很显然这是错误的。</p><p>解决：</p><ol><li><p><strong>使用悲观锁</strong>（其实说白了也就是<strong>排他锁</strong>）</p><p>|– 程序A在查询库存数时使用排他锁（select * from table where id=10 for update）</p><p>|– 然后进行后续的操作，包括更新库存数，最后提交事务。</p><p>|– 程序B在查询库存数时，如果A还未释放排他锁，它将等待……</p><p>|– 程序C同B……</p></li><li><p><strong>使用乐观锁</strong>（靠表设计和代码来实现）</p><p>|– 一般是在该商品表添加<strong>version版本</strong>字段或者<strong>timestamp时间戳</strong>字段</p><p>|– 程序A查询后，执行更新变成了：<br><code>*update table set num=num-1 where id=10 and version=23*</code></p><p>这样，保证了修改的数据是和它查询出来的数据是一致的（其他执行程序肯定未进行修改）。当然，如果更新失败，表示在更新操作之前，有其他执行程序已经更新了该库存数，那么就可以尝试<strong>重试</strong>来保证更新成功。为了尽可能避免更新失败，可以合理调整重试次数（阿里巴巴开发手册规定重试次数不低于三次）。</p></li></ol><p>总结：对于以上，可以看得出来乐观锁和悲观锁的区别：</p><ul><li><p>悲观锁实际使用了排他锁来实现（<strong>select \</strong>** for update**）。文章开头说到，innodb加行锁的前提是：必须是通过索引条件来检索数据，否则会切换为表锁。</p><p>因此，悲观锁在未通过索引条件检索数据时，会锁定整张表。导致其他程序不允许“<strong>加锁的查询操作</strong>”，影响吞吐。故如果在查询居多的情况下，推荐使用乐观锁。</p><p>“<strong>加锁的查询操作</strong>”：加过排他锁的数据行在其他事务中是不能修改的，也不能通过<strong>for update</strong>或<strong>lock in share mode</strong>的加锁方式查询，但可以直接通过select …from…查询数据，因为<strong>普通查询没有任何锁机制</strong>。</p></li><li><p>乐观锁更新有可能会失败，甚至是更新几次都失败，这是有风险的。所以如果写入居多，对吞吐要求不高，可使用悲观锁。</p></li></ul><h2 id="2-MVCC"><a href="#2-MVCC" class="headerlink" title="2. MVCC"></a>2. MVCC</h2>]]></content>
+    <content type="html"><![CDATA[<h1 id="Mysql-10-乐观锁和悲观锁"><a href="#Mysql-10-乐观锁和悲观锁" class="headerlink" title="Mysql-10-乐观锁和悲观锁"></a>Mysql-10-乐观锁和悲观锁</h1><h2 id="1-乐观锁和悲观锁"><a href="#1-乐观锁和悲观锁" class="headerlink" title="1. 乐观锁和悲观锁"></a>1. 乐观锁和悲观锁</h2><p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p><p><strong>也就是一句话：读用乐观锁，写用悲观锁。</strong></p><a id="more"></a><h3 id="1-1-乐观锁"><a href="#1-1-乐观锁" class="headerlink" title="1.1 乐观锁"></a>1.1 乐观锁</h3><ul><li>总是认为不会产生并发问题，每次去<strong>取数据的时候总认为不会有其他线程对数据进行修改</strong>，因此不会上锁，但是在<strong>更新时会判断其他线程在这之前有没有对数据进行修改</strong>，</li><li>一般会使用<strong>版本号机制</strong>或<strong>CAS操作实现</strong>。</li><li>乐观锁适用于多读的应用类型，这样可以提高吞吐量</li></ul><ol><li><p><strong>version方式</strong>：一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。</p><ul><li>当线程A要更新数据值时，在读取数据的同时也会读取version值，</li><li>在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</li></ul></li></ol><p>   核心SQL代码：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">table</span> <span class="keyword">set</span> x=x+<span class="number">1</span>, <span class="keyword">version</span>=<span class="keyword">version</span>+<span class="number">1</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="comment">#&#123;id&#125; and version=#&#123;version&#125;;</span></span><br></pre></td></tr></table></figure><ol start="2"><li><strong>CAS操作方式：</strong>即<code>compare and swap</code> 或者 <code>compare and set</code>，涉及到三个操作数，数据所在的内存值，预期值，新值。<ul><li>当需要更新时，判断当前内存值与之前取到的值是否相等，若相等，则用新值更新，若失败则重试，一般情况下是一个<strong>自旋操作</strong>，即不断的重试。</li></ul></li></ol><h3 id="1-2-悲观锁"><a href="#1-2-悲观锁" class="headerlink" title="1.2 悲观锁"></a>1.2 悲观锁</h3><ul><li>悲观锁(<code>Pessimistic Lock</code>), 顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。</li><li>传统的关系型数据库里边就用到了很多这种锁机制，比如<strong>行锁，表锁等，读锁，写锁</strong>等，都是在做操作之前先上锁。它指的是对数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。悲观锁的实现，往往<strong>依靠数据库提供的锁机制</strong></li></ul><p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p><p>案例：</p><p>某商品，用户购买后库存数应-1，而某两个或多个用户同时购买，此时三个执行程序均同时读得库存为“<strong>n</strong>”，之后进行了一些操作，最后将均执行<em>update table set 库存数=n-1</em>，那么，很显然这是错误的。</p><p>解决：</p><ol><li><p><strong>使用悲观锁</strong>（其实说白了也就是<strong>排他锁</strong>）</p><p>|– 程序A在查询库存数时使用排他锁（select * from table where id=10 for update）</p><p>|– 然后进行后续的操作，包括更新库存数，最后提交事务。</p><p>|– 程序B在查询库存数时，如果A还未释放排他锁，它将等待……</p><p>|– 程序C同B……</p></li><li><p><strong>使用乐观锁</strong>（靠表设计和代码来实现）</p><p>|– 一般是在该商品表添加<strong>version版本</strong>字段或者<strong>timestamp时间戳</strong>字段</p><p>|– 程序A查询后，执行更新变成了：<br><code>*update table set num=num-1 where id=10 and version=23*</code></p><p>这样，保证了修改的数据是和它查询出来的数据是一致的（其他执行程序肯定未进行修改）。当然，如果更新失败，表示在更新操作之前，有其他执行程序已经更新了该库存数，那么就可以尝试<strong>重试</strong>来保证更新成功。为了尽可能避免更新失败，可以合理调整重试次数（阿里巴巴开发手册规定重试次数不低于三次）。</p></li></ol><p><strong>总结：对于以上，可以看得出来乐观锁和悲观锁的区别：</strong></p><ul><li><p>悲观锁实际使用了排他锁来实现（<strong>select \</strong>** for update**）。文章开头说到，<code>innodb</code>加行锁的前提是：必须是通过索引条件来检索数据，否则会切换为表锁。</p><p>因此，悲观锁在未通过索引条件检索数据时，会锁定整张表。导致其他程序不允许“<strong>加锁的查询操作</strong>”，影响吞吐。故如果在查询居多的情况下，推荐使用乐观锁。</p><p>“<strong>加锁的查询操作</strong>”：加过排他锁的数据行在其他事务中是不能修改的，也不能通过<strong>for update</strong>或<strong>lock in share mode</strong>的加锁方式查询，但可以直接通过<code>select ...from...</code>查询数据，因为<strong>普通查询没有任何锁机制</strong>。</p></li><li><p>乐观锁更新有可能会失败，甚至是更新几次都失败，这是有风险的。所以如果写入居多，对吞吐要求不高，可使用悲观锁。</p></li></ul><p><strong>参考博客 ：</strong></p><p> <a href="https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight</a></p><p>  <a href="https://blog.csdn.net/L_BestCoder/article/details/79298417" target="_blank" rel="noopener">https://blog.csdn.net/L_BestCoder/article/details/79298417</a></p>]]></content>
     
     <summary type="html">
     
-      &lt;h1 id=&quot;Mysql-10-乐观锁和悲观锁&quot;&gt;&lt;a href=&quot;#Mysql-10-乐观锁和悲观锁&quot; class=&quot;headerlink&quot; title=&quot;Mysql-10-乐观锁和悲观锁&quot;&gt;&lt;/a&gt;Mysql-10-乐观锁和悲观锁&lt;/h1&gt;&lt;h2 id=&quot;1-乐观锁和悲观锁&quot;&gt;&lt;a href=&quot;#1-乐观锁和悲观锁&quot; class=&quot;headerlink&quot; title=&quot;1. 乐观锁和悲观锁&quot;&gt;&lt;/a&gt;1. 乐观锁和悲观锁&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;参考博客 ：&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt; &lt;a href=&quot;https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;  &lt;a href=&quot;https://blog.csdn.net/L_BestCoder/article/details/79298417&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://blog.csdn.net/L_BestCoder/article/details/79298417&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;首先说明，乐观锁和悲观锁都是针对读（select）来说的。&lt;/strong&gt;&lt;/p&gt;
+      &lt;h1 id=&quot;Mysql-10-乐观锁和悲观锁&quot;&gt;&lt;a href=&quot;#Mysql-10-乐观锁和悲观锁&quot; class=&quot;headerlink&quot; title=&quot;Mysql-10-乐观锁和悲观锁&quot;&gt;&lt;/a&gt;Mysql-10-乐观锁和悲观锁&lt;/h1&gt;&lt;h2 id=&quot;1-乐观锁和悲观锁&quot;&gt;&lt;a href=&quot;#1-乐观锁和悲观锁&quot; class=&quot;headerlink&quot; title=&quot;1. 乐观锁和悲观锁&quot;&gt;&lt;/a&gt;1. 乐观锁和悲观锁&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;首先说明，乐观锁和悲观锁都是针对读（select）来说的。&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;也就是一句话：读用乐观锁，写用悲观锁。&lt;/strong&gt;&lt;/p&gt;
     
     </summary>
@@ -1508,9 +1505,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="AQS" scheme="http://zhuuu.work/tags/AQS/"/>
     
@@ -1539,9 +1536,9 @@
     
     
     
-      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
-    
       <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
+    
+      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
     
   </entry>
   
@@ -1602,9 +1599,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
   </entry>
   
@@ -1628,9 +1625,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
   </entry>
   
@@ -1766,9 +1763,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="异步计算" scheme="http://zhuuu.work/tags/%E5%BC%82%E6%AD%A5%E8%AE%A1%E7%AE%97/"/>
     
@@ -2265,9 +2262,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="进程和线程" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B/"/>
     
@@ -2946,10 +2943,10 @@
   
   <entry>
     <title>Leetcode-448-找到所有数组中消失的数字</title>
-    <link href="http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97%20-%20%E5%89%AF%E6%9C%AC/"/>
-    <id>http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97%20-%20%E5%89%AF%E6%9C%AC/</id>
+    <link href="http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97/"/>
+    <id>http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97/</id>
     <published>2020-06-12T08:44:53.000Z</published>
-    <updated>2020-08-09T09:33:48.000Z</updated>
+    <updated>2020-06-27T09:19:20.233Z</updated>
     
     <content type="html"><![CDATA[<h1 id="Leecode-448-找到所有数组中消失的数字"><a href="#Leecode-448-找到所有数组中消失的数字" class="headerlink" title="Leecode-448-找到所有数组中消失的数字"></a>Leecode-448-<a href="https://leetcode-cn.com/problems/find-all-numbers-disappeared-in-an-array/" target="_blank" rel="noopener">找到所有数组中消失的数字</a></h1><h2 id="思路：自哈希"><a href="#思路：自哈希" class="headerlink" title="思路：自哈希"></a>思路：自哈希</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个范围在  1 ≤ a[i] ≤ n ( n = 数组大小 ) 的 整型数组，数组中的元素一些出现了两次，另一些只出现一次。</p><p><strong>找到所有在 [1, n] 范围之间没有出现在数组中的数字。</strong></p><p>您能在不使用额外空间且时间复杂度为O(n)的情况下完成这个任务吗? 你可以假定返回的数组不算在额外空间内。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入:</span><br><span class="line">[4,3,2,7,8,2,3,1]</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line">[5,6]</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="方法：自哈希"><a href="#方法：自哈希" class="headerlink" title="方法：自哈希"></a>方法：自哈希</h2><ul><li><p>这里由于数组元素限定在数组长度的范围内，因此，我们可以通过一次遍历：</p><p>让数值 1 就放在索引位置 0 处；<br>让数值 2 就放在索引位置 1 处；<br>让数值 3 就放在索引位置 2 处；</p></li><li><p>再次遍历一遍数组，如果当前 <code>索引+1 != 当前值</code></p><ul><li>说明这个数不匹配，是消失的数，所以加入到结果集中</li></ul></li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Integer&gt; <span class="title">findDisappearedNumbers</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 记录结果</span></span><br><span class="line">        List&lt;Integer&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">while</span> (nums[nums[i] - <span class="number">1</span>] != nums[i])&#123;</span><br><span class="line">                swap(nums,i,nums[i] - <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历交换后的数组，查看消失的数字</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] != i + <span class="number">1</span>)&#123;</span><br><span class="line">                res.add(i + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 基与异或的交换方法</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] nums,<span class="keyword">int</span> index1,<span class="keyword">int</span> index2)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (index1 == index2)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 左边a b a</span></span><br><span class="line">        <span class="comment">// 右边相同 ：两个数字的异或</span></span><br><span class="line">        nums[index1] = nums[index1] ^ nums[index2];</span><br><span class="line">        nums[index2] = nums[index1] ^ nums[index2];</span><br><span class="line">        nums[index1] = nums[index1] ^ nums[index2];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：O(N)，这里 N 是数组的长度。<strong>(均摊复杂度)</strong></li><li>空间复杂度：O(1)，这里因为使用异或运算交换数组的元素，故没有使用额外的数组空间。</li></ul>]]></content>
     
@@ -2972,10 +2969,10 @@
   
   <entry>
     <title>Leetcode-448-找到所有数组中消失的数字</title>
-    <link href="http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97/"/>
-    <id>http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97/</id>
+    <link href="http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97%20-%20%E5%89%AF%E6%9C%AC/"/>
+    <id>http://zhuuu.work/2020/06/12/Leetcode/Leetcode-448-%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97%20-%20%E5%89%AF%E6%9C%AC/</id>
     <published>2020-06-12T08:44:53.000Z</published>
-    <updated>2020-06-27T09:19:20.233Z</updated>
+    <updated>2020-08-09T09:33:48.000Z</updated>
     
     <content type="html"><![CDATA[<h1 id="Leecode-448-找到所有数组中消失的数字"><a href="#Leecode-448-找到所有数组中消失的数字" class="headerlink" title="Leecode-448-找到所有数组中消失的数字"></a>Leecode-448-<a href="https://leetcode-cn.com/problems/find-all-numbers-disappeared-in-an-array/" target="_blank" rel="noopener">找到所有数组中消失的数字</a></h1><h2 id="思路：自哈希"><a href="#思路：自哈希" class="headerlink" title="思路：自哈希"></a>思路：自哈希</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个范围在  1 ≤ a[i] ≤ n ( n = 数组大小 ) 的 整型数组，数组中的元素一些出现了两次，另一些只出现一次。</p><p><strong>找到所有在 [1, n] 范围之间没有出现在数组中的数字。</strong></p><p>您能在不使用额外空间且时间复杂度为O(n)的情况下完成这个任务吗? 你可以假定返回的数组不算在额外空间内。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入:</span><br><span class="line">[4,3,2,7,8,2,3,1]</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line">[5,6]</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="方法：自哈希"><a href="#方法：自哈希" class="headerlink" title="方法：自哈希"></a>方法：自哈希</h2><ul><li><p>这里由于数组元素限定在数组长度的范围内，因此，我们可以通过一次遍历：</p><p>让数值 1 就放在索引位置 0 处；<br>让数值 2 就放在索引位置 1 处；<br>让数值 3 就放在索引位置 2 处；</p></li><li><p>再次遍历一遍数组，如果当前 <code>索引+1 != 当前值</code></p><ul><li>说明这个数不匹配，是消失的数，所以加入到结果集中</li></ul></li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Integer&gt; <span class="title">findDisappearedNumbers</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 记录结果</span></span><br><span class="line">        List&lt;Integer&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">while</span> (nums[nums[i] - <span class="number">1</span>] != nums[i])&#123;</span><br><span class="line">                swap(nums,i,nums[i] - <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历交换后的数组，查看消失的数字</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] != i + <span class="number">1</span>)&#123;</span><br><span class="line">                res.add(i + <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 基与异或的交换方法</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>[] nums,<span class="keyword">int</span> index1,<span class="keyword">int</span> index2)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (index1 == index2)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 左边a b a</span></span><br><span class="line">        <span class="comment">// 右边相同 ：两个数字的异或</span></span><br><span class="line">        nums[index1] = nums[index1] ^ nums[index2];</span><br><span class="line">        nums[index2] = nums[index1] ^ nums[index2];</span><br><span class="line">        nums[index1] = nums[index1] ^ nums[index2];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：O(N)，这里 N 是数组的长度。<strong>(均摊复杂度)</strong></li><li>空间复杂度：O(1)，这里因为使用异或运算交换数组的元素，故没有使用额外的数组空间。</li></ul>]]></content>
     

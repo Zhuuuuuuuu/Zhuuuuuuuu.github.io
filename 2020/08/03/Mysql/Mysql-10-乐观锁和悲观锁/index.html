@@ -99,10 +99,7 @@
       
 
       
-      <h1 id="Mysql-10-乐观锁和悲观锁"><a href="#Mysql-10-乐观锁和悲观锁" class="headerlink" title="Mysql-10-乐观锁和悲观锁"></a>Mysql-10-乐观锁和悲观锁</h1><h2 id="1-乐观锁和悲观锁"><a href="#1-乐观锁和悲观锁" class="headerlink" title="1. 乐观锁和悲观锁"></a>1. 乐观锁和悲观锁</h2><p><strong>参考博客 ：</strong></p>
-<p> <a href="https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight</a></p>
-<p>  <a href="https://blog.csdn.net/L_BestCoder/article/details/79298417" target="_blank" rel="noopener">https://blog.csdn.net/L_BestCoder/article/details/79298417</a></p>
-<p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p>
+      <h1 id="Mysql-10-乐观锁和悲观锁"><a href="#Mysql-10-乐观锁和悲观锁" class="headerlink" title="Mysql-10-乐观锁和悲观锁"></a>Mysql-10-乐观锁和悲观锁</h1><h2 id="1-乐观锁和悲观锁"><a href="#1-乐观锁和悲观锁" class="headerlink" title="1. 乐观锁和悲观锁"></a>1. 乐观锁和悲观锁</h2><p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p>
 <p><strong>也就是一句话：读用乐观锁，写用悲观锁。</strong></p>
 <a id="more"></a>
 
@@ -114,7 +111,12 @@
 <li>乐观锁适用于多读的应用类型，这样可以提高吞吐量</li>
 </ul>
 <ol>
-<li><strong>version方式</strong>：一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。当线程A要更新数据值时，在读取数据的同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</li>
+<li><p><strong>version方式</strong>：一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。</p>
+<ul>
+<li>当线程A要更新数据值时，在读取数据的同时也会读取version值，</li>
+<li>在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</li>
+</ul>
+</li>
 </ol>
 <p>   核心SQL代码：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">table</span> <span class="keyword">set</span> x=x+<span class="number">1</span>, <span class="keyword">version</span>=<span class="keyword">version</span>+<span class="number">1</span> <span class="keyword">where</span> <span class="keyword">id</span>=<span class="comment">#&#123;id&#125; and version=#&#123;version&#125;;</span></span><br></pre></td></tr></table></figure>
@@ -122,11 +124,14 @@
 
 
 <ol start="2">
-<li><strong>CAS操作方式：</strong>即<code>compare and swap</code> 或者 <code>compare and set</code>，涉及到三个操作数，数据所在的内存值，预期值，新值。当需要更新时，判断当前内存值与之前取到的值是否相等，若相等，则用新值更新，若失败则重试，一般情况下是一个<strong>自旋操作</strong>，即不断的重试。</li>
+<li><strong>CAS操作方式：</strong>即<code>compare and swap</code> 或者 <code>compare and set</code>，涉及到三个操作数，数据所在的内存值，预期值，新值。<ul>
+<li>当需要更新时，判断当前内存值与之前取到的值是否相等，若相等，则用新值更新，若失败则重试，一般情况下是一个<strong>自旋操作</strong>，即不断的重试。</li>
+</ul>
+</li>
 </ol>
 <h3 id="1-2-悲观锁"><a href="#1-2-悲观锁" class="headerlink" title="1.2 悲观锁"></a>1.2 悲观锁</h3><ul>
-<li>悲观锁(Pessimistic Lock), 顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。</li>
-<li>传统的关系型数据库里边就用到了很多这种锁机制，比如<strong>行锁，表锁等，读锁，写锁</strong>等，都是在做操作之前先上锁。它指的是对数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。悲观锁的实现，往往依靠数据库提供的锁机制</li>
+<li>悲观锁(<code>Pessimistic Lock</code>), 顾名思义，就是很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会block直到它拿到锁。</li>
+<li>传统的关系型数据库里边就用到了很多这种锁机制，比如<strong>行锁，表锁等，读锁，写锁</strong>等，都是在做操作之前先上锁。它指的是对数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。悲观锁的实现，往往<strong>依靠数据库提供的锁机制</strong></li>
 </ul>
 <p><strong>首先说明，乐观锁和悲观锁都是针对读（select）来说的。</strong></p>
 <p>案例：</p>
@@ -145,16 +150,19 @@
 <p>这样，保证了修改的数据是和它查询出来的数据是一致的（其他执行程序肯定未进行修改）。当然，如果更新失败，表示在更新操作之前，有其他执行程序已经更新了该库存数，那么就可以尝试<strong>重试</strong>来保证更新成功。为了尽可能避免更新失败，可以合理调整重试次数（阿里巴巴开发手册规定重试次数不低于三次）。</p>
 </li>
 </ol>
-<p>总结：对于以上，可以看得出来乐观锁和悲观锁的区别：</p>
+<p><strong>总结：对于以上，可以看得出来乐观锁和悲观锁的区别：</strong></p>
 <ul>
-<li><p>悲观锁实际使用了排他锁来实现（<strong>select \</strong>** for update**）。文章开头说到，innodb加行锁的前提是：必须是通过索引条件来检索数据，否则会切换为表锁。</p>
+<li><p>悲观锁实际使用了排他锁来实现（<strong>select \</strong>** for update**）。文章开头说到，<code>innodb</code>加行锁的前提是：必须是通过索引条件来检索数据，否则会切换为表锁。</p>
 <p>因此，悲观锁在未通过索引条件检索数据时，会锁定整张表。导致其他程序不允许“<strong>加锁的查询操作</strong>”，影响吞吐。故如果在查询居多的情况下，推荐使用乐观锁。</p>
-<p>“<strong>加锁的查询操作</strong>”：加过排他锁的数据行在其他事务中是不能修改的，也不能通过<strong>for update</strong>或<strong>lock in share mode</strong>的加锁方式查询，但可以直接通过select …from…查询数据，因为<strong>普通查询没有任何锁机制</strong>。</p>
+<p>“<strong>加锁的查询操作</strong>”：加过排他锁的数据行在其他事务中是不能修改的，也不能通过<strong>for update</strong>或<strong>lock in share mode</strong>的加锁方式查询，但可以直接通过<code>select ...from...</code>查询数据，因为<strong>普通查询没有任何锁机制</strong>。</p>
 </li>
 <li><p>乐观锁更新有可能会失败，甚至是更新几次都失败，这是有风险的。所以如果写入居多，对吞吐要求不高，可使用悲观锁。</p>
 </li>
 </ul>
-<h2 id="2-MVCC"><a href="#2-MVCC" class="headerlink" title="2. MVCC"></a>2. MVCC</h2>
+<p><strong>参考博客 ：</strong></p>
+<p> <a href="https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight" target="_blank" rel="noopener">https://blog.csdn.net/localhost01/article/details/78720727?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.edu_weight</a></p>
+<p>  <a href="https://blog.csdn.net/L_BestCoder/article/details/79298417" target="_blank" rel="noopener">https://blog.csdn.net/L_BestCoder/article/details/79298417</a></p>
+
       
       <!-- reward -->
       
