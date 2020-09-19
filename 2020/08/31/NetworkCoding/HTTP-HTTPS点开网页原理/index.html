@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    HTTP-HTTPS点开网页原理 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-NetworkCoding/HTTP-HTTPS点开网页原理" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  HTTP-HTTPS点开网页原理
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/31/NetworkCoding/HTTP-HTTPS%E7%82%B9%E5%BC%80%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-08-31T03:02:24.000Z" itemprop="datePublished">2020-08-31</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">5.9k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">20分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="HTTP-HTTPS区别"><a href="#HTTP-HTTPS区别" class="headerlink" title="HTTP-HTTPS区别"></a>HTTP-HTTPS区别</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ul>
+<li><p>安全性上，HTTPS是安全超文本协议，在HTTP基础上有更强的安全性。简单来说，HTTPS是使用TLS/SSL加密的HTTP协议</p>
+</li>
+<li><p>申请证书上，HTTPS需要使用ca申请证书</p>
+</li>
+<li><p>对于抓包而言 ，HTTP是超文本传输协议，明文传输；HTTPS是具有安全性的 SSL 加密传输协议</p>
+</li>
+<li><p>连接方式与端口上，http的连接简单，是无状态的，端口是 80； https 在http的基础上使用了ssl协议进行加密传输，端口是 443</p>
+</li>
+</ul>
+<p><strong>HTTP通信过程</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/100535634.png" alt="mark"></p>
+<a id="more"></a>
+
+
+
+<h2 id="2-HTTPS的通信过程"><a href="#2-HTTPS的通信过程" class="headerlink" title="2. HTTPS的通信过程"></a>2. HTTPS的通信过程</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-105034140.png" alt="mark"></p>
+<p>https通信时，首先建立ssl层的连接，客户端将ssl版本号和加密组件发到服务器端，服务器端收到后对ssl版本号和加密组件进行匹配，同时将CA证书及密钥发送到客户端。客户端对证书进行验证，验证通过后使用非对称加密对数据通信时的密钥进行协商。协商后得到一致的获得一致的对称加密密钥。然后使用对称加密算法进行TCP连接，后续的过程跟http的过程一致。三次握手，数据交换，四次挥手，通信结束。</p>
+<p>过程如下 ：</p>
+<ol>
+<li>客户端和服务器端通过TCP建立连接。</li>
+<li>客户端向服务器发送HTTPS请求。</li>
+<li>服务器响应请求，并将数字证书发送给客户端，数字证书包括公共秘钥、域名、申请证书的公司。</li>
+<li>客户端收到服务器端的数字证书之后，会验证数字证书的合法性。</li>
+<li>如果公钥合格，那么客户端会生成一个用于进行对称加密的密钥client key，并用服务器的公钥对客户端密钥进行非对称加密。</li>
+<li>客户端会发起HTTPS中的第二个HTTP请求，将加密之后的客户端密钥发送给服务器。</li>
+<li>服务器接收到客户端发来的密文之后，会用私钥对其进行非对称解密，得到客户端秘钥。并使用客户端秘钥进行对称加密，生成密文并发送。</li>
+<li>客户端收到密文，并使用客户端秘钥进行解密，渲染网页。</li>
+</ol>
+<h2 id="3-HTTP的工作过程详解"><a href="#3-HTTP的工作过程详解" class="headerlink" title="3. HTTP的工作过程详解"></a>3. HTTP的工作过程详解</h2><p><strong>总结</strong></p>
+<p>HTTP由请求和响应构成，是一个标准的客户端服务器模型（C/S）。HTTP协议永远都是客户端发起请求，服务器回送响应。</p>
+<ol>
+<li>地址解析。域名系统DNS解析域名得到主机的IP地址</li>
+<li>封装HTTP请求数据包。封装的内容有以上部分结合本机自己的信息。</li>
+<li>封装成TCP包，建立TCP连接（TCP的三次握手）</li>
+<li>客户机发送请求命令。 建立连接后，客户机向服务器发送一个请求</li>
+<li>服务器响应。服务器接到请求后，给予相应的响应信息</li>
+<li>服务器关闭TCP连接。一般Web服务器向浏览器发送了请求数据，它要关闭TCP连接</li>
+<li>客户端解析报文，解析HTML代码，并渲染</li>
+</ol>
+<h3 id="3-1-DNS过程（应用层）"><a href="#3-1-DNS过程（应用层）" class="headerlink" title="3.1 DNS过程（应用层）"></a>3.1 DNS过程（应用层）</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">其实我们在浏览器中输入URL的时候，浏览器就会开始智能的匹配可能URL，浏览器会从历史记录，书签等地方，找到你已经输入的字符串可能对应的URL，然后给出智能提示</span><br><span class="line"></span><br><span class="line">在输好URL后我们会按下Enter键，浏览器会发起请求，如果URL是域名而不是IP地址，将进行域名解析，所谓域名解析是指什么呢？</span><br><span class="line"></span><br><span class="line">IP地址是网络上标识站点的数字地址，为了方便记忆，采用域名来代替IP地址标识站点地址，域名解析就是域名到IP地址的转换过程。</span><br><span class="line">域名解析按下面的步骤进行（部分内容涉及到计算机网络知识）：</span><br><span class="line"></span><br><span class="line">我们本地硬盘下有一个hosts(windows下路径为C:\Windows\System32\drivers\etc)文件，作用是将一些常用的网址域名与其对应的IP地址建立一个关联“数据库”。一般来说，系统会首先自动从hosts文件中寻找对应的IP地址，如果有的话就直接使用hosts文件里面的IP地址，然后直接进行端口确认</span><br><span class="line">如果上一步没有找到，浏览器将调用解析程序，并成为DNS服务器的一个客户，把待解析的域名放在DNS请求报文中，以UDP用户数据报的方式发给本地DNS服务器</span><br><span class="line">如果本地DNS服务器查找到相应的域名的IP地址，就把对应的IP地址放在回答报文中返回</span><br><span class="line">如果上一步没有找到，即本地DNS服务器不知道被查询域名的IP地址，由于主机向本地DNS服务器的查询是递归查询，所以此时，本地DNS服务器就会以DNS客户的身份向其他根DNS服务器继续发出查询请求报文。本地DNS服务器向根DNS服务器的查询是迭代查询，当找到相应域名的IP地址后，就会把这个结果返回给最初发起查询请求的浏览器</span><br><span class="line"></span><br><span class="line">递归查询：在该模式下DNS服务器接收到客户机请求，必须返回一个准确的查询结果给客户机。如果该DNS服务器本地没有存储被查询的DNS信息，那么该服务器会（替客户机）询问其他服务器，并将返回的查询结果再返回给客户机。</span><br><span class="line">迭代查询：在该模式下DNS服务器接收到客户机请求，如果该DNS服务器本地没有存储被查询的DNS信息，DNS服务器会向客户机提供其他能够解析查询请求的DNS服务器地址，让客户机再向这台DNS服务器提交请求，依次循环直到返回查询的结果为止。</span><br><span class="line">经过上面的步骤后，浏览器已经获得输入域名的IP地址，可以进行下一步了。</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-2-发起请求建立连接-传输层"><a href="#3-2-发起请求建立连接-传输层" class="headerlink" title="3.2 发起请求建立连接(传输层)"></a>3.2 发起请求建立连接(传输层)</h3><ul>
+<li>浏览器得到<code>IP</code>地址并确认端口后，会向目标服务器发起<code>HTTP</code>请求，<code>HTTP</code>请求是通过<code>TCP</code>连接来发送的(如果是<code>HTTPS</code>则需要先建立SSL连接，再是<code>TCP</code>连接，下面的讨论基于<code>HTTP</code>)，具体如下<ul>
+<li><strong>浏览器会生成目标服务器的<code>HTTP</code>请求报文</strong>，<strong>请求报文一般包含请求方法、请求<code>URI</code>、协议版本、请求首部字段等内容，<code>HTTP</code>请求准备好后，<code>HTTP</code>请求报文从应用层传到传输层后会被分割为报文段，并会发起一条到达目标服务器的<code>TCP</code>连接，开始<code>TCP</code>三次握手</strong>，过程如图所示：</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/101827387.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">通俗的可以理解为：</span><br><span class="line"></span><br><span class="line">A主动向B打电话：嗨，能听到吗（SYN&#x3D;1，seq&#x3D;x），然后A就开始等待B的回答（SYN-SENT状态），此时A不知道B能不能听到</span><br><span class="line">B听到A的话之后，可以确认它能听到A，但是它还要确认一下A能不能听到他自己的声音，于是B说：我能听到你的声音（ACK&#x3D;1，ack&#x3D;x+1），你能听到我的声音吗（SYN&#x3D;1,seq&#x3D;y），然后B开始等待A的恢复（SYN-RECD状态）</span><br><span class="line">A听到B的话之后，A可以确认两件事，一是B能听到它说话，二是它也能听到B说话，A已经可以随时说话和倾听了（ESTABLISHED状态）。但是此时的B还在等待中，并不知道A能不能听到，所以此时A需要再回复B说：我可以听到你的声音（ACK&#x3D;1，ack&#x3D;y+1）,开始愉快的聊天吧~（seq&#x3D;x+1），B听到这句话后便也可以随时说话和倾听了（ESTABLISHED状态）</span><br><span class="line">之后两个人就可以balabalabala....</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><code>HTTP</code>请求的请求报文是直接附在第三次握手的消息中</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">穿插补充小知识，为什么是三次握手，而不是两次四次？</span><br><span class="line"></span><br><span class="line">在《计算机网络》一书中也有讲过这个问题，给出的解释是：三次握手是为了防止失效的连接请求报文段被服务端接收，从而产生错误。具体例子如下所述：</span><br><span class="line">client发出的一个连接请求报文段并没有丢失，而是在某个网络结点长时间的滞留了，以致延误到连接释放以后的某个时间才到达server。本来这是一个早已失效的报文段。但server收到此失效的连接请求报文段后，就误认为是client再次发出的一个新的连接请求。于是就向client发出确认报文段，同意建立连接。</span><br><span class="line">假设不采用“三次握手”，那么只要server发出确认，新的连接就建立了。但是由于现在client并没有发出建立连接的请求，因此不会理睬server的确认，也不会向server发送数据。而server却以为新的连接已经建立，并一直等待client发来数据。这样，server的很多资源就白白浪费掉了。</span><br><span class="line">采用“三次握手”的办法可以防止上述现象发生。例如刚才那种情况，client不会向server的确认发出确认。server由于收不到确认，就知道client并没有要求建立连接</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="3-3-封装成IP数据包（网络层）"><a href="#3-3-封装成IP数据包（网络层）" class="headerlink" title="3.3 封装成IP数据包（网络层）"></a>3.3 封装成IP数据包（网络层）</h3><ul>
+<li>连接建立之后，开始进行数据传输，虽然浏览器知道目标服务器的<code>IP</code>和端口，但是数据总不可能飞过去吧？<code>HTTP</code>请求报文段会从传输层传到网络层，在网络层被封装成<code>IP</code>数据包，网络层规定了通过怎样的路径（所谓的传输路线）到达目标服务器，并把数据包传送给对方。</li>
+</ul>
+<h3 id="3-4-封装成帧-（数据链路层）"><a href="#3-4-封装成帧-（数据链路层）" class="headerlink" title="3.4 封装成帧 （数据链路层）"></a>3.4 封装成帧 （数据链路层）</h3><ul>
+<li>网络层封装好的<code>IP</code>数据包会进一步传到下一层 — 数据链路层，然后会再次被封装到<code>MAC</code>数据帧结构中</li>
+<li>由于<code>IP</code>地址间的通信依赖于<code>MAC</code>地址（网卡所属的固定地址），所以<code>MAC</code>数据帧结构中会有经过<code>ARP</code>协议解析后的<code>MAC</code>地址（不一定是目标服务器的<code>MAC</code>地址，因为实际上通信的双方在同一局域网（LAN）内的情况是很少的，一般都会经过路由中转）。</li>
+</ul>
+<h3 id="3-5-传输比特流-（物理层）"><a href="#3-5-传输比特流-（物理层）" class="headerlink" title="3.5 传输比特流 （物理层）"></a>3.5 传输比特流 （物理层）</h3><ul>
+<li>数据链路层的<code>MAC</code>数据帧再向下传，便会到达物理层，这里要注意<strong><em>物理层考虑的是怎样才能在连接各种计算机的传输媒体上传输数据比特流，而不是指具体的传输媒体\</em></strong>。 物理层需要确保原始的数据可在各种物理媒体上传输，它规定了传输媒体的机械特性、电气特性、功能特性、过程特性</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/103108545.png" alt="mark"></p>
+<ul>
+<li>常见的传输媒体有双绞线、电缆、光缆、无线信道等，物理层的任务就是要让数据在这些传输媒体上都能能进行传输</li>
+</ul>
+<h3 id="3-6-服务端的逆操作"><a href="#3-6-服务端的逆操作" class="headerlink" title="3.6 服务端的逆操作"></a>3.6 服务端的逆操作</h3><ul>
+<li><p>通过<code>MAC</code>地址匹配，数据通过传输媒体到达目标服务器的物理层，物理层接收数据比特流然后向上传送到服务器的数据链路层，在数据链路层<code>MAC</code>数据帧将进行封装的逆操作，还原成<code>IP</code>数据包之后向上传送到网络层，网络层也进行封装的逆操作还原成<code>HTTP</code>请求报文段（分割后的一小段一小段的），然后这些报文段向上传到传输层，在传输层按原来的序号重新组装成完整的<code>HTTP</code>请求报文，再向上传到应用层，应用层的<code>HTTP</code>协议便会开始对请求进行处理</p>
+</li>
+<li><p>这个处理可能是直接返回静态的资源，也可能经过<code>PHP</code>、<code>JAVA</code>等语言进行处理等，等处理完成后，会返回一个<code>HTTP</code>响应，它生成一个<code>HTTP</code>响应报文，与<code>HTTP</code>请求报文结构类似，然后这个响应报文会“走过”请求报文来时的路到达浏览器</p>
+</li>
+</ul>
+<h3 id="3-7-客户端的释放链接"><a href="#3-7-客户端的释放链接" class="headerlink" title="3.7 客户端的释放链接"></a>3.7 客户端的释放链接</h3><ul>
+<li>浏览器接收<code>HTTP</code>响应，然后有可能释放<code>TCP</code>连接，也有可能重新使用这个<code>TCP</code>连接发送新的请求（持久连接），此处了解一下<code>TCP</code>连接的释放，不同于<code>TCP</code>连接建立的三次握手，<code>TCP</code>连接的释放是四次挥手，客户端和服务器端都可以发起关闭请求，也存在两者同时发起关闭请求的情况，图中为客户端A主动发起关闭请求：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/103323033.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">同样通俗的解释一波：</span><br><span class="line"></span><br><span class="line">A对B要传的文件已经传完了，于是他对B说：我要传的文件已经传完了，我要准备下线了（seq&#x3D;u，FIN&#x3D;1）。然后A就等待B的回复（FIN-WAIT-1状态）</span><br><span class="line"></span><br><span class="line">B看到A的消息后，回复A说：知道了，但是我还有文件给你（ACK&#x3D;1,ack&#x3D;u+1,seq&#x3D;v）。B进入等他文件传完的状态（CLOSE-WAIT状态）。</span><br><span class="line">A收到B的回复之后，下线不了了，于是继续等待着B的文件传完（FIN-WAIT-2状态）</span><br><span class="line"></span><br><span class="line">几分钟后，B的文件传完了，此时他对A说：我的文件传完了，我也要下线了（seq&#x3D;w,FIN&#x3D;1,ACK&#x3D;1,ack&#x3D;u+1），然后B等待A的回复来确认真的可以下线了（LAST-ACK状态）</span><br><span class="line"></span><br><span class="line">A收到B的回复后，便对A说：好的，那你下线吧（ACK&#x3D;1，seq&#x3D;u+1,ack&#x3D;w+1）。此时A会等待一段时间（2MSL，TIME-WAIT状态），B收到后就直接下线了（CLOSE状态），然后2MSL时间到了之后，A也下线（CLOSE状态）</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>几个小问题</strong></p>
+<ul>
+<li><strong>为什么服务器B在接到A的断开请求时不立即同意断开？</strong><ul>
+<li>当服务器B收到断开连接的请求时，服务器可能仍然有数据未发送完毕，所以服务器先发送确认信号，等所有数据发送完毕后再同意断开</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>为什么是四次挥手，而不是像建立连接一样的三次</strong><ul>
+<li>因为<code>TCP</code>连接是全双工模式，服务器B收到A的断开请求时，仅仅表明A没有东西传给服务器B了，但此时服务器B可能向A的传输还没结束，所以服务器B要先给A一个确认收到A的断开请求的<code>ACK</code>报文，然后继续向A把信息传完，等传完之后服务器B再向A发送断开请求的报文段，等A收到并回复<code>ACK</code>报文后再释放连接。</li>
+<li>也就是说对于A来说他要发送请求给B并等待B确认，对于B来说也要发送请求给A并等待A确认，两者都经过这两个过程才能完全释放<code>TCP</code>连接，而非单方面的释放。<br>建立连接只需要建立，没有<strong>数据</strong>的影响，而释放连接还要考虑数据是否传输完，所以建立连接的时候B确认收到A的建立请求与B发送建立请求这一步可以合成一步成为<code>TCP</code>建立连接的第二次握手，而释放连接时却必须分开。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>最后一次握手后A为什么要等<code>2MSL</code>？</strong><br><strong>首先解释一下<code>MSL</code>，<code>MSL</code>是指最长报文段寿命</strong>，RFC793建议为两分钟，但实际上可据实际情况而定，也就是说一个报文段最久可存在的时间是<code>MSL</code></li>
+</ul>
+<ol>
+<li>这是为了保证A发送的最后一个<code>ACK</code>报文能够到达服务器B，如果这个<code>ACK</code>报文丢失了，服务器B没有收到，B会超时重传第三次握手的<code>FIN+ACK</code>报文给A，这个时候处于等待的A就可以收到这个重传的<code>FIN+ACK</code>报文，并再次发送<code>ACK</code>报文给服务器B，并且重新启动2MSL计时器，最终结果是A和B都正常进入CLOSE状态。如果A发完<code>ACK</code>报文后就直接释放了A–&gt;B的连接，那么A就收不到B重传的<code>FIN+ACK</code>报文，也不能重新发送ACK`报文，那么B就无法按正常步骤释放B–&gt;A的连接</li>
+<li>防止“已失效的连接请求报文”出现在下一个新的连接中，因为一个报文段的寿命是<code>MSL</code>，所以A在发送完最后一个<code>ACK</code>报文段之后，再经过时间2<code>MSL</code>，本连接持续的时间内所产生的所有报文段都将在网络中消失，这样这些旧的报文段便不会出现在下一个新的连接中</li>
+</ol>
+<h3 id="3-8-浏览器的加载过程"><a href="#3-8-浏览器的加载过程" class="headerlink" title="3.8 浏览器的加载过程"></a>3.8 浏览器的加载过程</h3><p>浏览器之后会检查<code>HTTP</code>的响应状态，主要通过响应码来判断</p>
+<blockquote>
+<p>1xx: 表示通知信息的，比如请求收到了或正在处理<br>2xx：表示成功，操作被成功接收并处理<br>3xx：表示重定向，一般完成请求还必须采取进一步的行动<br>4xx：表示客户端的差错<br>5xx：表示服务器的差错</p>
+</blockquote>
+<ul>
+<li><p>如果响应可缓存，浏览器将把响应存入缓存</p>
+</li>
+<li><p>浏览器根据<code>HTTP</code>报头信息解码响应，决定如何处理这些响应，并展现响应，以响应为一个<code>HTML</code>为例</p>
+</li>
+<li><p>浏览器开始自上而下，自左而右的加载<code>HTML</code>文档，最开始会遇到<code>&lt;!DOCTYPE&gt;</code>声明，然后根据<code>&lt;!DOCTYPE&gt;</code>声明浏览器就知道该用哪种规范来解析这个文档</p>
+</li>
+<li><p>再继续边加载边解析，边生成<code>DOM</code>树，加载过程中遇到外部<code>CSS</code>文件，浏览器便会另外发出一个请求，来获取<code>CSS</code>文件（过程和上面说的一样），获取<code>CSS</code>后会生成<code>CSS Rule</code>树。<code>DOM</code>树和<code>CSS Rule</code>树生成<code>Render</code>树，页面可以开始边加载边渲染了</p>
+<ul>
+<li>渲染树和<code>DOM</code>树的关系：那些不可见的<code>DOM</code>元素（如<code>&lt;head&gt;…&lt;/head&gt;</code>，<code>display=none</code>的元素）不会被插入渲染树中；还有像一些节点是绝对定位或浮动，这些节点会在文本流之外，因此他们会在渲染树和<code>DOM</code>树的不同位置，渲染树标识出真实的位置，并用一个占位结构标识出他们原来的位置，而<code>DOM</code>树上是他们原来的位置</li>
+<li>渲染包含”布局”（<code>layout</code>）和”绘制”（<code>paint</code>）这两个步骤，所谓”布局”是指给出每个<code>DOM</code>节点在浏览器窗口中的准确位置，”绘制”是指遍历<code>Render</code>树将布局好的<code>DOM</code>节点绘制在屏幕上。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/105633907.png" alt="mark"></p>
+<ul>
+<li><p>浏览器继续加载渲染，如果遇到<code>＜script＞</code>标签，浏览器会立即执行（暂不考虑<code>defer</code>及<code>async</code>属性），此时会出现页面阻塞，不仅要等待文档中<code>JS</code>文件下载加载完毕，还要等待<code>JS</code>解析执行完毕，才可以恢复<code>HTML</code>文档的加载解析。</p>
+<ul>
+<li>这是浏览器为了防止出现<code>JS</code>修改<code>DOM</code>树，需要重新构建<code>DOM</code>树的情况，<code>DOM</code>树改变浏览器需要回过头来重新渲染这部分代码，所以浏览器希望通过阻塞其他内容的下载和呈现，来避免出现更多的不必要的<code>Reflow</code>（称为回流或者重排）</li>
+<li>如果<code>&lt;script&gt;</code>放在的<code>&lt;head&gt;</code>中，则<code>&lt;body&gt;</code>标签无法被加载，那么页面自然就无法渲染了,因此这将导致在该<code>JS</code>代码完全执行完之前，页面都是一片空白，用户体验非常不好，一般我看到长时间的空白页面，我都非常想直接关闭它。因此会推荐将所有<code>&lt;script&gt;</code>标签尽可能放到<code>&lt;body&gt;</code>标签的底部，以尽量减少对整个页面下载的影响，此时虽然还会存在一个脚本阻塞另一个脚本的问题，但是用户体验比上面的好很多，因为用户看到了大部分内容，而不是空白</li>
+<li><code>defer</code>属性相当于告诉浏览器立即下载，延迟执行。它使得加载后续文档元素的过程将和<code>JS</code>文件的<strong>加载</strong>并行进行（异步），但是<code>JS</code>文件的<strong>执行</strong>要在整个页面解析完成之后，<code>DOMContentLoaded</code>事件触发之前完成，执行顺序为出现的先后顺序。（高程中指出现实中不一定会按照顺序执行，也不一定会在<code>DOMContentLoaded</code>事件触发之前完成，因此最好只包含一个延迟脚本，这可能是与浏览器的实现有关，具体什么情况下会出现我还不知道？？？）</li>
+<li><code>async</code>属性相当于告诉浏览器立即下载执行，并且页面的加载渲染不需要等待该脚本加载和执行，它们两者会异步进行。标记为<code>async</code>的脚本不会按照它们出现的先后顺序执行，而是谁先下载完了谁就先执行，它们一定会在页面的<code>load</code>事件触发之前执行，但可能会在<code>DOMContentLoaded</code>事件触发之前或之后执行。基于前面所说的一点原因，异步脚本最好不要修改<code>DOM</code>，如果由多个异步脚本，它们之间最好没有依赖关系</li>
+</ul>
+</li>
+<li><p>浏览器继续加载渲染，如果遇到图片资源，浏览器也会另外发出一个请求，来获取图片资源，这是异步请求，所以不会等到图片下载完，而是继续渲染后面的<code>HTML</code>文档。</p>
+</li>
+<li><p>等到服务器返回图片文件，如果先前并没有为这个图片设定宽高，那么由于图片占用了一定面积，影响了后面段落的排布，浏览器会进行<code>Reflow</code></p>
+</li>
+<li><p>然后然后终于和<code>＜/html＞</code>碰面了，此次的页面加载渲染过程完成，浏览器也是很累了，然后会立即触发<code>DOMContentLoaded</code>事件，该事件是在形成完整的<code>DOM</code>树之后就会触发，而不会理会图像、<code>JS</code>文件、<code>CSS</code>文件或其他资源是否已经下载完毕</p>
+</li>
+<li><p>当页面完全加载后，也就是所有图像、<code>JS</code>文件、<code>CSS</code>文件等外部资源都加载完成后会触发<code>load</code>事件</p>
+</li>
+<li><p>用户在页面上进行交互时，可能会导致页面进行<code>Repaint</code>或<code>Reflow</code></p>
+<ul>
+<li><code>Repaint</code>：如果只是改变了某个元素的背景颜色，文字颜色等，不影响元素周围或内部布局的属性，将只会引起浏览器的<code>Repaint</code>，重绘某一部分</li>
+<li><code>Reflow</code>：如果某个部分发生了的变化影响了布局，那浏览器就需要倒回去重新渲染，每次<code>Reflow</code>必然会导致<code>Repaint</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>看似简单的操作背后藏着数不清的小动作，文中也只是涉及了一部分，还有很多相关的过程没有涉及到，但是能力有限，还是慢慢来，暂时就先告一段落</p>
+<p><strong>参考博客 ：</strong> </p>
+<p><a href="https://segmentfault.com/a/1190000014620172" target="_blank" rel="noopener">https://segmentfault.com/a/1190000014620172</a></p>
+<p><a href="https://www.cnblogs.com/chengxs/p/11039155.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxs/p/11039155.html</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/08/31/NetworkCoding/HTTP-HTTPS%E7%82%B9%E5%BC%80%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/" rel="tag">网页原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JUC-20-ThreadPoolExecutor
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/29/Leetcode/Leetcode-347-%E5%89%8DK%E4%B8%AA%E9%AB%98%E9%A2%91%E5%85%83%E7%B4%A0/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Leetcode-347-前K个高频元素</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>
