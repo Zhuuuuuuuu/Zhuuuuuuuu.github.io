@@ -184,7 +184,7 @@
 </li>
 </ul>
 <h3 id="3-7-客户端的释放链接"><a href="#3-7-客户端的释放链接" class="headerlink" title="3.7 客户端的释放链接"></a>3.7 客户端的释放链接</h3><ul>
-<li>浏览器接收<code>HTTP</code>响应，然后有可能释放<code>TCP</code>连接，也有可能重新使用这个<code>TCP</code>连接发送新的请求（持久连接），此处了解一下<code>TCP</code>连接的释放，不同于<code>TCP</code>连接建立的三次握手，<code>TCP</code>连接的释放是四次挥手，客户端和服务器端都可以发起关闭请求，也存在两者同时发起关闭请求的情况，图中为客户端A主动发起关闭请求：</li>
+<li>浏览器接收<code>HTTP</code>响应，<strong>然后有可能释放<code>TCP</code>连接，也有可能重新使用这个<code>TCP</code>连接发送新的请求（持久连接）</strong>，此处了解一下<code>TCP</code>连接的释放，不同于<code>TCP</code>连接建立的三次握手，<code>TCP</code>连接的释放是四次挥手，客户端和服务器端都可以发起关闭请求，也存在两者同时发起关闭请求的情况，图中为客户端A主动发起关闭请求：</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/103323033.png" alt="mark"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">同样通俗的解释一波：</span><br><span class="line"></span><br><span class="line">A对B要传的文件已经传完了，于是他对B说：我要传的文件已经传完了，我要准备下线了（seq&#x3D;u，FIN&#x3D;1）。然后A就等待B的回复（FIN-WAIT-1状态）</span><br><span class="line"></span><br><span class="line">B看到A的消息后，回复A说：知道了，但是我还有文件给你（ACK&#x3D;1,ack&#x3D;u+1,seq&#x3D;v）。B进入等他文件传完的状态（CLOSE-WAIT状态）。</span><br><span class="line">A收到B的回复之后，下线不了了，于是继续等待着B的文件传完（FIN-WAIT-2状态）</span><br><span class="line"></span><br><span class="line">几分钟后，B的文件传完了，此时他对A说：我的文件传完了，我也要下线了（seq&#x3D;w,FIN&#x3D;1,ACK&#x3D;1,ack&#x3D;u+1），然后B等待A的回复来确认真的可以下线了（LAST-ACK状态）</span><br><span class="line"></span><br><span class="line">A收到B的回复后，便对A说：好的，那你下线吧（ACK&#x3D;1，seq&#x3D;u+1,ack&#x3D;w+1）。此时A会等待一段时间（2MSL，TIME-WAIT状态），B收到后就直接下线了（CLOSE状态），然后2MSL时间到了之后，A也下线（CLOSE状态）</span><br></pre></td></tr></table></figure>
@@ -255,7 +255,9 @@
 </ul>
 </li>
 </ul>
-<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>看似简单的操作背后藏着数不清的小动作，文中也只是涉及了一部分，还有很多相关的过程没有涉及到，但是能力有限，还是慢慢来，暂时就先告一段落</p>
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><ul>
+<li>看似简单的操作背后藏着数不清的小动作，文中也只是涉及了一部分，还有很多相关的过程没有涉及到，但是能力有限，还是慢慢来，暂时就先告一段落</li>
+</ul>
 <p><strong>参考博客 ：</strong> </p>
 <p><a href="https://segmentfault.com/a/1190000014620172" target="_blank" rel="noopener">https://segmentfault.com/a/1190000014620172</a></p>
 <p><a href="https://www.cnblogs.com/chengxs/p/11039155.html" target="_blank" rel="noopener">https://www.cnblogs.com/chengxs/p/11039155.html</a></p>

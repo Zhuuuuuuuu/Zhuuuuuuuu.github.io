@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Linux-07-内存管理 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Linux/Linux-07-内存管理" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Linux-07-内存管理
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/18/Linux/Linux-07-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="article-date">
+  <time datetime="2020-08-18T03:52:53.000Z" itemprop="datePublished">2020-08-18</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Linux-07-内存管理"><a href="#Linux-07-内存管理" class="headerlink" title="Linux-07-内存管理"></a>Linux-07-内存管理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><strong>操作系统内存管理：</strong>总的来说，操作系统内存管理包括<strong>物理内存管理</strong>和<strong>虚拟内存管理</strong>。</li>
+</ul>
+<p><strong>物理内存管理：</strong></p>
+<ul>
+<li>包括程序装入等概念、交换技术、连续分配管理方式和非连续分配管理方式（分页、分段、段页式）。</li>
+</ul>
+<p><strong>虚拟内存管理：</strong></p>
+<ul>
+<li>虚拟内存管理包括虚拟内存概念、请求分页管理方式、页面置换算法、页面分配策略、工作集和抖动。</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="1-计算机存储体系"><a href="#1-计算机存储体系" class="headerlink" title="1. 计算机存储体系"></a>1. 计算机存储体系</h2><ul>
+<li>内存是计算机很重要的一个资源，因为<strong>程序只有被加载到内存中才可以运行</strong>；此外，CPU所需要的指令与数据也都是来自内存的。可以说，内存是影响计算机性能的一个很重要的因素。</li>
+</ul>
+<h3 id="1-1-分层存储器体系"><a href="#1-1-分层存储器体系" class="headerlink" title="1.1 分层存储器体系"></a>1.1 分层存储器体系</h3><ul>
+<li><p>在介绍内存管理的细节前，先要了解一下分层存储器体系：</p>
+<ul>
+<li>大部分的计算机都有一个存储器层次结构，即少量的非常快速、昂贵、易变的高速缓存(cache)；若干兆字节的中等速度、中等价格、易变的主存储器(RAM)；数百兆或数千兆的低速、廉价、不易变的磁盘。这些资源的合理使用与否直接关系着系统的效率。<ul>
+<li>CPU缓存（Cache Memory）：是位于CPU与内存之间的临时存储器，它的容量比内存小的多但是交换速度却比内存要快得多。缓存的出现主要是为了解决CPU运算速度与内存 读写速度不匹配的矛盾，因为CPU运算速度要比内存读写速度快很多，这样会使CPU花费很长时间等待数据到来或把数据写入内存。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>计算机是一种数据处理设备，它由CPU和内存以及外部设备组成。CPU负责数据处理，内存负责存储，外部设备负责数据的输入和输出，它们之间通过总线连接在一起。</p>
+</li>
+<li><p>CPU内部主要由控制器、运算器和寄存器组成。控制器负责指令的读取和调度，运算器负责指令的运算执行，寄存器负责数据的存储，它们之间通过CPU内的总线连接在一起。</p>
+</li>
+<li><p>每个外部设备(例如：显示器、硬盘、键盘、鼠标、网卡等等)则是由外设控制器、I/O端口、和输入输出硬件组成。</p>
+<ul>
+<li>外设控制器负责设备的控制和操作，I/O端口负责数据的临时存储，输入输出硬件则负责具体的输入输出，它们间也通过外部设备内的总线连接在一起。</li>
+</ul>
+</li>
+</ul>
+<p><strong>在这套设计思想(冯.诺依曼体系架构)里面: 总是有一部分负责控制、一部分负责执行、一部分则负责存储，它之间进行交互以及接口通信则总是通过总线来完成。</strong></p>
+<ul>
+<li>这种设计思路一样的可以应用在我们的软件设计体系里面：组件和组件之间通信通过事件的方式来进行解耦处理，而一个组件内部同样也需要明确好各个部分的职责(一部分负责调度控制、一部分负责执行实现、一部分负责数据存储)。</li>
+</ul>
+<h3 id="1-2-计算存储的层次结构"><a href="#1-2-计算存储的层次结构" class="headerlink" title="1.2 计算存储的层次结构"></a>1.2 计算存储的层次结构</h3><ul>
+<li>当前技术没有能够提供这样的存储器，因此大部分的计算机都有一个存储器层次结构:<ul>
+<li>高速缓存(cache): 少量的非常快速、昂贵、易变的高速缓存(cache)；</li>
+<li>主存储器(RAM): 若干兆字节的中等速度、中等价格、易变的主存储器(RAM)；</li>
+<li>磁盘: 数百兆或数千兆的低速、廉价、不易变的磁盘。</li>
+</ul>
+</li>
+</ul>
+<p>这些资源的合理使用与否直接关系着系统的效率。</p>
+<h2 id="2-内存使用的演化"><a href="#2-内存使用的演化" class="headerlink" title="2. 内存使用的演化"></a>2. 内存使用的演化</h2><h3 id="2-1-没有内存的年代"><a href="#2-1-没有内存的年代" class="headerlink" title="2.1 没有内存的年代"></a>2.1 没有内存的年代</h3><ul>
+<li>在早些的操作系统中，并没有引入内存抽象的概念。<strong>程序直接访问和操作的都是物理内存</strong>，内存的管理也非常简单，除去操作系统所用的内存之外，全部给用户程序使用，想怎么折腾都行，只要别超出最大的容量。比如当执行如下指令时：</li>
+</ul>
+<p><code>mov reg1,1000</code></p>
+<p><strong>1、无内存抽象存在的问题：</strong></p>
+<p>这条指令会毫无想象力的将物理地址1000中的内容赋值给寄存器。不难想象，这种内存操作方式使得操作系统中存在多进程变得完全不可能，比如MS-DOS，你必须执行完一条指令后才能接着执行下一条。如果是多进程的话，由于直接操作物理内存地址，当一个进程给内存地址1000赋值后，另一个进程也同样给内存地址赋值，那么第二个进程对内存的赋值会覆盖第一个进程所赋的值，这回造成两条进程同时崩溃。</p>
+<p><strong>带来两个问题：</strong></p>
+<ol>
+<li>用户程序可以访问任意内存，容易破坏操作系统，造成崩溃</li>
+<li>同时运行多个程序特别困难</li>
+</ol>
+<p>随着计算机技术发展，要求操作系统支持多进程的需求，所谓多进程，并不需要同时运行这些进程，只要它们都处于 ready 状态，操作系统快速地在它们之间切换，就能达到同时运行的假象。每个进程都需要内存，Context Switch 时，之前内存里的内容怎么办？简单粗暴的方式就是先 dump 到磁盘上，然后再从磁盘上 restore 之前 dump 的内容（如果有的话），但效果并不好，太慢了！</p>
+<h3 id="2-2-内存抽象：地址空间"><a href="#2-2-内存抽象：地址空间" class="headerlink" title="2.2 内存抽象：地址空间"></a>2.2 内存抽象：地址空间</h3><ul>
+<li>那怎么才能不慢呢？把进程对应的内存依旧留在物理内存中，需要的时候就切换到特定的区域。这就涉及到了内存的保护机制，毕竟进程之间可以随意读取、写入内容就乱套了，非常不安全。因此操作系统需要对物理内存做一层抽象，也就是「地址空间」(Address Space)，一个进程的地址空间包含了该进程所有相关内存，比如 code / stack / heap。一个 16 KB 的地址空间可能长这样：</li>
+</ul>
+<p>当程序运行时，heap 和 stack 共用中间 free 的区域，当然这只是 OS 层面的抽象。比如下面这段代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int x;</span><br><span class="line"> </span><br><span class="line">x &#x3D; x + 3; &#x2F;&#x2F; this is the line of code we are interested in</span><br></pre></td></tr></table></figure>
+
+
+
+<p>变成汇编指令后，大概是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">128: movl 0x0(%ebx), %eax  ;load 0+ebx into eax</span><br><span class="line">132: addl $0x03, %eax ;add 3 to eax register</span><br><span class="line">135: movl %eax, 0x0(%ebx) ;store eax back to mem</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最前面的是 PC (Program Counter)，用来表示当前 code 的索引，比如 CPU 执行到 128 时，进行了 Context Switch（上下文切换），那么在 Switch 回来后，还可以接着从 132 开始执行（当然需要先把 PC 存起来）。之后的就是汇编代码，告诉 CPU 该如何操作。</li>
+</ul>
+<ul>
+<li><p><strong>基址寄存器与界限寄存器可以简单的动态重定位：</strong>每个内存地址送到内存之前，都会自动加上基址寄存器的内容.</p>
+<ul>
+<li><p>从 32KB 处作为开始，48KB 作为结束。那 32 / 48 可不可以动态设置呢，只要在 CPU 上整两个寄存器，<strong>基址寄存器</strong>base 和 <strong>界限寄存器</strong>bounds 就可以了，base 指明从哪里开始，bounds 指定哪里是边界。 因此真实物理地址和虚拟地址之间的关系是：</p>
+</li>
+<li><pre><code>physical address = virtual address + base</code></pre></li>
+<li><p>有时，CPU 上用来做内存地址翻译的也会被叫做「内存管理单元 MMU」(Memory Management Unit)，随着功能越来越强大，MMU 也会变得越来越复杂。</p>
+</li>
+<li><p>base and bounds 这种做法最大的问题在于空间浪费，Stack 和 Heap 中间有一块 free space，即使没有用，也被占着，那如何才能解放这块区域呢，进入虚拟内存。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-虚拟内存"><a href="#3-虚拟内存" class="headerlink" title="3. 虚拟内存"></a>3. 虚拟内存</h2><ul>
+<li>虚拟内存是现代操作系统普遍使用的一种技术。前面所讲的<strong>抽象满足了多进程的要求，但很多情况下，现有内存无法满足仅仅一个大进程的内存要求</strong>。物理内存不够用的情况下，如何解决呢？<ul>
+<li><strong>覆盖overlays：</strong>在早期的操作系统曾使用覆盖技术来解决这个问题，将一个程序分为多个块，基本思想是先将块0加入内存，块0执行完后，将块1加入内存。依次往复，这个解决方案最大的问题是需要程序员去程序进行分块，这是一个费时费力让人痛苦不堪的过程。后来这个解决方案的修正版就是虚拟内存。</li>
+<li><strong>交换swapping：</strong>可以将暂时不能执行的程序（进程）送到外存中，从而获得空闲内存空间来装入新程序（进程），或读人保存在外存中而处于就绪状态的程序。</li>
+<li><strong>虚拟内存：</strong>虚拟内存的基本思想是，每个进程有用独立的逻辑地址空间，内存被分为大小相等的多个块,称为<strong>页</strong>(Page).每个页都是一段连续的地址。对于进程来看,逻辑上貌似有很多内存空间，其中<strong>一部分对应物理内存上的一块(称为页框，通常页和页框大小相等)</strong>，还有一些没加载在内存中的对应在硬盘上。</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-物理内存：连续分配存储管理方式"><a href="#4-物理内存：连续分配存储管理方式" class="headerlink" title="4. 物理内存：连续分配存储管理方式"></a>4. 物理内存：连续分配存储管理方式</h2><ul>
+<li>连续分配是指为一个用户程序分配连续的内存空间。连续分配有单一连续存储管理和分区式储管理两种方式。</li>
+</ul>
+<h3 id="4-1-单一连续存储管理"><a href="#4-1-单一连续存储管理" class="headerlink" title="4.1 单一连续存储管理"></a>4.1 单一连续存储管理</h3><ul>
+<li>在这种管理方式中，内存被分为两个区域：系统区和用户区。应用程序装入到用户区，可使用用户区全部空间。其特点是，最简单，适用于单用户、单任务的操作系统。CP／M和 DOS 2．0以下就是采用此种方式。这种方式的最大优点就是易于管理。但也存在着一些问题和不足之处，例如对要求内存空间少的程序，造成内存浪费；程序全部装入，使得很少使用的程序部分也占用—定数量的内存。</li>
+</ul>
+<h3 id="4-2-分区式存储管理"><a href="#4-2-分区式存储管理" class="headerlink" title="4.2 分区式存储管理"></a>4.2 分区式存储管理</h3><ul>
+<li><p>为了支持多道程序系统和分时系统，支持多个程序并发执行，引入了分区式存储管理。分区式存储管理是把内存分为一些大小相等或不等的分区，操作系统占用其中一个分区，其余的分区由应用程序使用，每个应用程序占用一个或几个分区。分区式存储管理虽然可以支持并发，但难以进行内存分区的共享。</p>
+</li>
+<li><p>分区式存储管理引人了两个新的问题：内碎片和外碎片。</p>
+</li>
+<li><p>内碎片是占用分区内未被利用的空间，外碎片是占用分区之间难以利用的空闲分区(通常是小空闲分区)。</p>
+</li>
+<li><p>为实现分区式存储管理，操作系统应维护的数据结构为分区表或分区链表。表中各表项一般包括每个分区的起始地址、大小及状态(是否已分配)。</p>
+</li>
+<li><p>分区式存储管理常采用的一项技术就是<strong><em>\</em>内存紧缩(compaction)。**</strong></p>
+</li>
+</ul>
+<p><a href="https://blog.csdn.net/hguisu/article/details/5713164?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param" target="_blank" rel="noopener">https://blog.csdn.net/hguisu/article/details/5713164?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param</a></p>
+<p>未完待续</p>
+<p><strong>参考博客 ：</strong> <a href="https://blog.csdn.net/hguisu/article/details/5713164?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param" target="_blank" rel="noopener">https://blog.csdn.net/hguisu/article/details/5713164?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/08/18/Linux/Linux-07-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag">内存管理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/08/18/Linux/Linux-01-%E7%BD%91%E7%BB%9CIO/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Linux-01-网络IO
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/17/Mysql/Mysql-XX-Mysql%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Mysql-XX-Mysql面试总结</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

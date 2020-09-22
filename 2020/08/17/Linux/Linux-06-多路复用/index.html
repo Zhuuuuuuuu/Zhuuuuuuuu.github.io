@@ -126,7 +126,7 @@
 </ul>
 </li>
 <li><strong>操作系统 这个<code>select</code>函数被调用以后，</strong><ul>
-<li>首先会去fd集合中去检查内存中<code>socket</code>套接字的状态，这个时间复杂度是<code>O(N)</code>的，然后检查完一遍之后，如果有就绪状态的<code>socket</code>,那么就会直接返回，不会阻塞当前线程。</li>
+<li><strong>首先会去fd集合中去检查内存中<code>socket</code>套接字的状态，这个时间复杂度是<code>O(N)</code>的</strong>，然后检查完一遍之后，如果有就绪状态的<code>socket</code>,那么就会直接返回，不会阻塞当前线程。</li>
 <li>否则的话，那个就说明当前指定<code>fd</code>集合对应的<code>socket</code>没有就绪状态，那么就需要阻塞当前调用线程了，直到有某个<code>socket</code>有数据之后，才唤醒线程。</li>
 </ul>
 </li>
@@ -139,8 +139,8 @@
 </li>
 <li>处于某种性能考虑,<code>select</code>函数做了两件事<ul>
 <li><strong>第一件事</strong>，跑到就绪状态的<code>socket</code>对应的fd文件中设置一个标记mask,表示这个fd对应的<code>socket</code>就绪了</li>
-<li><strong>第二件事</strong>，返回<code>select</code>函数，对应的也就是唤醒java线程，站在java层面，他会收到一个int结果值，表示有几个socket处于就绪状态<ul>
-<li>但是具体是哪个<code>socket</code>就绪，<code>java</code>是不知道的，所以接下来会是一个<code>O(N)</code>的系统调用，检查fd集合中每一个socket的就绪状态，其实就是检查文件系统中指定<code>socket</code>的文件描述符的状态，涉及到用户态和内核态的来回切换，如果<code>bitmap</code>再大，就非常耗费性能</li>
+<li><strong>第二件事</strong>，返回<code>select</code>函数，对应的也就是唤醒java线程，站在java层面，<strong>他会收到一个int结果值，表示有几个socket处于就绪状态</strong><ul>
+<li>但是具体是哪个<code>socket</code>就绪，<code>java</code>是不知道的，所以接下来会是一个<code>O(N)</code>的系统调用，检查fd集合中每一个socket的就绪状态，其实就是检查文件系统中指定<code>socket</code>的文件描述符的状态，<strong>涉及到用户态和内核态的来回切换，如果<code>bitmap</code>再大，就非常耗费性能</strong></li>
 <li>还有就是<strong>系统调用涉及到参数的数据拷贝</strong>，如果数据太庞大，他也不利于系统的调用速度</li>
 </ul>
 </li>
@@ -189,7 +189,7 @@
 <h2 id="5-poll-和-select-区别"><a href="#5-poll-和-select-区别" class="headerlink" title="5. poll() 和 select()区别"></a>5. poll() 和 select()区别</h2><ul>
 <li><strong>传参不一样</strong> <ul>
 <li><strong>select 用的是bitmap ，</strong>它表示需要检查的socket集合</li>
-<li><strong>poll 使用的是 链表结构，</strong>表示需要检查的socket集合（主要是为了检查socket监听长度超过1024的<code>socket</code>的限制）</li>
+<li><strong>poll 使用的是 链表结构，</strong>表示需要检查的socket集合（主要是为了解决socket监听长度超过1024的<code>socket</code>的限制）</li>
 </ul>
 </li>
 </ul>
@@ -280,8 +280,8 @@
 </ul>
 <p><strong>那么获取就绪的socket是怎么实现的呢？</strong></p>
 <ul>
-<li><code>epoll_wait</code> 函数，调用的时候会传入一个<code>epoll_event</code>事件数组指针</li>
-<li><code>epoll_wait</code> 函数正常返回之前，会把就绪的socket事件信息拷贝到这个数组指针里头</li>
+<li><code>epoll_wait</code> 函数，<strong>调用的时候</strong>会传入一个<code>epoll_event</code>事件数组指针</li>
+<li><code>epoll_wait</code> <strong>函数正常返回之前</strong>，会把就绪的socket事件信息拷贝到这个数组指针里头</li>
 <li>这样返回到上层程序，就能通过这个数组拿到就绪列表</li>
 </ul>
 <h2 id="10-epoll-wait-可不可以设置成非阻塞的"><a href="#10-epoll-wait-可不可以设置成非阻塞的" class="headerlink" title="10. epoll_wait 可不可以设置成非阻塞的"></a>10. epoll_wait 可不可以设置成非阻塞的</h2><ul>

@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3.2k字</span>
+            <span class="post-count">3.1k字</span>
         </span>
     </span>
 
@@ -100,7 +100,7 @@
 
       
       <h1 id="Mysql-14-MVCC实现"><a href="#Mysql-14-MVCC实现" class="headerlink" title="Mysql-14-MVCC实现"></a>Mysql-14-MVCC实现</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li><code>MVCC (Multiversion Concurrency Control)</code> 中文全程叫<strong>多版本并发控制</strong>，是现代数据库（包括 <code>MySQL</code>、<code>Oracle</code>、<code>PostgreSQL</code> 等）引擎实现中常用的处理读写冲突的手段，<strong>目的在于提高数据库高并发场景下的吞吐性能</strong>。</li>
+<li><code>MVCC (Multiversion Concurrency Control)</code> 中文叫<strong>多版本并发控制</strong>，是现代数据库（包括 <code>MySQL</code>、<code>Oracle</code>、<code>PostgreSQL</code> 等）引擎实现中常用的处理读写冲突的手段，<strong>目的在于提高数据库高并发场景下的吞吐性能</strong>。</li>
 <li>如此一来不同的事务在并发过程中，<code>SELECT</code> 操作可以不加锁而是通过 <code>MVCC</code> 机制读取指定的版本历史记录，并通过一些手段保证保证读取的记录值符合事务所处的隔离级别，从而解决并发场景下的读写冲突。</li>
 </ul>
 <p>下面举一个多版本读的例子，例如两个事务 <code>A</code> 和 <code>B</code> 按照如下顺序进行更新和读取操作</p>
@@ -111,13 +111,13 @@
 
 <p>在事务 <code>A</code> 提交前后，事务 <code>B</code> 读取到的 <code>x</code> 的值是什么呢？答案是：事务 <code>B</code> 在不同的隔离级别下，读取到的值不一样。</p>
 <ol>
-<li>如果事务 <code>B</code> 的隔离级别是读未提交（RU），那么两次读取均读取到 <code>x</code> 的最新值，即 <code>20</code>。</li>
-<li>如果事务 <code>B</code> 的隔离级别是读已提交（RC），那么第一次读取到旧值 <code>10</code>，第二次因为事务 <code>A</code> 已经提交，则读取到新值 20。</li>
+<li>如果事务 <code>B</code> 的隔离级别是<strong>读未提交（RU）</strong>，那么两次读取均读取到 <code>x</code> 的最新值，即 <code>20</code>。</li>
+<li>如果事务 <code>B</code> 的隔离级别是<strong>读已提交（RC）</strong>，那么第一次读取到旧值 <code>10</code>，第二次因为事务 <code>A</code> 已经提交，则读取到新值 20。</li>
 <li>如果事务 <code>B</code> 的隔离级别是可重复读或者串行（RR，S），则两次均读到旧值 <code>10</code>，不论事务 <code>A</code> 是否已经提交。</li>
 </ol>
 <p>可见在不同的隔离级别下，数据库通过 <code>MVCC</code> 和隔离级别，让事务之间并行操作遵循了某种规则，来保证单个事务内前后数据的一致性。</p>
 <h2 id="1-为什么需要MVCC"><a href="#1-为什么需要MVCC" class="headerlink" title="1. 为什么需要MVCC ?"></a>1. 为什么需要MVCC ?</h2><ul>
-<li><code>InnoDB</code> 相比 <code>MyISAM</code> 有两大特点，一是支持事务而是支持行级锁，事务的引入带来了一些新的挑战。相对于串行处理来说，并发事务处理能大大增加数据库资源的利用率，提高数据库系统的事务吞吐量，从而可以支持可以支持更多的用户。但并发事务处理也会带来一些问题，主要包括以下几种情况：<ul>
+<li><code>InnoDB</code> 相比 <code>MyISAM</code> 有两大特点，一是支持事务 二是支持行级锁，事务的引入带来了一些新的挑战。相对于串行处理来说，并发事务处理能大大增加数据库资源的利用率，提高数据库系统的事务吞吐量，从而可以支持可以支持更多的用户。但并发事务处理也会带来一些问题，主要包括以下几种情况：<ul>
 <li><strong>更新丢失（<code>Lost Update</code>）</strong>：当两个或多个事务选择同一行，然后基于最初选定的值更新该行时，由于每个事务都不知道其他事务的存在，就会发生丢失更新问题 —— 最后的更新覆盖了其他事务所做的更新。如何避免这个问题呢，最好在一个事务对数据进行更改但还未提交时，其他事务不能访问修改同一个数据。</li>
 <li><strong>脏读</strong>（<code>Dirty Reads</code>）：一个事务正在对一条记录做修改，在这个事务并提交前，这条记录的数据就处于不一致状态；这时，另一个事务也来读取同一条记录，如果不加控制，第二个事务读取了这些尚未提交的脏数据，并据此做进一步的处理，就会产生未提交的数据依赖关系。这种现象被形象地叫做 <strong>“脏读”</strong>。</li>
 <li><strong>不可重复读</strong>（<code>Non-Repeatable Reads</code>）：一个事务在读取某些数据已经发生了改变、或某些记录已经被删除了！这种现象叫做“不可重复读”。</li>
@@ -170,7 +170,6 @@
 <p><strong>Undo log 的用途</strong></p>
 <p>（1）保证事务进行rollback时的原子性和一致性，当事务进行回滚的时候可以用undo log的数据进行恢复。</p>
 <p>（2）用于MVCC快照读的数据，在MVCC多版本控制中，通过读取undo log的历史版本数据可以实现不同事务版本号都拥有自己独立的快照数据版本。</p>
-<p><a href="https://zhuanlan.zhihu.com/p/52977862" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/52977862</a></p>
 <ul>
 <li>上文提到，在多个事务并行操作某行数据的情况下，不同事务对该行数据的 UPDATE 会产生多个版本，然后通过回滚指针组织成一条 <code>Undo Log</code> 链</li>
 <li>这节我们通过一个简单的例子来看一下 <code>Undo Log</code> 链是如何组织的，<code>DATA_TRX_ID</code> 和 <code>DATA_ROLL_PTR</code> 两个参数在其中又起到什么样的作用。</li>
