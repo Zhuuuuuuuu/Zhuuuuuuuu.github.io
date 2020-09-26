@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Dubbo-01-调用过程 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Dubbo/Dubbo-01-调用过程" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Dubbo-01-调用过程
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/20/Dubbo/Dubbo-01-%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B/" class="article-date">
+  <time datetime="2020-08-20T12:32:24.000Z" itemprop="datePublished">2020-08-20</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.8k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Dubbo-01-调用过程"><a href="#Dubbo-01-调用过程" class="headerlink" title="Dubbo-01-调用过程"></a>Dubbo-01-调用过程</h1><ul>
+<li>微服务的普及化以及重要性，服务化场景下随之而来的就是服务之间的通信问题，那服务间的通信脑海中想到的就是 RPC，说到 RPC 就离不开咱们的 Dubbo。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/105245606.jpg" alt="mark"></p>
+<p><strong>本文流程：</strong></p>
+<p><strong>Dubbo 的简介、总体分层、核心组件以及大致调用流程</strong>。</p>
+<p>我们先来谈一谈什么叫 RPC ，我发现有很多同学不太了解这个概念，还有人把 RPC 和 HTTP 来进行对比。所以咱们先来说说什么是 RPC。</p>
+<a id="more"></a>
+
+
+
+<h2 id="1-RPC"><a href="#1-RPC" class="headerlink" title="1. RPC"></a>1. RPC</h2><ul>
+<li><p>RPC，<code>Remote Procedure Call</code>即远程过程调用，远程过程调用其实对标的是本地过程调用，本地过程调用你熟悉吧？</p>
+<ul>
+<li>想想那青葱岁月，你在大学赶着期末大作业，正在攻克图书管理系统，你奋笔疾书疯狂地敲击键盘，实现了图书借阅、图书归还等等模块，你实现的一个个方法之间的调用就叫本地过程调用。</li>
+</ul>
+</li>
+<li><p>你要是和我说你实现图书馆里系统已经用了服务化，搞了远程调用了，我只能和你说你有点东西。</p>
+</li>
+</ul>
+<ul>
+<li>简单的说本机上内部的方法调用都可以称为本地过程调用，而远程过程调用实际上就指的是你本地调用了远程机子上的某个方法，这就是远程过程调用。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/105520106.jpg" alt="mark"></p>
+<ul>
+<li><p>所以说 RPC 对标的是本地过程调用，至于 RPC 要如何调用远程的方法可以走 HTTP、也可以是基于 TCP 自定义协议。</p>
+</li>
+<li><p>所以说你讨论 RPC 和 HTTP 就不是一个层级的东西。</p>
+</li>
+<li><p>而 <strong>RPC 框架就是要实现像那小助手一样的东西，目的就是让我们使用远程调用像本地调用一样简单方便，并且解决一些远程调用会发生的一些问题</strong>，使用户用的无感知、舒心、放心、顺心，它好我也好，快乐没烦恼。</p>
+</li>
+</ul>
+<h3 id="1-1-如何设计一个RPC框架"><a href="#1-1-如何设计一个RPC框架" class="headerlink" title="1.1 如何设计一个RPC框架"></a>1.1 如何设计一个RPC框架</h3><ul>
+<li>在明确了什么是 RPC，以及 RPC 框架的目的之后，咱们想想如果让你做一款 RPC 框架你该如何设计？</li>
+</ul>
+<p><strong>服务消费者</strong></p>
+<ul>
+<li><p>首先消费者面向接口编程，所以需要得知有哪些接口可以调用，可以通过<strong>公用 jar 包</strong>的方式来维护接口。</p>
+</li>
+<li><p>现在知道有哪些接口可以调用了，但是只有接口啊，具体的实现怎么来？这事必须框架给处理了！所以还<strong>需要来个代理类</strong>，让消费者只管调，啥事都别管了，我<strong>代理帮你搞定</strong>。</p>
+</li>
+<li><p>虽说代理帮你搞定但是代理也需要知道它到底要调哪个机子上的远程方法，所以<strong>需要有个注册中心</strong>，这样调用方从注册中心可以知晓可以调用哪些服务提供方，一般而言提供方不止一个，毕竟只有一个挂了那不就没了。</p>
+</li>
+<li><p>所以提供方一般都是集群部署，那调用方需要通过<strong>负载均衡</strong>来选择一个调用，可以通过<strong>某些策略</strong>例如同机房优先调用啊啥的。</p>
+</li>
+<li><p>当然还需要有<strong>容错机制</strong>，毕竟这是远程调用，网络是不可靠的，所以可能需要重试什么的。</p>
+</li>
+<li><p>还要和服务提供方<strong>约定一个协议</strong>，例如我们就用 HTTP 来通信就好啦，也就是大家要讲一样的话，不然可能听不懂了。</p>
+</li>
+<li><p>当然序列化必不可少，毕竟我们本地的结构是“立体”的，需要序列化之后才能传输，因此还需要<strong>约定序列化格式</strong>。</p>
+</li>
+<li><p>并且这过程中间可能还需要掺入一些 Filter，来作一波统一的处理，例如调用计数啊等等。</p>
+</li>
+</ul>
+<p><strong>这些都是框架需要做的，让消费者像在调用本地方法一样，无感知。</strong></p>
+<p><strong>服务提供者</strong></p>
+<ul>
+<li>服务提供者肯定要<strong>实现对应的接口</strong>这是毋庸置疑的。</li>
+<li>然后需要把自己的接口暴露出去，向<strong>注册中心注册自己</strong>，暴露自己所能提供的服务。</li>
+<li>然后有消费者请求过来需要处理，提供者需要用和消费者<strong>协商好的协议</strong>来处理这个请求，然后做<strong>反序列化</strong>。</li>
+<li>序列化完的请求应该<strong>扔到线程池里面做处理</strong>，某个线程接受到这个请求之后找到对应的实现调用，然后再<strong>将结果原路返回</strong>。</li>
+</ul>
+<p><strong>注册中心</strong></p>
+<ul>
+<li>上面其实我们都提到了注册中心，这东西就相当于一个平台，大家在上面暴露自己的服务，也在上面得知自己能调用哪些服务。</li>
+<li>当然还能做配置中心，将配置集中化处理，动态变更通知订阅者。</li>
+</ul>
+<p><strong>监控运维</strong></p>
+<ul>
+<li>面对众多的服务，精细化的监控和方便的运维必不可少。</li>
+<li>这点很多开发者在开发的时候察觉不到，到你真正上线开始运行维护的时候，如果没有良好的监控措施，快速的运维手段，到时候就是睁眼瞎！手足无措，等着挨批把！</li>
+</ul>
+<p><strong>小结：</strong></p>
+<ul>
+<li>让我们小结一下，大致上一个 RPC 框架需要做的就是<ul>
+<li>约定要通信协议</li>
+<li>序列化的格式</li>
+<li>一些容错机制</li>
+<li>负载均衡策略</li>
+<li>监控运维</li>
+<li>一个注册中心</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-2-简单实现一个RPC框架"><a href="#1-2-简单实现一个RPC框架" class="headerlink" title="1.2 简单实现一个RPC框架"></a>1.2 简单实现一个RPC框架</h3><ul>
+<li>没错就是简单的实现，上面我们在思考如何设计一个 RPC 框架的时候想了很多，那算是生产环境使用级别的功能需求了，我们这是 Demo，目的是突出 RPC框架重点功能 - <strong>实现远程调用</strong>。</li>
+</ul>
+<ul>
+<li>首先我们定义一个接口和一个简单实现。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AobingService</span> </span>&#123;  </span><br><span class="line">    <span class="function">String <span class="title">hello</span><span class="params">(String name)</span></span>;  </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AobingServiceImpl</span> <span class="keyword">implements</span> <span class="title">AobingService</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(String name)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Yo man Hello，I am"</span> + name;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>然后我们再来实现服务提供者暴露服务的功能。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AobingRpcFramework</span> </span>&#123; </span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">export</span><span class="params">(Object service, <span class="keyword">int</span> port)</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">          ServerSocket server = <span class="keyword">new</span> ServerSocket(port);</span><br><span class="line">          <span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">              Socket socket = server.accept();</span><br><span class="line">              <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                  <span class="comment">//反序列化</span></span><br><span class="line">                  ObjectInputStream input = <span class="keyword">new</span> ObjectInputStream(socket.getInputStream()); </span><br><span class="line">                  String methodName = input.read(); <span class="comment">//读取方法名</span></span><br><span class="line">                  Class&lt;?&gt;[] parameterTypes = (Class&lt;?&gt;[]) input.readObject(); <span class="comment">//参数类型</span></span><br><span class="line">                  Object[] arguments = (Object[]) input.readObject(); <span class="comment">//参数</span></span><br><span class="line">                  Method method = service.getClass().getMethod(methodName, parameterTypes);  <span class="comment">//找到方法</span></span><br><span class="line">                  Object result = method.invoke(service, arguments); <span class="comment">//调用方法</span></span><br><span class="line">                  <span class="comment">// 返回结果</span></span><br><span class="line">                  ObjectOutputStream output = <span class="keyword">new</span> ObjectOutputStream(socket.getOutputStream());</span><br><span class="line">                  output.writeObject(result);</span><br><span class="line">              &#125;).start();</span><br><span class="line">          &#125;</span><br><span class="line">     &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">refer</span> <span class="params">(Class&lt;T&gt; interfaceClass, String host, <span class="keyword">int</span> port)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">       <span class="keyword">return</span>  (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), <span class="keyword">new</span> Class&lt;?&gt;[] &#123;interfaceClass&#125;, </span><br><span class="line">            <span class="keyword">new</span> InvocationHandler() &#123;  </span><br><span class="line">                <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] arguments)</span> <span class="keyword">throws</span> Throwable </span>&#123;  </span><br><span class="line">                    Socket socket = <span class="keyword">new</span> Socket(host, port);  <span class="comment">//指定 provider 的 ip 和端口</span></span><br><span class="line">                    ObjectOutputStream output = <span class="keyword">new</span> ObjectOutputStream(socket.getOutputStream()); </span><br><span class="line">                    output.write(method.getName());  <span class="comment">//传方法名</span></span><br><span class="line">                    output.writeObject(method.getParameterTypes());  <span class="comment">//传参数类型</span></span><br><span class="line">                    output.writeObject(arguments);  <span class="comment">//传参数值</span></span><br><span class="line">                    ObjectInputStream input = <span class="keyword">new</span> ObjectInputStream(socket.getInputStream());  </span><br><span class="line">                    Object result = input.readObject();  <span class="comment">//读取结果</span></span><br><span class="line">                    <span class="keyword">return</span> result;  </span><br><span class="line">               &#125;</span><br><span class="line">        &#125;);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>好了，这个 RPC 框架就这样好了，是不是很简单？就是<strong>调用者传递了方法名、参数类型和参数值，提供者接收到这样参数之后调用对于的方法返回结果就好了</strong>！这就是远程过程调用。</p>
+<ul>
+<li>我们来看看如何使用</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">//服务提供者只需要暴露出接口</span></span><br><span class="line">AobingService service = <span class="keyword">new</span> AobingServiceImpl ();  </span><br><span class="line">AobingRpcFramework.export(service, <span class="number">2333</span>);  </span><br><span class="line"></span><br><span class="line"><span class="comment">//服务调用者只需要设置依赖</span></span><br><span class="line">AobingService service = AobingRpcFramework.refer(AobingService.class, "127.0.0.1", 2333);  </span><br><span class="line">service.hello();</span><br></pre></td></tr></table></figure>
+
+<p>看起来好像好不错哟，不过这很是简陋，用作 demo 有助理解还是极好的！</p>
+<p>接下来就来看看 Dubbo 吧！上正菜！</p>
+<h2 id="2-Dubbo简介"><a href="#2-Dubbo简介" class="headerlink" title="2. Dubbo简介"></a>2. Dubbo简介</h2><ul>
+<li>Dubbo 是阿里巴巴 2011年开源的一个基于 Java 的 RPC 框架，中间沉寂了一段时间，不过其他一些企业还在用 Dubbo 并自己做了扩展，比如当当网的 Dubbox，还有网易考拉的 Dubbok。</li>
+<li>但是在 2017 年阿里巴巴又重启了对 Dubbo 维护。在 2017 年荣获了开源中国 2017 最受欢迎的中国开源软件 Top 3。</li>
+<li>在 2018 年和 Dubbox 进行了合并，并且进入 Apache 孵化器，在 2019 年毕业正式成为 Apache 顶级项目。</li>
+<li>目前 Dubbo 社区主力维护的是 2.6.x 和 2.7.x 两大版本，2.6.x 版本主要是 bug 修复和少量功能增强为准，是稳定版本。</li>
+<li>而 2.7.x 是主要开发版本，更新和新增新的 feature 和优化，并且 2.7.5 版本的发布被 Dubbo 认为是里程碑式的版本发布，之后我们再做分析。</li>
+<li>它实现了面向接口的代理 RPC 调用，并且可以配合 ZooKeeper 等组件实现服务注册和发现功能，并且拥有负载均衡、容错机制等。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/110621676.png" alt="mark"></p>
+<table>
+<thead>
+<tr>
+<th align="left">节点</th>
+<th align="left">角色说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Consumer</td>
+<td align="left">需要调用远程服务的服务消费方</td>
+</tr>
+<tr>
+<td align="left">Registry</td>
+<td align="left">注册中心</td>
+</tr>
+<tr>
+<td align="left">Provider</td>
+<td align="left">服务提供方</td>
+</tr>
+<tr>
+<td align="left">Container</td>
+<td align="left">服务运行的容器</td>
+</tr>
+<tr>
+<td align="left">Monitor</td>
+<td align="left">监控中心</td>
+</tr>
+</tbody></table>
+<p><strong>再来说一下整体的流程</strong></p>
+<ul>
+<li><p>首先服务提供者 <strong>Provider 启动然后向注册中心注册</strong>自己所能提供的服务。</p>
+</li>
+<li><p>服务消费者 <strong>Consumer 启动向注册中心订阅</strong>自己所需的服务。</p>
+</li>
+<li><p>然后注册中心将提供者元信息通知给 Consumer， 之后 Consumer 因为已经从注册中心获取提供者的地址，因此可以<strong>通过负载均衡选择一个 Provider 直接调用</strong> 。</p>
+</li>
+<li><p>之后服务提供方元数据变更的话<strong>注册中心会把变更推送给服务消费者</strong>。</p>
+</li>
+<li><p>服务提供者和消费者都会在内存中记录着调用的次数和时间，然后<strong>定时的发送统计数据到监控中心</strong>。</p>
+</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li>首先<strong>注册中心和监控中心是可选的</strong>，你可以不要监控，也不要注册中心，直接在配置文件里面写然后提供方和消费方直连。</li>
+<li>然后注册中心、提供方和消费方之间都是长连接，和监控方不是长连接，并且<strong>消费方是直接调用提供方，不经过注册中心</strong>。</li>
+<li>就算<strong>注册中心和监控中心宕机了也不会影响到已经正常运行的提供者和消费者</strong>，因为消费者有本地缓存提供者的信息。</li>
+</ul>
+<h2 id="3-Dubbo分层架构"><a href="#3-Dubbo分层架构" class="headerlink" title="3. Dubbo分层架构"></a>3. Dubbo分层架构</h2><ul>
+<li>总的而言 Dubbo 分为三层，如果每一层再细分下去，一共有十层。别怕也就十层</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/112908886.jpg" alt="mark"></p>
+<ul>
+<li>大的三层分别为 Business（业务层）、RPC 层、Remoting，并且还分为 API 层和 SPI 层。</li>
+<li>分为大三层其实就是和我们知道的网络分层一样的意思，<strong>只有层次分明，职责边界清晰才能更好的扩展</strong>。</li>
+<li>而分 API 层和 SPI 层这是 Dubbo 成功的一点，<strong>采用微内核设计+SPI扩展</strong>，使得有特殊需求的接入方可以自定义扩展，做定制的二次开发。</li>
+</ul>
+<p>接下来咱们再来看看每一层都是干嘛的。</p>
+<ul>
+<li>Service，业务层，就是咱们开发的业务逻辑层。</li>
+<li>Config，配置层，主要围绕 ServiceConfig 和 ReferenceConfig，初始化配置信息。</li>
+<li>Proxy，代理层，服务提供者还是消费者都会生成一个代理类，使得服务接口透明化，代理层做远程调用和返回结果。</li>
+<li>Register，注册层，封装了服务注册和发现。</li>
+<li>Cluster，路由和集群容错层，负责选取具体调用的节点，处理特殊的调用要求和负责远程调用失败的容错措施。</li>
+<li>Monitor，监控层，负责监控统计调用时间和次数。</li>
+<li>Portocol，远程调用层，主要是封装 RPC 调用，主要负责管理 Invoker，Invoker代表一个抽象封装了的执行体，之后再做详解。</li>
+<li>Exchange，信息交换层，用来封装请求响应模型，同步转异步。</li>
+<li>Transport，网络传输层，抽象了网络传输的统一接口，这样用户想用 Netty 就用 Netty，想用 Mina 就用 Mina。</li>
+<li>Serialize，序列化层，将数据序列化成二进制流，当然也做反序列化。</li>
+</ul>
+<h3 id="3-1-SPI"><a href="#3-1-SPI" class="headerlink" title="3.1 SPI"></a>3.1 SPI</h3><ul>
+<li>我再稍微提一下 SPI（Service Provider Interface），是 JDK 内置的一个服务发现机制，<strong>它使得接口和具体实现完全解耦</strong>。我们只声明接口，具体的实现类在配置中选择。</li>
+<li>具体的就是你定义了一个接口，然后在<code>META-INF/services</code>目录下<strong>放置一个与接口同名的文本文件</strong>，文件的内容为<strong>接口的实现类</strong>，多个实现类用换行符分隔。</li>
+<li>这样就通过配置来决定具体用哪个实现！</li>
+<li>而 Dubbo SPI 还做了一些改进，篇幅有限留在之后再谈。</li>
+</ul>
+<h2 id="4-Dubbo的调用过程"><a href="#4-Dubbo的调用过程" class="headerlink" title="4. Dubbo的调用过程"></a>4. Dubbo的调用过程</h2><ul>
+<li>上面我已经介绍了每个层到底是干嘛的，我们现在再来串起来走一遍调用的过程，加深你对 Dubbo 的理解，让知识点串起来，由点及面来一波连连看。</li>
+</ul>
+<p><strong>先从服务提供者开始，看看它是如何工作的。</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/113239679.jpg" alt="mark"></p>
+<p><strong>服务暴露过程</strong></p>
+<ul>
+<li>首先 Provider 启动，通过 Proxy 组件根据具体的协议 Protocol 将需要暴露出去的接口封装成 Invoker，Invoker 是 Dubbo 一个很核心的组件，代表一个可执行体。</li>
+<li>然后再通过 Exporter 包装一下，这是为了在注册中心暴露自己套的一层，然后将 Exporter 通过 Registry 注册到注册中心。这就是整体服务暴露过程。</li>
+</ul>
+<p><strong>消费过程</strong></p>
+<ul>
+<li>接着我们来看消费者调用流程（把服务者暴露的过程也在图里展示出来了，这个图其实算一个挺完整的流程图了）。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/113428361.jpg" alt="mark"></p>
+<ul>
+<li>首先消费者启动会向注册中心拉取服务提供者的元信息，然后调用流程也是从 Proxy 开始，毕竟都需要代理才能无感知。</li>
+<li>Proxy 持有一个 Invoker 对象，调用 invoke 之后需要通过 Cluster 先从 Directory 获取所有可调用的远程服务的 Invoker 列表，如果配置了某些路由规则，比如某个接口只能调用某个节点的那就再过滤一遍 Invoker 列表。</li>
+<li>剩下的 Invoker 再通过 LoadBalance 做负载均衡选取一个。然后再经过 Filter 做一些统计什么的，再通过 Client 做数据传输，比如用 Netty 来传输。</li>
+<li>传输需要经过 Codec 接口做协议构造，再序列化。最终发往对应的服务提供者。</li>
+<li>服务提供者接收到之后也会进行 Codec 协议处理，然后反序列化后将请求扔到线程池处理。某个线程会根据请求找到对应的 Exporter ，而找到 Exporter 其实就是找到了 Invoker，但是还会有一层层 Filter，经过一层层过滤链之后最终调用实现类然后原路返回结果。</li>
+</ul>
+<p><strong>完成整个调用过程！</strong></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/08/20/Dubbo/Dubbo-01-%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Dubbo/" rel="tag">Dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RPC/" rel="tag">RPC</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/08/22/Linux/Linux-09-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Linux-09-进程调度算法
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/20/Leetcode/Leetcode-014-%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%89%8D%E7%BC%80/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Leetcode-014-最长公共前缀</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

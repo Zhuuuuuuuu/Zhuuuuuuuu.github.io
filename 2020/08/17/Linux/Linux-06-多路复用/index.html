@@ -260,16 +260,16 @@
 </li>
 <li><p><strong>这个中断程序就会把内存中的网络数据写入到对应的<code>socket</code>读缓冲区里面，然后它发现这个<code>socket</code>的等待队列里头不是进程，而是一个<code>eventpoll</code>对象的引用</strong></p>
 </li>
-<li><p><strong>这个时候呢，他就会根据这个<code>eventpoll</code>对象的引用，将当前<code>socket</code>的引用追加到eventpoll的就绪链表的末尾</strong>（eventpoll 还有一块空间是eventpoll 的等待队列，这个等待队列保存的就是调用epoll_wait 的进程）</p>
+<li><p><strong>这个时候呢，他就会根据这个<code>eventpoll</code>对象的引用，将当前<code>socket</code>的引用追加到eventpoll的就绪链表的末尾</strong>（<code>eventpoll</code> 还有一块空间是<code>eventpoll</code> 的等待队列，这个等待队列保存的就是调用<code>epoll_wait</code>的进程）</p>
 </li>
-<li><p>然后，当中断程序把<code>socket</code>的引用追加到就绪列表的末尾之后，就继续检查eventpoll对象的等待队列，如果有进程，就会把进程转移到工作队列中</p>
+<li><p>然后，当中断程序把<code>socket</code>的引用追加到就绪列表的末尾之后，就继续检查<code>eventpoll</code>对象的等待队列，如果有进程，就会把进程转移到工作队列中</p>
 </li>
-<li><p>转移完毕之后，进程就有获取到CPU执行的时间片了，然后就是调用epoll_wait 函数，他这个函数就返回到java层面了</p>
+<li><p>转移完毕之后，进程就有获取到CPU执行的时间片了，然后就是调用<code>epoll_wait</code> 函数，他这个函数就返回到java层面了</p>
 </li>
 </ul>
 <p><strong>总结：</strong></p>
 <ul>
-<li><strong>eventpoll对象等待队列里面，它有调用event_wait(,,,)函数进去的进程</strong></li>
+<li><strong>eventpoll对象等待队列里面，它有调用epoll_wait(,,,)函数进去的进程</strong></li>
 <li><strong>然后再把这个进程，从这个eventpoll的等待队列里面迁移到工作队列里面</strong></li>
 </ul>
 <h2 id="9-epoll-wait-获取就绪的socket"><a href="#9-epoll-wait-获取就绪的socket" class="headerlink" title="9. epoll_wait() 获取就绪的socket"></a>9. epoll_wait() 获取就绪的socket</h2><p><strong>epoll_wait() 返回值是Int类型的</strong></p>

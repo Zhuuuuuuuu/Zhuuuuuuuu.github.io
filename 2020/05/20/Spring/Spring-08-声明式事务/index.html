@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.6k字</span>
+            <span class="post-count">2.8k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">6分钟</span>
+            <span class="post-count">10分钟</span>
         </span>
     </span>
 </div>
@@ -100,43 +100,29 @@
 
       
       <h1 id="Spring-08-声明式事务"><a href="#Spring-08-声明式事务" class="headerlink" title="Spring-08-声明式事务"></a>Spring-08-声明式事务</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
-<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>官网mybatis-spring : <a href="http://mybatis.org/spring/zh/index.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/index.html</a></p>
-<a id="more"></a>
-
-
-
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><ul>
+<li>官网mybatis-spring : <a href="http://mybatis.org/spring/zh/index.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/index.html</a></li>
+</ul>
 <h2 id="1-回顾事务"><a href="#1-回顾事务" class="headerlink" title="1. 回顾事务"></a>1. 回顾事务</h2><ul>
 <li>事务在项目开发过程非常重要，涉及到数据的一致性的问题，不容马虎！</li>
 <li>事务管理是企业级应用程序开发中必备技术，用来确保数据的完整性和一致性。</li>
 </ul>
 <p>事务就是把一系列的动作当成一个独立的工作单元，这些动作要么全部完成，要么全部不起作用。</p>
-<p>事务的ACID原则：</p>
+<p><strong>事务的ACID原则：</strong></p>
 <ol>
-<li><p>原子性（atomicity）</p>
+<li><p>原子性（Atomicity）：事务是一个原子操作，由一系列动作组成。事务的原子性确保动作要么全部完成，要么完全不起作用。</p>
 </li>
-<li><ul>
-<li>事务是原子性操作，由一系列动作组成，事务的原子性确保动作要么全部完成，要么完全不起作用</li>
-</ul>
+<li><p>一致性（Consistency）：一旦事务完成（不管成功还是失败），系统必须确保它所建模的业务处于一致的状态，而不会是部分完成部分失败。在现实中的数据不应该被破坏。</p>
 </li>
-<li><p>一致性（consistency）</p>
+<li><p>隔离性（Isolation）：可能有许多事务会同时处理相同的数据，因此每个事务都应该与其他事务隔离开来，防止数据损坏。</p>
 </li>
-<li><ul>
-<li>一旦所有事务动作完成，事务就要被提交。数据和资源处于一种满足业务规则的一致性状态中</li>
-</ul>
-</li>
-<li><p>隔离性（isolation）</p>
-</li>
-<li><ul>
-<li>可能多个事务会同时处理相同的数据，因此每个事务都应该与其他事务隔离开来，防止数据损坏</li>
-</ul>
-</li>
-<li><p>持久性（durability）</p>
-</li>
-<li><ul>
-<li>事务一旦完成，无论系统发生什么错误，结果都不会受到影响。通常情况下，事务的结果被写到持久化存储器中</li>
-</ul>
+<li><p>持久性（Durability）：一旦事务完成，无论发生什么系统错误，它的结果都不应该受到影响，这样就能从任何系统崩溃中恢复过来。通常情况下，事务的结果被写到持久化存储器中。</p>
 </li>
 </ol>
+<a id="more"></a>
+
+
+
 <h2 id="2-普通事务测试"><a href="#2-普通事务测试" class="headerlink" title="2. 普通事务测试"></a>2. 普通事务测试</h2><p>将上一篇的代码拷贝到一个新的项目中</p>
 <ol>
 <li>在之前的案例中，我们给userDao接口新增两个方法，删除和增加用户；</li>
@@ -166,17 +152,23 @@
 <p>以前我们都需要自己手动管理事务，十分麻烦！</p>
 <p>但是Spring给我们提供了事务管理，我们只需要配置即可；</p>
 <h2 id="3-Spring中的事务管理"><a href="#3-Spring中的事务管理" class="headerlink" title="3. Spring中的事务管理"></a>3. Spring中的事务管理</h2><p>Spring在不同的事务管理API之上定义了一个抽象层，使得开发人员不必了解底层的事务管理API就可以使用Spring的事务管理机制。Spring支持编程式事务管理和声明式的事务管理。</p>
-<ul>
+<h3 id="3-1-编程式事务管理"><a href="#3-1-编程式事务管理" class="headerlink" title="3.1 编程式事务管理"></a>3.1 编程式事务管理</h3><ul>
 <li><strong>编程式事务管理</strong></li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200527/113346799.png" alt="mark"></p>
-<p>​    将事务管理代码嵌到业务方法中来控制事务的提交和回滚</p>
-<p>​    缺点：必须在每个事务操作业务逻辑中包含额外的事务管理代码</p>
 <ul>
+<li><p>将事务管理代码嵌到业务方法中来控制事务的提交和回滚</p>
+</li>
+<li><p>缺点：必须在每个事务操作业务逻辑中包含额外的事务管理代码</p>
+</li>
+<li><p>编程式事务管理是侵入性事务管理，使用TransactionTemplate或者直接使用PlatformTransactionManager，对于编程式事务管理，Spring推荐使用TransactionTemplate。</p>
+</li>
+</ul>
+<h3 id="3-2-声明式事务管理"><a href="#3-2-声明式事务管理" class="headerlink" title="3.2 声明式事务管理"></a>3.2 声明式事务管理</h3><ul>
 <li><strong>声明式事务管理（只用这个,基本配置也是固定的）</strong><ul>
 <li>一般情况下比编程式事务好用。</li>
 <li>将事务管理代码从业务方法中分离出来，以声明的方式来实现事务管理。</li>
-<li>将事务管理作为横切关注点，<strong>通过aop方法模块化</strong>。Spring中通过Spring AOP框架支持声明式事务管理。</li>
+<li>声明式事务管理建立在AOP之上，<strong>其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，执行完目标方法之后根据执行的情况提交或者回滚。</strong></li>
 </ul>
 </li>
 </ul>
@@ -203,18 +195,29 @@
 </ol>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--配置事务通知--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">tx:advice</span> <span class="attr">id</span>=<span class="string">"txAdvice"</span> <span class="attr">transaction-manager</span>=<span class="string">"transactionManager"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tx:attributes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"add"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"delete"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"update"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"search*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"get"</span> <span class="attr">read-only</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tx:attributes</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">tx:advice</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
+
+
+<ul>
+<li>编程式事务每次实现都要单独实现，但业务量大功能复杂时，使用编程式事务无疑是痛苦的</li>
+<li>而声明式事务不同，声明式事务属于无侵入式，不会影响业务逻辑的实现，只需要在配置文件中做相关的事务规则声明或者通过注解的方式，便可以将事务规则应用到业务逻辑中。</li>
+<li>显然声明式事务管理要优于编程式事务管理，这正是Spring倡导的非侵入式的编程方式。<strong>唯一不足的地方就是声明式事务管理的粒度是方法级别，而编程式事务管理是可以到代码块的</strong>，但是可以通过提取方法的方式完成声明式事务管理的配置。</li>
+</ul>
+<h3 id="3-3-事务的传播机制"><a href="#3-3-事务的传播机制" class="headerlink" title="3.3 事务的传播机制"></a>3.3 事务的传播机制</h3><ul>
+<li><strong>事务的传播性一般用在事务嵌套的场景，比如一个事务方法里面调用了另外一个事务方法</strong></li>
+<li><strong>那么两个方法是各自作为独立的方法提交还是内层的事务合并到外层的事务一起提交，这就是需要事务传播机制的配置来确定怎么样执行。</strong></li>
+</ul>
 <p><strong>spring事务传播特性：</strong></p>
 <p>事务传播行为就是多个事务方法相互调用时，事务如何在这些方法间传播。spring支持7种事务传播行为：</p>
 <ul>
 <li><strong>propagation_requierd：如果当前没有事务，就新建一个事务，如果已存在一个事务中，加入到这个事务中，这是最常见的选择。</strong></li>
-<li>propagation_supports：支持当前事务，如果没有当前事务，就以非事务方法执行。</li>
-<li>propagation_mandatory：使用当前事务，如果没有当前事务，就抛出异常。</li>
-<li>propagation_required_new：新建事务，如果当前存在事务，把当前事务挂起。</li>
-<li>propagation_not_supported：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。</li>
-<li>propagation_never：以非事务方式执行操作，如果当前事务存在则抛出异常。</li>
-<li>propagation_nested：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与propagation_required类似的操作</li>
+<li><code>propagation_supports</code>：支持当前事务，如果没有当前事务，就以非事务方法执行。</li>
+<li><code>propagation_mandatory</code>：使用当前事务，如果没有当前事务，就抛出异常。</li>
+<li><code>propagation_required_new</code>：新建事务，如果当前存在事务，把当前事务挂起。</li>
+<li><code>propagation_not_supported</code>：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。</li>
+<li><code>propagation_never</code>：以非事务方式执行操作，如果当前事务存在则抛出异常。</li>
+<li><code>propagation_nested</code>：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与<code>propagation_required</code>类似的操作</li>
 </ul>
-<p>Spring 默认的事务传播行为是 PROPAGATION_REQUIRED，它适合于绝大多数的情况。</p>
+<p>Spring 默认的事务传播行为是 <code>PROPAGATION_REQUIRED</code>，它适合于绝大多数的情况。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">假设 ServiveX#methodX() 都工作在事务环境下（即都被 Spring 事务增强了），</span><br><span class="line">假设程序中存在如下的调用链：</span><br><span class="line">Service1#method1()-&gt;Service2#method2()-&gt;Service3#method3()，</span><br><span class="line">那么这 3 个服务类的 3 个方法通过 Spring 的事务传播机制都工作在同一个事务中。</span><br></pre></td></tr></table></figure>
 
 <p>就好比，我们刚才的几个方法存在调用，所以会被放在一组事务当中！</p>
@@ -240,7 +243,38 @@
 
 
 <p><strong>结果发现：因为插入失败，所以事务进行了回滚！！</strong></p>
-<p>参考文档：<a href="http://mybatis.org/spring/zh/transactions.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/transactions.html</a></p>
+<h3 id="3-4-只读"><a href="#3-4-只读" class="headerlink" title="3.4 只读"></a>3.4 只读</h3><ul>
+<li>如果一个事务只对数据库执行读操作，那么该数据库就可能利用那个事务的只读特性，采取某些优化措施。</li>
+<li>通过把一个事务声明为只读，可以给后端数据库一个机会来应用那些它认为合适的优化措施。由于只读的优化措施是在一个事务启动时由后端数据库实施的， </li>
+<li>因此，只有对于那些具有可能启动一个新事务的传播行为（PROPAGATION_REQUIRES_NEW、PROPAGATION_REQUIRED、 ROPAGATION_NESTED）的方法来说，将事务声明为只读才有意义。</li>
+</ul>
+<h3 id="3-5-事务超时"><a href="#3-5-事务超时" class="headerlink" title="3.5 事务超时"></a>3.5 事务超时</h3><ul>
+<li>为了使一个应用程序很好地执行，它的事务不能运行太长时间。因此，声明式事务的下一个特性就是它的超时。</li>
+<li>假设事务的运行时间变得格外的长，由于事务可能涉及对数据库的锁定，所以长时间运行的事务会不必要地占用数据库资源。这时就可以声明一个事务在特定秒数后自动回滚，不必等它自己结束。</li>
+<li>由于超时时钟在一个事务启动的时候开始的，因此，只有对于那些具有可能启动一个新事务的传播行为（PROPAGATION_REQUIRES_NEW、PROPAGATION_REQUIRED、ROPAGATION_NESTED）的方法来说，声明事务超时才有意义。</li>
+</ul>
+<h2 id="4-回滚规则"><a href="#4-回滚规则" class="headerlink" title="4. 回滚规则"></a>4. 回滚规则</h2><ul>
+<li>在默认设置下，事务只在出现运行时异常（runtime exception）时回滚，而在出现受检查异常（checked exception）时不回滚（这一行为和EJB中的回滚行为是一致的）。</li>
+<li>不过，可以声明在出现特定受检查异常时像运行时异常一样回滚。同样，也可以声明一个事务在出现特定的异常时不回滚，即使特定的异常是运行时异常。</li>
+</ul>
+<h2 id="5-配置参考"><a href="#5-配置参考" class="headerlink" title="5. 配置参考"></a>5. 配置参考</h2><p>事物配置中有哪些属性可以配置?以下只是简单的使用参考</p>
+<ol>
+<li>事务的传播性：<br>@Transactional(propagation=Propagation.REQUIRED)</li>
+<li>事务的隔离级别：<br>@Transactional(isolation = Isolation.READ_UNCOMMITTED)</li>
+</ol>
+<blockquote>
+<p>读取未提交数据(会出现脏读, 不可重复读) 基本不使用</p>
+</blockquote>
+<ol>
+<li>只读：<br>@Transactional(readOnly=true)<br>该属性用于设置当前事务是否为只读事务，设置为true表示只读，false则表示可读写，默认值为false。</li>
+<li>事务的超时性：<br>@Transactional(timeout=30)</li>
+<li>回滚：<br>指定单一异常类：@Transactional(rollbackFor=RuntimeException.class)<br>指定多个异常类：@Transactional(rollbackFor={RuntimeException.class, Exception.class})</li>
+</ol>
+<blockquote>
+<p>该属性用于设置需要进行回滚的异常类数组，当方法中抛出指定异常数组中的异常时，则进行事务回滚。</p>
+</blockquote>
+<p><strong>参考文档</strong>：<a href="http://mybatis.org/spring/zh/transactions.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/transactions.html</a></p>
+<p>​                    <a href="https://www.cnblogs.com/mseddl/p/11577846.html" target="_blank" rel="noopener">https://www.cnblogs.com/mseddl/p/11577846.html</a></p>
 
       
       <!-- reward -->
