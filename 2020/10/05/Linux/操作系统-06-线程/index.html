@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    计算机网络-06-数据链路层 |  朱酱酱的学习博客
+    操作系统-06-线程 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-NetworkCoding/计算机网络-06-数据链路层" class="article article-type-post" itemscope
+  <article id="post-Linux/操作系统-06-线程" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  计算机网络-06-数据链路层
+  操作系统-06-线程
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" class="article-date">
-  <time datetime="2020-08-27T04:45:24.000Z" itemprop="datePublished">2020-08-27</time>
+      <a href="/2020/10/05/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-06-%E7%BA%BF%E7%A8%8B/" class="article-date">
+  <time datetime="2020-10-05T02:00:53.000Z" itemprop="datePublished">2020-10-05</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1k字</span>
+            <span class="post-count">419字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3分钟</span>
+            <span class="post-count">1分钟</span>
         </span>
     </span>
 </div>
@@ -99,55 +99,38 @@
       
 
       
-      <h1 id="计算机网络-06-数据链路层"><a href="#计算机网络-06-数据链路层" class="headerlink" title="计算机网络-06-数据链路层"></a>计算机网络-06-数据链路层</h1><h2 id="前言-链路层的基本问题"><a href="#前言-链路层的基本问题" class="headerlink" title="前言 : 链路层的基本问题"></a>前言 : 链路层的基本问题</h2><h3 id="1-封装成帧"><a href="#1-封装成帧" class="headerlink" title="1. 封装成帧"></a>1. 封装成帧</h3><p>将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png" alt="mark"></p>
+      <h1 id="操作系统-06-线程"><a href="#操作系统-06-线程" class="headerlink" title="操作系统-06-线程"></a>操作系统-06-线程</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185326649.png" alt="mark"></p>
 <a id="more"></a>
 
 
 
-<h3 id="2-透明传输"><a href="#2-透明传输" class="headerlink" title="2. 透明传输"></a>2. 透明传输</h3><ul>
-<li><p>透明表示一个实际存在的事物看起来好像不存在一样。</p>
-</li>
-<li><p>帧使用首部和尾部进行定界，<strong>如果帧的数据部分含有和首部尾部相同的内容</strong>，那么帧的开始和结束位置就会被错误的判定。</p>
-</li>
-<li><p>需要在数据部分出现首部尾部相同的内容前面插入转义字符。<strong>如果数据部分出现转义字符，那么就在转义字符前面再加个转义字符</strong>。在接收端进行处理之后可以还原出原始数据。这个过程透明传输的内容是转义字符，<strong>用户察觉不到转义字符的存在</strong>。</p>
-</li>
-</ul>
-<h3 id="3-差错检测"><a href="#3-差错检测" class="headerlink" title="3. 差错检测"></a>3. 差错检测</h3><ul>
-<li>目前数据链路层广泛使用了循环冗余检验（CRC）来检查比特差错。</li>
-</ul>
-<h1 id="信道分类"><a href="#信道分类" class="headerlink" title="信道分类"></a>信道分类</h1><h2 id="1-广播信道"><a href="#1-广播信道" class="headerlink" title="1. 广播信道"></a>1. 广播信道</h2><p>一对多通信，一个节点发送的数据能够被广播信道上所有的节点接收到。</p>
-<p>所有的节点都在同一个广播信道上发送数据，因此需要有专门的控制方法进行协调，避免发生冲突（冲突也叫碰撞）。</p>
-<p>主要有两种控制方法进行协调，一个是使用信道复用技术，一是使用 CSMA/CD 协议。</p>
-<h2 id="2-点对点信道"><a href="#2-点对点信道" class="headerlink" title="2. 点对点信道"></a>2. 点对点信道</h2><p>一对一通信。</p>
-<p>因为不会发生碰撞，因此也比较简单，使用 PPP 协议进行控制。</p>
-<h1 id="CSMA-CD-协议"><a href="#CSMA-CD-协议" class="headerlink" title="CSMA/CD 协议"></a>CSMA/CD 协议</h1><p>CSMA/CD 表示载波监听多点接入 / 碰撞检测。</p>
+<h2 id="1-为什么要引入线程？"><a href="#1-为什么要引入线程？" class="headerlink" title="1. 为什么要引入线程？"></a>1. 为什么要引入线程？</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185358306.png" alt="mark"></p>
 <ul>
-<li><strong>多点接入</strong>  ：说明这是总线型网络，许多主机以多点的方式连接到总线上。</li>
-<li><strong>载波监听</strong>  ：每个主机都必须不停地监听信道。在发送前，如果监听到信道正在使用，就必须等待。</li>
-<li><strong>碰撞检测</strong>  ：在发送中，如果监听到信道已有其它主机正在发送数据，就表示发生了碰撞。虽然每个主机在发送数据之前都已经监听到信道为空闲，但是由于电磁波的传播时延的存在，还是有可能会发生碰撞。</li>
+<li>为了方便于理解，我打开了我的任务管理器，可以看出chrome一个进程，下面有很多分支，可以把这些分支当做线程看待，PID即进程和线程都有的标识符。</li>
 </ul>
-<p>记端到端的传播时延为 τ，最先发送的站点最多经过 2τ 就可以知道是否发生了碰撞，称 2τ 为   <strong>争用期</strong>  。只有经过争用期之后还没有检测到碰撞，才能肯定这次发送不会发生碰撞。</p>
-<p>当发生碰撞时，站点要停止发送，等待一段时间再发送。这个时间采用   <strong>截断二进制指数退避算法</strong>   来确定。从离散的整数集合 {0, 1, .., (2<sup>k</sup>-1)} 中随机取出一个数，记作 r，然后取 r 倍的争用期作为重传等待时间。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-095659471.png" alt="mark"></p>
-<h1 id="PPP-协议"><a href="#PPP-协议" class="headerlink" title="PPP 协议"></a>PPP 协议</h1><p>互联网用户通常需要连接到某个 ISP 之后才能接入到互联网，PPP 协议是用户计算机和 ISP 进行通信时所使用的数据链路层协议。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100345698.png" alt="mark"></p>
-<p>PPP 的帧格式：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185415092.png" alt="mark"></p>
+<h2 id="2-线程的定义"><a href="#2-线程的定义" class="headerlink" title="2. 线程的定义"></a>2. 线程的定义</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185431932.png" alt="mark"></p>
 <ul>
-<li>F 字段为帧的定界符</li>
-<li>A 和 C 字段暂时没有意义</li>
-<li>FCS 字段是使用 CRC 的检验序列</li>
-<li>信息部分的长度不超过 1500</li>
+<li>资源分配、调度<br>传统进程机制中，<strong>进程是资源分配、调度的基本单位</strong><br><strong>引入线程后，进程是资源分配的基本单位，线程是调度的基本单位</strong></li>
+<li>并发性<br>传统进程机制，只能进程间并发<br>现在各线程之间也能并发</li>
+<li>系统开销<br>传统进程并发，需要<strong>切换进程的运行环境，系统开销大</strong><br><strong>同一个进程内的线程间并发，不需要切换环境，开销小</strong></li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100434363.png" alt="mark"></p>
-<h1 id="MAC-地址"><a href="#MAC-地址" class="headerlink" title="MAC 地址"></a>MAC 地址</h1><ul>
-<li>MAC 地址是链路层地址，<strong>长度为 6 字节（48 位），用于唯一标识网络适配器（网卡）。</strong></li>
-<li><strong>一台主机拥有多少个网络适配器就有多少个 MAC 地址</strong>。例如笔记本电脑普遍存在无线网络适配器和有线网络适配器，因此就有两个 MAC 地址。</li>
-</ul>
-<h1 id="局域网"><a href="#局域网" class="headerlink" title="局域网"></a>局域网</h1><p>局域网是一种典型的广播信道，主要特点是网络为一个单位所拥有，且地理范围和站点数目均有限。</p>
-<p>主要有以太网、令牌环网、FDDI 和 ATM 等局域网技术，目前以太网占领着有线局域网市场。</p>
-<p>可以按照网络拓扑结构对局域网进行分类：</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100818521.png" alt="mark"></p>
+<h2 id="3-线程的属性"><a href="#3-线程的属性" class="headerlink" title="3. 线程的属性"></a>3. 线程的属性</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185546111.png" alt="mark"></p>
+<p>内核线程是处理机调度的单位，线程几乎不拥有系统资源，同一个进程的线程间共享进程资源，各个线程可以占用不同的CPU。 线程有自己的ID，线程控制块TCP，线程也有就绪、阻塞、运行三种基本状态。 同一进程内的线程通信无需系统干预，线程切换不会引起进程切换，系统开销很小。 不同进程的线程切换会导致进程切换。</p>
+<h2 id="4-线程的实现方式"><a href="#4-线程的实现方式" class="headerlink" title="4. 线程的实现方式"></a>4. 线程的实现方式</h2><p><strong>用户级线程</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185636034.png" alt="mark"></p>
+<p><strong>内核级线程</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185659747.png" alt="mark"></p>
+<p><strong>组合方式</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185720348.png" alt="mark"></p>
+<h2 id="5-多线程模型"><a href="#5-多线程模型" class="headerlink" title="5. 多线程模型"></a>5. 多线程模型</h2><p><strong>多对一模型</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185810274.png" alt="mark"></p>
+<p><strong>一对一模型</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185824641.png" alt="mark"></p>
+<p><strong>多对多模型</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/185839178.png" alt="mark"></p>
+<p><strong>参考书籍：《王道考研计算机操作系统》</strong></p>
+<p><strong>参考博客</strong> ：<a href="https://mubu.com/doc/Cd-Y4YOfkh#o-1d01735b78f18c07f" target="_blank" rel="noopener">https://mubu.com/doc/Cd-Y4YOfkh#o-1d01735b78f18c07f</a></p>
 
       
       <!-- reward -->
@@ -215,14 +198,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/10/05/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-06-%E7%BA%BF%E7%A8%8B/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mac%E5%9C%B0%E5%9D%80/" rel="tag">mac地址</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
 
 
     </footer>
@@ -233,19 +216,10 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-05-%E7%BD%91%E7%BB%9C%E5%B1%82/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            计算机网络-05-网络层
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/08/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-04-%E6%8A%93%E5%8C%85/" class="article-nav-link">
+      <a href="/2020/10/04/recommendation/%E5%A5%BD%E6%96%87%E9%98%85%E8%AF%BB-01-%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">计算机网络-04-抓包</div>
+        <div class="article-nav-title">好文阅读-01-后端学习路线</div>
       </a>
     
   </nav>

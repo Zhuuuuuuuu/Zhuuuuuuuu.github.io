@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    计算机网络-03-传输层 |  朱酱酱的学习博客
+    计算机网络-06-数据链路层 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-NetworkCoding/计算机网络-03-传输层" class="article article-type-post" itemscope
+  <article id="post-NetworkCoding/计算机网络-06-数据链路层" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  计算机网络-03-传输层
+  计算机网络-06-数据链路层
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/" class="article-date">
-  <time datetime="2020-07-27T04:02:24.000Z" itemprop="datePublished">2020-07-27</time>
+      <a href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" class="article-date">
+  <time datetime="2020-08-01T04:45:24.000Z" itemprop="datePublished">2020-08-01</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">2.8k字</span>
+            <span class="post-count">2k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">9分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -99,153 +99,109 @@
       
 
       
-      <h1 id="计算机网络-03-传输层"><a href="#计算机网络-03-传输层" class="headerlink" title="计算机网络-03-传输层"></a>计算机网络-03-传输层</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>推荐博客：</strong> <a href="https://blog.csdn.net/qq_39326472/article/details/88089747" target="_blank" rel="noopener">https://blog.csdn.net/qq_39326472/article/details/88089747</a></p>
-<h6 id="传输层和网络层的关系"><a href="#传输层和网络层的关系" class="headerlink" title="传输层和网络层的关系"></a>传输层和网络层的关系</h6><ul>
-<li>网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。</li>
-<li>传输层提供了进程中的逻辑通信，传输层向高层用户屏蔽了网络层的核心实现，使得应用进程看起来像是两个传输层实体之间一条端到端的逻辑通信信道。</li>
+      <h1 id="计算机网络-06-数据链路层"><a href="#计算机网络-06-数据链路层" class="headerlink" title="计算机网络-06-数据链路层"></a>计算机网络-06-数据链路层</h1><h1 id="前言-链路层的基本问题"><a href="#前言-链路层的基本问题" class="headerlink" title="前言 : 链路层的基本问题"></a>前言 : 链路层的基本问题</h1><h3 id="1-封装成帧"><a href="#1-封装成帧" class="headerlink" title="1. 封装成帧"></a>1. 封装成帧</h3><p>将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png" alt="mark"></p>
+<h3 id="2-透明传输"><a href="#2-透明传输" class="headerlink" title="2. 透明传输"></a>2. 透明传输</h3><ul>
+<li><p>透明表示一个实际存在的事物看起来好像不存在一样。</p>
+</li>
+<li><p>帧使用首部和尾部进行定界，<strong>如果帧的数据部分含有和首部尾部相同的内容</strong>，那么帧的开始和结束位置就会被错误的判定。</p>
+</li>
+<li><p>需要在数据部分出现首部尾部相同的内容前面插入转义字符。<strong>如果数据部分出现转义字符，那么就在转义字符前面再加个转义字符</strong>。在接收端进行处理之后可以还原出原始数据。这个过程透明传输的内容是转义字符，<strong>用户察觉不到转义字符的存在</strong>。</p>
+</li>
 </ul>
-<p>实际上，<strong>传输层和应用程序进程之间通过Socket（套接字）</strong>关联，这样通过Socket就可以区别同一主机上的不同应用进程，从而传输层提供服务变为可能；</p>
-<p>实际上，每个套接字都有一个唯一的ID，被称为<strong>端口号</strong>；而在传输层接收到来自应用程序的分组并通过添加传输层首部而形成报文段的过程中，该端口号被写入；端口号大小在0-65535之间，其中0-1023属于周知端口号，它们为特定的Socket而拥有。</p>
+<h3 id="3-差错检测"><a href="#3-差错检测" class="headerlink" title="3. 差错检测"></a>3. 差错检测</h3><ul>
+<li>目前数据链路层广泛使用了循环冗余检验（CRC）来检查比特差错。</li>
+</ul>
 <a id="more"></a>
 
 
 
-<h2 id="1-UDP-和-TCP的特点"><a href="#1-UDP-和-TCP的特点" class="headerlink" title="1. UDP 和 TCP的特点"></a>1. UDP 和 TCP的特点</h2><ul>
-<li><strong>用户数据报协议（UDP）</strong>（User Datagram Protocol）<ul>
-<li>无连接的，尽最大努力交付</li>
-<li>没有拥塞控制</li>
-<li>面向报文（对于应用程序传下来的报文不合并也不拆分，只是添加UDP首部）</li>
-<li>支持一对一，一对多，多对一和多对多的交互通信。</li>
+<h1 id="信道分类"><a href="#信道分类" class="headerlink" title="信道分类"></a>信道分类</h1><h2 id="1-广播信道"><a href="#1-广播信道" class="headerlink" title="1. 广播信道"></a>1. 广播信道</h2><p>一对多通信，一个节点发送的数据能够被广播信道上所有的节点接收到。</p>
+<p>所有的节点都在同一个广播信道上发送数据，因此需要有专门的控制方法进行协调，避免发生冲突（冲突也叫碰撞）。</p>
+<p>主要有两种控制方法进行协调，一个是使用信道复用技术，一是使用 CSMA/CD 协议。</p>
+<h2 id="2-点对点信道"><a href="#2-点对点信道" class="headerlink" title="2. 点对点信道"></a>2. 点对点信道</h2><p>一对一通信。</p>
+<p>因为不会发生碰撞，因此也比较简单，使用 PPP 协议进行控制。</p>
+<h1 id="信道复用技术"><a href="#信道复用技术" class="headerlink" title="信道复用技术"></a>信道复用技术</h1><h2 id="1-频分复用"><a href="#1-频分复用" class="headerlink" title="1. 频分复用"></a>1. 频分复用</h2><ul>
+<li>频分复用的所有主机在相同的时间占用不同的频率带宽资源。</li>
 </ul>
-</li>
-<li><strong>传输控制协议 TCP</strong> （Transmission Control Protocol）<ul>
-<li>面向连接的，提供可靠交付</li>
-<li>有流量控制，拥塞避免，提供全双工通信</li>
-<li>面向字节流（把应用层传下来的报文看成字节流，把字节流组织成大小不等的数据块）</li>
-<li>每一条 TCP 连接只能是点对点的（一对一）。</li>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/191122799.png" alt="mark"></p>
+<h2 id="2-时分复用"><a href="#2-时分复用" class="headerlink" title="2. 时分复用"></a>2. 时分复用</h2><ul>
+<li>时分复用的所有主机在不同的时间占用相同的频率带宽资源。</li>
 </ul>
-</li>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/191142061.png" alt="mark"></p>
+<p>使用频分复用和时分复用进行通信，在通信的过程中主机会一直占用一部分信道资源。但是由于计算机数据的突发性质，通信过程没必要一直占用信道资源而不让出给其它用户使用，因此这两种方式对信道的利用率都不高。</p>
+<h2 id="3-统计时分复用"><a href="#3-统计时分复用" class="headerlink" title="3. 统计时分复用"></a>3. 统计时分复用</h2><ul>
+<li>是对时分复用的一种改进，不固定每个用户在时分复用帧中的位置，只要有数据就集中起来组成统计时分复用帧然后发送。</li>
 </ul>
-<h2 id="2-UDP"><a href="#2-UDP" class="headerlink" title="2. UDP"></a>2. UDP</h2><h3 id="2-1-UDP首部格式"><a href="#2-1-UDP首部格式" class="headerlink" title="2.1 UDP首部格式"></a>2.1 UDP首部格式</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-102741716.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/191205257.png" alt="mark"></p>
+<h2 id="4-波分复用"><a href="#4-波分复用" class="headerlink" title="4. 波分复用"></a>4. 波分复用</h2><ul>
+<li>光的频分复用。由于光的频率很高，因此习惯上用波长而不是频率来表示所使用的光载波。</li>
+</ul>
+<h2 id="5-码分复用"><a href="#5-码分复用" class="headerlink" title="5. 码分复用"></a>5. 码分复用</h2><ul>
+<li>为每个用户分配 m bit 的码片，并且所有的码片正交，对于任意两个码片 <img src="https://latex.codecogs.com/gif.latex?\vec{S}" class="mathjax-pic"/> 和 <img src="https://latex.codecogs.com/gif.latex?\vec{T}" class="mathjax-pic"/> 有</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/191315812.png" alt="mark" style="zoom:80%;" />
+
+
+
+
+
+
+
+
+
+<h1 id="CSMA-CD-协议"><a href="#CSMA-CD-协议" class="headerlink" title="CSMA/CD 协议"></a>CSMA/CD 协议</h1><p>CSMA/CD 表示载波监听多点接入 / 碰撞检测。</p>
 <ul>
-<li>首部字段只有8个字节，包括源端口，目的端口，长度，检验和。12字节的伪首部是为了计算检验和临时添加的</li>
+<li><strong>多点接入</strong>  ：说明这是总线型网络，许多主机以多点的方式连接到总线上。</li>
+<li><strong>载波监听</strong>  ：每个主机都必须不停地监听信道。在发送前，如果监听到信道正在使用，就必须等待。</li>
+<li><strong>碰撞检测</strong>  ：在发送中，如果监听到信道已有其它主机正在发送数据，就表示发生了碰撞。虽然每个主机在发送数据之前都已经监听到信道为空闲，但是由于电磁波的传播时延的存在，还是有可能会发生碰撞。</li>
 </ul>
-<h2 id="3-TCP"><a href="#3-TCP" class="headerlink" title="3. TCP"></a>3. TCP</h2><h3 id="3-1-TCP-首部格式"><a href="#3-1-TCP-首部格式" class="headerlink" title="3.1 TCP 首部格式"></a>3.1 TCP 首部格式</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-105028905.png" alt="mark"></p>
+<p>记端到端的传播时延为 τ，最先发送的站点最多经过 2τ 就可以知道是否发生了碰撞，称 2τ 为   <strong>争用期</strong>  。只有经过争用期之后还没有检测到碰撞，才能肯定这次发送不会发生碰撞。</p>
+<p>当发生碰撞时，站点要停止发送，等待一段时间再发送。这个时间采用   <strong>截断二进制指数退避算法</strong>   来确定。从离散的整数集合 {0, 1, .., (2<sup>k</sup>-1)} 中随机取出一个数，记作 r，然后取 r 倍的争用期作为重传等待时间。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-095659471.png" alt="mark"></p>
+<h1 id="PPP-协议"><a href="#PPP-协议" class="headerlink" title="PPP 协议"></a>PPP 协议</h1><p>互联网用户通常需要连接到某个 ISP 之后才能接入到互联网，PPP 协议是用户计算机和 ISP 进行通信时所使用的数据链路层协议。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100345698.png" alt="mark"></p>
+<p>PPP 的帧格式：</p>
 <ul>
-<li><p><strong>序号：</strong>用于对字节流进行编号，例如序号为 301，表示第一个字节的编号为 301，如果携带的数据长度为 100 字节，那么下一个报文段的序号应为 401。</p>
-</li>
-<li><p><strong>确认号：</strong>期望收到的下一个报文段的序号。例如 B 正确收到 A 发送来的一个报文段，序号为 501，携带的数据长度为 200 字节，因此 B 期望下一个报文段的序号为 701，B 发送给 A 的确认报文段中确认号就为 701。</p>
-</li>
-<li><p><strong>数据偏移</strong>：指的是数据部分距离报文段起始处的偏移量，实际上指的是首部的长度。</p>
-</li>
-<li><p><strong>确认ACK :</strong> 当 ACK=1 时确认号字段有效，否则无效。TCP 规定，在连接建立后所有传送的报文段都必须把 ACK 置 1。</p>
-</li>
-<li><p><strong>同步SYN</strong> : 在连接建立时用来同步序号。当 SYN=1，ACK=0 时表示这是一个连接请求报文段。若对方同意建立连接，则响应报文中 SYN=1，ACK=1。</p>
-</li>
-<li><p><strong>终止FIN :</strong> 用来释放一个连接，当 FIN=1 时，表示此报文段的发送方的数据已发送完毕，并要求释放连接。</p>
-</li>
-<li><p><strong>窗口</strong> ： 窗口值作为接收方让发送方设置其发送窗口的依据。之所以要有这个限制，是因为接收方的数据缓存空间是有限的。</p>
-</li>
+<li>F 字段为帧的定界符</li>
+<li>A 和 C 字段暂时没有意义</li>
+<li>FCS 字段是使用 CRC 的检验序列</li>
+<li>信息部分的长度不超过 1500</li>
 </ul>
-<h3 id="3-2-TCP-的-三次握手（面试必问）"><a href="#3-2-TCP-的-三次握手（面试必问）" class="headerlink" title="3.2 TCP 的 三次握手（面试必问）"></a>3.2 TCP 的 三次握手（面试必问）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-110028209.png" alt="mark"></p>
-<p>假设A是客户端，B是服务器端。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100434363.png" alt="mark"></p>
+<h1 id="MAC-地址"><a href="#MAC-地址" class="headerlink" title="MAC 地址"></a>MAC 地址</h1><ul>
+<li>MAC 地址是链路层地址，<strong>长度为 6 字节（48 位），用于唯一标识网络适配器（网卡）。</strong></li>
+<li><strong>一台主机拥有多少个网络适配器就有多少个 MAC 地址</strong>。例如笔记本电脑普遍存在无线网络适配器和有线网络适配器，因此就有两个 MAC 地址。</li>
+</ul>
+<h1 id="局域网"><a href="#局域网" class="headerlink" title="局域网"></a>局域网</h1><p>局域网是一种典型的广播信道，主要特点是网络为一个单位所拥有，且地理范围和站点数目均有限。</p>
+<p>主要有以太网、令牌环网、FDDI 和 ATM 等局域网技术，目前以太网占领着有线局域网市场。</p>
+<p>可以按照网络拓扑结构对局域网进行分类：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-100818521.png" alt="mark"></p>
+<h1 id="以太网"><a href="#以太网" class="headerlink" title="以太网"></a>以太网</h1><p>以太网是一种星型拓扑结构局域网。</p>
+<p>早期使用集线器进行连接，集线器是一种物理层设备， 作用于比特而不是帧，当一个比特到达接口时，集线器重新生成这个比特，并将其能量强度放大，从而扩大网络的传输距离，之后再将这个比特发送到其它所有接口。如果集线器同时收到两个不同接口的帧，那么就发生了碰撞。</p>
+<p><strong>目前以太网使用交换机替代了集线器，交换机是一种链路层设备，它不会发生碰撞，能根据 MAC 地址进行存储转发。</strong></p>
+<p>以太网帧格式：</p>
 <ul>
-<li>首先B处于Listen(监听)状态，等待客户的连接请求。</li>
-<li>A向B发送连接请求报文，SYN = 1 ，ACK = 0，选择一个初始的序号x</li>
-<li>B收到连接请求报文，如果同意建立连接，则向A发送连接确认报文，SYN = 1，ACK = 1,确认号是 x + 1,同时也选择一个初始序号y</li>
-<li>A收到B的连接确认报文后，还要向B发出确认，确认号为 y + 1,序号是 x +  1</li>
-<li>B收到A的确认后，连接建立。</li>
+<li><strong>类型</strong>  ：标记上层使用的协议；</li>
+<li><strong>数据</strong>  ：<strong>长度在 46-1500 之间</strong>，如果太小则需要填充；</li>
+<li><strong>FCS</strong>  ：帧检验序列，使用的是 CRC 检验方法；</li>
 </ul>
-<p><strong>三次握手的原因</strong></p>
-<ul>
-<li>第三次握手是为了防止失效的连接请求到达服务器，让服务器错误的打开连接。</li>
-<li><strong>客户端发送的连接请求如果在网络中滞留，那么就会隔很长一段时间才能收到服务器端发送回的连接确认。</strong>客户端等待一个<strong>超时重传时间</strong>之后，就会重新请求连接。但是这个滞留的连接最后还是到达服务器，如果不进行三次握手，那么服务器就会打开两个连接。如果有第三次握手，客户端就会忽略服务器之后发送的滞留连接请求的连接确认，不进行第三次握手，所以不会再次重复的打开连接。</li>
-</ul>
-<h3 id="3-3-TCP的四次挥手（面试必问）"><a href="#3-3-TCP的四次挥手（面试必问）" class="headerlink" title="3.3 TCP的四次挥手（面试必问）"></a>3.3 TCP的四次挥手（面试必问）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-111815380.png" alt="mark"></p>
-<p>以下描述不讨论序号和确认号，因为序号和确认号的规则比较简单。并且不讨论ACK，因为ACK在连接建立之后都是1.</p>
-<ul>
-<li>A发送连接释放报文，FIN = 1</li>
-<li>B 收到之后发出确认，此时TCP处于半关闭状态，B 能向A  发送数据但是 A 不能向 B 发送数据。</li>
-<li>当B 不再不要连接的时候，发出连接释放报文， FIN = 1；</li>
-<li>A 收到后发出确认，进入TIME-WAIT状态，等待2MSL (最大报文存活时间)后释放连接。</li>
-<li>B 收到 A  的 确认后释放连接。</li>
-</ul>
-<p><strong>四次挥手的原因</strong></p>
-<ul>
-<li>客户端发送了FIN 连接释放报文之后，服务器收到了这个报文，就进入了CLOSE-WAIT 状态。这个状态是为了让服务器端发送还未传送完毕的数据，传送完毕之后，服务器会发送FIN连接释放报文。</li>
-</ul>
-<p><strong>TIME_WAIT</strong> </p>
-<p>客户端接收到服务器段的FIN报文后进入此状态，此时并不是直接进入CLOSED状态，还需要等待一个<strong>时间计时器设置的时间2MSL</strong> 。这么做有两个理由：</p>
-<ul>
-<li>确保最后一个确认报文能够到达。如果B 没收到 A 发送来的确认报文，那么就会重新发送连接释放请求报文，A 等待一段时间就是为了处理这种情况的发生。</li>
-<li>等待一段时间是为了让本连接持续时间内所产生的所有报文都从网络中消失，使得下一个新的连接不会出现旧的连接请求报文。</li>
-</ul>
-<h3 id="3-4-TCP-的-可靠传输"><a href="#3-4-TCP-的-可靠传输" class="headerlink" title="3.4 TCP 的 可靠传输"></a>3.4 TCP 的 可靠传输</h3><ul>
-<li><strong>TCP使用超时重传来实现可靠传输：如果一个已经发送的报文段在超时时间内没有收到确认，那么 就重传这个报文段。</strong></li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-133408214.png" alt="mark"></p>
-<ul>
-<li><p>一个报文段从发送再到接收到确认所经过的时间称为往返时间 RTT，加权平均往返时间 RTTs 计算如下：</p>
-<ul>
-<li>其中，0 ≤ a ＜ 1，RTTs 随着 a 的增加更容易受到 RTT 的影响。</li>
-</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/190817970.png" alt="mark"></p>
+<h1 id="交换机"><a href="#交换机" class="headerlink" title="交换机"></a>交换机</h1><ul>
+<li><p><strong>交换机具有自学习能力，学习的是交换表的内容，交换表中存储着 MAC 地址到接口的映射。</strong></p>
 </li>
-<li><p>超时时间 RTO 应该略大于 RTTs，<strong>TCP 使用的超时时间计算如下：</strong></p>
-<ul>
-<li><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-133514339.png" alt="mark"></li>
-<li>其中 RTT<sub>d</sub> 为偏差的加权平均值。</li>
-</ul>
+<li><p>正是由于这种自学习能力，因此交换机是一种即插即用设备，不需要网络管理员手动配置交换表内容。</p>
+</li>
+<li><p>下图中，交换机有 4 个接口，主机 A 向主机 B 发送数据帧时，交换机把主机 A 到接口 1 的映射写入交换表中。为了发送数据帧到 B，先查交换表，此时没有主机 B 的表项，那么主机 A 就发送广播帧，主机 C 和主机 D 会丢弃该帧，主机 B 回应该帧向主机 A 发送数据包时，交换机查找交换表得到主机 A 映射的接口为 1，就发送数据帧到接口 1，同时交换机添加主机 B 到接口 2 的映射。</p>
 </li>
 </ul>
-<h3 id="3-5-TCP-滑动窗口"><a href="#3-5-TCP-滑动窗口" class="headerlink" title="3.5 TCP 滑动窗口"></a>3.5 TCP 滑动窗口</h3><ul>
-<li><p>窗口是缓存的一部分，用来暂时存放字节流。<strong>发送方和接收方各有一个窗口</strong>，<strong>接收方通过 TCP 报文段中的窗口字段告诉发送方自己的窗口大小，发送方根据这个值和其它信息设置自己的窗口大小。</strong></p>
-</li>
-<li><p>发送窗口内的字节都允许被发送，接收窗口内的字节都允许被接收。</p>
-<ul>
-<li>如果发送窗口左部的字节已经发送并且收到了确认，那么就将发送窗口向右滑动一定距离，直到左部第一个字节不是已发送并且已确认的状态；</li>
-<li>接收窗口的滑动类似，接收窗口左部字节已经发送确认并交付主机，就向右滑动接收窗口。</li>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/190903624.png" alt="mark"></p>
+<h1 id="虚拟局域网"><a href="#虚拟局域网" class="headerlink" title="虚拟局域网"></a>虚拟局域网</h1><ul>
+<li>虚拟局域网可以建立与物理位置无关的逻辑组，只有在同一个虚拟局域网中的成员才会收到链路层广播信息。</li>
+<li>例如下图中 (A1, A2, A3, A4) 属于一个虚拟局域网，A1 发送的广播会被 A2、A3、A4 收到，而其它站点收不到。</li>
+<li>使用 <strong>VLAN 干线连接来建立虚拟局域网</strong>，每台交换机上的一个特殊接口被设置为干线接口，以互连 VLAN 交换机。IEEE 定义了一种扩展的以太网帧格式 802.1Q，它在标准以太网帧上加进了 4 字节首部 VLAN 标签，用于表示该帧属于哪一个虚拟局域网。</li>
 </ul>
-</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-134644530.png" alt="mark"></p>
-<h3 id="3-6-TCP-流量控制"><a href="#3-6-TCP-流量控制" class="headerlink" title="3.6 TCP 流量控制"></a>3.6 TCP 流量控制</h3><ul>
-<li><strong>流量控制是为了控制发送方发送速率，保证接收方来得及接收</strong></li>
-<li>接收方发送的确认报文中的窗口字段可以用来控制发送方的窗口大小，从而影响发送方的发送速率。将窗口字段设置成0，则发送方不能发送数据。</li>
-</ul>
-<h3 id="3-7-TCP-拥塞控制"><a href="#3-7-TCP-拥塞控制" class="headerlink" title="3.7 TCP 拥塞控制"></a>3.7 TCP 拥塞控制</h3><ul>
-<li><strong>如果网络出现拥塞</strong>，分组将会丢失，此时发送方会继续重传，从而导致网络拥塞程度更高。</li>
-<li>因此当出现拥塞时，应当控制发送方的速率。这一点和流量控制很像，但是出发点不同。</li>
-<li><strong>流量控制是为了让接收方能来得及接收，而拥塞控制是为了降低整个网络的拥塞程度。</strong></li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-135235298.png" alt="mark"></p>
-<p>TCP 主要通过四种算法来进行拥塞控制：<strong>慢开始，拥塞避免，快重传，快恢复。</strong></p>
-<ul>
-<li>发送方需要维护一个叫做<strong>拥塞窗口（cwnd）的状态变量</strong>，注意拥塞窗口与发送方窗口的区别：拥塞窗口只是一个状态变量，实际决定发送方能发送多少数据的是发送方窗口。</li>
-</ul>
-<p>为了便于讨论，做如下假设：</p>
-<ul>
-<li>接收方有足够大的接收缓存，因此不会发生流量控制；</li>
-<li>虽然 TCP 的窗口基于字节，但是这里设窗口的大小单位为报文段。</li>
-</ul>
-<h4 id="3-7-1-慢开始和拥塞避免"><a href="#3-7-1-慢开始和拥塞避免" class="headerlink" title="3.7.1 慢开始和拥塞避免"></a>3.7.1 慢开始和拥塞避免</h4><ul>
-<li><p>发送的最初执行<strong>慢开始，令 cwnd = 1，发送方只能发送 1 个报文段</strong>；当收到确认后，将 cwnd 加倍，因此之后发送方能够发送的报文段数量为：2、4、8 …</p>
-</li>
-<li><p>注意到慢开始<strong>每个轮次都将 cwnd 加倍，这样会让 cwnd 增长速度非常快</strong>，从而使得发送方发送的速度增长速度过快，网络拥塞的可能性也就更高。<strong>设置一个慢开始门限 ssthresh，当 cwnd &gt;= ssthresh 时，进入拥塞避免，每个轮次只将 cwnd 加 1。</strong></p>
-</li>
-<li><p><strong>如果出现了超时，则令 ssthresh = cwnd / 2，然后重新执行慢开始。</strong></p>
-</li>
-</ul>
-<h4 id="3-7-2-快重传和快恢复"><a href="#3-7-2-快重传和快恢复" class="headerlink" title="3.7.2 快重传和快恢复"></a>3.7.2 快重传和快恢复</h4><ul>
-<li><p><strong>在接收方，要求每次接收到报文段都应该对最后一个已收到的有序报文段进行确认。</strong>例如已经接收到 M<sub>1</sub> 和 M<sub>2</sub>，此时收到 M<sub>4</sub>，应当发送对 M<sub>2</sub> 的确认。</p>
-</li>
-<li><p><strong>在发送方，如果收到三个重复确认，那么可以知道下一个报文段丢失，此时执行快重传</strong>，立即重传下一个报文段。例如收到三个 M<sub>2</sub>，则 M<sub>3</sub> 丢失，立即重传 M<sub>3</sub>。</p>
-</li>
-<li><p>在这种情况下，只是丢失个别报文段，而不是网络拥塞。<strong>因此执行快恢复，令 ssthresh = cwnd / 2 ，cwnd = ssthresh，注意到此时直接进入拥塞避免。</strong></p>
-</li>
-<li><p><strong>慢开始和快恢复的快慢指的是 cwnd 的设定值，而不是 cwnd 的增长速率。慢开始 cwnd 设定为 1，而快恢复 cwnd 设定为 ssthresh。</strong></p>
-</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-140417321.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/191021361.png" alt="mark"></p>
 
       
       <!-- reward -->
@@ -313,14 +269,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mac%E5%9C%B0%E5%9D%80/" rel="tag">mac地址</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
 
 
     </footer>
@@ -331,19 +287,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/07/27/Sort/%E6%8E%92%E5%BA%8F-03-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/" class="article-nav-link">
+      <a href="/2020/08/02/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-07-%E7%89%A9%E7%90%86%E5%B1%82/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            排序-03-快速排序
+            计算机网络-07-物理层
           
         </div>
       </a>
     
     
-      <a href="/2020/07/26/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/" class="article-nav-link">
+      <a href="/2020/08/01/JVM_Notes/JVM-12-%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">计算机网络-02-应用层</div>
+        <div class="article-nav-title">JVM-12-四种引用类型</div>
       </a>
     
   </nav>

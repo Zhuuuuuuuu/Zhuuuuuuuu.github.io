@@ -75,7 +75,7 @@
     
     
     
-    <article id="post-JUC/JUC-19-AQS" class="article article-type-post" itemscope
+    <article id="post-NetworkCoding/计算机网络-06-数据链路层" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -83,8 +83,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/08/03/JUC/JUC-19-AQS/"
-    >JUC-19-AQS</a
+  <a class="article-title" href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"
+    >计算机网络-06-数据链路层</a
   >
 </h2>
   
@@ -94,8 +94,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/08/03/JUC/JUC-19-AQS/" class="article-date">
-  <time datetime="2020-08-03T08:02:24.000Z" itemprop="datePublished">2020-08-03</time>
+      <a href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" class="article-date">
+  <time datetime="2020-08-01T04:45:24.000Z" itemprop="datePublished">2020-08-01</time>
 </a>
       
       
@@ -113,29 +113,21 @@
       
 
       
-      <h1 id="JUC-19-AQS"><a href="#JUC-19-AQS" class="headerlink" title="JUC-19-AQS"></a>JUC-19-AQS</h1><h2 id="1-AQS结构"><a href="#1-AQS结构" class="headerlink" title="1. AQS结构"></a>1. AQS结构</h2><ul>
-<li>AQS（<code>AbstractQueuedSynchronizer</code>）是Java众多锁以及并发工具的基础类，底层采用乐观锁，大量采用CAS操作保证其原子性，并且在并发冲突时，采用自旋方法重试。实现了轻量高效的获取锁。</li>
-</ul>
-<h3 id="1-1-信号量"><a href="#1-1-信号量" class="headerlink" title="1.1 信号量"></a>1.1 信号量</h3><ul>
-<li>在AQS中，状态是由<code>volatile state</code>来表示。</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> state;</span><br></pre></td></tr></table></figure>
-
-
-
-<ul>
-<li>该属性值表示锁的状态。<ul>
-<li>state为0表示锁未被占用，</li>
-<li>state为1表示锁被线程持有，</li>
-<li>而state大于1表示锁被重入。</li>
-</ul>
+      <h1 id="计算机网络-06-数据链路层"><a href="#计算机网络-06-数据链路层" class="headerlink" title="计算机网络-06-数据链路层"></a>计算机网络-06-数据链路层</h1><h1 id="前言-链路层的基本问题"><a href="#前言-链路层的基本问题" class="headerlink" title="前言 : 链路层的基本问题"></a>前言 : 链路层的基本问题</h1><h3 id="1-封装成帧"><a href="#1-封装成帧" class="headerlink" title="1. 封装成帧"></a>1. 封装成帧</h3><p>将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png" alt="mark"></p>
+<h3 id="2-透明传输"><a href="#2-透明传输" class="headerlink" title="2. 透明传输"></a>2. 透明传输</h3><ul>
+<li><p>透明表示一个实际存在的事物看起来好像不存在一样。</p>
+</li>
+<li><p>帧使用首部和尾部进行定界，<strong>如果帧的数据部分含有和首部尾部相同的内容</strong>，那么帧的开始和结束位置就会被错误的判定。</p>
+</li>
+<li><p>需要在数据部分出现首部尾部相同的内容前面插入转义字符。<strong>如果数据部分出现转义字符，那么就在转义字符前面再加个转义字符</strong>。在接收端进行处理之后可以还原出原始数据。这个过程透明传输的内容是转义字符，<strong>用户察觉不到转义字符的存在</strong>。</p>
 </li>
 </ul>
-<p>而本文分析的是独占锁，那么同一时刻，锁只能被一个线程持有。</p>
-<p>不仅需要记录锁的状态，还需要记录当前获取锁的线程，实现重入。可以通过来记录。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> Thread exclusiveOwnerThread;</span><br></pre></td></tr></table></figure>
+<h3 id="3-差错检测"><a href="#3-差错检测" class="headerlink" title="3. 差错检测"></a>3. 差错检测</h3><ul>
+<li>目前数据链路层广泛使用了循环冗余检验（CRC）来检查比特差错。</li>
+</ul>
       
-      <a class="article-more-link" href="/2020/08/03/JUC/JUC-19-AQS/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -146,7 +138,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AQS/" rel="tag">AQS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mac%E5%9C%B0%E5%9D%80/" rel="tag">mac地址</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
 
 
     </footer>
@@ -316,6 +308,244 @@
 
 </article>
     
+    <article id="post-NetworkCoding/计算机网络-05-网络层" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/07/30/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-05-%E7%BD%91%E7%BB%9C%E5%B1%82/"
+    >计算机网络-05-网络层</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/07/30/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-05-%E7%BD%91%E7%BB%9C%E5%B1%82/" class="article-date">
+  <time datetime="2020-07-30T04:45:24.000Z" itemprop="datePublished">2020-07-30</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="计算机网络-05-网络层"><a href="#计算机网络-05-网络层" class="headerlink" title="计算机网络-05-网络层"></a>计算机网络-05-网络层</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>与 IP 协议配套使用的还有三个协议：</p>
+<ul>
+<li>地址解析协议 ARP（<code>Address Resolution Protocol</code>）</li>
+<li>网际控制报文协议 ICMP（<code>Internet Control Message Protocol</code>）</li>
+<li>网际组管理协议 IGMP（<code>Internet Group Management Protocol</code>）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200827-145836206.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200827-145806629.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/07/30/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-05-%E7%BD%91%E7%BB%9C%E5%B1%82/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ip/" rel="tag">ip</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-NetworkCoding/计算机网络-04-抓包" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/07/29/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-04-%E6%8A%93%E5%8C%85/"
+    >计算机网络-04-抓包</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/07/29/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-04-%E6%8A%93%E5%8C%85/" class="article-date">
+  <time datetime="2020-07-29T04:02:24.000Z" itemprop="datePublished">2020-07-29</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="计算机网络-04-抓包"><a href="#计算机网络-04-抓包" class="headerlink" title="计算机网络-04-抓包"></a>计算机网络-04-抓包</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="1-抓包的作用"><a href="#1-抓包的作用" class="headerlink" title="1. 抓包的作用"></a>1. 抓包的作用</h2><p>在日常工作中，我们经常会用到抓包工具，看看前后台的数据传输、分析分析协议内容之类的。对于抓包工具在测试中的使用粗略归纳了几点：</p>
+<p><strong>1.从功能测试角度，通过抓包查看隐藏字段</strong></p>
+<ul>
+<li>Web 表单中会有很多隐藏的字段，这些隐藏字段一般都有一些特殊的用途，比如收集用户的数据，预防 C RSF 攻击，防网络爬虫，以及一些其他用途。<br> 这些隐藏字段在界面上都看不到，如果想检测这些字段，就必须要使用抓包工具。</li>
+</ul>
+<p><strong>2. 通过抓包工具了解协议内容，方便开展接口和性能测试</strong></p>
+<ul>
+<li>性能测试方面，性能测试其实就是大量模拟用户的请求，所以我们必须要知道请求中的协议内容和特点，才能更好的模拟用户请求，分析协议就需要用到抓包工具；<br> 接口测试方面，在接口测试时，虽然我们尽量要求有完善的接口文档。但很多时候接口文档不可能覆盖所有的情况，或者因为文档滞后，在接口测试过程中，还时需要借助抓包工具来辅助我们进行接口测试。</li>
+</ul>
+<p><strong>3. 需要通过抓包工具，检查数据加密</strong></p>
+<ul>
+<li>安全测试方面，我们需要检查敏感数据在传输过程中是否加密，也需要借助抓包工具才能检查。</li>
+</ul>
+<p><strong>4. 处理前后端 bug 归属之争</strong></p>
+<ul>
+<li>在我们提交bug的时候，经常会出现前端（客户端展示）和后端（服务端的逻辑）的争议，那么 可以通过抓包工具，确实是数据传递问题还是前端显示的问题。如果抓出来的数据就有问题的话，那么一般是后端的问题；如果抓出来的数据是正确的，那么基本上可以断定是前端显示的问题。</li>
+</ul>
+<p><strong>5. 通过抓包分析，可以更好的理解整个系统</strong></p>
+<ul>
+<li>经常使用抓包工具辅助测试，可以很好的了解整个系统，比如数据传输过程前后端的关系，以及整个系统的结构。特别是对现在的微服务架构的产品，抓包能够更好的梳理和掌握整个系统各个服务之间的关系，大大增加测试的覆盖度。另外还可以增进对代码、HTTP协议方面知识的理解。</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/07/29/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-04-%E6%8A%93%E5%8C%85/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-NetworkCoding/计算机网络-03-传输层" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/07/28/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/"
+    >计算机网络-03-传输层</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/07/28/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/" class="article-date">
+  <time datetime="2020-07-28T04:02:24.000Z" itemprop="datePublished">2020-07-28</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="计算机网络-03-传输层"><a href="#计算机网络-03-传输层" class="headerlink" title="计算机网络-03-传输层"></a>计算机网络-03-传输层</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>推荐博客：</strong> <a href="https://blog.csdn.net/qq_39326472/article/details/88089747" target="_blank" rel="noopener">https://blog.csdn.net/qq_39326472/article/details/88089747</a></p>
+<p><strong>传输层和网络层的关系</strong></p>
+<ul>
+<li>网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。</li>
+<li>传输层提供了进程中的逻辑通信，传输层向高层用户屏蔽了网络层的核心实现，使得应用进程看起来像是两个传输层实体之间一条端到端的逻辑通信信道。</li>
+</ul>
+<p>实际上，<strong>传输层和应用程序进程之间通过Socket（套接字）</strong>关联，这样通过Socket就可以区别同一主机上的不同应用进程，从而传输层提供服务变为可能；</p>
+<p>实际上，每个套接字都有一个唯一的ID，被称为<strong>端口号</strong>；而在传输层接收到来自应用程序的分组并通过添加传输层首部而形成报文段的过程中，该端口号被写入；端口号大小在<code>0-65535</code>之间，其中<code>0-1023</code>属于周知端口号，它们为特定的Socket而拥有。</p>
+      
+      <a class="article-more-link" href="/2020/07/28/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Sort/排序-03-快速排序" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -391,80 +621,6 @@
 
 </article>
     
-    <article id="post-NetworkCoding/计算机网络-03-传输层" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/"
-    >计算机网络-03-传输层</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/" class="article-date">
-  <time datetime="2020-07-27T04:02:24.000Z" itemprop="datePublished">2020-07-27</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="计算机网络-03-传输层"><a href="#计算机网络-03-传输层" class="headerlink" title="计算机网络-03-传输层"></a>计算机网络-03-传输层</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>推荐博客：</strong> <a href="https://blog.csdn.net/qq_39326472/article/details/88089747" target="_blank" rel="noopener">https://blog.csdn.net/qq_39326472/article/details/88089747</a></p>
-<h6 id="传输层和网络层的关系"><a href="#传输层和网络层的关系" class="headerlink" title="传输层和网络层的关系"></a>传输层和网络层的关系</h6><ul>
-<li>网络层只把分组发送到目的主机，但是真正通信的并不是主机而是主机中的进程。</li>
-<li>传输层提供了进程中的逻辑通信，传输层向高层用户屏蔽了网络层的核心实现，使得应用进程看起来像是两个传输层实体之间一条端到端的逻辑通信信道。</li>
-</ul>
-<p>实际上，<strong>传输层和应用程序进程之间通过Socket（套接字）</strong>关联，这样通过Socket就可以区别同一主机上的不同应用进程，从而传输层提供服务变为可能；</p>
-<p>实际上，每个套接字都有一个唯一的ID，被称为<strong>端口号</strong>；而在传输层接收到来自应用程序的分组并通过添加传输层首部而形成报文段的过程中，该端口号被写入；端口号大小在0-65535之间，其中0-1023属于周知端口号，它们为特定的Socket而拥有。</p>
-      
-      <a class="article-more-link" href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-03-%E4%BC%A0%E8%BE%93%E5%B1%82/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
     <article id="post-NetworkCoding/计算机网络-02-应用层" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -473,7 +629,7 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/07/26/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/"
+  <a class="article-title" href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/"
     >计算机网络-02-应用层</a
   >
 </h2>
@@ -484,8 +640,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/07/26/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/" class="article-date">
-  <time datetime="2020-07-26T04:02:24.000Z" itemprop="datePublished">2020-07-26</time>
+      <a href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/" class="article-date">
+  <time datetime="2020-07-27T04:02:24.000Z" itemprop="datePublished">2020-07-27</time>
 </a>
       
       
@@ -508,7 +664,7 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200726-172919828.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/07/26/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -685,155 +841,13 @@
 
 </article>
     
-    <article id="post-Spring/Spring-11-设计模式" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/07/25/Spring/Spring-11-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
-    >Spring-11-设计模式</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/07/25/Spring/Spring-11-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time datetime="2020-07-25T07:11:24.000Z" itemprop="datePublished">2020-07-25</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="Spring-11-设计模式"><a href="#Spring-11-设计模式" class="headerlink" title="Spring-11-设计模式"></a>Spring-11-设计模式</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li><p>由于我的个人能力有限，文中如有任何错误各位都可以指出。另外，文章篇幅有限，对于设计模式以及一些源码的解读我只是一笔带过，这篇文章的主要目的是回顾一下 Spring 中的设计模式。</p>
-</li>
-<li><p>Design Patterns(设计模式) 表示面向对象软件开发中最好的计算机编程实践。 Spring 框架中广泛使用了不同类型的设计模式，下面我们来看看到底有哪些设计模式?</p>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/07/25/Spring/Spring-11-%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-jdk_SourceCode/JDK1.8-14-ThreadLocal" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/07/22/jdk_SourceCode/JDK1.8-14-ThreadLocal/"
-    >JDK1.8源码-14-ThreadLocal</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/07/22/jdk_SourceCode/JDK1.8-14-ThreadLocal/" class="article-date">
-  <time datetime="2020-07-22T05:33:53.000Z" itemprop="datePublished">2020-07-22</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="JDK1-8-14-ThreadLocal"><a href="#JDK1-8-14-ThreadLocal" class="headerlink" title="JDK1.8-14-ThreadLocal"></a>JDK1.8-14-ThreadLocal</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>参考博客： <a href="https://www.cnblogs.com/fsmly/p/11020641.html" target="_blank" rel="noopener">https://www.cnblogs.com/fsmly/p/11020641.html</a></p>
-<p><strong>总结几个字：线程自己的本地变量</strong></p>
-      
-      <a class="article-more-link" href="/2020/07/22/jdk_SourceCode/JDK1.8-14-ThreadLocal/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">JDK源码分析</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95%E5%BF%85%E5%A4%87/" rel="tag">面试必备</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/7/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/39/">39</a><a class="extend next" rel="next" href="/page/9/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/7/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/40/">40</a><a class="extend next" rel="next" href="/page/9/">下一页</a>
   </nav>
   
 </section>

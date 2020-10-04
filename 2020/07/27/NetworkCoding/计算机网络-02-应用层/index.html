@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    计算机网络-02-应用层 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-NetworkCoding/计算机网络-02-应用层" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  计算机网络-02-应用层
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/" class="article-date">
+  <time datetime="2020-07-27T04:02:24.000Z" itemprop="datePublished">2020-07-27</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.7k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="计算机网络-02-应用层"><a href="#计算机网络-02-应用层" class="headerlink" title="计算机网络-02-应用层"></a>计算机网络-02-应用层</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>一图胜千言</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200726-172919828.png" alt="mark"></p>
+<a id="more"></a>
+
+
+
+<h2 id="1-DNS-域名系统"><a href="#1-DNS-域名系统" class="headerlink" title="1. DNS : 域名系统"></a>1. DNS : 域名系统</h2><ul>
+<li>DNS 是一个由分层DNS服务器组成的<strong>分布式数据库</strong>，使得主机可以查询主机名和ip相互转换的规则。</li>
+<li><strong>域名具有层次结构，从上到下依次为：根域名、顶级域名、二级域名。</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200726-174020503.png" alt="mark"></p>
+<ul>
+<li>DNS 可以<strong>使用UDP或者TCP进行传输，使用的端口号都是53</strong>，大多数情况DNS使用UDP进行传输，这就要求域名解析器和域名服务器有自己处理超时和重传从而保证可靠性。</li>
+</ul>
+<h3 id="1-1-实现原理"><a href="#1-1-实现原理" class="headerlink" title="1.1 实现原理"></a>1.1 实现原理</h3><ul>
+<li><p><strong>首先，DNS使用UDP作为传输协议，DNS使用53号端口</strong>。</p>
+</li>
+<li><p>当主机上的DNS客户端收到一个转换请求的时候，<strong>客户端将向网络发送一个DNS查询报文</strong>，然后客户端将收到一个包含相关信息的DNS回答报文，这个报文里有客户端想要的内容</p>
+</li>
+<li><p><strong>之后DNS服务器将IP地址返回给请求的提出者即可</strong></p>
+</li>
+<li><p>DNS查询有两种，一种是<strong>递归查询</strong>一种是<strong>迭代查询</strong>；实践中，查询通常满足这样的模式：<strong>从请求主机到本地DNS服务器的查询是递归的，其余查询是迭代的</strong>。</p>
+</li>
+<li><p><strong>DNS缓存</strong>原理十分简单，每当DNS服务器发出请求后收到回答时，就<strong>将回答的内容缓存在它自己的主机空间上</strong>。这样，如果有相同的请求到达时，就不需要再去发出请求，直接使用缓存即可；因为有了缓存，本地DNS就可以直接提供一些经常被访问的主机名所对应的IP地址，而不需要询问根DNS服务器了。</p>
+</li>
+</ul>
+<h2 id="2-文件传送协议：FTP"><a href="#2-文件传送协议：FTP" class="headerlink" title="2. 文件传送协议：FTP"></a>2. 文件传送协议：FTP</h2><ul>
+<li>FTP 使用 TCP 建立链接，他需要两个链接来传送一个文件<ul>
+<li><strong>控制连接</strong>：<strong>服务器打开端口号21等待客户端连接</strong>，客户端主动建立连接后，使用这个连接将客户端的命令传送给服务器，并返回服务器的应答</li>
+<li><strong>数据连接</strong>：<strong>用来传送一个数据文件</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>根据数据连接是否是服务器端主动建立，FTP 有主动和被动两种模式：</p>
+<ul>
+<li>主动模式：<strong>服务器端主动</strong>建立数据连接，其中服务器的端口号是20，客户端的端口号随机，但是必须大于 1024，因为 0~1023 是熟知端口号。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200726-174711960.png" alt="mark"></p>
+<ul>
+<li>被动模式：客户端主动和<strong>服务器建立数据连接</strong>，其中客户端的端口号由客户端自己指定，服务器端的端口号随机。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200726-174747930.png" alt="mark"></p>
+<p>注意：</p>
+<ul>
+<li><strong>主动模式要求客户端开放端口号给服务器，需要配置客户端的防火墙。</strong></li>
+<li>被动模式只需要服务器端开放端口号即可，无需客户端配置防火墙。但是被动模式会导致服务器端的安全性减弱，因为开放了过多的端口号。</li>
+</ul>
+<h2 id="3-动态主机配置协议（DHCP）"><a href="#3-动态主机配置协议（DHCP）" class="headerlink" title="3. 动态主机配置协议（DHCP）"></a>3. 动态主机配置协议（DHCP）</h2><ul>
+<li>DHCP (Dynamic Host Configuration Protocol) 提供了即插即用的连网方式，用户不再需要手动配置 IP 地址等信息。</li>
+<li>DHCP 配置的内容<strong>不仅是 IP 地址，还包括子网掩码、网关 IP 地址。</strong></li>
+</ul>
+<h3 id="3-1-DHCP工作工程"><a href="#3-1-DHCP工作工程" class="headerlink" title="3.1 DHCP工作工程"></a>3.1 DHCP工作工程</h3><ol>
+<li><p>客户端发送Discover 报文，该报文的目的地址是 255.255.255.255:<strong>67</strong>,源地址是0.0.0.0：<strong>68</strong>.</p>
+</li>
+<li><p>放入UDP中，该报文被广播到同一个子网的所有主机上，如果客户端和DHCP服务器不在同一个子网，就需要使用中继代理。</p>
+</li>
+<li><p>DHCP 服务器收到 Discover 报文之后，发送 Offer 报文给客户端，该报文包含了客户端所需要的信息。因为客户端可能收到多个 DHCP 服务器提供的信息，因此客户端需要进行选择。</p>
+</li>
+<li><p>如果客户端选择了某个 DHCP 服务器提供的信息，那么就发送 Request 报文给该 DHCP 服务器。</p>
+</li>
+<li><p>DHCP服务器发送Ack 报文，表示该客户端此时可以使用提供给它的信息。</p>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-085949476.png" alt="mark"></p>
+<h2 id="4-远程登录协议"><a href="#4-远程登录协议" class="headerlink" title="4. 远程登录协议"></a>4. 远程登录协议</h2><ul>
+<li>TELNET 用于登录到远程主机上，并且远程主机上的输出也会返回。</li>
+<li>TELNET 可以适应许多计算机和操作系统的差异，例如不同操作系统系统的换行符定义。</li>
+</ul>
+<h2 id="5-电子邮件协议"><a href="#5-电子邮件协议" class="headerlink" title="5. 电子邮件协议"></a>5. 电子邮件协议</h2><ul>
+<li>一个电子邮件由三部分组成：用户代理，邮件服务器和邮件协议。</li>
+<li>邮件协议包含发送协议和读取协议：<ul>
+<li>发送协议：SMTP</li>
+<li>读取协议： POP3 和 IMAP</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-091118003.png" alt="mark"></p>
+<h3 id="5-1-SMTP"><a href="#5-1-SMTP" class="headerlink" title="5.1 SMTP"></a>5.1 SMTP</h3><ul>
+<li>SMTP 只能发送 ASCII 码，而互联网邮件扩充 MIME 可以发送二进制文件。MIME 并没有改动或者取代 SMTP，而是增加邮件主体的结构，定义了非 ASCII 码的编码规则。</li>
+<li>端口号25</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200727-091207208.png" alt="mark"></p>
+<h3 id="5-2-POP3"><a href="#5-2-POP3" class="headerlink" title="5.2 POP3"></a>5.2 POP3</h3><ul>
+<li>端口号110</li>
+<li>POP3 的特点是只要用户从服务器上读取了邮件，就把该邮件删除。但最新版本的 POP3 可以不删除邮件。</li>
+</ul>
+<h3 id="5-3-IMAP"><a href="#5-3-IMAP" class="headerlink" title="5.3 IMAP"></a>5.3 IMAP</h3><ul>
+<li>IMAP 协议中客户端和服务器上的邮件保持同步，如果不手动删除邮件，那么服务器上的邮件也不会被删除。IMAP 这种做法可以让用户随时随地去访问服务器上的邮件。</li>
+<li>端口号143</li>
+</ul>
+<h2 id="6-常用端口号"><a href="#6-常用端口号" class="headerlink" title="6. 常用端口号"></a>6. 常用端口号</h2><table>
+<thead>
+<tr>
+<th align="center">应用</th>
+<th align="center">应用层协议</th>
+<th align="center">端口号</th>
+<th align="center">传输层协议</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">域名解析</td>
+<td align="center">DNS</td>
+<td align="center">53</td>
+<td align="center">UDP/TCP</td>
+<td align="center">长度超过 512 字节时使用 TCP</td>
+</tr>
+<tr>
+<td align="center">动态主机配置协议</td>
+<td align="center">DHCP</td>
+<td align="center">67/68</td>
+<td align="center">UDP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">简单网络管理协议</td>
+<td align="center">SNMP</td>
+<td align="center">161/162</td>
+<td align="center">UDP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">文件传送协议</td>
+<td align="center">FTP</td>
+<td align="center">20/21</td>
+<td align="center">TCP</td>
+<td align="center">控制连接 21，数据连接 20</td>
+</tr>
+<tr>
+<td align="center">远程终端协议</td>
+<td align="center">TELNET</td>
+<td align="center">23</td>
+<td align="center">TCP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">超文本传送协议</td>
+<td align="center">HTTP</td>
+<td align="center">80</td>
+<td align="center">TCP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">简单邮件传送协议</td>
+<td align="center">SMTP</td>
+<td align="center">25</td>
+<td align="center">TCP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">邮件读取协议</td>
+<td align="center">POP3</td>
+<td align="center">110</td>
+<td align="center">TCP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">网际报文存取协议</td>
+<td align="center">IMAP</td>
+<td align="center">143</td>
+<td align="center">TCP</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">超文本传送协议+SSL</td>
+<td align="center">HTTPS</td>
+<td align="center">443</td>
+<td align="center">TCP</td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<h2 id="7-Web-请求页面的过程"><a href="#7-Web-请求页面的过程" class="headerlink" title="7.  Web 请求页面的过程"></a>7.  Web 请求页面的过程</h2><h3 id="7-1-DHCP配置主机信息"><a href="#7-1-DHCP配置主机信息" class="headerlink" title="7.1 DHCP配置主机信息"></a>7.1 DHCP配置主机信息</h3><ul>
+<li>假设主机最开始没有 IP 地址以及其它信息，那么就需要先使用 DHCP 来获取。</li>
+<li>主机生成一个 DHCP 请求报文，并将这个报文放入具有目的端口 67 和源端口 68 的 UDP 报文段中。</li>
+<li>该数据报则被放置在MAC 帧中，该帧的目的地址 <code>FF FF FF FF FF FF</code>,广播到与交换机连接的所有设备。</li>
+<li>连接到交换机的<strong>DHCP的服务器</strong>收到广播帧之后，不断向上分解得到IP数据报，UDP报文段，DHCP请求报文，之后生成DHCP ACK报文，该报文包含以下信息：IP地址，DNS服务器的IP地址，默认路由网关的IP地址和子网掩码。该报文被放入UDP报文段中，UDP报文段又被放入IP数据报中，最后放入MAC帧中。</li>
+<li>该帧的目的地址是请求主机的 MAC 地址，因为交换机具有自学习能力，之前主机发送了广播帧之后就记录了 MAC 地s址到其转发接口的交换表项，因此现在交换机就可以直接知道应该向哪个接口发送该帧。</li>
+<li><strong>主机</strong>收到该帧后，不断分解得到 DHCP 报文。之后就配置它的 IP 地址、子网掩码和 DNS 服务器的 IP 地址，并在其 IP 转发表中安装默认网关。</li>
+</ul>
+<h3 id="7-2-ARP-解析MAC地址"><a href="#7-2-ARP-解析MAC地址" class="headerlink" title="7.2 ARP 解析MAC地址"></a>7.2 ARP 解析MAC地址</h3><ul>
+<li>主机通过浏览器生成一个 TCP 套接字，套接字向 HTTP 服务器发送 HTTP 请求。为了生成该套接字，主机需要知道网站的域名对应的 IP 地址。</li>
+<li>主机生成一个 DNS 查询报文，该报文具有 53 号端口，因为 DNS 服务器的端口号是 53。</li>
+<li>该DNS查询报文被放入目的地址为DNS服务器的IP地址的IP数据报中。</li>
+<li>该IP数据报被放入一个以太网帧中，该帧将发送到网关路由器。</li>
+<li><strong>DHCP过程只知道网关路由器的IP地址，为了获取网关路由器的MAC地址，需要使用ARP协议。</strong></li>
+<li>主机生成一个包含目的地址为网关路由器 IP 地址的 ARP 查询报文，将该 ARP 查询报文放入一个具有广播目的地址（<code>FF FF FF FF FF FF</code>）的以太网帧中，并向交换机发送该以太网帧，交换机将该帧转发给所有的连接设备，包括网关路由器。</li>
+<li><strong>网关路由器收到该帧后，不断向上分解得到ARP报文，发现其中IP地址和其接口IP地址匹配，因此就发送一个ARP回答报文，包含了他的MAC地址，发送回主机。</strong></li>
+</ul>
+<h3 id="7-3-DNS解析域名"><a href="#7-3-DNS解析域名" class="headerlink" title="7.3 DNS解析域名"></a>7.3 DNS解析域名</h3><ul>
+<li><p>知道了网关路由器的 MAC 地址之后，就可以继续 DNS 的解析过程了。</p>
+</li>
+<li><p>网关路由器接收到包含 DNS 查询报文的以太网帧后，抽取出 IP 数据报，并根据转发表决定该 IP 数据报应该转发的路由器。</p>
+</li>
+<li><p>因为路由器具有内部网关协议（RIP、OSPF）和外部网关协议（BGP）这两种路由选择协议，因此路由表中已经配置了网关路由器到达 DNS 服务器的路由表项。</p>
+</li>
+<li><p>到达 DNS 服务器之后，DNS 服务器抽取出 DNS 查询报文，并在 DNS 数据库中查找待解析的域名。</p>
+</li>
+<li><p>找到 DNS 记录之后，发送 DNS 回答报文，将该回答报文放入 UDP 报文段中，然后放入 IP 数据报中，通过路由器反向转发回网关路由器，并经过以太网交换机到达主机。</p>
+</li>
+</ul>
+<h3 id="7-4-HTTP请求页面"><a href="#7-4-HTTP请求页面" class="headerlink" title="7.4 HTTP请求页面"></a>7.4 HTTP请求页面</h3><ul>
+<li><p>有了 HTTP 服务器的 IP 地址之后，主机就能够生成 TCP 套接字，该套接字将用于向 Web 服务器发送 HTTP GET 报文。</p>
+</li>
+<li><p>在<strong>生成 TCP 套接字之前，必须先与 HTTP 服务器进行三次握手来建立连接</strong>。生成一个具有目的端口 80 的 TCP SYN 报文段，并向 HTTP 服务器发送该报文段。</p>
+</li>
+<li><p>HTTP 服务器收到该报文段之后，生成 TCP SYN ACK 报文段，发回给主机。</p>
+</li>
+<li><p><strong>连接建立之后，浏览器生成 HTTP GET 报文，并交付给 HTTP 服务器。</strong></p>
+</li>
+<li><p>HTTP 服务器从 TCP 套接字读取 HTTP GET 报文，生成一个 HTTP 响应报文，将 Web 页面内容放入报文主体中，发回给主机。</p>
+</li>
+<li><p><strong>浏览器收到 HTTP 响应报文后，抽取出 Web 页面内容，之后进行渲染，显示 Web 页面。</strong></p>
+</li>
+</ul>
+<p><strong>参考博客：</strong><a href="https://blog.csdn.net/JAck_chen0309/article/details/105020259![mark](http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200812-110232883.png)" target="_blank" rel="noopener">https://blog.csdn.net/JAck_chen0309/article/details/105020259![mark](http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200812-110232883.png)</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/07/27/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-02-%E5%BA%94%E7%94%A8%E5%B1%82/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/07/27/Sort/%E6%8E%92%E5%BA%8F-03-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            排序-03-快速排序
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/07/26/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-01-%E6%A6%82%E8%BF%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">计算机网络-01-概述</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>
