@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">3.2k字</span>
+            <span class="post-count">4.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">10分钟</span>
+            <span class="post-count">15分钟</span>
         </span>
     </span>
 </div>
@@ -263,6 +263,90 @@
 <h2 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h2><blockquote>
 <p>一台机器扛不住了，需要多台机器帮忙，既然使用多台机器，就希望不要把压力都给一台机器，所以需要一种或者多种策略分散高并发的计算压力，从而引入负载均衡，那么到底是如何分发到不同的服务器的呢？</p>
 </blockquote>
+<ol>
+<li><strong>砸钱</strong></li>
+</ol>
+<blockquote>
+<p>最初实现负载均衡采取的方案很直接，直接上硬件，当然也就比较贵，互联网的普及，和各位科学家的无私奉献，各个企业开始部署自己的方案，从而出现负载均衡服务器</p>
+</blockquote>
+<ol start="2">
+<li><strong>HTTP重定向负载均衡</strong></li>
+</ol>
+<ul>
+<li>也属于比较直接，当HTTP请求叨叨负载均衡服务器后，使用一套负载均衡算法计算到后端服务器的地址，然后将新的地址给用户浏览器，浏览器收到重定向响应后发送请求到新的应用服务器从而实现负载均衡，如下图所示</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222128709.png" alt="mark"></p>
+<p>优点：</p>
+<ul>
+<li>简单，如果是java开发工程师，只需要servlet中几句代码即可</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>加大请求的工作量。第一次请求给负载均衡服务器，第二次请求给应用服务器</li>
+<li>因为要先计算到应用服务器的 IP 地址，所以 IP 地址可能暴露在公网，既然暴露在了公网还有什么安全可言</li>
+</ul>
+<ol start="3">
+<li><strong>DNS负载均衡</strong></li>
+</ol>
+<blockquote>
+<p>了解计算机网络的你应该很清楚如何获取 IP 地址，其中比较常见的就是 DNS 解析获取 IP 地址。用户通过浏览器发起HTTP请求的时候，DNS 通过对域名进行即系得到 IP 地址，用户委托协议栈的 IP 地址简历 HTTP 连接访问真正的服务器。这样不同的用户进行域名解析将会获取不同的IP地址从而实现负载均衡</p>
+</blockquote>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222244275.png" alt="mark"></p>
+<p>乍一看，和HTTP重定向的方案不是很相似吗而且还有 DNS 解析这一步骤，也会解析出 IP 地址，不一样的暴露？每次都需要解析吗，当然不，通常本机就会有缓存，在实际的工程项目中通常是怎么样的呢</p>
+<ul>
+<li>通过 DNS 解析获取负载均衡集群某台服务器的地址</li>
+<li><strong>负载均衡服务器再一次获取某台应用服务器</strong>，这样子就不会将应用服务器的 IP 地址暴露在官网了</li>
+</ul>
+<ol start="4">
+<li><strong>反向代理负载均衡</strong></li>
+</ol>
+<blockquote>
+<p>这里典型的就是Nginx提供的反向代理和负载均衡功能。用户的请求直接叨叨反向代理服务器，服务器先看本地是缓存过，有直接返回，没有则发送给后台的应用服务器处理。</p>
+</blockquote>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222406909.png" alt="mark"></p>
+<ol start="5">
+<li><strong>IP负载均衡</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222457447.png" alt="mark"></p>
+<ul>
+<li>注意，这种方案通常属于内核级别，如果数据比较小还好，但是大部分情况是图片等资源文件，这样负载均衡服务器会出现响应或者请求过大所带来的瓶颈</li>
+</ul>
+<ol start="6">
+<li><strong>数据链路负载均衡</strong></li>
+</ol>
+<blockquote>
+<p>它可以解决因为数据量太大而导致负载均衡服务器带宽不足这个问题。怎么实现的呢。它不修改数据包的IP地址，而是更改mac地址。应用服务器和负载均衡服务器使用相同的虚拟IP</p>
+</blockquote>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222553607.png" alt="mark"></p>
+<p>以上介绍了几种负载均衡的方式，但是很重要的<strong>负载均衡算法却没有设计，其中包含了轮询，随机</strong></p>
+<h2 id="5-数据存储"><a href="#5-数据存储" class="headerlink" title="5. 数据存储"></a>5. 数据存储</h2><ul>
+<li>公司存在的价值在于流量，流量需要数据，可想而知数据的存储，数据的高可用可说是公司的灵魂。那么改善数据的存储都有哪些手段或方法呢？</li>
+</ul>
+<ol>
+<li><strong>数据主从复制</strong></li>
+</ol>
+<blockquote>
+<p>主从复制比较好理解，需要使用两个数据库存储一样的数据。</p>
+<p>其原理为当应用程序A发送更新命令到主服务器的时候，数据库会将这条命令同步记录到Binlog中，然后其他线程会从Binlog中读取并通过远程通讯的方式复制到另外服务器。服务器收到这更新日志后加入到自己Relay Log中，</p>
+<p>然后SQL执行线程从Relay Log中读取次日志并在本地数据库执行一遍，从而实现主从数据库同样的数据。</p>
+</blockquote>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222817995.png" alt="mark"></p>
+<ul>
+<li>主从复制可以方便进行读写分离，可以使用一主多从的方式保证高可用，如果从数据库A挂了，可以将读操作迁移到从数据库完成高可用。</li>
+<li>但是如果主数据库挂了咋搞，那就Mysql的主主复制。可是不管上面说的那种方式都不是提升它的存储能力，这就需要进行<strong>数据库的分片</strong>了</li>
+</ul>
+<ol start="2">
+<li><strong>数据库分片</strong></li>
+</ol>
+<blockquote>
+<p>将一张表分成若干片，其中每一片都包含一部分行记录，然后将每一片存储在不同的服务器中，这样就实现一张表存放在多台服务器中，哪都有哪些分片存储的方案？</p>
+</blockquote>
+<ul>
+<li>最开始使用<strong>“硬编码”</strong>的方式，此方式从字面上可以理解为直接在代码中指定。假定表为用户表，通过ID的奇偶存放在不同的服务器上，如下图</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201004/222949802.png" alt="mark"></p>
+<p>这种方式的<strong>缺点</strong>很明显，当需要增加服务器的时候，就需要改动代码，这就不友好了。比较常见的数据库分片算法是通过余数Hash算法，根据主键ID和服务器的数量取模，根据余数确定服务器</p>
+<p><strong>参考博客</strong> ： <a href="https://mp.weixin.qq.com/s/co6ZiALBCUHxc-8SpcKxPw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/co6ZiALBCUHxc-8SpcKxPw</a></p>
 
       
       <!-- reward -->

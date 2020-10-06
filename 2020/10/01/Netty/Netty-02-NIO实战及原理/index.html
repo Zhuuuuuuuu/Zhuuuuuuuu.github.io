@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">964字</span>
+            <span class="post-count">4.4k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3分钟</span>
+            <span class="post-count">17分钟</span>
         </span>
     </span>
 </div>
@@ -140,11 +140,288 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201002/112011816.png" alt="mark"></p>
 <p><code>Selector</code>具体是如何管理这么多个通信的呢？这就引出了<strong>事件</strong>。</p>
+<p><strong>事件、以及NIO的工作流程介绍</strong></p>
+<ul>
+<li><strong>事件：</strong>当将<code>Channel</code>绑定到<code>Selector</code>上面时，必须同时为该<code>Channel</code>声明一个监听该<code>Channel</code>的事件（由<code>Channel</code>和该<code>Channel的事件</code>一起组成了<code>SelectionKey</code>），并将<code>SelectionKey</code>加入到<code>Selector</code>的<code>Set</code>集合中去</li>
+<li>当有客户端建立连接或者进行通信，会在对应的各个<code>Channel</code>中产生不同的事件。</li>
+<li><code>Selector</code>会一直监听所有的事件，当他监听到某个<code>SelectionKey</code>中有事件产生时，会将所有产生事件的<code>SelectionKey</code>统一加入到一个集合中去</li>
+<li>而我们则需要获取到这个集合，首先对集合中的各个<code>SelectionKey</code>进行判断，判断它产生的是什么事件，再根据不同的事件进行不同的处理。</li>
+<li>在操作这个<code>SelectionKey</code>集合的时候，其实我们就是在一个线程里面对几个不同客户端的连接进行操作。具体的关系图如下：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/184806838.png" alt="mark"></p>
 <h2 id="2-Buffer"><a href="#2-Buffer" class="headerlink" title="2. Buffer"></a>2. Buffer</h2><ul>
-<li>缓冲区（Buffer）：缓冲区本质上是一个可以读写数据的内存块，可以理解成是一个容器对象（含数组），</li>
+<li>缓冲区（Buffer）：缓冲区本质上是一个<strong>可以读写数据的内存块</strong>，可以理解成是一个容器对象（<strong>含数组</strong>），</li>
 <li>该对象提供了一组方法，可以更轻松地使用内存块，缓冲区对象内置了一些机制，能够跟踪和记录缓冲区的状态变化情况。</li>
 <li><code>Channel</code>提供从文件、网络读取数据的渠道，但是读取或写入的数据都必须经由<code>Buffer</code>。</li>
 </ul>
+<h3 id="2-1-Buffer类介绍"><a href="#2-1-Buffer类介绍" class="headerlink" title="2.1 Buffer类介绍"></a>2.1 Buffer类介绍</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Buffer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * The characteristics of Spliterators that traverse and split elements</span></span><br><span class="line"><span class="comment">     * maintained in Buffers.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SPLITERATOR_CHARACTERISTICS =</span><br><span class="line">        Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Invariants: mark &lt;= position &lt;= limit &lt;= capacity</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mark = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> position = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> limit;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> capacity;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Used only by direct buffers</span></span><br><span class="line">    <span class="comment">// <span class="doctag">NOTE:</span> hoisted here for speed in JNI GetDirectBufferAddress</span></span><br><span class="line">    <span class="keyword">long</span> address;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/185018679.png" alt="mark"></p>
+<ul>
+<li><p>基类是<code>Buffer</code>抽象类</p>
+</li>
+<li><p>基类派生出基于基本数据类型的7个<code>xxxBuffer</code> 抽象类，没有<code>boolean</code>相关的<code>buffer</code>类。</p>
+</li>
+<li><p>除了<code>ByteBuffer</code>外，每个基本数据的抽象类 <code>xxxBuffer</code> 类下面都派生出转向 <code>ByteBuffer</code> 的类 <code>ByteBufferXxxAsBufferL</code> 和 <code>ByteBufferAsXxxBufferB</code>实现类；以及 <code>DirectXxxBufferU</code> 和 <code>DirectXxxBufferS</code> 和 <code>HeapXxxBuffer</code>==（具体实例对象类）==这五个类。</p>
+</li>
+<li><p>就只有抽象类<code>CharBuffer</code> 派生出了第六个类<code>StringCharBuffer</code>。</p>
+</li>
+<li><p><code>ByteBuffer</code>只派生出了 <code>HeapByteBuffer</code> 和 <code>MappedByteBufferR</code> 两个类</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/185139008.png" alt="mark"></p>
+<h3 id="2-2-Buffer-属性"><a href="#2-2-Buffer-属性" class="headerlink" title="2.2 Buffer 属性"></a>2.2 Buffer 属性</h3><table>
+<thead>
+<tr>
+<th><strong>属性</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Capacity</td>
+<td>容量，即可以容纳的最大数据量；在缓冲区创建时被设定并且不能改变</td>
+</tr>
+<tr>
+<td>Limit</td>
+<td>表示缓冲区的当前终点，不能对缓冲区超过极限的位置进行读写操作。且极限是可以修改的</td>
+</tr>
+<tr>
+<td>Position</td>
+<td>位置，下一个要被读或写的元素的索引，每次读写缓冲区数据时都会改变改值，为下次读写作准备</td>
+</tr>
+<tr>
+<td>Mark</td>
+<td>标记 ，一般不会主动修改，在<code>flip()</code>被调用后，mark就作废了。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>mark &lt;= position &lt;= limit &lt;= capacity</p>
+</blockquote>
+<h3 id="2-3-简单使用"><a href="#2-3-简单使用" class="headerlink" title="2.3 简单使用"></a>2.3 简单使用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BasicBuffer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 举例说明Buffer的使用</span></span><br><span class="line">        <span class="comment">// 创建一个IntBuffer,大小为5,即存放5个int类型</span></span><br><span class="line">        IntBuffer intBuffer = IntBuffer.allocate(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 向Buffer中存储数据</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; intBuffer.capacity(); i++) &#123;</span><br><span class="line">            intBuffer.put(i * <span class="number">2</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 从Buffer中读取数据</span></span><br><span class="line">        <span class="comment">// 将buffer进行读写切换（重要）</span></span><br><span class="line">        intBuffer.flip();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (intBuffer.hasRemaining())&#123;</span><br><span class="line">            System.out.println(intBuffer.get());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Buffer<code>刚创建时，</code>capacity = 5<code>，固定不变。</code>limit<code>指针指向</code>5<code>，</code>position<code>指向</code>0<code>，</code>mark<code>指向</code>-1</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/185326111.png" alt="mark"></p>
+<ul>
+<li>之后调用 <code>intBuffer.put</code>方法，向<code>buffer</code>中添加数据，会不断移动<code>position</code>指针，最后<code>position</code>变量会和<code>limit</code>指向相同。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/185351549.png" alt="mark"></p>
+<ul>
+<li>调用 <code>buffer.flip()</code>实际上是重置了<code>position</code>和<code>limit</code>两个变量，将<code>limit</code>放在<code>position</code>的位置，<code>position</code>放在<code>0</code>的位置。这里只是最后的<code>position</code>和<code>limit</code>位置相同，所以<code>flip</code>后<code>limit</code>位置没变。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/185407014.png" alt="mark"></p>
+<ul>
+<li>调用 <code>intBuffer.get()</code>实际上是不断移动<code>position</code>指针，直到它移动到<code>limit</code>的位置</li>
+</ul>
+<h3 id="2-4-Buffer-类方法"><a href="#2-4-Buffer-类方法" class="headerlink" title="2.4 Buffer 类方法"></a>2.4 Buffer 类方法</h3><h5 id="Buffer基类（抽象类）"><a href="#Buffer基类（抽象类）" class="headerlink" title="Buffer基类（抽象类）"></a>Buffer基类（抽象类）</h5><ul>
+<li><code>public final int capacity();</code><ul>
+<li>直接返回了此缓冲区的容量，<code>capacity</code></li>
+</ul>
+</li>
+<li><code>public final int position();</code><ul>
+<li>直接返回了此缓冲区指针的当前位置</li>
+</ul>
+</li>
+<li><code>public final Buffer position(int newPosition);</code><ul>
+<li>设置此缓冲区的位置，设置<code>position</code></li>
+</ul>
+</li>
+<li><code>public final int limit();</code><ul>
+<li>返回此缓冲区的限制</li>
+</ul>
+</li>
+<li><code>public final Buffer limit(int newLimit);</code><ul>
+<li>设置此缓冲区的限制，设置<code>limit</code></li>
+</ul>
+</li>
+<li><code>public final Buffer clear();</code><ul>
+<li>清除此缓冲区，即将各个标记恢复到初识状态， <code>position = 0;limit = capacity; mark = -1</code>，但是并没有删除数据。</li>
+</ul>
+</li>
+<li><code>public final Buffer flip();</code><ul>
+<li>反转此缓冲区， <code>limit = position;position = 0;mark = -1</code>。</li>
+<li>当指定数据存放在缓冲区中后，<code>position</code>所指向的即为此缓冲区数据最后的位置。只有当数据大小和此缓冲区大小相同时，<code>position</code>才和<code>limit</code>的指向相同。</li>
+<li><code>flip()</code>方法将<code>limit</code>置向<code>position</code>， <code>position</code>置<code>0</code>，那么从<code>position</code>读取数据到<code>limit</code>即为此缓冲区中所有的数据。</li>
+</ul>
+</li>
+<li><code>public final boolean hasRemaining();</code><ul>
+<li>告知当前位置和限制之间是否有元素。<code>return position &lt; limit;</code></li>
+</ul>
+</li>
+<li><code>public abstract boolean isReadOnly();</code><ul>
+<li>此方法为抽象方法，告知此缓冲区是否为只读缓冲区，具体实现在各个实现类中。</li>
+</ul>
+</li>
+<li><code>public abstract boolean hasArray();</code><ul>
+<li>告知此缓冲区是否具有可访问的底层实现数组</li>
+</ul>
+</li>
+<li><code>public abstract Object array();</code><ul>
+<li>返回此缓冲区的底层实现数组</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-5-ByteBuffer的使用"><a href="#2-5-ByteBuffer的使用" class="headerlink" title="2.5 ByteBuffer的使用"></a>2.5 ByteBuffer的使用</h3><p>从前面可以看出来对于Java中的基本数据类型（<strong>boolean除外</strong>），都有一个<code>Buffer</code>类型与之对应，最常用的自然是<code>ByteBuffer</code>类（二进制数据），该类的主要方法如下：</p>
+<ul>
+<li><code>public static ByteBuffer allocateDirect(int capacity);</code><ul>
+<li>创建直接缓冲区</li>
+</ul>
+</li>
+<li><code>public static ByteBuffer allocate(int capacity) ;</code><ul>
+<li>设置缓冲区的初识容量</li>
+</ul>
+</li>
+<li><code>public abstract byte get();</code><ul>
+<li>从当前位置<code>position</code>上<code>get</code>数据，获取之后，<code>position</code>会自动加<code>1</code></li>
+</ul>
+</li>
+<li><code>public abstract byte get(int index);</code><ul>
+<li>通过绝对位置获取数据。</li>
+</ul>
+</li>
+<li><code>public abstract ByteBuffer put(byte b);</code><ul>
+<li>从当前位置上添加，<code>put</code>之后，<code>position</code>会自动加<code>1</code></li>
+</ul>
+</li>
+<li><code>public abstract ByteBuffer put(int index, byte b);</code><ul>
+<li>从绝对位置上添加数据</li>
+</ul>
+</li>
+<li><code>public abstract ByteBuffer putXxx(Xxx value [, int index]);</code><ul>
+<li>从<code>position</code>当前位置插入元素。<code>Xxx</code>表示基本数据类型</li>
+<li>此方法时类型化的 <code>put</code> 和 <code>get</code>，<code>put</code>放入的是什么数据类型，<code>get</code>就应该使用相应的数据类型来取出，否则可能有 <code>BufferUnderflowException</code> 异常。</li>
+</ul>
+</li>
+</ul>
+<p><strong>demo01</strong> :  <em>当取出的顺序和上面插入的数据类型的顺序不对时，就会抛出BufferUnderflowException异常</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">ByteBuffer buf = ByteBuffer.allocate(<span class="number">64</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//类型化方式放入数据</span></span><br><span class="line">buf.putInt(<span class="number">100</span>);</span><br><span class="line">buf.putLong(<span class="number">20</span>);</span><br><span class="line">buf.putChar(<span class="string">'上'</span>);</span><br><span class="line">buf.putShort((<span class="keyword">short</span>)<span class="number">44</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//取出，当取出的顺序和上面插入的数据类型的顺序不对时，就会抛出BufferUnderflowException异常</span></span><br><span class="line">buf.flip();</span><br><span class="line">System.out.println(buf.getInt());</span><br><span class="line">System.out.println(buf.getLong());</span><br><span class="line">System.out.println(buf.getChar());</span><br><span class="line">System.out.println(buf.getShort());</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>demo02 : 可以将一个普通的Buffer转成只读的Buffer</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建一个Buffer</span></span><br><span class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">64</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">64</span>; i++) &#123;</span><br><span class="line">    byteBuffer.put((<span class="keyword">byte</span>)i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//读取</span></span><br><span class="line">byteBuffer.flip();</span><br><span class="line"><span class="comment">//得到一个只读的Buffer</span></span><br><span class="line">ByteBuffer readOnlyBuffer = byteBuffer.asReadOnlyBuffer();</span><br><span class="line">System.out.println(readOnlyBuffer.getClass());</span><br><span class="line"><span class="comment">//读取</span></span><br><span class="line"><span class="keyword">while</span> (readOnlyBuffer.hasRemaining())&#123;</span><br><span class="line">    System.out.println(readOnlyBuffer.get());</span><br><span class="line">&#125;</span><br><span class="line">readOnlyBuffer.put((<span class="keyword">byte</span>)<span class="number">100</span>); <span class="comment">//会抛出 ReadOnlyBufferException</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>demo03: <code>MappedByteBuffer</code>可以让文件直接在内存（堆外内存）中进行修改，而如何同步到文件由NIO来完成</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 1、MappedByteBuffer可以让文件直接在内存中（堆外内存）修改，操作系统不需要拷贝一次</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    RandomAccessFile randomAccessFile = <span class="keyword">new</span> RandomAccessFile(<span class="string">"1.txt"</span>, <span class="string">"rw"</span>);</span><br><span class="line">    <span class="comment">//获取对应的文件通道</span></span><br><span class="line">    FileChannel channel = randomAccessFile.getChannel();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 参数1: FileChannel.MapMode.READ_WRITE，使用的读写模式</span></span><br><span class="line"><span class="comment">    * 参数2: 0，可以直接修改的起始位置</span></span><br><span class="line"><span class="comment">    * 参数3: 5，是映射到内存的大小(不是文件中字母的索引位置），即将 1.txt 的多少个字节映射到内存，也就是可以直接修改的范围就是 [0, 5)</span></span><br><span class="line"><span class="comment">    * 实际的实例化类型：DirectByteBuffer</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, <span class="number">0</span>, <span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    mappedByteBuffer.put(<span class="number">0</span>,(<span class="keyword">byte</span>)<span class="string">'N'</span>);</span><br><span class="line">    mappedByteBuffer.put(<span class="number">3</span>, (<span class="keyword">byte</span>)<span class="string">'M'</span>);</span><br><span class="line">    mappedByteBuffer.put(<span class="number">5</span>, (<span class="keyword">byte</span>)<span class="string">'Y'</span>); <span class="comment">//会抛出 IndexOutOfBoundsException</span></span><br><span class="line"></span><br><span class="line">    randomAccessFile.close();</span><br><span class="line">    System.out.println(<span class="string">"修改成功~"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-通道（Channel）"><a href="#3-通道（Channel）" class="headerlink" title="3. 通道（Channel）"></a>3. 通道（Channel）</h2><h3 id="3-1-基本介绍"><a href="#3-1-基本介绍" class="headerlink" title="3.1 基本介绍"></a>3.1 基本介绍</h3><p>NIO的通道类似于流，但有些区别</p>
+<ul>
+<li>通道可以同时进行读写，而流只能读或者只能写</li>
+<li>通道可以实现异步读写数据</li>
+<li>通道可以从缓存读数据，也可以写数据到缓存</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/190004844.png" alt="mark"></p>
+<ul>
+<li>BIO 中的 <code>stream</code> 是单向的，例如：<code>FileInputStream</code>对象只能进行读取数据的操作，而NIO中的通道（Channel）是双向的，可以读操作，也可以写操作。</li>
+<li><code>Channel</code> 在 NIO 中是一个接口：<code>public interface Channel extends Closeable{}</code></li>
+<li>常用的<code>Channel</code>类有：<code>FileChannel</code>、<code>DatagramChannel</code>、<code>ServerSocketChannel</code>（类似<code>ServerSocket</code>）、<code>SocketChannel</code>（类似<code>Socket</code>）</li>
+<li><code>FileChannel</code> 用于<strong>文件</strong>数据的读写，<code>DatagramChannel</code>用于<strong>UDP</strong>数据的读写，<code>ServerSocketChannel</code>和<code>SocketChannel</code>用于<strong>TCP</strong>数据读写</li>
+</ul>
+<p><strong>类关系图：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/190142717.png" alt="mark"></p>
+<h3 id="3-2-FileChannel"><a href="#3-2-FileChannel" class="headerlink" title="3.2 FileChannel"></a>3.2 FileChannel</h3><ul>
+<li><pre><code>public int read(ByteBuffer dst)
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  - 从通道读取数据并放到缓冲区中</span><br><span class="line">  - 此操作也会移动 &#96;Buffer&#96; 中的&#96;position&#96;指针，不断往&#96;position&#96;中放数据，&#96;read&#96;完成后&#96;position&#96;指向&#96;limit&#96;。</span><br><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
+public int write(ByteBuffer src)
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  - 把缓冲区的数据写到通道中</span><br><span class="line">  - 此操作也会不断移动&#96;Buffer&#96;中的&#96;position&#96;位置直到&#96;limit&#96;，读取到的数据就是&#96;position&#96;到&#96;limit&#96;这两个指针之间的数据。</span><br><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
+public long transferFrom(ReadableByteChannel src, long position, long count)
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  - 从目标通道中复制数据到当前通道</span><br><span class="line"></span><br><span class="line">-</span><br></pre></td></tr></table></figure>
+public long transferTo(long position, long count, WritableByteChannel target)
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  - 把数据从当前通道复制给目标通道</span><br><span class="line">  - 该方法拷贝数据使用了**零拷贝**，通常用来在网络&#96;IO&#96;传输中，将&#96;FileChannel&#96;里面的文件数据直接拷贝到与客户端或者服务端连接的&#96;Channel&#96;里面从而达到文件传输。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">**应用实例**</span><br><span class="line"></span><br><span class="line">**实例1：将数据写入到本地文件**</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;java</span><br><span class="line">String str &#x3D; &quot;hello,尚硅谷&quot;;</span><br><span class="line">&#x2F;&#x2F;创建一个输出流 -&gt; Channel</span><br><span class="line">FileOutputStream fileOutputStream &#x3D; new FileOutputStream(&quot;d:\\file01.txt&quot;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;通过 FileOutputStream 获取对应的 FileChannel</span><br><span class="line">&#x2F;&#x2F;这个 FileChannel 真实类型是 FileChannelImpl</span><br><span class="line">FileChannel fileChannel &#x3D; fileOutputStream.getChannel();</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;创建一个缓冲区 ByteBuffer</span><br><span class="line">ByteBuffer byteBuffer &#x3D; ByteBuffer.allocate(1024);</span><br><span class="line">&#x2F;&#x2F;将str放入ByteBuffer</span><br><span class="line">byteBuffer.put(str.getBytes());</span><br><span class="line">&#x2F;&#x2F;对ByteBuffer进行反转，开始读取</span><br><span class="line">byteBuffer.flip();</span><br><span class="line">&#x2F;&#x2F;将ByteBuffer数据写入到FileChannel</span><br><span class="line">&#x2F;&#x2F;此操作会不断移动 Buffer中的 position到 limit 的位置</span><br><span class="line">fileChannel.write(byteBuffer);</span><br><span class="line">fileOutputStream.close();</span><br></pre></td></tr></table></figure>
+
+
+</code></pre></li>
+</ul>
+<p><strong>实例2：从本地文件读取数据</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建文件的输入流</span></span><br><span class="line">File file = <span class="keyword">new</span> File(<span class="string">"d:\\file01.txt"</span>);</span><br><span class="line">FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line"><span class="comment">//通过fileInputStream 获取对应的FileChannel -&gt; 实际类型 FileChannelImpl</span></span><br><span class="line">FileChannel fileChannel = fileInputStream.getChannel();</span><br><span class="line"><span class="comment">//创建缓冲区</span></span><br><span class="line">ByteBuffer byteBuffer = ByteBuffer.allocate((<span class="keyword">int</span>) file.length());</span><br><span class="line"><span class="comment">//将通道的数据读入到buffer</span></span><br><span class="line">fileChannel.read(byteBuffer);</span><br><span class="line"></span><br><span class="line"><span class="comment">//将ByteBuffer 的字节数据转成String</span></span><br><span class="line">System.out.println(<span class="keyword">new</span> String(byteBuffer.array()));</span><br><span class="line">fileInputStream.close();</span><br></pre></td></tr></table></figure>
+
+
+
+<p>实例1、2的示例图：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/190523361.png" alt="mark"></p>
+<p><strong>实例3：使用一个Buffer完成文件的读取</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(<span class="string">"1.txt"</span>);</span><br><span class="line">FileChannel fileChannel1 = fileInputStream.getChannel();</span><br><span class="line"></span><br><span class="line">FileOutputStream fileOutputStream = <span class="keyword">new</span> FileOutputStream(<span class="string">"2.txt"</span>);</span><br><span class="line">FileChannel fileChannel2 = fileOutputStream.getChannel();</span><br><span class="line"></span><br><span class="line">ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">512</span>);</span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">    <span class="comment">//清空buffer，由于循环的最后执行了 write 操作，会将 position 移动到 limit 的位置</span></span><br><span class="line">    <span class="comment">//清空 Buffer的操作才为上一次的循环重置position的位置</span></span><br><span class="line">    <span class="comment">// 如果没有重置position，那么上次读取后，position和limit位置一样，读取后read的值永远为0</span></span><br><span class="line">    byteBuffer.clear();</span><br><span class="line">    <span class="comment">//将数据存入 ByteBuffer，它会基于 Buffer 此刻的 position 和 limit 的值，</span></span><br><span class="line">    <span class="comment">// 将数据放入position的位置，然后不断移动position直到其与limit相等；</span></span><br><span class="line">    <span class="keyword">int</span> read = fileChannel1.read(byteBuffer);</span><br><span class="line">    System.out.println(<span class="string">"read="</span> + read);</span><br><span class="line">    <span class="keyword">if</span> (read == -<span class="number">1</span>) &#123; <span class="comment">//表示读完</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//将buffer中的数据写入到 FileChannel02 ---- 2.txt</span></span><br><span class="line">    byteBuffer.flip();</span><br><span class="line">    fileChannel2.write(byteBuffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//关闭相关的流</span></span><br><span class="line">fileInputStream.close();</span><br><span class="line">fileOutputStream.close();</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201006/190859988.png" alt="mark"></p>
+<p><strong>实例4：拷贝文件 transferFrom 方法</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建相关流</span></span><br><span class="line">FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(<span class="string">"d:\\a.gif"</span>);</span><br><span class="line">FileOutputStream fileOutputStream = <span class="keyword">new</span> FileOutputStream(<span class="string">"d:\\a2.gif"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//获取各个流对应的FileChannel</span></span><br><span class="line">FileChannel source = fileInputStream.getChannel();</span><br><span class="line">FileChannel dest = fileOutputStream.getChannel();</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用 transferForm 完成拷贝</span></span><br><span class="line">dest.transferFrom(source, <span class="number">0</span>, source.size());</span><br><span class="line"><span class="comment">//关闭相关的通道和流</span></span><br><span class="line">source.close();</span><br><span class="line">dest.close();</span><br><span class="line">fileInputStream.close();</span><br><span class="line">fileOutputStream.close();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>实例4相当于封装了实例3</li>
+</ul>
+<h3 id="3-3-ServerSocketChannel-和-SocketChannel-类"><a href="#3-3-ServerSocketChannel-和-SocketChannel-类" class="headerlink" title="3.3 ServerSocketChannel 和 SocketChannel 类"></a>3.3 ServerSocketChannel 和 SocketChannel 类</h3><p><strong>ServerSocketChannel</strong>：主要用于在<strong>服务器监听新的客户端<code>Socket</code>连接</strong></p>
+<ul>
+<li><code>public static ServerSocketChannel open()</code><ul>
+<li>得到一个 <code>ServerSocketChannel</code> 通道</li>
+</ul>
+</li>
+<li><code>public final ServerSocketChannel bind(SocketAddress local)</code><ul>
+<li>设置服务器监听端口</li>
+</ul>
+</li>
+<li><code>public final SelectableChannel configureBlocking(boolean block)</code><ul>
+<li>用于设置阻塞或非阻塞模式，取值 <code>false</code> 表示采用非阻塞模式</li>
+<li>此方法位于 <code>ServerSocketChannel</code> 和 <code>SocketChannel</code>的共同父类<code>AbstractSelectableChannel</code>类中</li>
+</ul>
+</li>
+<li><code>public abstract SocketChannel accept()</code><ul>
+<li>接受一个连接，返回代表这个连接的通道对象</li>
+</ul>
+</li>
+<li><code>public final SelectionKey register(Selector sel, int ops)</code><ul>
+<li>将<code>Channel</code>注册到选择器并设置监听事件，也可以在绑定的同时注册多个事件，如下所示：</li>
+<li><code>channel.register(selector,Selectionkey.OP_READ | Selectionkey.OP_CONNECT)</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>SocketChannel</strong>：网络IO通道，<strong>具体负责进行读写操作</strong>。NIO把缓冲区的数据写入通道，或者把通道里的数据读到缓冲区</p>
+<ul>
+<li><code>public static SocketChannel open()</code><ul>
+<li>得到一个<code>SocketChannel</code>通道</li>
+</ul>
+</li>
+<li><code>public final SelectableChannel configureBlocking(boolean block)</code><ul>
+<li>设置阻塞或非阻塞模式，取值 false表示采用非阻塞模式</li>
+<li>此方法位于 <code>ServerSocketChannel</code> 和 <code>SocketChannel</code>的共同父类<code>AbstractSelectableChannel</code>类中</li>
+</ul>
+</li>
+<li><code>public abstract boolean connect(SocketAddress remote)</code><ul>
+<li>连接服务器</li>
+</ul>
+</li>
+<li><code>public boolean finishConnect()</code><ul>
+<li>如果上面的方法连接失败，接下来就要通过该方法完成连接操作</li>
+</ul>
+</li>
+<li><code>public int write(ByteBuffer src)</code><ul>
+<li>往通道里写数据</li>
+<li>这里写入的是<code>buffer</code>里面<code>position</code>到<code>limit</code>这个之间的数据</li>
+</ul>
+</li>
+<li><code>public int read(ByteBuffer dst)</code><ul>
+<li>从通道里读数据</li>
+</ul>
+</li>
+<li><code>public final SelectionKey register(Selector sel, int ops, Object att)</code><ul>
+<li>注册<code>Channel</code>到选择器并设置监听事件，最后一个参数可以设置共享数据</li>
+</ul>
+</li>
+<li><code>public final void close()</code><ul>
+<li>关闭通道</li>
+</ul>
+</li>
+</ul>
+<p><strong>应用实例</strong></p>
+<ul>
+<li>通过<code>Buffer</code>数组来完成读写操作，即<code>Scattering</code>和<code>Gathering</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Scattering：将数据写入到buffer时，可以采用buffer数组，初次写入 【分散】</span></span><br><span class="line"><span class="comment">* Gathering：从buffer读取数据时，也可以采用buffer数组，依次读</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">//使用 ServerSocketChannel 和 SocketChannel</span></span><br><span class="line">    ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();</span><br><span class="line">    InetSocketAddress inetSocketAddress = <span class="keyword">new</span> InetSocketAddress(<span class="number">7000</span>);</span><br><span class="line">    <span class="comment">//绑定端口到socket，并启动</span></span><br><span class="line">    serverSocketChannel.socket().bind(inetSocketAddress);</span><br><span class="line">    <span class="comment">//创建一个Buffer数组</span></span><br><span class="line">    ByteBuffer[] byteBuffers = <span class="keyword">new</span> ByteBuffer[<span class="number">2</span>];</span><br><span class="line">    byteBuffers[<span class="number">0</span>] = ByteBuffer.allocate(<span class="number">5</span>);</span><br><span class="line">    byteBuffers[<span class="number">1</span>] = ByteBuffer.allocate(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//等待客户端的连接（Telnet）</span></span><br><span class="line">    SocketChannel socketChannel = serverSocketChannel.accept();</span><br><span class="line">    <span class="keyword">int</span> msgLength = <span class="number">8</span>; <span class="comment">//假定从客户端接受8个字节</span></span><br><span class="line">    <span class="comment">//循环的读取</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        <span class="keyword">int</span> byteRead = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (byteRead &lt; msgLength) &#123;</span><br><span class="line">            <span class="keyword">long</span> l = socketChannel.read(byteBuffers);</span><br><span class="line">            byteRead += l; <span class="comment">//累计读取的字节数</span></span><br><span class="line">            System.out.println(<span class="string">"byteRead= "</span> + byteRead);</span><br><span class="line">            <span class="comment">//使用流打印，看看当前这个buffer的position和limit</span></span><br><span class="line">            Arrays.stream(byteBuffers)</span><br><span class="line">                .map(buffer -&gt; <span class="string">"position="</span> + buffer.position() + <span class="string">", limit = "</span> + buffer.limit())</span><br><span class="line">                .forEach(System.out::println);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//读书数据后需要将所有的buffer进行flip</span></span><br><span class="line">        Arrays.asList(byteBuffers).forEach(Buffer::flip);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//将数据读出显示到客户端</span></span><br><span class="line">        <span class="keyword">long</span> byteWrite = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (byteWrite &lt; msgLength) &#123;</span><br><span class="line">            <span class="keyword">long</span> l = socketChannel.write(byteBuffers);</span><br><span class="line">            byteWrite += l;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//将所有的 buffer 进行clear操作</span></span><br><span class="line">        Arrays.asList(byteBuffers).forEach(Buffer::clear);</span><br><span class="line">        System.out.println(<span class="string">"byteRead="</span> + byteRead + <span class="string">", byteWrite="</span> + byteWrite</span><br><span class="line">                           + <span class="string">", msgLength="</span> + msgLength);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
 
       
       <!-- reward -->
