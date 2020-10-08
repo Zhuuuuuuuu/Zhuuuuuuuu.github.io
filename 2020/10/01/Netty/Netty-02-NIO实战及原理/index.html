@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">4.4k字</span>
+            <span class="post-count">6.3k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">17分钟</span>
+            <span class="post-count">25分钟</span>
         </span>
     </span>
 </div>
@@ -422,6 +422,132 @@ public long transferTo(long position, long count, WritableByteChannel target)
 
 
 
+<h2 id="4-Selector-选择器"><a href="#4-Selector-选择器" class="headerlink" title="4. Selector(选择器)"></a>4. Selector(选择器)</h2><h3 id="4-1-基本介绍"><a href="#4-1-基本介绍" class="headerlink" title="4.1 基本介绍"></a>4.1 基本介绍</h3><ul>
+<li>Java 的 NIO，用非阻塞的 IO 方式。可以用一个线程，处理多个的客户端连接，就会使用到<strong>Selector</strong>(选择器)</li>
+<li><code>Selector</code>能够检测多个注册的通道上是否有事件发生(注意:多个Channel以<strong>事件</strong>的方式可以注册到同一个<code>Selector</code>)，如果有事件发生，便获取事件然后针对每个事件进行相应的处理。这样就可以只用一个单线程去管理多个通道，也就是管理多个连接和请求。</li>
+<li>只有在 连接/通道 真正有读写事件发生时，才会进行读写，就大大地减少了系统开销，并且不必为每个连接都创建一个线程，不用去维护多个线程</li>
+<li>避免了多线程之间的上下文切换导致的开销</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201007/202710545.png" alt="mark"></p>
+<p>其中 : <code>Netty</code>的<code>IO</code>线程<code>NioEventLoop</code>聚合了<code>Selector</code>（选择器，也叫多路复用器），可以同时并发处理成百上千个客户端连接。</p>
+<ul>
+<li><p>当线程从某客户端 <code>Socket</code> 通道进行读写数据时，若没有数据可用时，该线程可以进行其他任务。</p>
+</li>
+<li><p>线程通常将非阻塞 <code>IO</code> 的空闲时间用于在其他通道上执行 <code>IO</code> 操作，所以单独的线程可以管理多个输入和输出通道。</p>
+</li>
+<li><p>由于读写操作都是非阻塞的，这就可以充分提升 <code>IO</code> 线程的运行效率，避免由于频繁 <code>I/O</code> 阻塞导致的线程挂起。</p>
+</li>
+<li><p>一个 <code>I/O</code> 线程可以并发处理 <code>N</code> 个客户端连接和读写操作，这从根本上解决了传统同步阻塞 <code>I/O</code> 一连接一线程模型，架构的性能、弹性伸缩能力和可靠性都得到了极大的提升。</p>
+</li>
+</ul>
+<h3 id="4-2-SelectionKey-介绍"><a href="#4-2-SelectionKey-介绍" class="headerlink" title="4.2 SelectionKey 介绍"></a>4.2 SelectionKey 介绍</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201007/203002487.png" alt="mark"></p>
+<ul>
+<li><code>Selector</code>通过管理<code>SelectionKey</code>的集合从而去监听各个<code>Channel</code>。</li>
+<li>当<code>Channel</code>注册到<code>Selector</code>上面时，会携带该<code>Channel</code>关注的事件<strong>（SelectionKey包含Channel以及与之对应的事件）</strong>，并会返回一个<code>SelectionKey</code>的对象，<code>Selector</code>将该对象加入到它统一管理的集合中去，从而对<code>Channel</code>进行管理。</li>
+<li><code>SelectionKey</code>表示的是<code>Selector</code>和网络通道的注册关系，故<code>FileChannel</code>是没有办法通过<code>SelectionKey</code>注册到<code>Selector</code>上去的。</li>
+</ul>
+<p><strong>四大事件</strong></p>
+<ul>
+<li><code>public static final int OP_READ = 1 &lt;&lt; 0</code><ul>
+<li>值为<code>1</code>，表示读操作，</li>
+<li>代表本<code>Channel</code>已经接受到其他客户端传过来的消息，需要将<code>Channel</code>中的数据读取到<code>Buffer</code>中去</li>
+</ul>
+</li>
+<li><code>public static final int OP_WRITE = 1 &lt;&lt; 2</code><ul>
+<li>值为<code>4</code>，表示写操作</li>
+<li>一般临时将<code>Channel</code>的事件修改为它，在处理完后又修改回去。</li>
+</ul>
+</li>
+<li><code>public static final int OP_CONNECT = 1 &lt;&lt; 3</code><ul>
+<li>值为<code>8</code>，代表建立连接。</li>
+<li>一般在<code>ServerSocketChannel</code>上绑定该事件，结合 <code>channel.finishConnect()</code>在连接建立异常时进行异常处理</li>
+</ul>
+</li>
+<li><code>public static final int OP_ACCEPT = 1 &lt;&lt; 4</code><ul>
+<li>值为<code>16</code>，表示由新的网络连接可以<code>accept</code>。</li>
+<li>与<code>ServerSocketChannel</code>进行绑定，用于创建新的<code>SocketChannel</code>，并把其注册到<code>Selector</code>上去</li>
+</ul>
+</li>
+</ul>
+<p><strong>相关方法</strong></p>
+<ul>
+<li><code>public abstract Selector selector()</code><ul>
+<li>得到该<code>SelectionKey</code>具体是属于哪个<code>Selector</code>对象的</li>
+</ul>
+</li>
+<li><code>public abstract SelectableChannel channel()</code><ul>
+<li>通过<code>SelectionKey</code>的到对应的<code>Channel</code></li>
+</ul>
+</li>
+<li><code>public final Object attachment()</code><ul>
+<li>得到与之关联的共享数据，一般用于获取<code>buffer</code></li>
+<li>在使用<code>register</code>注册通道时，也可以为该<code>Channel</code>绑定一个<code>Buffer</code>，可以通过本方法获取这个<code>Buffer</code>。</li>
+<li>通过<code>selectionKey.attach(Object ob)</code>绑定的数据，也是通过该方法获取</li>
+</ul>
+</li>
+<li><code>public abstract SelectionKey interestOps()</code><ul>
+<li>获取该<code>SelectionKey</code>下面的事件</li>
+</ul>
+</li>
+<li><code>public abstract SelectionKey interestOps(int ops)</code><ul>
+<li>用于设置或改变某个<code>Channel</code>关联的事件</li>
+<li>增加事件：<code>key.interestOps(key.interestOps | SelectionKey.OP_WRITE)</code></li>
+<li>减少事件：<code>key.interestOps(key.interestOps &amp; ~SelectionKey.OP_WRITE)</code></li>
+</ul>
+</li>
+<li><code>public final boolean isAcceptable(),isReadable(),isWritable(),isConnectable()</code><ul>
+<li>用于判断这个<code>SelectionKey</code>产生的是什么事件，与上面的事件类型一一对应</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-3-Selector-常见方法"><a href="#4-3-Selector-常见方法" class="headerlink" title="4.3 Selector 常见方法"></a>4.3 Selector 常见方法</h3><ul>
+<li><code>public static Selector open();</code><ul>
+<li>得到一个选择器对象，实例化出 <code>WindowsSelectorImpl</code>对象。</li>
+</ul>
+</li>
+<li><code>public int select(long timeout)</code><ul>
+<li>监控所有注册的通道，当其中有<code>IO</code>操作可以进行时，将对应的<code>SelectionKey</code>加入到内部集合中并返回，返回的结果为<code>Channel</code>响应的事件总和，当结果为<code>0</code>时，表示本<code>Selector</code>监听的所有<code>Channel</code>中没有<code>Channel</code>产生事件。</li>
+<li>如果不传入<code>timeout</code>值，就会阻塞线程，传入值则为阻塞多少毫秒，通过它设置超时时间。</li>
+<li>之所以需要传入时间，是为了让它等待几秒钟再看有没有<code>Channel</code>会产生事件，从而获取一段时间内产生事件的<code>Channel</code>的总集合再一起处理。</li>
+</ul>
+</li>
+<li><code>selector.selectNow();</code><ul>
+<li>不会阻塞，立马返回冒泡的事件数</li>
+</ul>
+</li>
+<li><code>public Set&lt;SelectionKey&gt; selectedKeys()</code><ul>
+<li>从内部集合中得到所有的<code>SelectionKey</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="4-4-Demo-实例"><a href="#4-4-Demo-实例" class="headerlink" title="4.4 Demo 实例"></a>4.4 Demo 实例</h3><p><strong>编码步骤</strong></p>
+<ol>
+<li>当客户端连接时，会通过<code>ServerSocketChannel</code> 得到 <code>SocketChannel</code></li>
+<li><code>Selector</code> 进行监听 <code>select</code>方法, 返回有事件发生的通道的个数.</li>
+<li>将<code>socketChannel</code>注册到<code>Selector</code>上, register(Selector sel, <strong>int</strong> ops), 一个<code>selector</code>上可以注册多个<code>SocketChannel</code></li>
+<li>注册后返回一个 <code>SelectionKey</code>, 会和该<code>Selector</code> 关联(集合)</li>
+<li>进一步得到各个 <code>SelectionKey</code> (有事件发生)</li>
+<li>在通过 <code>SelectionKey</code> 反向获取 <code>SocketChannel</code> , 方法 <code>channel()</code></li>
+<li>判断该<code>Channel</code>的事件类型，对不同事件进行不同的业务处理</li>
+</ol>
+<p><strong>NIO入门案例：实现服务器和客户端的简单通讯</strong></p>
+<ul>
+<li><strong>服务器端</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Server</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">//创建ServerSocketChannel -&gt; ServerSocket</span></span><br><span class="line">    ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();</span><br><span class="line">    <span class="comment">//得到一个Selector对象</span></span><br><span class="line">    Selector selector = Selector.open();</span><br><span class="line">    <span class="comment">//绑定一个端口6666</span></span><br><span class="line">    serverSocketChannel.socket().bind(<span class="keyword">new</span> InetSocketAddress(<span class="number">6666</span>));</span><br><span class="line">    <span class="comment">//设置非阻塞</span></span><br><span class="line">    serverSocketChannel.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//把 serverSocketChannel 注册到 selector ，关心事件为：OP_ACCEPT，有新的客户端连接</span></span><br><span class="line">    SelectionKey register = serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);</span><br><span class="line">    System.out.println();</span><br><span class="line">    <span class="comment">//循环等待客户端连接</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        <span class="comment">//等待1秒，如果没有事件发生，就返回</span></span><br><span class="line">        <span class="keyword">if</span> (selector.select(<span class="number">1000</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"服务器等待了1秒，无连接"</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果返回的 &gt; 0,表示已经获取到关注的事件</span></span><br><span class="line">        <span class="comment">// 就获取到相关的 selectionKey 集合，反向获取通道</span></span><br><span class="line">        Set&lt;SelectionKey&gt; selectionKeys = selector.selectedKeys();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//遍历 Set&lt;SelectionKey&gt;，使用迭代器遍历</span></span><br><span class="line">        Iterator&lt;SelectionKey&gt; keyIterator = selectionKeys.iterator();</span><br><span class="line">        <span class="keyword">while</span> (keyIterator.hasNext()) &#123;</span><br><span class="line">            <span class="comment">//获取到SelectionKey</span></span><br><span class="line">            SelectionKey key = keyIterator.next();</span><br><span class="line">            <span class="comment">//根据 key 对应的通道发生的事件，做相应的处理</span></span><br><span class="line">            <span class="keyword">if</span> (key.isAcceptable()) &#123;<span class="comment">//如果是 OP_ACCEPT，有新的客户端连接</span></span><br><span class="line">                <span class="comment">//该客户端生成一个 SocketChannel</span></span><br><span class="line">                SocketChannel socketChannel = serverSocketChannel.accept();</span><br><span class="line">                System.out.println(<span class="string">"客户端连接成功，生成了一个SocketChannel："</span> + socketChannel.hashCode());</span><br><span class="line">                <span class="comment">//将SocketChannel设置为非阻塞</span></span><br><span class="line">                socketChannel.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">                <span class="comment">//将socketChannel注册到selector，关注事件为 OP_READ，同时给SocketChannel关联一个Buffer</span></span><br><span class="line">                socketChannel.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(<span class="number">1024</span>));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (key.isReadable()) &#123;</span><br><span class="line">                <span class="comment">//通过key，反向获取到对应的Channel</span></span><br><span class="line">                SocketChannel channel = (SocketChannel) key.channel();</span><br><span class="line">                <span class="comment">//获取到该channel关联的Buffer</span></span><br><span class="line">                ByteBuffer buffer = (ByteBuffer) key.attachment();</span><br><span class="line">                channel.read(buffer);</span><br><span class="line">                System.out.println(<span class="string">"from 客户端："</span> + <span class="keyword">new</span> String(buffer.array()));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//手动从集合中移除当前的 selectionKey，防止重复操作</span></span><br><span class="line">            keyIterator.remove();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>客户端</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Client</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">//得到一个网络通道</span></span><br><span class="line">    SocketChannel socketChannel = SocketChannel.open();</span><br><span class="line">    <span class="comment">//设置非阻塞</span></span><br><span class="line">    socketChannel.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">    <span class="comment">//提供服务器端的IP和端口</span></span><br><span class="line">    InetSocketAddress socketAddress = <span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, <span class="number">6666</span>);</span><br><span class="line">    <span class="comment">//连接服务器</span></span><br><span class="line">    <span class="keyword">if</span> (!socketChannel.connect(socketAddress))&#123; <span class="comment">//如果不成功</span></span><br><span class="line">        <span class="keyword">while</span> (!socketChannel.finishConnect())&#123;</span><br><span class="line">            System.out.println(<span class="string">"因为连接需要时间，客户端不会阻塞，可以做其他工作。。。"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//如果连接成功，就发送数据</span></span><br><span class="line">    String str = <span class="string">"hello, 尚硅谷"</span>;</span><br><span class="line">    ByteBuffer byteBuffer = ByteBuffer.wrap(str.getBytes());</span><br><span class="line">    <span class="comment">//发送数据,实际上就是将buffer数据写入到channel</span></span><br><span class="line">    socketChannel.write(byteBuffer);</span><br><span class="line">    System.in.read();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-NIO-实战-群聊系统demo"><a href="#5-NIO-实战-群聊系统demo" class="headerlink" title="5. NIO 实战(群聊系统demo)"></a>5. NIO 实战(群聊系统demo)</h2><ul>
+<li>需要实现客户端和服务器端之间的数据通讯，服务端能够将数据转发给其他所有客户端。</li>
+</ul>
 
       
       <!-- reward -->
