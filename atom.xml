@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2020-10-08T02:25:26.366Z</updated>
+  <updated>2020-10-12T02:16:35.039Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,57 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Leetcode-530-二叉搜索树的最小绝对值</title>
+    <link href="http://zhuuu.work/2020/10/12/Leetcode/Leetcode-530-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E7%BB%9D%E5%AF%B9%E5%80%BC/"/>
+    <id>http://zhuuu.work/2020/10/12/Leetcode/Leetcode-530-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E7%BB%9D%E5%AF%B9%E5%80%BC/</id>
+    <published>2020-10-12T04:52:53.000Z</published>
+    <updated>2020-10-12T02:16:35.039Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leetcode-530-二叉搜索树的最小绝对差"><a href="#Leetcode-530-二叉搜索树的最小绝对差" class="headerlink" title="Leetcode-530-二叉搜索树的最小绝对差"></a>Leetcode-530-<a href="https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/" target="_blank" rel="noopener">二叉搜索树的最小绝对差</a></h1><p><strong>题目描述：</strong></p><p>给你一棵所有节点为非负值的二叉搜索树，请你计算树中任意两节点的差的绝对值的最小值。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">示例：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line"></span><br><span class="line">   <span class="number">1</span></span><br><span class="line">    \</span><br><span class="line">     <span class="number">3</span></span><br><span class="line">    /</span><br><span class="line">   <span class="number">2</span></span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line"><span class="number">1</span></span><br><span class="line"></span><br><span class="line">解释：</span><br><span class="line">最小绝对差为 <span class="number">1</span>，其中 <span class="number">2</span> 和 <span class="number">1</span> 的差的绝对值为 <span class="number">1</span>（或者 <span class="number">2</span> 和 <span class="number">3</span>）。</span><br></pre></td></tr></table></figure><p><strong>提示：</strong></p><ul><li>树中至少有 2 个节点。</li></ul><a id="more"></a><h2 id="思路-中序遍历"><a href="#思路-中序遍历" class="headerlink" title="思路 :中序遍历"></a>思路 :中序遍历</h2><ul><li><strong>看到二叉搜索树，就能想到中序遍历。</strong></li><li>遍历一个二叉树，会访问每一个节点，拿节点做一些事情。</li><li>而中序遍历，它对于每一个节点，都先访问处理它的左子树中的节点，再访问处理它本身，再访问处理它的右子树中的节点。</li></ul><ul><li><strong>由于二叉搜索树的性质，中序遍历访问处理的节点值的大小是递增的。</strong></li><li><strong>题目要求任意两个节点的最小的差值，它肯定发生在递增排列后，相邻的节点值之间。</strong></li></ul><p><strong>优化 ：</strong> <strong>我们用一个变量，保存上一个访问处理的节点值</strong>，<strong>求出当前访问的节点值与它之差，挑战最小的纪录，更小就更新。</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> pre;</span><br><span class="line">    <span class="keyword">int</span> ans;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getMinimumDifference</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">        ans = Integer.MAX_VALUE;</span><br><span class="line">        pre = -<span class="number">1</span>; <span class="comment">//pre 用于保存前一个root.val</span></span><br><span class="line">        dfs(root);</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 1. 递归结束的条件</span></span><br><span class="line">        <span class="keyword">if</span>(root == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 中序遍历</span></span><br><span class="line">        dfs(root.left);</span><br><span class="line">        <span class="comment">// 处理逻辑</span></span><br><span class="line">        <span class="keyword">if</span>(pre == -<span class="number">1</span>)&#123;</span><br><span class="line">            pre = root.val;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            ans = Math.min(ans,root.val - pre);</span><br><span class="line">            pre = root.val; <span class="comment">// pre更新为当前节点的值</span></span><br><span class="line">        &#125;</span><br><span class="line">        dfs(root.right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li><strong>时间复杂度 ：</strong> O(n) 其中n是二叉搜索树节点的个数。每个节点在中序遍历中只会被访问一次。因此总的时间复杂度是O(n)</li><li><strong>空间复杂度</strong> ： O(n) 递归函数递归栈使用的深度</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leetcode-530-二叉搜索树的最小绝对差&quot;&gt;&lt;a href=&quot;#Leetcode-530-二叉搜索树的最小绝对差&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-530-二叉搜索树的最小绝对差&quot;&gt;&lt;/a&gt;Leetcode-530-&lt;a href=&quot;https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;二叉搜索树的最小绝对差&lt;/a&gt;&lt;/h1&gt;&lt;p&gt;&lt;strong&gt;题目描述：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;给你一棵所有节点为非负值的二叉搜索树，请你计算树中任意两节点的差的绝对值的最小值。&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;     &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    /&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;最小绝对差为 &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;，其中 &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; 和 &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; 的差的绝对值为 &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;（或者 &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; 和 &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;）。&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;提示：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;树中至少有 2 个节点。&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>背包问题-合集</title>
+    <link href="http://zhuuu.work/2020/10/12/LeetcodeExplore/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-%E5%90%88%E9%9B%86/"/>
+    <id>http://zhuuu.work/2020/10/12/LeetcodeExplore/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-%E5%90%88%E9%9B%86/</id>
+    <published>2020-10-12T02:52:53.000Z</published>
+    <updated>2020-10-12T01:45:07.781Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="背包问题-合集"><a href="#背包问题-合集" class="headerlink" title="背包问题-合集"></a>背包问题-合集</h1><a id="more"></a>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;背包问题-合集&quot;&gt;&lt;a href=&quot;#背包问题-合集&quot; class=&quot;headerlink&quot; title=&quot;背包问题-合集&quot;&gt;&lt;/a&gt;背包问题-合集&lt;/h1&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="背包问题" scheme="http://zhuuu.work/tags/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98/"/>
+    
+  </entry>
   
   <entry>
     <title>Leetcode-303-区域和检索</title>
@@ -193,9 +244,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -216,9 +267,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -240,9 +291,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -712,9 +763,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -995,9 +1046,9 @@
     
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
   </entry>
   
@@ -1144,9 +1195,9 @@
     
     
     
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
     
       <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
@@ -1391,9 +1442,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="雪花算法" scheme="http://zhuuu.work/tags/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/"/>
     
@@ -1995,9 +2046,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="打断" scheme="http://zhuuu.work/tags/%E6%89%93%E6%96%AD/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
   </entry>
   
@@ -2074,9 +2125,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="分布式事务" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
@@ -2467,9 +2518,9 @@
     
     
     
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
     
       <category term="AQS" scheme="http://zhuuu.work/tags/AQS/"/>
     
@@ -2591,9 +2642,9 @@
     
     
     
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
     
   </entry>
   
@@ -2801,9 +2852,9 @@
     
     
     
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
     
       <category term="异步计算" scheme="http://zhuuu.work/tags/%E5%BC%82%E6%AD%A5%E8%AE%A1%E7%AE%97/"/>
     
@@ -2985,60 +3036,6 @@
       <category term="汇编" scheme="http://zhuuu.work/tags/%E6%B1%87%E7%BC%96/"/>
     
       <category term="进制" scheme="http://zhuuu.work/tags/%E8%BF%9B%E5%88%B6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>汇编-05-位运算</title>
-    <link href="http://zhuuu.work/2020/07/16/assembly/%E6%B1%87%E7%BC%96-05-%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
-    <id>http://zhuuu.work/2020/07/16/assembly/%E6%B1%87%E7%BC%96-05-%E4%BD%8D%E8%BF%90%E7%AE%97/</id>
-    <published>2020-07-16T07:40:41.000Z</published>
-    <updated>2020-07-17T02:43:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="汇编-05-位运算"><a href="#汇编-05-位运算" class="headerlink" title="汇编-05-位运算"></a>汇编-05-位运算</h1><p>参考博客链接：<a href="https://www.cnblogs.com/findbetterme/p/10787118.html" target="_blank" rel="noopener">https://www.cnblogs.com/findbetterme/p/10787118.html</a></p><a id="more"></a><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul><li>日常开发中位运算不是很常用，但是巧妙的使用位运算可以大量的减少运行的开销，优化算法。</li><li>举个例子，翻转的操作比较常见，比如初始值是1，操作一次变成0，再操作一次变成1。 可能的做法是使用三木运算符，判断原始值是1还是0，如果是1，设置位0。否则设置位0，但是使用位运算，不用判断原始值，直接改变值就可以。<code>1^num //num</code> 为原始值。</li><li>当然，一句代码可能对性能没有什么影响，到那时在高并发，大数据量的情况下可以节省很多开销。</li><li>以下是整理的关于java位运算的部分内容，如有错误，还请指出，以共同进步，先行致谢。</li></ul><h2 id="1-位运算符"><a href="#1-位运算符" class="headerlink" title="1. 位运算符"></a>1. 位运算符</h2><h3 id="1-1-java支持的位运算符"><a href="#1-1-java支持的位运算符" class="headerlink" title="1.1 java支持的位运算符"></a>1.1 java支持的位运算符</h3><ul><li>&amp; ： 按位与</li><li>|  ：按位或</li><li>~  ： 按位非</li><li>^   :   按位异或</li><li>&lt;&lt; :  左位移运算符</li><li><code>&gt;&gt;</code> : 右位移运算符</li><li><code>&gt;&gt;&gt;</code> 无符号右移运算符</li><li><strong>注意：任何语言都没有无符号左移运算符</strong></li></ul><ul><li>位运算符中：除 ~ 以外，其余均为二元运算符。<strong>操作数只能是整型和字符型数据。</strong></li></ul><p>Java使用补码来表示二进制数，在补码表示中，最高位是符号位，正数的符号位为0，负数为1。</p><ul><li>补码的规定如下：<strong>对于正数来说</strong>，最高位是0，其余各位代表数值本身的二进制表示，如 <code>+ 42 的 补码  是  0010 1010</code></li><li><strong>补码对于负数来说，</strong>最高位是 1 ，把其余的位按位取反变成反码，然后对整个数+1，就是该数字的补码 ， <strong>如<code>-1 的补码是 1111 1111</code> （在java中 -1 的 补码 是 <code>1111 1111 1111 1111</code> ,因为java中的int是32位的）</strong></li></ul><h3 id="1-2-按位与（-amp-）"><a href="#1-2-按位与（-amp-）" class="headerlink" title="1.2 按位与（&amp;）"></a>1.2 按位与（&amp;）</h3><p>按位与的运算规则</p><table><thead><tr><th>操作数1</th><th>0</th><th>0</th><th>1</th><th>1</th></tr></thead><tbody><tr><td>操作数2</td><td>0</td><td>1</td><td>0</td><td>1</td></tr><tr><td>&amp;</td><td>0</td><td>0</td><td>0</td><td>1</td></tr></tbody></table><p><strong>总结</strong></p><ul><li>两个数同时位1的时候，结果为1</li><li>其余全为0（只要有一个操作数为0，结果就为0）</li></ul><p><strong>举例：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/084818815.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/084849124.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/084853301.png" alt="mark"></p><h3 id="1-3-按位或（-）"><a href="#1-3-按位或（-）" class="headerlink" title="1.3 按位或（|）"></a>1.3 按位或（|）</h3><p>按位或的运算规则</p><table><thead><tr><th>操作数1</th><th>0</th><th>0</th><th>1</th><th>1</th></tr></thead><tbody><tr><td>操作数2</td><td>0</td><td>1</td><td>0</td><td>1</td></tr><tr><td>按位或</td><td>0</td><td>1</td><td>1</td><td>1</td></tr></tbody></table><p><strong>总结</strong></p><ul><li>只有两个操作数对应位同时为0，结果才是0</li><li>其余全是1（只要有一个1，那么结果就是1）</li></ul><h3 id="1-4-按位非（-）"><a href="#1-4-按位非（-）" class="headerlink" title="1.4 按位非（~）"></a>1.4 按位非（~）</h3><table><thead><tr><th>操作数</th><th>0</th><th>1</th></tr></thead><tbody><tr><td>按位或</td><td>1</td><td>0</td></tr></tbody></table><p>在求负数的源码中使用过。</p><h3 id="1-5-按位异或（-）"><a href="#1-5-按位异或（-）" class="headerlink" title="1.5 按位异或（^）"></a>1.5 按位异或（^）</h3><ul><li>按位异或的运算规则</li></ul><table><thead><tr><th>操作数1</th><th>0</th><th>0</th><th>1</th><th>1</th></tr></thead><tbody><tr><td>操作数2</td><td>0</td><td>1</td><td>0</td><td>1</td></tr><tr><td>按位异或</td><td>0</td><td>1</td><td>1</td><td>0</td></tr></tbody></table><p><strong>总结：</strong></p><ul><li>不一样就是1，一样就是0</li></ul><h3 id="1-6-左位移（-lt-lt-）"><a href="#1-6-左位移（-lt-lt-）" class="headerlink" title="1.6 左位移（&lt;&lt;）"></a>1.6 左位移（&lt;&lt;）</h3><ul><li>算数左移（<code>&lt;&lt;</code>） : 符号位不变，<strong>低位补0.</strong>  </li><li>如 <code>2 &lt;&lt; 2</code> 的结果是8.</li></ul><p><strong>举例：<code>2 &lt;&lt; 2</code> 的结果是8.</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/092343752.png" alt="mark"></p><p><strong>总结：</strong></p><ul><li>当移动的位数超过数字本身位数的时候，那么不就全部需要补0的操作吗？</li><li>实际上不是的，<strong>java不可能做这么浪费资源的事情。</strong>在真正执行位移前，其对要移动的位数做了一些预处理，如32处理为0，-1处理为31</li></ul><h3 id="1-7-右位移（-gt-gt-）"><a href="#1-7-右位移（-gt-gt-）" class="headerlink" title="1.7 右位移（&gt;&gt;）"></a>1.7 右位移（&gt;&gt;）</h3><ul><li>低位溢出，符号位不变，<strong>并用符号位补溢出的高位。</strong></li><li>如 <code>-6 &gt;&gt; 2</code> 结果是 <code>-2</code> (相当于除3)</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/093302064.png" alt="mark"></p><h3 id="1-8-无符号右移（-gt-gt-gt-）"><a href="#1-8-无符号右移（-gt-gt-gt-）" class="headerlink" title="1.8 无符号右移（&gt;&gt;&gt;）"></a>1.8 无符号右移（&gt;&gt;&gt;）</h3><ul><li><strong>低位溢出，高位补0</strong></li><li><strong>注意，无符号右移(&gt;&gt;&gt;) 中的符号位（最高位）也跟着在变。</strong></li><li>无符号的意思是将符号位当作数字位来看待。</li><li>如 <code>-1 &gt;&gt;&gt; 1</code> 的结果是<code>2141483647</code></li></ul><p>这个数字应该比较熟悉，看两个输出语句就知道是什么了：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(Integer.toBinaryString(-<span class="number">1</span>&gt;&gt;&gt;<span class="number">1</span>));</span><br><span class="line">System.out.println(Integer.toBinaryString(Integer.MAX_VALUE));</span><br><span class="line"></span><br><span class="line">输出结果为：</span><br><span class="line"></span><br><span class="line"><span class="number">1111111111111111111111111111111</span></span><br><span class="line"><span class="number">1111111111111111111111111111111</span></span><br></pre></td></tr></table></figure><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/101857332.png" alt="mark"></p><p>除了使用-1&gt;&gt;&gt;1能得到Integer.MAX_VALUE，以下的也能得到同样的结果：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;maxInt</span><br><span class="line">System.out.println(~(1 &lt;&lt; 31));</span><br><span class="line">System.out.println((1 &lt;&lt; -1) -1);</span><br><span class="line">System.out.println(~(1 &lt;&lt; -1));</span><br></pre></td></tr></table></figure><p>使用位运算往往能很巧妙的实现某些算法完成一些复杂的功能。</p><h2 id="2-常见使用"><a href="#2-常见使用" class="headerlink" title="2. 常见使用"></a>2. 常见使用</h2><h3 id="2-1-m-2-n"><a href="#2-1-m-2-n" class="headerlink" title="2.1 m*2 ^n"></a>2.1 m*2 ^n</h3><ul><li><p>可以使用 m &lt;&lt; n 求得结果：</p><ul><li>如 <code>System.*out*.println(&quot;2^3=&quot; + (1&lt;&lt;3));//2^3=8</code></li><li><code>System.*out*.println(&quot;3*2^3=&quot; + (3&lt;&lt;3));//3*2^3=24</code></li></ul></li><li><p>计算结果是不是很正确呢？ <strong>如果非要说 <code>2 &lt;&lt; -1</code> 为什么不等于0.5？ 前面说过，位运算的操作数只能是整型和字符型</strong>。再求int所能表示的最小值的时候，可以使用：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># minInt</span><br><span class="line">System.out.println(<span class="number">1</span> &lt;&lt; <span class="number">31</span>);</span><br><span class="line">System.out.println(<span class="number">1</span> &lt;&lt; -<span class="number">1</span>);</span><br></pre></td></tr></table></figure></li></ul><ul><li>可以发现左移31位和-1位所得的结果是一样的。同理，左移30位和左移-2所得的结果也是一样的。移动一个负数为，是不是等于右移该负数位的绝对值呢？输出一下发现结果不是的。</li><li><strong>java中 Int 所能表示的最大值是31位，加上符号位共32位。在这里有如下的位移法则：</strong><ul><li><strong>法则1： 任何数左移（右移）32的倍数位等于该数本身</strong></li><li><strong>法则2：在位移运算 m &lt;&lt; n 的计算中，若n 是正数，则实际移动的位数是 n % 32；若 n是负数，则实际移动的位数是 （32 + n % 32） ，右移同理</strong></li><li>左移是乘以2的幂，右移是除以2的幂。</li></ul></li></ul><h3 id="2-2-判断一个数的奇偶性"><a href="#2-2-判断一个数的奇偶性" class="headerlink" title="2.2 判断一个数的奇偶性"></a>2.2 判断一个数的奇偶性</h3><p><code>n &amp; 1 == 1? 奇数：偶数</code> </p><ul><li><strong>为什么与1能判断奇偶？</strong></li><li><strong>所谓的二进制就是满2进1，那么好了，偶数的最低位肯定是0（恰好满2，对不对？）</strong></li><li><strong>同理，奇数的最低为肯定是1，<code>对于int类型的1，前31位都是0，无论是1&amp;0 还是 0 &amp; 0结果都是0</code></strong></li><li><strong>那么有区别的肯定就是最低为上的 1 了，若 n 的二进制最低位为是1（奇数），反则就是结果就是0（偶数）</strong></li></ul><h3 id="2-3-不使用临时变量交换两个数字"><a href="#2-3-不使用临时变量交换两个数字" class="headerlink" title="2.3 不使用临时变量交换两个数字"></a>2.3 不使用临时变量交换两个数字</h3><p><strong>在int[]数组首尾互换中，是不看到过这样的代码：</strong></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;汇编-05-位运算&quot;&gt;&lt;a href=&quot;#汇编-05-位运算&quot; class=&quot;headerlink&quot; title=&quot;汇编-05-位运算&quot;&gt;&lt;/a&gt;汇编-05-位运算&lt;/h1&gt;&lt;p&gt;参考博客链接：&lt;a href=&quot;https://www.cnblogs.com/findbetterme/p/10787118.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/findbetterme/p/10787118.html&lt;/a&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="位运算" scheme="http://zhuuu.work/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/"/>
-    
-      <category term="汇编" scheme="http://zhuuu.work/tags/%E6%B1%87%E7%BC%96/"/>
-    
-      <category term="进制" scheme="http://zhuuu.work/tags/%E8%BF%9B%E5%88%B6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Leetcode-088-合并两个有序数组</title>
-    <link href="http://zhuuu.work/2020/07/15/Leetcode/Leetcode-088-%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84/"/>
-    <id>http://zhuuu.work/2020/07/15/Leetcode/Leetcode-088-%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84/</id>
-    <published>2020-07-15T08:52:53.000Z</published>
-    <updated>2020-07-17T07:40:12.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Leecode-088-合并两个有序数组"><a href="#Leecode-088-合并两个有序数组" class="headerlink" title="Leecode-088-合并两个有序数组"></a>Leecode-088-<a href="https://leetcode-cn.com/problems/merge-sorted-array/" target="_blank" rel="noopener">合并两个有序数组</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给你两个有序整数数组 <em>nums1</em> 和 <em>nums2*，请你将 *nums2</em> 合并到 <em>nums1</em> 中<em>，</em>使 <em>nums1</em> 成为一个有序数组。</p><p>说明:</p><ul><li>初始化 nums1 和 nums2 的元素数量分别为 m 和 n 。</li><li><strong>你可以假设 nums1 有足够的空间（空间大小大于或等于 m + n）来保存 nums2 中的元素。</strong></li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">示例:</span><br><span class="line"></span><br><span class="line">输入:</span><br><span class="line">nums1 &#x3D; [1,2,3,0,0,0], m &#x3D; 3</span><br><span class="line">nums2 &#x3D; [2,5,6],       n &#x3D; 3</span><br><span class="line"></span><br><span class="line">输出: [1,2,2,3,5,6]</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="方法一：从头到后双指针"><a href="#方法一：从头到后双指针" class="headerlink" title="方法一：从头到后双指针"></a><strong>方法一：从头到后双指针</strong></h2><ul><li><p>跟合并两个链表很类似，这里也用两个指针指向数组的1的开头，数组2的开头</p></li><li><p>跟链表合并不同的是，如果往数组中插入一个元素，为了保证整体的顺序性，需要挪动前后的元素，所以我们<strong>要再创建一个数组来保存指针指向的元素。</strong></p></li><li><p>之后比较两个数组中的元素<code>nums1[i]</code>和<code>nums2[j]</code>，将其放到新数组中。</p></li><li><p>这种两两合并的好处是可以免掉排序了，比较完之后再放到新数组中，元素都是有序的了。</p></li><li><p>但题目要求是在数组1的基础上进行修改，而不是返回一个新数组，所以我们还得把排序好的新数组内容，再重新赋给数组1。</p></li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/152420791.jpg" alt="mark"></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span>[] nums1, <span class="keyword">int</span> m, <span class="keyword">int</span>[] nums2, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 迭代新开的数组</span></span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// 双指针</span></span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> k = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[m + n];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (j &lt; m || k &lt; n)&#123;</span><br><span class="line">            <span class="comment">// 两个边界条件 j = m  和 k = n</span></span><br><span class="line">            <span class="keyword">if</span> (j == m)&#123;</span><br><span class="line">                <span class="comment">// nums1走完了</span></span><br><span class="line">                arr[i++] = nums2[k++];</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span> (k == n)&#123;</span><br><span class="line">                <span class="comment">// nums2走完了</span></span><br><span class="line">                arr[i++] = nums1[j++];</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span> (nums1[j] &lt;= nums2[k])&#123;</span><br><span class="line">                arr[i++] = nums1[j++];</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                arr[i++] = nums2[k++];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 再把数组重新赋值给nums1</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> l = <span class="number">0</span>; l &lt; arr.length; l++) &#123;</span><br><span class="line">            nums1[l] = arr[l];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：O(m + n) 遍历两个数组需要的时间</li><li>空间复杂度： O(m + n) 新开了一个数组大小</li></ul><h2 id="方法二：从后向前迭代数组（空间优化）"><a href="#方法二：从后向前迭代数组（空间优化）" class="headerlink" title="方法二：从后向前迭代数组（空间优化）"></a>方法二：从后向前迭代数组（空间优化）</h2><ul><li><p>虽然方法一已经很ok了，<strong>但是仔细想想，nums1后面那些个0我们是不是没有用呢？</strong></p></li><li><p>另外题目中也说明了，数组1的空间是足够的，它可以完全容纳下数组1的m个元素和数组2的n个元素。</p></li><li><p>这两个条件拼在一起，我们就有了新的比较方式，即：反着比较。</p></li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200717/152800269.jpg" alt="mark"></p><p><strong>思路：</strong></p><ul><li>反向比较<code>nums1[m - 1] 和 nums2[n - 1]</code></li><li>注意:这样我们就不需要额外的空间了，数组1后面空着的我们都可以直接用</li><li><strong>关键：把两个数组后面最大的数放到数组1的最后一位</strong></li><li>依次类推直到两个数组的元素全部比较完。<br>最后数组1就是有序的，这种比较方式不需要再占用额外的空间。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span>[] nums1, <span class="keyword">int</span> m, <span class="keyword">int</span>[] nums2, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = m - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> j = n - <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 用于修改元素的指针</span></span><br><span class="line">        <span class="keyword">int</span> k = m + n -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (i &gt;= <span class="number">0</span> || j &gt;= <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">// 注意边界条件， i &lt; 0以及 j &lt; 0,这表示一个数组已经使用完了</span></span><br><span class="line">            <span class="keyword">if</span> (i &lt; <span class="number">0</span>)&#123;</span><br><span class="line">                nums1[k--] = nums2[j--];</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span> (j &lt; <span class="number">0</span>)&#123;</span><br><span class="line">                nums1[k--] = nums1[i--];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 反向比较的话，拷贝的是较大的元素</span></span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (nums1[i] &lt;= nums2[j])&#123;</span><br><span class="line">                nums1[k--] = nums2[j--];</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                nums1[k--] = nums1[i--];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ul><li><strong>时间复杂度</strong>：O(m + n) 遍历两个数组需要的时间</li><li><strong>空间复杂度</strong>： O(1) </li></ul>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Leecode-088-合并两个有序数组&quot;&gt;&lt;a href=&quot;#Leecode-088-合并两个有序数组&quot; class=&quot;headerlink&quot; title=&quot;Leecode-088-合并两个有序数组&quot;&gt;&lt;/a&gt;Leecode-088-&lt;a href=&quot;https://leetcode-cn.com/problems/merge-sorted-array/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;合并两个有序数组&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;p&gt;给你两个有序整数数组 &lt;em&gt;nums1&lt;/em&gt; 和 &lt;em&gt;nums2*，请你将 *nums2&lt;/em&gt; 合并到 &lt;em&gt;nums1&lt;/em&gt; 中&lt;em&gt;，&lt;/em&gt;使 &lt;em&gt;nums1&lt;/em&gt; 成为一个有序数组。&lt;/p&gt;
-&lt;p&gt;说明:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;初始化 nums1 和 nums2 的元素数量分别为 m 和 n 。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;你可以假设 nums1 有足够的空间（空间大小大于或等于 m + n）来保存 nums2 中的元素。&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;nums1 &amp;#x3D; [1,2,3,0,0,0], m &amp;#x3D; 3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;nums2 &amp;#x3D; [2,5,6],       n &amp;#x3D; 3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出: [1,2,2,3,5,6]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
-      <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
     
   </entry>
   
