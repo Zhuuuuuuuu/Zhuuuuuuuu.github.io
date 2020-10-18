@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2020-10-17T09:28:14.997Z</updated>
+  <updated>2020-10-18T01:06:59.545Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,39 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Leetcode-019-删除链表的倒数第N个节点</title>
+    <link href="http://zhuuu.work/2020/10/18/Leetcode/Leetcode-019-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9/"/>
+    <id>http://zhuuu.work/2020/10/18/Leetcode/Leetcode-019-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9/</id>
+    <published>2020-10-18T11:52:53.000Z</published>
+    <updated>2020-10-18T01:06:59.545Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leetcode-019-删除链表的倒数第N个节点"><a href="#Leetcode-019-删除链表的倒数第N个节点" class="headerlink" title="Leetcode-019-删除链表的倒数第N个节点"></a>Leetcode-019-<a href="https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/" target="_blank" rel="noopener">删除链表的倒数第N个节点</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个链表，删除链表的倒数第 <em>n</em> 个节点，并且返回链表的头结点。</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">示例：</span><br><span class="line"></span><br><span class="line">给定一个链表: 1-&gt;2-&gt;3-&gt;4-&gt;5, 和 n &#x3D; 2.</span><br><span class="line"></span><br><span class="line">当删除了倒数第二个节点后，链表变为 1-&gt;2-&gt;3-&gt;5.</span><br></pre></td></tr></table></figure><p><strong>说明：</strong></p><p>给定的 <em>n</em> 保证是有效的。</p><h2 id="方法：两次遍历"><a href="#方法：两次遍历" class="headerlink" title="方法：两次遍历"></a>方法：两次遍历</h2><ul><li>首先从头节点开始对链表进行一次遍历，得到链表长度L</li><li>随后我们再从头节点开始对链表进行一次遍历，当遍历到链表的第L - n + 1个节点时，他就是我们需要删除的节点</li><li>为了和提题目中的n保持一致，节点的编号从1开始，头节点为编号1的节点。</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201018/090557372.png" alt="mark"></p><a id="more"></a><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * public class ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode next;</span></span><br><span class="line"><span class="comment"> *     ListNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int val, ListNode next) &#123; this.val = val; this.next = next; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">removeNthFromEnd</span><span class="params">(ListNode head, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// dummynode: 将next指针指向链表的头节点，这样一来就不需要对头节点进行特殊的判断</span></span><br><span class="line">        ListNode dummy = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</span><br><span class="line">        dummy.next = head;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算链表的长度</span></span><br><span class="line">        <span class="keyword">int</span> length = getLength(head);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历链表进行删除</span></span><br><span class="line">        ListNode cur = dummy;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; length - n + <span class="number">1</span>;++i)&#123;</span><br><span class="line">            cur = cur.next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        cur.next = cur.next.next; <span class="comment">// 断开链表</span></span><br><span class="line">        ListNode ans = dummy.next; <span class="comment">// 返回断开后的新头节点</span></span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 计算链表长度</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getLength</span><span class="params">(ListNode head)</span></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> length = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(head != <span class="keyword">null</span>)&#123;</span><br><span class="line">            ++length;</span><br><span class="line">            head = head.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> length;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li>时间复杂度 ： O（L） L是链表的长度</li><li>空间复杂度 ： O  (1)    没有使用额外的空间</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leetcode-019-删除链表的倒数第N个节点&quot;&gt;&lt;a href=&quot;#Leetcode-019-删除链表的倒数第N个节点&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-019-删除链表的倒数第N个节点&quot;&gt;&lt;/a&gt;Leetcode-019-&lt;a href=&quot;https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;删除链表的倒数第N个节点&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;p&gt;给定一个链表，删除链表的倒数第 &lt;em&gt;n&lt;/em&gt; 个节点，并且返回链表的头结点。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;给定一个链表: 1-&amp;gt;2-&amp;gt;3-&amp;gt;4-&amp;gt;5, 和 n &amp;#x3D; 2.&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;当删除了倒数第二个节点后，链表变为 1-&amp;gt;2-&amp;gt;3-&amp;gt;5.&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;说明：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;给定的 &lt;em&gt;n&lt;/em&gt; 保证是有效的。&lt;/p&gt;
+&lt;h2 id=&quot;方法：两次遍历&quot;&gt;&lt;a href=&quot;#方法：两次遍历&quot; class=&quot;headerlink&quot; title=&quot;方法：两次遍历&quot;&gt;&lt;/a&gt;方法：两次遍历&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;首先从头节点开始对链表进行一次遍历，得到链表长度L&lt;/li&gt;
+&lt;li&gt;随后我们再从头节点开始对链表进行一次遍历，当遍历到链表的第L - n + 1个节点时，他就是我们需要删除的节点&lt;/li&gt;
+&lt;li&gt;为了和提题目中的n保持一致，节点的编号从1开始，头节点为编号1的节点。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201018/090557372.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="链表" scheme="http://zhuuu.work/tags/%E9%93%BE%E8%A1%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>操作系统-13-内存管理</title>
@@ -1123,9 +1156,9 @@
     
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
   </entry>
   
@@ -1213,11 +1246,11 @@
     
     
     
-      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
-    
       <category term="ClassLoader" scheme="http://zhuuu.work/tags/ClassLoader/"/>
     
       <category term="双亲委派" scheme="http://zhuuu.work/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE/"/>
+    
+      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
     
   </entry>
   
@@ -1519,9 +1552,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="雪花算法" scheme="http://zhuuu.work/tags/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/"/>
     
@@ -2202,9 +2235,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="分布式事务" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
     
@@ -2984,29 +3017,6 @@
       <category term="JDK源码分析" scheme="http://zhuuu.work/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
     
       <category term="面试必备" scheme="http://zhuuu.work/tags/%E9%9D%A2%E8%AF%95%E5%BF%85%E5%A4%87/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>各种反转-合集</title>
-    <link href="http://zhuuu.work/2020/07/20/LeetcodeExplore/%E5%90%84%E7%A7%8D%E5%8F%8D%E8%BD%AC-%E5%90%88%E9%9B%86/"/>
-    <id>http://zhuuu.work/2020/07/20/LeetcodeExplore/%E5%90%84%E7%A7%8D%E5%8F%8D%E8%BD%AC-%E5%90%88%E9%9B%86/</id>
-    <published>2020-07-20T07:52:53.000Z</published>
-    <updated>2020-08-17T08:05:40.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="各种反转-合集"><a href="#各种反转-合集" class="headerlink" title="各种反转-合集"></a>各种反转-合集</h1><p>（本系列是针对Leetcode上常见的反转进行总结。）</p><a id="more"></a><h2 id="1-Leetcode-007-整数反转"><a href="#1-Leetcode-007-整数反转" class="headerlink" title="1. Leetcode 007 整数反转"></a>1. Leetcode 007 整数反转</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">reverse</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 反转后的结果</span></span><br><span class="line">    <span class="keyword">int</span> ans = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (x != <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">// 拿到每一个个位</span></span><br><span class="line">        <span class="keyword">int</span> pop = x % <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 溢出处理</span></span><br><span class="line">        <span class="comment">// ans * 10 + pop &gt; Integer.MAXVAlUE</span></span><br><span class="line">        <span class="comment">// ans * 10 + pop &lt; Integer.MINVALUE</span></span><br><span class="line">        <span class="keyword">if</span> ((ans &gt; Integer.MAX_VALUE/<span class="number">10</span>) </span><br><span class="line">                || (ans == Integer.MAX_VALUE/<span class="number">10</span>) &amp;&amp; pop &gt; <span class="number">7</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> ((ans &lt; Integer.MIN_VALUE/<span class="number">10</span>)</span><br><span class="line">                || (ans == Integer.MIN_VALUE/<span class="number">10</span>) &amp;&amp; pop &lt; -<span class="number">8</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ans = ans * <span class="number">10</span> + pop;</span><br><span class="line">        x /= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="2-Leetcode-415-字符串相加"><a href="#2-Leetcode-415-字符串相加" class="headerlink" title="2. Leetcode   415. 字符串相加"></a>2. Leetcode   <a href="https://leetcode-cn.com/problems/add-strings/" target="_blank" rel="noopener">415. 字符串相加</a></h2><p>给定两个字符串形式的非负整数 num1 和num2 ，计算它们的和。</p><p>提示：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">num1 和num2 的长度都小于 5100</span><br><span class="line">num1 和num2 都只包含数字 0-9</span><br><span class="line">num1 和num2 都不包含任何前导零</span><br></pre></td></tr></table></figure><p><strong>你不能使用任何內建 BigInteger 库， 也不能直接将输入的字符串转换为整数形式</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">addStrings</span><span class="params">(String num1, String num2)</span> </span>&#123;</span><br><span class="line">        StringBuilder sb = <span class="keyword">new</span> StringBuilder(<span class="string">""</span>);</span><br><span class="line">        <span class="comment">// 初始化</span></span><br><span class="line">        <span class="keyword">int</span> i = num1.length() - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> j = num2.length() - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> carry = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (i &gt;= <span class="number">0</span> || j &gt;= <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">// 对溢出进行处理，超过就补一个0</span></span><br><span class="line">            <span class="keyword">int</span> n1 = i &gt;= <span class="number">0</span> ? num1.charAt(i) - <span class="string">'0'</span>:<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">int</span> n2 = j &gt;= <span class="number">0</span> ? num2.charAt(j) - <span class="string">'0'</span>:<span class="number">0</span>;</span><br><span class="line">            <span class="comment">// 计算总和</span></span><br><span class="line">            <span class="keyword">int</span> tmp = n1 + n2 + carry;</span><br><span class="line">            <span class="comment">// 计算进位</span></span><br><span class="line">            carry = tmp / <span class="number">10</span>;</span><br><span class="line">            <span class="comment">// 拿个位结果</span></span><br><span class="line">            sb.append(tmp % <span class="number">10</span>);</span><br><span class="line">            <span class="comment">// 继续向前遍历</span></span><br><span class="line">            i--;</span><br><span class="line">            j--;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历完如果有进位再加一个1</span></span><br><span class="line">        <span class="keyword">if</span> (carry == <span class="number">1</span>)&#123;</span><br><span class="line">            sb.append(<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将StringBuilder转为字符串</span></span><br><span class="line">        <span class="keyword">return</span> sb.reverse().toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;各种反转-合集&quot;&gt;&lt;a href=&quot;#各种反转-合集&quot; class=&quot;headerlink&quot; title=&quot;各种反转-合集&quot;&gt;&lt;/a&gt;各种反转-合集&lt;/h1&gt;&lt;p&gt;（本系列是针对Leetcode上常见的反转进行总结。）&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
-      <category term="反转" scheme="http://zhuuu.work/tags/%E5%8F%8D%E8%BD%AC/"/>
     
   </entry>
   
