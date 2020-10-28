@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">170字</span>
+            <span class="post-count">939字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -121,7 +121,135 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201019/114115334.png" alt="mark"></p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201019/115956949.png" alt="mark"></p>
-<h2 id="3-虚拟内存"><a href="#3-虚拟内存" class="headerlink" title="3. 虚拟内存"></a>3. 虚拟内存</h2><p><strong>参考书籍：《王道考研计算机操作系统》</strong></p>
+<h2 id="3-虚拟内存"><a href="#3-虚拟内存" class="headerlink" title="3. 虚拟内存"></a>3. 虚拟内存</h2><ul>
+<li><p><strong>传统存储方式的缺点</strong></p>
+<p><strong>连续分配/非连续分配</strong></p>
+<ul>
+<li><p><strong>一次性</strong><br>作业必须一次性全部装入内存后才能开始运行。大作业无法运行,多道程序并发度下降。</p>
+</li>
+<li><p><strong>驻留性</strong><br>作业在运行期间一直驻留在内存，内存中驻留大量的暂时用不到的数据，浪费了宝贵的内存资源。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>局部性原理</strong><ul>
+<li>时间局部性<br>现在访问的指令、数据在不久后很可能再次访问</li>
+<li>空间局部性<br>现在访问的内存单元周围的内存空间很可能在不久之后访问</li>
+<li>高速缓存<br>频繁访问的数据放到更高速的储存器中</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>虚拟内存的定义和特征</strong></p>
+<p>程序不需要全部装入内存即可运行，运行时根据需要动态调入数据，内存不够时，换出一些数据到外存</p>
+<ul>
+<li><p><strong>多次性</strong><br>作业无需在运行时一次装入内存，而是允许分多次调用</p>
+</li>
+<li><p><strong>对换性</strong><br>作业无需在运行时常驻内存，允许作业换入、换出</p>
+</li>
+<li><p><strong>虚拟性</strong><br>从逻辑上扩充了内存容量，用户看到的容量，远大于实际容量</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-1-请求分页"><a href="#3-1-请求分页" class="headerlink" title="3.1 请求分页"></a>3.1 请求分页</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/085952774.png" alt="mark"></p>
+<ul>
+<li><strong>请求分页</strong><br>访问的信息不存在时，操作系统负责将需要的信息从外存调入内存</li>
+</ul>
+<ul>
+<li><strong>页表机制</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170504815.png" alt="mark"></p>
+<p><strong>页面置换概念</strong></p>
+<ul>
+<li>内存空间不足时，将内存中暂时不用的信息换到外存 页面的换入换出需要磁盘I/O，时间开销是很大的，<strong>缺页率越小越好</strong></li>
+</ul>
+<ul>
+<li><strong>缺页中断</strong><ul>
+<li>访问的页面不存在时，产生缺页中断(属于<strong>内中断的故障</strong> fault)，</li>
+<li>操作系统缺页中断处理程序中断，进程<strong>放到阻塞队列</strong>，待调页完成后将进程唤醒，放到就绪队列 </li>
+<li>如果<strong>内存有空闲块</strong>，则为进程分配一个空闲块，将缺页装入其中，并修改页表相应页表项 </li>
+<li>如果<strong>内存没有空闲块，由页面置换算法</strong>选择一个页面淘汰(若该页面在内存期间被修改过，则需要先将其写回外存)，腾出一个空间再装入缺页 一条指令执行期间，可能产生多次缺页中断</li>
+</ul>
+</li>
+</ul>
+<p><strong>地址变换机构</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170623996.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/090606347.png" alt="mark"></p>
+<p><strong>页面置换算法（具体内容请看下一篇博客）</strong></p>
+<ul>
+<li><strong>最佳置换算法(OPT)</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170419565.png" alt="mark"></p>
+<ul>
+<li><strong>先进先出置换算法(FIFO)</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170426988.png" alt="mark"></p>
+<ul>
+<li><strong>最近最久未使用算法(LRU)</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170331530.png" alt="mark"></p>
+<ul>
+<li><strong>时钟置换算法(CLOCK)</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170432349.png" alt="mark"></p>
+<ul>
+<li><strong>改进型时钟置换算法</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170438711.png" alt="mark"></p>
+<ul>
+<li><strong>小结：</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/170312379.png" alt="mark"></p>
+<p><strong>页面分配策略</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091112009.png" alt="mark"></p>
+<ol>
+<li><strong>驻留集</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091352567.png" alt="mark"></p>
+<ul>
+<li>固定分配局部置换</li>
+<li>可变分配局部置换</li>
+<li>可变分配全局置换</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091451976.png" alt="mark"></p>
+<ol start="2">
+<li><strong>何时调入页面</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091518574.png" alt="mark"></p>
+<ol start="3">
+<li><strong>何处调入页面</strong></li>
+</ol>
+<ul>
+<li>系统拥有足够的兑换区空间</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091646646.png" alt="mark"></p>
+<ul>
+<li>系统缺少足够的兑换区空间</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091655387.png" alt="mark"></p>
+<ul>
+<li>UNIX方式</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091825055.png" alt="mark"></p>
+<ol start="4">
+<li><strong>抖动现象</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091858809.png" alt="mark"></p>
+<ol start="5">
+<li><strong>工作集</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091925610.png" alt="mark"></p>
+<p><strong>页面分配策略小结</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201023/091255298.png" alt="mark"></p>
+<h3 id="3-2-请求分段"><a href="#3-2-请求分段" class="headerlink" title="3.2 请求分段"></a>3.2 请求分段</h3><ul>
+<li>书上无具体详解</li>
+</ul>
+<h3 id="3-3-请求段页式"><a href="#3-3-请求段页式" class="headerlink" title="3.3 请求段页式"></a>3.3 请求段页式</h3><ul>
+<li>书上无具体说明</li>
+</ul>
+<p><strong>参考书籍：《王道考研计算机操作系统》</strong></p>
 <p><strong>参考博客</strong> ：<a href="https://mubu.com/doc/Cd-Y4YOfkh#o-1d01735b78f18c07f" target="_blank" rel="noopener">https://mubu.com/doc/Cd-Y4YOfkh#o-1d01735b78f18c07f</a></p>
 
       
