@@ -584,6 +584,42 @@
   </entry>
   
   <entry>
+    <title>Leetcode-1038-把二叉搜索树转换为累加树</title>
+    <link href="http://zhuuu.work/2020/10/08/Leetcode/Leetcode-1038-%E6%8A%8A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91/"/>
+    <id>http://zhuuu.work/2020/10/08/Leetcode/Leetcode-1038-%E6%8A%8A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91/</id>
+    <published>2020-10-08T07:52:53.000Z</published>
+    <updated>2020-10-29T00:55:51.440Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leetcode-1038-把二叉搜索树转换为累加树"><a href="#Leetcode-1038-把二叉搜索树转换为累加树" class="headerlink" title="Leetcode-1038-把二叉搜索树转换为累加树"></a>Leetcode-1038-<a href="https://leetcode-cn.com/problems/binary-search-tree-to-greater-sum-tree/" target="_blank" rel="noopener">把二叉搜索树转换为累加树</a></h1><h2 id="思路：反向中序遍历"><a href="#思路：反向中序遍历" class="headerlink" title="思路：反向中序遍历"></a>思路：反向中序遍历</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul><li><p>这里有一个非负整数数组 <code>arr</code>，你最开始位于该数组的起始下标 <code>start</code> 处。</p></li><li><p>当你位于下标 <code>i</code> 处时，你可以跳到 <code>i + arr[i]</code> 或者 <code>i - arr[i]</code>。</p></li><li><p>请你判断自己是否能够跳到对应元素值为 0 的 <strong>任意</strong> 下标处</p></li></ul><p>示例：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入：arr &#x3D; [4,2,3,0,3,1,2], start &#x3D; 5</span><br><span class="line">输出：true</span><br><span class="line">解释：</span><br><span class="line">到达值为 0 的下标 3 有以下可能方案： </span><br><span class="line">下标 5 -&gt; 下标 4 -&gt; 下标 1 -&gt; 下标 3 </span><br><span class="line">下标 5 -&gt; 下标 6 -&gt; 下标 4 -&gt; 下标 1 -&gt; 下标 3</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：arr &#x3D; [4,2,3,0,3,1,2], start &#x3D; 0</span><br><span class="line">输出：true </span><br><span class="line">解释：</span><br><span class="line">到达值为 0 的下标 3 有以下可能方案： </span><br><span class="line">下标 0 -&gt; 下标 4 -&gt; 下标 1 -&gt; 下标 3</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：arr &#x3D; [3,0,2,1,2], start &#x3D; 2</span><br><span class="line">输出：false</span><br><span class="line">解释：无法到达值为 0 的下标 1 处。</span><br></pre></td></tr></table></figure><a id="more"></a><p><strong>Solution：DFS</strong></p><ul><li>初始化一个长度为arr的boolean数组，记录已访问过的位置</li><li>递归进入判断当前位置是否是0<ul><li>不是的话：处理start左边的元素（索引递减，往左走找0）；处理start右边的元素（索引递增，往右走找0）, 最后还找不到的话返回false</li><li>是的话：返回true</li></ul></li></ul><h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canReach</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 初始化一个长度为arr的boolean数组，记录已访问过的位置</span></span><br><span class="line">        <span class="keyword">boolean</span>[] visited = <span class="keyword">new</span> <span class="keyword">boolean</span>[arr.length];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 深度优先遍历</span></span><br><span class="line">        <span class="keyword">return</span> dfs(arr,start,visited);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">boolean</span>[] visited)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 递归进入判断当前位置是否是0</span></span><br><span class="line">        <span class="keyword">if</span> (arr[start] == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 记录start位置已被访问</span></span><br><span class="line">        visited[start] = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理start左边的元素（索引递减，往左走找0）</span></span><br><span class="line">        <span class="keyword">int</span> left = start - arr[start];</span><br><span class="line">        <span class="keyword">if</span> (left &gt;= <span class="number">0</span> &amp;&amp; !visited[left] &amp;&amp; dfs(arr,left,visited))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理start右边的元素（索引递增，往右走找0）</span></span><br><span class="line">        <span class="keyword">int</span> right = start + arr[start];</span><br><span class="line">        <span class="keyword">if</span> (right &lt; arr.length &amp;&amp; !visited[right] &amp;&amp; dfs(arr,right,visited))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 没有能达到0的位置</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ul><li><p>时间复杂度：O(n)   n是数组的长度</p></li><li><p>空间复杂度：O(n)   boolean数组的长度</p></li></ul><h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leetcode-1038-把二叉搜索树转换为累加树&quot;&gt;&lt;a href=&quot;#Leetcode-1038-把二叉搜索树转换为累加树&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-1038-把二叉搜索树转换为累加树&quot;&gt;&lt;/a&gt;Leetcode-1038-&lt;a href=&quot;https://leetcode-cn.com/problems/binary-search-tree-to-greater-sum-tree/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;把二叉搜索树转换为累加树&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;思路：反向中序遍历&quot;&gt;&lt;a href=&quot;#思路：反向中序遍历&quot; class=&quot;headerlink&quot; title=&quot;思路：反向中序遍历&quot;&gt;&lt;/a&gt;思路：反向中序遍历&lt;/h2&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;这里有一个非负整数数组 &lt;code&gt;arr&lt;/code&gt;，你最开始位于该数组的起始下标 &lt;code&gt;start&lt;/code&gt; 处。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;当你位于下标 &lt;code&gt;i&lt;/code&gt; 处时，你可以跳到 &lt;code&gt;i + arr[i]&lt;/code&gt; 或者 &lt;code&gt;i - arr[i]&lt;/code&gt;。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;请你判断自己是否能够跳到对应元素值为 0 的 &lt;strong&gt;任意&lt;/strong&gt; 下标处&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;示例：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;输入：arr &amp;#x3D; [4,2,3,0,3,1,2], start &amp;#x3D; 5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：true&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;到达值为 0 的下标 3 有以下可能方案： &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;下标 5 -&amp;gt; 下标 4 -&amp;gt; 下标 1 -&amp;gt; 下标 3 &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;下标 5 -&amp;gt; 下标 6 -&amp;gt; 下标 4 -&amp;gt; 下标 1 -&amp;gt; 下标 3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;输入：arr &amp;#x3D; [4,2,3,0,3,1,2], start &amp;#x3D; 0&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：true &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;到达值为 0 的下标 3 有以下可能方案： &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;下标 0 -&amp;gt; 下标 4 -&amp;gt; 下标 1 -&amp;gt; 下标 3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;输入：arr &amp;#x3D; [3,0,2,1,2], start &amp;#x3D; 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：false&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：无法到达值为 0 的下标 1 处。&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="中序遍历" scheme="http://zhuuu.work/tags/%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86/"/>
+    
+  </entry>
+  
+  <entry>
     <title>操作系统-10-进程同步和互斥</title>
     <link href="http://zhuuu.work/2020/10/08/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-10-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E5%92%8C%E4%BA%92%E6%96%A5/"/>
     <id>http://zhuuu.work/2020/10/08/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-10-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E5%92%8C%E4%BA%92%E6%96%A5/</id>
@@ -1350,9 +1386,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="SDS" scheme="http://zhuuu.work/tags/SDS/"/>
     
@@ -1435,9 +1471,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="跳表" scheme="http://zhuuu.work/tags/%E8%B7%B3%E8%A1%A8/"/>
     
@@ -1476,9 +1512,9 @@
     
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
@@ -1568,11 +1604,11 @@
     
     
     
+      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
+    
       <category term="ClassLoader" scheme="http://zhuuu.work/tags/ClassLoader/"/>
     
       <category term="双亲委派" scheme="http://zhuuu.work/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE/"/>
-    
-      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
     
   </entry>
   
@@ -2071,6 +2107,39 @@
   </entry>
   
   <entry>
+    <title>Redis-16-Redis分布式</title>
+    <link href="http://zhuuu.work/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    <id>http://zhuuu.work/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/</id>
+    <published>2020-08-22T10:32:24.000Z</published>
+    <updated>2020-09-17T07:29:21.592Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Redis-16-Redis分布式"><a href="#Redis-16-Redis分布式" class="headerlink" title="Redis-16-Redis分布式"></a>Redis-16-Redis分布式</h1><h2 id="1-为什么用Redis"><a href="#1-为什么用Redis" class="headerlink" title="1. 为什么用Redis?"></a>1. 为什么用Redis?</h2><ol><li>单线程的redis为什么这么快??</li></ol><p><strong>分析</strong>:这个问题其实是对redis内部机制的一个考察。</p><p><strong>回答</strong>:主要是以下三点<br>(一)纯内存操作<br>(二)单线程操作，避免了频繁的上下文切换<br>(三)采用了非阻塞<strong>I/O多路复用机制</strong></p><p><strong>关于Redis的 I/O多路复用：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-154227633.png" alt="mark"></p><ul><li>参照上图，简单来说，就是。我们的redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。</li><li>需要说明的是，这个I/O多路复用机制，redis还提供了<code>select、epoll、evport、kqueue</code>等多路复用函数库</li></ul><a id="more"></a><h2 id="2-Redis数据结构应用场景"><a href="#2-Redis数据结构应用场景" class="headerlink" title="2. Redis数据结构应用场景"></a>2. Redis数据结构应用场景</h2><p><strong>redis的数据类型，以及每种数据类型的使用场景</strong></p><p><strong>回答</strong>：一共五种</p><p>(一)String<br>这个其实没啥好说的，最常规的set/get操作，value可以是String也可以是数字。一般做<strong>一些复杂的计数功能的缓存。</strong>（以及分布式锁）</p><p>(二)hash<br>这里value存放的是结构化的对象，比较方便的就是操作其中的某个字段。就是用这种数据结构存储用户信息，以<code>cookieId</code>作为key，设置30分钟为缓存过期时间，能很好的模拟出类似session的效果。</p><p>(三)list<br>使用List的数据结构，可以<strong>做简单的消息队列的功能</strong>。另外还有一个就是，可以利用lrange命令，<strong>做基于redis的分页功能</strong>，性能极佳，用户体验好。</p><p>(四)set<br>因为set堆放的是一堆不重复值的集合。所以可以做<strong>全局去重的功能</strong>。为什么不用JVM自带的Set进行去重？因为我们的系统一般都是集群部署，使用JVM自带的Set，比较麻烦，难道为了一个做一个全局去重，再起一个公共服务，太麻烦了。</p><p>另外，就是利用<strong>交集、并集、差集</strong>等操作，可以<strong>计算共同喜好，全部的喜好，自己独有的喜好等功能</strong>。</p><p>(五)<code>sorted set</code><br>sorted set多了一个权重参数score,集合中的元素能够按score进行排列。可以做<strong>排行榜应用，取TOP N操作</strong>。sorted set可以用来做<strong>延时任务</strong>。最后一个应用就是可以做<strong>范围查找</strong>。</p><h2 id="3-Redis过期策略和内存淘汰机制"><a href="#3-Redis过期策略和内存淘汰机制" class="headerlink" title="3. Redis过期策略和内存淘汰机制"></a>3. Redis过期策略和内存淘汰机制</h2><ul><li>redis的<strong>过期策略以及内存淘汰机制</strong></li></ul><p><strong>分析</strong>:这个问题其实相当重要，到底redis有没用到家，这个问题就可以看出来。比如你redis只能存5G数据，可是你写了10G，那会删5G的数据。怎么删的，这个问题思考过么？还有，你的数据已经设置了过期时间，但是时间到了，内存占用率还是比较高，有思考过原因么?</p><p><strong>回答</strong>:</p><ul><li>redis采用的是<strong>定期删除+惰性删除策略。</strong></li></ul><p><strong>为什么不用定时删除策略?</strong></p><ul><li>定时删除,用一个定时器来负责监视key,过期则自动删除。虽然内存及时释放，但是十分消耗CPU资源。在大并发请求下，CPU要将时间应用在处理请求，而不是删除key,因此没有采用这一策略.</li></ul><p><strong>定期删除+惰性删除是如何工作的呢?</strong></p><ul><li><p>定期删除，redis默认每个<code>100ms</code>检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis岂不是卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。</p></li><li><p>于是，惰性删除派上用场。也就是说在你获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。</p></li></ul><p><strong>采用定期删除+惰性删除就没其他问题了么?</strong></p><ul><li>不是的，如果定期删除没删除key。然后你也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用<strong>内存淘汰机制</strong>。</li></ul><p><strong>在redis.conf中有一行配置</strong></p><p><code># maxmemory-policy volatile-lru</code></p><p><strong>该配置就是配内存淘汰策略的(什么，你没配过？好好反省一下自己)</strong></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。**应该没人用吧。**</span><br><span class="line">2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。**推荐使用，目前项目在用这种。**</span><br><span class="line">3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。**应该也没人用吧，你不删最少使用Key,去随机删。**</span><br><span class="line">4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。**这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐**</span><br><span class="line">5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。**依然不推荐**</span><br><span class="line">6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。**不推荐**</span><br></pre></td></tr></table></figure><p><strong>ps：如果没有设置 <code>expire</code> 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。</strong></p><h2 id="4-双写一致性问题"><a href="#4-双写一致性问题" class="headerlink" title="4. 双写一致性问题"></a>4. 双写一致性问题</h2><p><strong>分析</strong>:一致性问题是分布式常见问题，还可以再分为<strong>最终一致性</strong>和<strong>强一致性</strong>。数据库和缓存双写，就必然会存在不一致的问题。答这个问题，先明白一个前提。就是<strong>如果对数据有强一致性要求，不能放缓存。</strong>我们所做的一切，只能保证最终一致性。另外，我们所做的方案其实从根本上来说，只能说<strong>降低不一致发生的概率</strong>，无法完全避免。因此，有强一致性要求的数据，不能放缓存。</p><p><strong>回答</strong>:</p><ul><li>首先，采取正确更新策略，<ul><li>先更新数据库，再删缓存。其次，因为可能存在删除缓存失败的问题，提供一个补偿措施即可，例如利用消息队列。</li></ul></li></ul><h2 id="5-并发竞争key的问题"><a href="#5-并发竞争key的问题" class="headerlink" title="5. 并发竞争key的问题"></a>5. 并发竞争key的问题</h2><ul><li><strong>分析</strong>:这个问题大致就是，同时有多个子系统去set一个key。这个时候要注意什么呢？大家思考过么。需要说明一下，博主提前百度了一下，发现答案基本都是推荐用redis事务机制。博主<strong>不推荐使用redis的事务机制。</strong>因为我们的生产环境，基本都是redis集群环境，做了数据分片操作。你一个事务中有涉及到多个key操作的时候，这多个key不一定都存储在同一个redis-server上。因此，<strong>redis的事务机制，十分鸡肋。</strong></li></ul><ul><li><strong>回答:</strong>如下所示<br>(1)如果对这个key操作，<strong>不要求顺序</strong><br>这种情况下，准备一个分布式锁，大家去抢锁，抢到锁就做set操作即可，比较简单。<br>(2)如果对这个key操作，<strong>要求顺序</strong><br>假设有一个<code>key1</code>,系统A需要将<code>key1</code>设置为<code>valueA</code>,系统B需要将<code>key1</code>设置为<code>valueB</code>,系统C需要将<code>key1</code>设置为<code>valueC</code>.<br>期望按照key1的value值按照 <code>valueA--&gt;valueB--&gt;valueC</code>的顺序变化。这种时候我们在数据写入数据库的时候，需要保存一个时间戳。假设时间戳如下</li></ul><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">系统A key 1 &#123;valueA  3:00&#125;</span><br><span class="line">系统B key 1 &#123;valueB  3:05&#125;</span><br><span class="line">系统C key 1 &#123;valueC  3:10&#125;</span><br><span class="line"></span><br><span class="line">那么，假设这会系统B先抢到锁，将key1设置为&#123;valueB 3:05&#125;。接下来系统A抢到锁，发现自己的valueA的时间戳早于缓存中的时间戳，那就不做<span class="built_in">set</span>操作了。以此类推。</span><br><span class="line"></span><br><span class="line">其他方法，比如利用队列，将<span class="built_in">set</span>方法变成串行访问也可以。总之，灵活变通。</span><br></pre></td></tr></table></figure><p><strong>参考博客 ：</strong> <a href="https://blog.csdn.net/tmeng521/article/details/91039391" target="_blank" rel="noopener">https://blog.csdn.net/tmeng521/article/details/91039391</a></p><p>​                    <a href="https://www.cnblogs.com/bigben0123/p/9115597.html" target="_blank" rel="noopener">https://www.cnblogs.com/bigben0123/p/9115597.html</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Redis-16-Redis分布式&quot;&gt;&lt;a href=&quot;#Redis-16-Redis分布式&quot; class=&quot;headerlink&quot; title=&quot;Redis-16-Redis分布式&quot;&gt;&lt;/a&gt;Redis-16-Redis分布式&lt;/h1&gt;&lt;h2 id=&quot;1-为什么用Redis&quot;&gt;&lt;a href=&quot;#1-为什么用Redis&quot; class=&quot;headerlink&quot; title=&quot;1. 为什么用Redis?&quot;&gt;&lt;/a&gt;1. 为什么用Redis?&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;单线程的redis为什么这么快??&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;分析&lt;/strong&gt;:这个问题其实是对redis内部机制的一个考察。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;回答&lt;/strong&gt;:主要是以下三点&lt;br&gt;(一)纯内存操作&lt;br&gt;(二)单线程操作，避免了频繁的上下文切换&lt;br&gt;(三)采用了非阻塞&lt;strong&gt;I/O多路复用机制&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;关于Redis的 I/O多路复用：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-154227633.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;参照上图，简单来说，就是。我们的redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。&lt;/li&gt;
+&lt;li&gt;需要说明的是，这个I/O多路复用机制，redis还提供了&lt;code&gt;select、epoll、evport、kqueue&lt;/code&gt;等多路复用函数库&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
+    
+      <category term="Redis分布式" scheme="http://zhuuu.work/tags/Redis%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Redis-15-mysql和redis缓存不一致</title>
     <link href="http://zhuuu.work/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/"/>
     <id>http://zhuuu.work/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/</id>
@@ -2101,39 +2170,6 @@
       <category term="mysql和redis缓存不一致" scheme="http://zhuuu.work/tags/mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/"/>
     
       <category term="mysql" scheme="http://zhuuu.work/tags/mysql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis-16-Redis分布式</title>
-    <link href="http://zhuuu.work/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    <id>http://zhuuu.work/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/</id>
-    <published>2020-08-22T10:32:24.000Z</published>
-    <updated>2020-09-17T07:29:21.592Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Redis-16-Redis分布式"><a href="#Redis-16-Redis分布式" class="headerlink" title="Redis-16-Redis分布式"></a>Redis-16-Redis分布式</h1><h2 id="1-为什么用Redis"><a href="#1-为什么用Redis" class="headerlink" title="1. 为什么用Redis?"></a>1. 为什么用Redis?</h2><ol><li>单线程的redis为什么这么快??</li></ol><p><strong>分析</strong>:这个问题其实是对redis内部机制的一个考察。</p><p><strong>回答</strong>:主要是以下三点<br>(一)纯内存操作<br>(二)单线程操作，避免了频繁的上下文切换<br>(三)采用了非阻塞<strong>I/O多路复用机制</strong></p><p><strong>关于Redis的 I/O多路复用：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-154227633.png" alt="mark"></p><ul><li>参照上图，简单来说，就是。我们的redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。</li><li>需要说明的是，这个I/O多路复用机制，redis还提供了<code>select、epoll、evport、kqueue</code>等多路复用函数库</li></ul><a id="more"></a><h2 id="2-Redis数据结构应用场景"><a href="#2-Redis数据结构应用场景" class="headerlink" title="2. Redis数据结构应用场景"></a>2. Redis数据结构应用场景</h2><p><strong>redis的数据类型，以及每种数据类型的使用场景</strong></p><p><strong>回答</strong>：一共五种</p><p>(一)String<br>这个其实没啥好说的，最常规的set/get操作，value可以是String也可以是数字。一般做<strong>一些复杂的计数功能的缓存。</strong>（以及分布式锁）</p><p>(二)hash<br>这里value存放的是结构化的对象，比较方便的就是操作其中的某个字段。就是用这种数据结构存储用户信息，以<code>cookieId</code>作为key，设置30分钟为缓存过期时间，能很好的模拟出类似session的效果。</p><p>(三)list<br>使用List的数据结构，可以<strong>做简单的消息队列的功能</strong>。另外还有一个就是，可以利用lrange命令，<strong>做基于redis的分页功能</strong>，性能极佳，用户体验好。</p><p>(四)set<br>因为set堆放的是一堆不重复值的集合。所以可以做<strong>全局去重的功能</strong>。为什么不用JVM自带的Set进行去重？因为我们的系统一般都是集群部署，使用JVM自带的Set，比较麻烦，难道为了一个做一个全局去重，再起一个公共服务，太麻烦了。</p><p>另外，就是利用<strong>交集、并集、差集</strong>等操作，可以<strong>计算共同喜好，全部的喜好，自己独有的喜好等功能</strong>。</p><p>(五)<code>sorted set</code><br>sorted set多了一个权重参数score,集合中的元素能够按score进行排列。可以做<strong>排行榜应用，取TOP N操作</strong>。sorted set可以用来做<strong>延时任务</strong>。最后一个应用就是可以做<strong>范围查找</strong>。</p><h2 id="3-Redis过期策略和内存淘汰机制"><a href="#3-Redis过期策略和内存淘汰机制" class="headerlink" title="3. Redis过期策略和内存淘汰机制"></a>3. Redis过期策略和内存淘汰机制</h2><ul><li>redis的<strong>过期策略以及内存淘汰机制</strong></li></ul><p><strong>分析</strong>:这个问题其实相当重要，到底redis有没用到家，这个问题就可以看出来。比如你redis只能存5G数据，可是你写了10G，那会删5G的数据。怎么删的，这个问题思考过么？还有，你的数据已经设置了过期时间，但是时间到了，内存占用率还是比较高，有思考过原因么?</p><p><strong>回答</strong>:</p><ul><li>redis采用的是<strong>定期删除+惰性删除策略。</strong></li></ul><p><strong>为什么不用定时删除策略?</strong></p><ul><li>定时删除,用一个定时器来负责监视key,过期则自动删除。虽然内存及时释放，但是十分消耗CPU资源。在大并发请求下，CPU要将时间应用在处理请求，而不是删除key,因此没有采用这一策略.</li></ul><p><strong>定期删除+惰性删除是如何工作的呢?</strong></p><ul><li><p>定期删除，redis默认每个<code>100ms</code>检查，是否有过期的key,有过期key则删除。需要说明的是，redis不是每个100ms将所有的key检查一次，而是随机抽取进行检查(如果每隔100ms,全部key进行检查，redis岂不是卡死)。因此，如果只采用定期删除策略，会导致很多key到时间没有删除。</p></li><li><p>于是，惰性删除派上用场。也就是说在你获取某个key的时候，redis会检查一下，这个key如果设置了过期时间那么是否过期了？如果过期了此时就会删除。</p></li></ul><p><strong>采用定期删除+惰性删除就没其他问题了么?</strong></p><ul><li>不是的，如果定期删除没删除key。然后你也没即时去请求key，也就是说惰性删除也没生效。这样，redis的内存会越来越高。那么就应该采用<strong>内存淘汰机制</strong>。</li></ul><p><strong>在redis.conf中有一行配置</strong></p><p><code># maxmemory-policy volatile-lru</code></p><p><strong>该配置就是配内存淘汰策略的(什么，你没配过？好好反省一下自己)</strong></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1）noeviction：当内存不足以容纳新写入数据时，新写入操作会报错。**应该没人用吧。**</span><br><span class="line">2）allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的key。**推荐使用，目前项目在用这种。**</span><br><span class="line">3）allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个key。**应该也没人用吧，你不删最少使用Key,去随机删。**</span><br><span class="line">4）volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的key。**这种情况一般是把redis既当缓存，又做持久化存储的时候才用。不推荐**</span><br><span class="line">5）volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个key。**依然不推荐**</span><br><span class="line">6）volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的key优先移除。**不推荐**</span><br></pre></td></tr></table></figure><p><strong>ps：如果没有设置 <code>expire</code> 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。</strong></p><h2 id="4-双写一致性问题"><a href="#4-双写一致性问题" class="headerlink" title="4. 双写一致性问题"></a>4. 双写一致性问题</h2><p><strong>分析</strong>:一致性问题是分布式常见问题，还可以再分为<strong>最终一致性</strong>和<strong>强一致性</strong>。数据库和缓存双写，就必然会存在不一致的问题。答这个问题，先明白一个前提。就是<strong>如果对数据有强一致性要求，不能放缓存。</strong>我们所做的一切，只能保证最终一致性。另外，我们所做的方案其实从根本上来说，只能说<strong>降低不一致发生的概率</strong>，无法完全避免。因此，有强一致性要求的数据，不能放缓存。</p><p><strong>回答</strong>:</p><ul><li>首先，采取正确更新策略，<ul><li>先更新数据库，再删缓存。其次，因为可能存在删除缓存失败的问题，提供一个补偿措施即可，例如利用消息队列。</li></ul></li></ul><h2 id="5-并发竞争key的问题"><a href="#5-并发竞争key的问题" class="headerlink" title="5. 并发竞争key的问题"></a>5. 并发竞争key的问题</h2><ul><li><strong>分析</strong>:这个问题大致就是，同时有多个子系统去set一个key。这个时候要注意什么呢？大家思考过么。需要说明一下，博主提前百度了一下，发现答案基本都是推荐用redis事务机制。博主<strong>不推荐使用redis的事务机制。</strong>因为我们的生产环境，基本都是redis集群环境，做了数据分片操作。你一个事务中有涉及到多个key操作的时候，这多个key不一定都存储在同一个redis-server上。因此，<strong>redis的事务机制，十分鸡肋。</strong></li></ul><ul><li><strong>回答:</strong>如下所示<br>(1)如果对这个key操作，<strong>不要求顺序</strong><br>这种情况下，准备一个分布式锁，大家去抢锁，抢到锁就做set操作即可，比较简单。<br>(2)如果对这个key操作，<strong>要求顺序</strong><br>假设有一个<code>key1</code>,系统A需要将<code>key1</code>设置为<code>valueA</code>,系统B需要将<code>key1</code>设置为<code>valueB</code>,系统C需要将<code>key1</code>设置为<code>valueC</code>.<br>期望按照key1的value值按照 <code>valueA--&gt;valueB--&gt;valueC</code>的顺序变化。这种时候我们在数据写入数据库的时候，需要保存一个时间戳。假设时间戳如下</li></ul><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">系统A key 1 &#123;valueA  3:00&#125;</span><br><span class="line">系统B key 1 &#123;valueB  3:05&#125;</span><br><span class="line">系统C key 1 &#123;valueC  3:10&#125;</span><br><span class="line"></span><br><span class="line">那么，假设这会系统B先抢到锁，将key1设置为&#123;valueB 3:05&#125;。接下来系统A抢到锁，发现自己的valueA的时间戳早于缓存中的时间戳，那就不做<span class="built_in">set</span>操作了。以此类推。</span><br><span class="line"></span><br><span class="line">其他方法，比如利用队列，将<span class="built_in">set</span>方法变成串行访问也可以。总之，灵活变通。</span><br></pre></td></tr></table></figure><p><strong>参考博客 ：</strong> <a href="https://blog.csdn.net/tmeng521/article/details/91039391" target="_blank" rel="noopener">https://blog.csdn.net/tmeng521/article/details/91039391</a></p><p>​                    <a href="https://www.cnblogs.com/bigben0123/p/9115597.html" target="_blank" rel="noopener">https://www.cnblogs.com/bigben0123/p/9115597.html</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Redis-16-Redis分布式&quot;&gt;&lt;a href=&quot;#Redis-16-Redis分布式&quot; class=&quot;headerlink&quot; title=&quot;Redis-16-Redis分布式&quot;&gt;&lt;/a&gt;Redis-16-Redis分布式&lt;/h1&gt;&lt;h2 id=&quot;1-为什么用Redis&quot;&gt;&lt;a href=&quot;#1-为什么用Redis&quot; class=&quot;headerlink&quot; title=&quot;1. 为什么用Redis?&quot;&gt;&lt;/a&gt;1. 为什么用Redis?&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;单线程的redis为什么这么快??&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;strong&gt;分析&lt;/strong&gt;:这个问题其实是对redis内部机制的一个考察。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;回答&lt;/strong&gt;:主要是以下三点&lt;br&gt;(一)纯内存操作&lt;br&gt;(二)单线程操作，避免了频繁的上下文切换&lt;br&gt;(三)采用了非阻塞&lt;strong&gt;I/O多路复用机制&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;关于Redis的 I/O多路复用：&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-154227633.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;参照上图，简单来说，就是。我们的redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。&lt;/li&gt;
-&lt;li&gt;需要说明的是，这个I/O多路复用机制，redis还提供了&lt;code&gt;select、epoll、evport、kqueue&lt;/code&gt;等多路复用函数库&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
-      <category term="Redis分布式" scheme="http://zhuuu.work/tags/Redis%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   
@@ -2191,32 +2227,6 @@
   </entry>
   
   <entry>
-    <title>Redis-14-key有效时间设置</title>
-    <link href="http://zhuuu.work/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/"/>
-    <id>http://zhuuu.work/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/</id>
-    <published>2020-08-19T10:32:24.000Z</published>
-    <updated>2020-08-19T09:14:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Redis-14-key有效时间设置"><a href="#Redis-14-key有效时间设置" class="headerlink" title="Redis-14-key有效时间设置"></a>Redis-14-key有效时间设置</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul><li>本文对redis的过期处理机制做个简单的概述，让大家有个基本的认识。</li><li><strong>Redis中有个设置时间过期的功能，即对存储在redis数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的</strong>。如我们一般项目中的token或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。</li></ul><a id="more"></a><h2 id="1-有效时间设置"><a href="#1-有效时间设置" class="headerlink" title="1. 有效时间设置"></a>1. 有效时间设置</h2><p>redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。<br>四种处理策略</p><ol><li>EXPIRE 将key的生存时间设置为ttl秒</li><li>PEXPIRE 将key的生成时间设置为ttl毫秒</li><li>EXPIREAT 将key的过期时间设置为timestamp所代表的的秒数的时间戳</li><li>PEXPIREAT 将key的过期时间设置为timestamp所代表的的毫秒数的时间戳</li></ol><p>其实以上几种处理方式都是根据PEXPIREAT来实现的，设置生存时间的时候是redis内部计算好时间之后在内存处理的，最终的处理都会转向PEXPIREAT。<br>1、2两种方式是设置一个过期的时间段，就是咱们处理验证码最常用的策略，设置三分钟或五分钟后失效，把分钟数转换成秒或毫秒存储到redis中。<br>3、4两种方式是指定一个过期的时间 ，比如优惠券的过期时间是某年某月某日，只是单位不一样。</p><h2 id="2-过期键的删除策略"><a href="#2-过期键的删除策略" class="headerlink" title="2. 过期键的删除策略"></a>2. 过期键的删除策略</h2><p>如果一个键是过期的，那它到了过期时间之后是不是马上就从内存中被被删除呢？？如果不是，那过期后到底什么时候被删除呢？？</p><p>其实有三种不同的删除策略：<br>（1）立即删除。在设置键的过期时间时，创建一个回调事件，当过期时间达到时，由时间处理器自动执行键的删除操作。<br>（2）惰性删除。键过期了就过期了，不管。每次从dict字典中按key取值时，先检查此key是否已经过期，如果过期了就删除它，并返回nil，如果没过期，就返回键值。<br>（3）定时删除。每隔一段时间，对expires字典进行检查，删除里面的过期键。<br>可以看到，第二种为被动删除，第一种和第三种为主动删除，且第一种实时性更高。下面对这三种删除策略进行具体分析。</p><h3 id="2-1-立即删除"><a href="#2-1-立即删除" class="headerlink" title="2.1 立即删除"></a>2.1 立即删除</h3><ul><li><p>立即删除能保证内存中数据的最大新鲜度，因为它保证过期键值会在过期后马上被删除，其所占用的内存也会随之释放。但是<strong>立即删除对cpu是最不友好的</strong>。因为删除操作会占用cpu的时间，如果刚好碰上了cpu很忙的时候，比如正在做交集或排序等计算的时候，就会给cpu造成额外的压力。</p></li><li><p>而且目前redis事件处理器对时间事件的处理方式–无序链表，查找一个key的时间复杂度为O(n),所以并不适合用来处理大量的时间事件。</p></li></ul><h3 id="2-2-惰性删除"><a href="#2-2-惰性删除" class="headerlink" title="2.2 惰性删除"></a>2.2 惰性删除</h3><ul><li><p>惰性删除是指，某个键值过期后，此键值不会马上被删除，而是等到下次被使用的时候，才会被检查到过期，此时才能得到删除。所以惰性删除的缺点很明显:<strong>浪费内存</strong>。dict字典和expires字典都要保存这个键值的信息。</p></li><li><p>举个例子，对于一些按时间点来更新的数据，比如log日志，过期后在很长的一段时间内可能都得不到访问，这样在这段时间内就要拜拜浪费这么多内存来存log。<strong>这对于性能非常依赖于内存大小的redis来说，是比较致命的</strong>。</p></li></ul><h3 id="2-3-定时删除"><a href="#2-3-定时删除" class="headerlink" title="2.3 定时删除"></a>2.3 定时删除</h3><ul><li>从上面分析来看，立即删除会短时间内占用大量cpu，惰性删除会在一段时间内浪费内存，所以定时删除是一个折中的办法。</li><li>定时删除是：每隔一段时间执行一次删除操作，并通过限制删除操作执行的时长和频率，来减少删除操作对cpu的影响。另一方面定时删除也有效的减少了因惰性删除带来的内存浪费。</li></ul><p><strong>redis使用的过期键值删除策略是：惰性删除加上定期删除，两者配合使用。</strong></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Redis-14-key有效时间设置&quot;&gt;&lt;a href=&quot;#Redis-14-key有效时间设置&quot; class=&quot;headerlink&quot; title=&quot;Redis-14-key有效时间设置&quot;&gt;&lt;/a&gt;Redis-14-key有效时间设置&lt;/h1&gt;&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;本文对redis的过期处理机制做个简单的概述，让大家有个基本的认识。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Redis中有个设置时间过期的功能，即对存储在redis数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的&lt;/strong&gt;。如我们一般项目中的token或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
-  </entry>
-  
-  <entry>
     <title>数据结构-03-红黑树</title>
     <link href="http://zhuuu.work/2020/08/19/DataStructure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-03-%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
     <id>http://zhuuu.work/2020/08/19/DataStructure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-03-%E7%BA%A2%E9%BB%91%E6%A0%91/</id>
@@ -2237,6 +2247,32 @@
       <category term="数据结构" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
     
       <category term="红黑树" scheme="http://zhuuu.work/tags/%E7%BA%A2%E9%BB%91%E6%A0%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis-14-key有效时间设置</title>
+    <link href="http://zhuuu.work/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/"/>
+    <id>http://zhuuu.work/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/</id>
+    <published>2020-08-19T10:32:24.000Z</published>
+    <updated>2020-08-19T09:14:32.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Redis-14-key有效时间设置"><a href="#Redis-14-key有效时间设置" class="headerlink" title="Redis-14-key有效时间设置"></a>Redis-14-key有效时间设置</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul><li>本文对redis的过期处理机制做个简单的概述，让大家有个基本的认识。</li><li><strong>Redis中有个设置时间过期的功能，即对存储在redis数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的</strong>。如我们一般项目中的token或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。</li></ul><a id="more"></a><h2 id="1-有效时间设置"><a href="#1-有效时间设置" class="headerlink" title="1. 有效时间设置"></a>1. 有效时间设置</h2><p>redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。<br>四种处理策略</p><ol><li>EXPIRE 将key的生存时间设置为ttl秒</li><li>PEXPIRE 将key的生成时间设置为ttl毫秒</li><li>EXPIREAT 将key的过期时间设置为timestamp所代表的的秒数的时间戳</li><li>PEXPIREAT 将key的过期时间设置为timestamp所代表的的毫秒数的时间戳</li></ol><p>其实以上几种处理方式都是根据PEXPIREAT来实现的，设置生存时间的时候是redis内部计算好时间之后在内存处理的，最终的处理都会转向PEXPIREAT。<br>1、2两种方式是设置一个过期的时间段，就是咱们处理验证码最常用的策略，设置三分钟或五分钟后失效，把分钟数转换成秒或毫秒存储到redis中。<br>3、4两种方式是指定一个过期的时间 ，比如优惠券的过期时间是某年某月某日，只是单位不一样。</p><h2 id="2-过期键的删除策略"><a href="#2-过期键的删除策略" class="headerlink" title="2. 过期键的删除策略"></a>2. 过期键的删除策略</h2><p>如果一个键是过期的，那它到了过期时间之后是不是马上就从内存中被被删除呢？？如果不是，那过期后到底什么时候被删除呢？？</p><p>其实有三种不同的删除策略：<br>（1）立即删除。在设置键的过期时间时，创建一个回调事件，当过期时间达到时，由时间处理器自动执行键的删除操作。<br>（2）惰性删除。键过期了就过期了，不管。每次从dict字典中按key取值时，先检查此key是否已经过期，如果过期了就删除它，并返回nil，如果没过期，就返回键值。<br>（3）定时删除。每隔一段时间，对expires字典进行检查，删除里面的过期键。<br>可以看到，第二种为被动删除，第一种和第三种为主动删除，且第一种实时性更高。下面对这三种删除策略进行具体分析。</p><h3 id="2-1-立即删除"><a href="#2-1-立即删除" class="headerlink" title="2.1 立即删除"></a>2.1 立即删除</h3><ul><li><p>立即删除能保证内存中数据的最大新鲜度，因为它保证过期键值会在过期后马上被删除，其所占用的内存也会随之释放。但是<strong>立即删除对cpu是最不友好的</strong>。因为删除操作会占用cpu的时间，如果刚好碰上了cpu很忙的时候，比如正在做交集或排序等计算的时候，就会给cpu造成额外的压力。</p></li><li><p>而且目前redis事件处理器对时间事件的处理方式–无序链表，查找一个key的时间复杂度为O(n),所以并不适合用来处理大量的时间事件。</p></li></ul><h3 id="2-2-惰性删除"><a href="#2-2-惰性删除" class="headerlink" title="2.2 惰性删除"></a>2.2 惰性删除</h3><ul><li><p>惰性删除是指，某个键值过期后，此键值不会马上被删除，而是等到下次被使用的时候，才会被检查到过期，此时才能得到删除。所以惰性删除的缺点很明显:<strong>浪费内存</strong>。dict字典和expires字典都要保存这个键值的信息。</p></li><li><p>举个例子，对于一些按时间点来更新的数据，比如log日志，过期后在很长的一段时间内可能都得不到访问，这样在这段时间内就要拜拜浪费这么多内存来存log。<strong>这对于性能非常依赖于内存大小的redis来说，是比较致命的</strong>。</p></li></ul><h3 id="2-3-定时删除"><a href="#2-3-定时删除" class="headerlink" title="2.3 定时删除"></a>2.3 定时删除</h3><ul><li>从上面分析来看，立即删除会短时间内占用大量cpu，惰性删除会在一段时间内浪费内存，所以定时删除是一个折中的办法。</li><li>定时删除是：每隔一段时间执行一次删除操作，并通过限制删除操作执行的时长和频率，来减少删除操作对cpu的影响。另一方面定时删除也有效的减少了因惰性删除带来的内存浪费。</li></ul><p><strong>redis使用的过期键值删除策略是：惰性删除加上定期删除，两者配合使用。</strong></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Redis-14-key有效时间设置&quot;&gt;&lt;a href=&quot;#Redis-14-key有效时间设置&quot; class=&quot;headerlink&quot; title=&quot;Redis-14-key有效时间设置&quot;&gt;&lt;/a&gt;Redis-14-key有效时间设置&lt;/h1&gt;&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;本文对redis的过期处理机制做个简单的概述，让大家有个基本的认识。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Redis中有个设置时间过期的功能，即对存储在redis数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的&lt;/strong&gt;。如我们一般项目中的token或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
   </entry>
   
@@ -2781,6 +2817,29 @@
   </entry>
   
   <entry>
+    <title>Java-基础-接口和抽象类</title>
+    <link href="http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
+    <id>http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/</id>
+    <published>2020-08-10T09:38:38.000Z</published>
+    <updated>2020-09-20T07:11:31.204Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Java-基础-接口和抽象类"><a href="#Java-基础-接口和抽象类" class="headerlink" title="Java-基础-接口和抽象类"></a>Java-基础-接口和抽象类</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png" alt="mark"></p><a id="more"></a><h2 id="1-抽象类"><a href="#1-抽象类" class="headerlink" title="1. 抽象类"></a>1. 抽象类</h2><h4 id="（1）抽象类的含义"><a href="#（1）抽象类的含义" class="headerlink" title="（1）抽象类的含义"></a>（1）抽象类的含义</h4><p>  包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的（否则，编译器会报错）</p><h4 id="（2）抽象类的点"><a href="#（2）抽象类的点" class="headerlink" title="（2）抽象类的点"></a>（2）抽象类的点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.含有abstract修饰符的class即为抽象类，abstract类不能创建实例对象。</span><br><span class="line">2.含有abstract方法的类必须定义为abstract class，abstract class类中的方法不必是抽象的。</span><br><span class="line">3.abstract class类中定义抽象方法必须在具体(Concrete)子类中实现，所以，不能有抽象构造方法或抽象静态方法。</span><br><span class="line">4.如果子类没有实现抽象父类中的所有抽象方法，那么子类也必须定义为abstract类型。</span><br></pre></td></tr></table></figure><h2 id="2-接口"><a href="#2-接口" class="headerlink" title="2. 接口"></a>2. 接口</h2><h4 id="（1）接口的含义"><a href="#（1）接口的含义" class="headerlink" title="（1）接口的含义"></a>（1）接口的含义</h4><p>  可以说成是抽象类的一种特例，接口中的所有方法都必须是抽象的。能有的内容是：static final的静态成员变量、public abstract的抽象方法（可以使用abstract关键字也可以不使用）</p><h4 id="（2）接口的点"><a href="#（2）接口的点" class="headerlink" title="（2）接口的点"></a>（2）接口的点</h4><p>1.接口中的域隐式地是static和final的；<br> 2.接口可以嵌套在类或其他接口中；<br> 3.接口是实现多重继承的途径；<br> 4.接口中的方法定义默认为public abstract类型，接口中的成员变量类型默认为public static final。<br> 5.接口不能有构造器；<br> 6.接口中不能有main()方法；</p><h2 id="3、语法的区别"><a href="#3、语法的区别" class="headerlink" title="3、语法的区别"></a>3、语法的区别</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.普通成员变量：抽象类中可以有普通成员变量，接口中没有普通成员变量（static final变量）；</span><br><span class="line">2.方法：抽象类中可以包含非抽象的普通方法，接口中的所有方法必须都是抽象的，不能有非抽象的普通方法；</span><br><span class="line">3.静态成员变量：抽象类和接口中都可以包含静态成员变量，抽象类中的静态成员变量的访问类型可以任意，但接口中定义的变量只能是public static final类型，并且默认即为public static final类型。</span><br><span class="line">4.静态方法：抽象类中可以包含静态方法，但不能是抽象静态方法；接口中不能包含静态方法（静态的方法不能被覆写）</span><br><span class="line">5.构造方法（静态的）：抽象类可以有构造方法，接口中不能有构造方法；</span><br><span class="line">6.方法访问权限：抽象类中的抽象方法的访问类型可以是public，protected和（默认类型,虽然eclipse下不报错，但应该也不行），但接口中的抽象方法只能是public类型的，并且默认即为public abstract类型。</span><br><span class="line">7.子类实现和继承： 一个类可以实现多个接口，但只能继承一个抽象类。</span><br><span class="line">8.初始化过程：当一个类在初始化时，要求其父类全部都已经初始化过了；但是一个接口在初始化时，并不要求其父接口全部都完成初始化，只有在真正使用父接口的时候（如引用接口中定义的常量），才会初始化。</span><br></pre></td></tr></table></figure><h2 id="4、应用上的区别"><a href="#4、应用上的区别" class="headerlink" title="4、应用上的区别"></a>4、应用上的区别</h2><ul><li>接口更多的是在系统架构设计方法发挥作用，主要用于定义模块之间的通信契约；</li><li>而抽象类在代码实现方面发挥作用，可以实现代码的重用。  </li><li>例如，<strong>模板方法设计模式是抽象类的一个典型应用</strong>，假设某个项目的所有Servlet类都要用相同的方式进行权限判断、记录访问日志和处理异常，那么就可以定义一个抽象的基类，让所有的Servlet都继承这个抽象基类，在抽象基类的service方法中完成权限判断、记录访问日志和处理异常的代码，在各个子类中只是完成各自的业务逻辑代码。</li></ul><h2 id="5-使用接口的原因"><a href="#5-使用接口的原因" class="headerlink" title="5. 使用接口的原因"></a>5. 使用接口的原因</h2><p>1）为了能够向上转型为多个基类型（由此而带来的灵活性）；<br> 2）与使用抽象基类相同：防止客户端程序员创建该类的对象，并确保这仅仅是建立一个接口。</p><h2 id="6、问题：使用接口还是抽象类"><a href="#6、问题：使用接口还是抽象类" class="headerlink" title="6、问题：使用接口还是抽象类"></a>6、问题：使用接口还是抽象类</h2><p>答：如果要创建不带任何方法定义和成员变量的基类，就应该选择接口而不是抽象类。抽象类为了代码的复用，接口为了多态性。</p><p><strong>参考视频：</strong> <a href="https://www.bilibili.com/video/BV1Ak4y1o7y8?p=182" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1Ak4y1o7y8?p=182</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;a href=&quot;#Java-基础-接口和抽象类&quot; class=&quot;headerlink&quot; title=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;/a&gt;Java-基础-接口和抽象类&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="接口" scheme="http://zhuuu.work/tags/%E6%8E%A5%E5%8F%A3/"/>
+    
+      <category term="抽象类" scheme="http://zhuuu.work/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Java-基础-并发详解</title>
     <link href="http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E5%B9%B6%E5%8F%91%E8%AF%A6%E8%A7%A3/"/>
     <id>http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E5%B9%B6%E5%8F%91%E8%AF%A6%E8%A7%A3/</id>
@@ -2805,29 +2864,6 @@
       <category term="锁" scheme="http://zhuuu.work/tags/%E9%94%81/"/>
     
       <category term="并发" scheme="http://zhuuu.work/tags/%E5%B9%B6%E5%8F%91/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java-基础-接口和抽象类</title>
-    <link href="http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
-    <id>http://zhuuu.work/2020/08/10/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%8E%A5%E5%8F%A3%E5%92%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB/</id>
-    <published>2020-08-10T09:38:38.000Z</published>
-    <updated>2020-09-20T07:11:31.204Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Java-基础-接口和抽象类"><a href="#Java-基础-接口和抽象类" class="headerlink" title="Java-基础-接口和抽象类"></a>Java-基础-接口和抽象类</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png" alt="mark"></p><a id="more"></a><h2 id="1-抽象类"><a href="#1-抽象类" class="headerlink" title="1. 抽象类"></a>1. 抽象类</h2><h4 id="（1）抽象类的含义"><a href="#（1）抽象类的含义" class="headerlink" title="（1）抽象类的含义"></a>（1）抽象类的含义</h4><p>  包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的（否则，编译器会报错）</p><h4 id="（2）抽象类的点"><a href="#（2）抽象类的点" class="headerlink" title="（2）抽象类的点"></a>（2）抽象类的点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.含有abstract修饰符的class即为抽象类，abstract类不能创建实例对象。</span><br><span class="line">2.含有abstract方法的类必须定义为abstract class，abstract class类中的方法不必是抽象的。</span><br><span class="line">3.abstract class类中定义抽象方法必须在具体(Concrete)子类中实现，所以，不能有抽象构造方法或抽象静态方法。</span><br><span class="line">4.如果子类没有实现抽象父类中的所有抽象方法，那么子类也必须定义为abstract类型。</span><br></pre></td></tr></table></figure><h2 id="2-接口"><a href="#2-接口" class="headerlink" title="2. 接口"></a>2. 接口</h2><h4 id="（1）接口的含义"><a href="#（1）接口的含义" class="headerlink" title="（1）接口的含义"></a>（1）接口的含义</h4><p>  可以说成是抽象类的一种特例，接口中的所有方法都必须是抽象的。能有的内容是：static final的静态成员变量、public abstract的抽象方法（可以使用abstract关键字也可以不使用）</p><h4 id="（2）接口的点"><a href="#（2）接口的点" class="headerlink" title="（2）接口的点"></a>（2）接口的点</h4><p>1.接口中的域隐式地是static和final的；<br> 2.接口可以嵌套在类或其他接口中；<br> 3.接口是实现多重继承的途径；<br> 4.接口中的方法定义默认为public abstract类型，接口中的成员变量类型默认为public static final。<br> 5.接口不能有构造器；<br> 6.接口中不能有main()方法；</p><h2 id="3、语法的区别"><a href="#3、语法的区别" class="headerlink" title="3、语法的区别"></a>3、语法的区别</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.普通成员变量：抽象类中可以有普通成员变量，接口中没有普通成员变量（static final变量）；</span><br><span class="line">2.方法：抽象类中可以包含非抽象的普通方法，接口中的所有方法必须都是抽象的，不能有非抽象的普通方法；</span><br><span class="line">3.静态成员变量：抽象类和接口中都可以包含静态成员变量，抽象类中的静态成员变量的访问类型可以任意，但接口中定义的变量只能是public static final类型，并且默认即为public static final类型。</span><br><span class="line">4.静态方法：抽象类中可以包含静态方法，但不能是抽象静态方法；接口中不能包含静态方法（静态的方法不能被覆写）</span><br><span class="line">5.构造方法（静态的）：抽象类可以有构造方法，接口中不能有构造方法；</span><br><span class="line">6.方法访问权限：抽象类中的抽象方法的访问类型可以是public，protected和（默认类型,虽然eclipse下不报错，但应该也不行），但接口中的抽象方法只能是public类型的，并且默认即为public abstract类型。</span><br><span class="line">7.子类实现和继承： 一个类可以实现多个接口，但只能继承一个抽象类。</span><br><span class="line">8.初始化过程：当一个类在初始化时，要求其父类全部都已经初始化过了；但是一个接口在初始化时，并不要求其父接口全部都完成初始化，只有在真正使用父接口的时候（如引用接口中定义的常量），才会初始化。</span><br></pre></td></tr></table></figure><h2 id="4、应用上的区别"><a href="#4、应用上的区别" class="headerlink" title="4、应用上的区别"></a>4、应用上的区别</h2><ul><li>接口更多的是在系统架构设计方法发挥作用，主要用于定义模块之间的通信契约；</li><li>而抽象类在代码实现方面发挥作用，可以实现代码的重用。  </li><li>例如，<strong>模板方法设计模式是抽象类的一个典型应用</strong>，假设某个项目的所有Servlet类都要用相同的方式进行权限判断、记录访问日志和处理异常，那么就可以定义一个抽象的基类，让所有的Servlet都继承这个抽象基类，在抽象基类的service方法中完成权限判断、记录访问日志和处理异常的代码，在各个子类中只是完成各自的业务逻辑代码。</li></ul><h2 id="5-使用接口的原因"><a href="#5-使用接口的原因" class="headerlink" title="5. 使用接口的原因"></a>5. 使用接口的原因</h2><p>1）为了能够向上转型为多个基类型（由此而带来的灵活性）；<br> 2）与使用抽象基类相同：防止客户端程序员创建该类的对象，并确保这仅仅是建立一个接口。</p><h2 id="6、问题：使用接口还是抽象类"><a href="#6、问题：使用接口还是抽象类" class="headerlink" title="6、问题：使用接口还是抽象类"></a>6、问题：使用接口还是抽象类</h2><p>答：如果要创建不带任何方法定义和成员变量的基类，就应该选择接口而不是抽象类。抽象类为了代码的复用，接口为了多态性。</p><p><strong>参考视频：</strong> <a href="https://www.bilibili.com/video/BV1Ak4y1o7y8?p=182" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1Ak4y1o7y8?p=182</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;a href=&quot;#Java-基础-接口和抽象类&quot; class=&quot;headerlink&quot; title=&quot;Java-基础-接口和抽象类&quot;&gt;&lt;/a&gt;Java-基础-接口和抽象类&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200810-134343284.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="接口" scheme="http://zhuuu.work/tags/%E6%8E%A5%E5%8F%A3/"/>
-    
-      <category term="抽象类" scheme="http://zhuuu.work/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/"/>
     
   </entry>
   
@@ -3014,37 +3050,6 @@
       <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
     
       <category term="mac地址" scheme="http://zhuuu.work/tags/mac%E5%9C%B0%E5%9D%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JVM-12-四种引用类型</title>
-    <link href="http://zhuuu.work/2020/08/01/JVM_Notes/JVM-12-%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B/"/>
-    <id>http://zhuuu.work/2020/08/01/JVM_Notes/JVM-12-%E5%9B%9B%E7%A7%8D%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B/</id>
-    <published>2020-08-01T02:38:38.000Z</published>
-    <updated>2020-09-14T14:39:43.549Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="JVM-12-四种引用类型"><a href="#JVM-12-四种引用类型" class="headerlink" title="JVM-12-四种引用类型"></a>JVM-12-四种引用类型</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200804-142140836.png" alt="mark"></p><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><ul><li><p><strong>在JDK1.2以前的版本中，当一个对象不被任何变量引用，那么程序就无法再使用这个对象</strong>。也就是说，只有对象处于可触及状态，程序才能使用它。这 就像在日常生活中，从商店购买了某样物品后，如果有用，就一直保留它，否则就把它扔到垃圾箱，由清洁工人收走。一般说来，如果物品已经被扔到垃圾箱，想再 把它捡回来使用就不可能了。</p></li><li><p>但有时候情况并不这么简单，你可能会遇到类似鸡肋一样的物品，食之无味，弃之可惜。这种物品现在已经无用了，保留它会占空间，但是立刻扔掉它也不划算，因 为也许将来还会派用场。<strong>对于这样的可有可无的物品，一种折衷的处理办法是：如果家里空间足够，就先把它保留在家里，如果家里空间不够，即使把家里所有的垃 圾清除，还是无法容纳那些必不可少的生活用品，那么再扔掉这些可有可无的物品。</strong></p></li><li><p>从JDK1.2版本开始，把对象的引用分为四种级别，从而使程序能更加灵活的控制对象的生命周期。<strong>这四种级别由高到低依次为：强引用、软引用、弱引用和虚引用</strong>。</p></li></ul><a id="more"></a><h2 id="1-强引用"><a href="#1-强引用" class="headerlink" title="1. 强引用"></a>1. 强引用</h2><ul><li><strong>以前我们使用的大部分引用实际上都是强引用，这是使用最普遍的引用</strong>。如果一个对象具有强引用，那就类似于必不可少的生活用品，垃圾回收器绝不会回收它。<strong>当内存空间不足，Java虚拟机宁愿抛出OutOfMemoryError错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足问题</strong>。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">"abc"</span>;</span><br><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> Arraylist&lt;String&gt;();</span><br><span class="line">list.add(str);</span><br></pre></td></tr></table></figure><blockquote><p>在list集合里的数据不会释放，即使内存不足也不会</p></blockquote><h2 id="2-软引用"><a href="#2-软引用" class="headerlink" title="2. 软引用"></a>2. 软引用</h2><ul><li>如果一个对象只具有软引用，那就类似于可有可物的生活用品。<strong>如果内存空间足够，垃圾回收器就不会回收它，如果内存空间不足了，就会回收这些对象的内存。</strong>只要垃圾回收器没有回收它，该对象就可以被程序使用。<strong>软引用可用来实现内存敏感的高速缓存。</strong></li><li>软引用可以和一个引用队列（<code>ReferenceQueue</code>）联合使用，如果软引用所引用的对象被垃圾回收，JAVA虚拟机就会把这个软引用加入到与之关联的引用队列中。</li></ul><h2 id="3-弱引用"><a href="#3-弱引用" class="headerlink" title="3. 弱引用"></a>3. 弱引用</h2><ul><li>如果一个对象只具有弱引用，那就类似于可有可无的生活用品。<strong>弱引用与软引用的区别在于：只具有弱引用的对象拥有更短暂的生命周期。在垃圾回收器线程扫描它 所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。</strong>不过，由于垃圾回收器是一个优先级很低的线程， 因此不一定会很快发现那些只具有弱引用的对象。</li><li>弱引用可以和一个<strong>引用队列</strong>（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，Java虚拟机就会把这个弱引用加入到与之关联的引用队列中。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Object c = <span class="keyword">new</span> Car(); <span class="comment">//只要c还指向car object, car object就不会被回收</span></span><br><span class="line">WeakReference&lt;Car&gt; weakCar = <span class="keyword">new</span> WeakReference(Car)(car);</span><br></pre></td></tr></table></figure><p>当要获得weak reference引用的object时, 首先需要判断它是否已经被回收:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">weakCar.get();</span><br></pre></td></tr></table></figure><p>如果此方法为空, 那么说明weakCar指向的对象已经被回收了.</p><p>下面来看一个例子：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Car</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">double</span> price;</span><br><span class="line">  <span class="keyword">private</span> String colour;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Car</span><span class="params">(<span class="keyword">double</span> price, String colour)</span></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.price = price;</span><br><span class="line">    <span class="keyword">this</span>.colour = colour;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getPrice</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> price;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setPrice</span><span class="params">(<span class="keyword">double</span> price)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.price = price;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getColour</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> colour;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setColour</span><span class="params">(String colour)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.colour = colour;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> colour +<span class="string">"car costs $"</span>+price;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestWeakReference</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Car car = <span class="keyword">new</span> Car(<span class="number">22000</span>,<span class="string">"silver"</span>);</span><br><span class="line">    WeakReference&lt;Car&gt; weakCar = <span class="keyword">new</span> WeakReference&lt;Car&gt;(car);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">      <span class="keyword">if</span>(weakCar.get()!=<span class="keyword">null</span>)&#123;</span><br><span class="line">        i++;</span><br><span class="line">        System.out.println(<span class="string">"Object is alive for "</span>+i+<span class="string">" loops - "</span>+weakCar);</span><br><span class="line">      &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Object has been collected."</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">在上例中, 程序运行一段时间后, 程序打印出”Object has been collected.” 说明, weak reference指向的对象的被回收了.</span><br><span class="line"></span><br><span class="line">如果要想打出的是</span><br><span class="line">Object is alive for “+i+” loops - “+weakCar</span><br><span class="line"></span><br><span class="line">那么只要在这句话前面加上</span><br><span class="line">System.out.println(“car&#x3D;&#x3D;&#x3D;&#x3D; “+car);</span><br><span class="line">因为在此强引用了car对象</span><br></pre></td></tr></table></figure><blockquote><p><strong>如果这个对象是偶尔的使用，并且希望在使用时随时就能获取到，但又不想影响此对象的垃圾收集，那么你应该用 Weak Reference 来记住此对象。</strong></p><p>当你想引用一个对象，但是这个对象有自己的生命周期，你不想介入这个对象的生命周期，这时候你就是用弱引用。</p><p><strong>这个引用不会在对象的垃圾回收判断中产生任何附加的影响。</strong></p></blockquote><h2 id="4-虚引用"><a href="#4-虚引用" class="headerlink" title="4. 虚引用"></a>4. 虚引用</h2><ul><li>“虚引用”顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就<strong>和没有任何引用一样，在任何时候都可能被垃圾回收。虚引用主要用来跟踪对象被垃圾回收的活动</strong>。</li><li>虚引用与软引用和弱引用的一个区别在于：<strong>虚引用必须和引用队列（ReferenceQueue）联合使用</strong>。</li><li>当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。程序可以通过判断引用队列中是否已经加入了虚引用，来了解被引用的对象是否将要被垃圾回收。程序如果发现某个虚引用已经被加入到引用队列，那么就可以在所引用的对象的内存被回收之前采取必要的行动。</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">总结：</span><br><span class="line"></span><br><span class="line">强引用：</span><br><span class="line">String str &#x3D; “abc”;</span><br><span class="line">list.add(str);</span><br><span class="line">软引用：</span><br><span class="line">如果弱引用对象回收完之后，内存还是报警，继续回收软引用对象</span><br><span class="line">弱引用：</span><br><span class="line">如果虚引用对象回收完之后，内存还是报警，继续回收弱引用对象</span><br><span class="line">虚引用：</span><br><span class="line">虚拟机的内存不够使用，开始报警，这时候垃圾回收机制开始执行System.gc(); String s &#x3D; “abc”;如果没有对象回收了， 就回收没虚引用的对象</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;JVM-12-四种引用类型&quot;&gt;&lt;a href=&quot;#JVM-12-四种引用类型&quot; class=&quot;headerlink&quot; title=&quot;JVM-12-四种引用类型&quot;&gt;&lt;/a&gt;JVM-12-四种引用类型&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200804-142140836.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;前序&quot;&gt;&lt;a href=&quot;#前序&quot; class=&quot;headerlink&quot; title=&quot;前序&quot;&gt;&lt;/a&gt;前序&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;在JDK1.2以前的版本中，当一个对象不被任何变量引用，那么程序就无法再使用这个对象&lt;/strong&gt;。也就是说，只有对象处于可触及状态，程序才能使用它。这 就像在日常生活中，从商店购买了某样物品后，如果有用，就一直保留它，否则就把它扔到垃圾箱，由清洁工人收走。一般说来，如果物品已经被扔到垃圾箱，想再 把它捡回来使用就不可能了。&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;但有时候情况并不这么简单，你可能会遇到类似鸡肋一样的物品，食之无味，弃之可惜。这种物品现在已经无用了，保留它会占空间，但是立刻扔掉它也不划算，因 为也许将来还会派用场。&lt;strong&gt;对于这样的可有可无的物品，一种折衷的处理办法是：如果家里空间足够，就先把它保留在家里，如果家里空间不够，即使把家里所有的垃 圾清除，还是无法容纳那些必不可少的生活用品，那么再扔掉这些可有可无的物品。&lt;/strong&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;从JDK1.2版本开始，把对象的引用分为四种级别，从而使程序能更加灵活的控制对象的生命周期。&lt;strong&gt;这四种级别由高到低依次为：强引用、软引用、弱引用和虚引用&lt;/strong&gt;。&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="读书笔记" scheme="http://zhuuu.work/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
     
   </entry>
   
