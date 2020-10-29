@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">20字</span>
+            <span class="post-count">1.7k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -102,7 +102,180 @@
       <h1 id="Netty-06-核心组件"><a href="#Netty-06-核心组件" class="headerlink" title="Netty-06-核心组件"></a>Netty-06-核心组件</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
 <li><strong>本文注重讲解Netty的核心组成</strong></li>
 </ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201024/085701217.png" alt="mark"></p>
+<h2 id="1-Bootstrap、ServerBootstrap"><a href="#1-Bootstrap、ServerBootstrap" class="headerlink" title="1. Bootstrap、ServerBootstrap"></a>1. Bootstrap、ServerBootstrap</h2><ul>
+<li><code>Bootstrap</code> 意思是引导，一个 <code>Netty</code> 应用通常由一个 <code>Bootstrap</code> 开始，主要作用是配置整个 <code>Netty</code> 程序，串联各个组件，<code>Netty</code> 中 <code>Bootstrap</code> 类是客户端程序的启动引导类，<code>ServerBootstrap</code> 是服务端启动引导类</li>
+</ul>
+<p><strong>常见方法：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>方法介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>public ServerBootstrap group(EventLoopGroup parentGroup, EventLoopGroup childGroup)</code></td>
+<td>该方法用于服务器端，用来设置两个EventLoop</td>
+</tr>
+<tr>
+<td><code>public B group(EventLoopGroup group)</code></td>
+<td>该方法用于客户端，用来设置一个EventLoop</td>
+</tr>
+<tr>
+<td><code>public B channel(Class&lt;? extends C&gt; channelClass)</code></td>
+<td>该方法用来设置一个服务器端的通道实现</td>
+</tr>
+<tr>
+<td><code>public &lt;T&gt; B option(ChannelOption&lt;T&gt; option, T value)</code></td>
+<td>用来给 ServerChannel 添加配置</td>
+</tr>
+<tr>
+<td><code>public &lt;T&gt; ServerBootstrap childOption(ChannelOption&lt;T&gt; childOption, T value)</code></td>
+<td>用来给接收到的通道添加配置</td>
+</tr>
+<tr>
+<td><code>public ServerBootstrap childHandler(ChannelHandler childHandler)</code></td>
+<td>该方法用来设置业务处理类（自定义的 handler）</td>
+</tr>
+<tr>
+<td><code>public ChannelFuture bind(int inetPort)</code></td>
+<td>该方法用于服务器端，用来设置占用的端口号</td>
+</tr>
+<tr>
+<td><code>public ChannelFuture connect(String inetHost, int inetPort)</code></td>
+<td>该方法用于客户端，用来连接服务器</td>
+</tr>
+</tbody></table>
 <a id="more"></a>
+
+
+
+<h2 id="2-Future、ChannelFuture"><a href="#2-Future、ChannelFuture" class="headerlink" title="2. Future、ChannelFuture"></a>2. Future、ChannelFuture</h2><ul>
+<li><code>Netty</code> 中所有的 <code>IO</code> 操作都是异步的，不能立刻得知消息是否被正确处理。但是可以过一会等它执行完成或者直接注册一个监听，具体的实现就是通过 <code>Future</code> 和 <code>ChannelFutures</code>，他们可以注册一个监听，当操作执行成功或失败时监听会自动触发注册的监听事件</li>
+</ul>
+<p><strong>常见的方法有</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>方法介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Channel channel()</code></td>
+<td>返回当前正在进行 IO 操作的通道</td>
+</tr>
+<tr>
+<td><code>ChannelFuture sync()</code></td>
+<td>等待异步操作执行完毕，相当于将阻塞在当前。</td>
+</tr>
+</tbody></table>
+<h2 id="3-Channel"><a href="#3-Channel" class="headerlink" title="3. Channel"></a>3. Channel</h2><ul>
+<li><p><code>Netty</code> 网络通信的组件，能够用于执行网络 <code>I/O</code> 操作。</p>
+</li>
+<li><p>通过<code>Channel</code> 可获得当前网络连接的通道的状态</p>
+</li>
+<li><p>通过<code>Channel</code> 可获得 网络连接的配置参数 （例如接收缓冲区大小）</p>
+</li>
+<li><p><code>Channel</code> 提供异步的网络 <code>I/O</code> 操作(如建立连接，读写，绑定端口)，<strong>异步调用意味着任何 <code>I/O</code> 调用都将立即返回，并且不保证在调用结束时所请求的 <code>I/O</code> 操作已完成</strong></p>
+</li>
+<li><p><strong>调用立即返回一个 <code>ChannelFuture</code> 实例，通过注册监听器到 <code>ChannelFuture</code> 上，可以 <code>I/O</code> 操作成功、失败或取消时回调通知调用方</strong></p>
+</li>
+<li><p><strong>不同协议、不同的阻塞类型的连接都有不同的 <code>Channel</code> 类型与之对应</strong></p>
+</li>
+</ul>
+<p><strong>常用的 <code>Channel</code> 类型</strong></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NioSocketChannel</code></td>
+<td>异步的客户端 TCP Socket 连接。</td>
+</tr>
+<tr>
+<td><code>NioServerSocketChannel</code></td>
+<td>异步的服务器端 TCP Socket 连接</td>
+</tr>
+<tr>
+<td><code>NioDatagramChannel</code></td>
+<td>异步的 UDP 连接。</td>
+</tr>
+<tr>
+<td><code>NioSctpChannel</code></td>
+<td>异步的客户端 Sctp 连接。</td>
+</tr>
+<tr>
+<td><code>NioSctpServerChannel</code></td>
+<td>异步的 Sctp 服务器端连接，这些通道涵盖了 UDP 和 TCP 网络 IO 以及文件 IO。</td>
+</tr>
+</tbody></table>
+<h2 id="4-Seletor"><a href="#4-Seletor" class="headerlink" title="4. Seletor"></a>4. Seletor</h2><ul>
+<li><p><strong><code>Netty</code> 基于 <code>Selector</code> 对象实现 <code>I/O</code> 多路复用，通过 <code>Selector</code> 一个线程可以监听多个连接的 <code>Channel</code> 事件。</strong></p>
+</li>
+<li><p>当向一个 <code>Selector</code> 中注册 <code>Channel</code> 后，<code>Selector</code> 内部的机制就可以自动不断地查询(<code>Select</code>) 这些注册的 <code>Channel</code> 是否有已就绪的 <code>I/O</code> 事件（例如可读，可写，网络连接完成等），这样程序就可以<strong>很简单地使用一个线程高效地管理多个 <code>Channel</code></strong></p>
+</li>
+<li><p>同时，<code>Netty</code>中对<code>selector</code>中的<code>selectedKey</code>集合进行了替换，它替换成了一个它自己实现的一个<code>set</code>集合，这样效率更高。</p>
+</li>
+</ul>
+<h2 id="5-ChannelHandler"><a href="#5-ChannelHandler" class="headerlink" title="5. ChannelHandler"></a>5. ChannelHandler</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/123220946.png" alt="mark"></p>
+<ul>
+<li><strong><code>ChannelHandler</code> 是一个接口，处理 <code>I/O</code> 事件或拦截 <code>I/O</code> 操作，并将其转发到其 <code>ChannelPipeline</code>(业务处理链)中的下一个处理程序。</strong></li>
+<li><strong><code>ChannelHandler</code> 本身并没有提供很多方法，因为这个接口有许多的方法需要实现，方便使用期间，可以继承它的子类</strong></li>
+<li>我们经常需要<strong>自定义一个<code>Handler</code> 类去继承<code>ChannelInboundHandlerAdapter</code> ，然后通过相应方法实现业务逻辑，来看看有哪些方法需要重写</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201028/224217480.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChannelInboundHandlerAdapter</span> <span class="keyword">extends</span> <span class="title">ChannelHandlerAdapter</span> <span class="keyword">implements</span> <span class="title">ChannelInboundHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通道注册事件</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRegistered</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelRegistered();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通道取消注册事件</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelUnregistered</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelUnregistered();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通道就绪事件</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelActive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Calls &#123;<span class="doctag">@link</span> ChannelHandlerContext#fireChannelInactive()&#125; to forward</span></span><br><span class="line"><span class="comment">     * to the next &#123;<span class="doctag">@link</span> ChannelInboundHandler&#125; in the &#123;<span class="doctag">@link</span> ChannelPipeline&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * Sub-classes may override this method to change behavior.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelInactive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通道读取数据事件</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelRead(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通道数据读取完毕事件</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelReadComplete</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelReadComplete();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Calls &#123;<span class="doctag">@link</span> ChannelHandlerContext#fireUserEventTriggered(Object)&#125; to forward</span></span><br><span class="line"><span class="comment">     * to the next &#123;<span class="doctag">@link</span> ChannelInboundHandler&#125; in the &#123;<span class="doctag">@link</span> ChannelPipeline&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * Sub-classes may override this method to change behavior.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">userEventTriggered</span><span class="params">(ChannelHandlerContext ctx, Object evt)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireUserEventTriggered(evt);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Calls &#123;<span class="doctag">@link</span> ChannelHandlerContext#fireChannelWritabilityChanged()&#125; to forward</span></span><br><span class="line"><span class="comment">     * to the next &#123;<span class="doctag">@link</span> ChannelInboundHandler&#125; in the &#123;<span class="doctag">@link</span> ChannelPipeline&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * Sub-classes may override this method to change behavior.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">channelWritabilityChanged</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireChannelWritabilityChanged();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通道发生异常事件</span></span><br><span class="line">    <span class="meta">@Skip</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"deprecation"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">exceptionCaught</span><span class="params">(ChannelHandlerContext ctx, Throwable cause)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ctx.fireExceptionCaught(cause);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><strong>再来回顾一下类图</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201028/224217480.png" alt="mark"></p>
+<ul>
+<li><code>ChannelInboundHandler</code> 用于处理入站 I/O 事件。</li>
+<li><code>ChannelOutboundHandler</code> 用于处理出站 I/O 操作。</li>
+</ul>
+<p><strong>适配器</strong></p>
+<ul>
+<li><code>ChannelInboundHandlerAdapter</code> 用于处理入站 I/O 事件。</li>
+<li><code>ChannelOutboundHandlerAdapter</code> 用于处理出站 I/O 操作。</li>
+<li><code>ChannelDuplexHandler</code> 用于处理入站和出站事件。</li>
+</ul>
+<h2 id="7-Pipeline和ChannelPipeline"><a href="#7-Pipeline和ChannelPipeline" class="headerlink" title="7. Pipeline和ChannelPipeline"></a>7. Pipeline和ChannelPipeline</h2><ul>
+<li><code>ChannelPipeline</code> 是一个 <code>Handler</code> 的集合，它负责处理和拦截 <code>inbound</code> 或者 <code>outbound</code> 的事件和操作，相当于一个贯穿 <code>Netty</code> 的链。(也可以这样理解：<code>ChannelPipeline</code> 是 保存 <code>ChannelHandler</code> 的 <code>List</code>，用于处理或拦截 <code>Channel</code> 的入站事件和出站操作)</li>
+<li><code>ChannelPipeline</code> 实现了一种高级形式的拦截过滤器模式，使用户可以完全控制事件的处理方式，以及 <code>Channel</code> 中各个的 <code>ChannelHandler</code> 如何相互交互</li>
+<li>在 <code>Netty</code> 中每个 <code>Channel</code> 都有且仅有一个 <code>ChannelPipeline</code> 与之对应，它们的组成关系如下</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/123220946.png" alt="mark"></p>
+<p><strong>组成关系</strong></p>
+<ul>
+<li>一个 <code>Channel</code> 包含了一个 <code>ChannelPipeline</code>，而 <code>ChannelPipeline</code> 中又维护了一个由 <code>ChannelHandlerContext</code> 组成的双向链表，并且每个 <code>ChannelHandlerContext</code> 中又关联着一个 <code>ChannelHandler</code></li>
+<li><strong>入站事件和出站事件在一个双向链表中</strong>，入站事件会从链表 <code>head</code> 往后传递到最后一个入站的 <code>handler</code>，出站事件会从链表 <code>tail</code> 往前传递到最前一个出站的 <code>handler</code>，两种类型的 <code>handler</code> 互不干扰</li>
+</ul>
+<p><strong>常用方法：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ChannelPipeline addFirst(ChannelHandler... handlers)</code></td>
+<td>把一个业务处理类（handler）添加到链中的第一个位置</td>
+</tr>
+<tr>
+<td>ChannelPipeline addLast(ChannelHandler… handlers)</td>
+<td>把一个业务处理类（handler）添加到链中的最后一个位置</td>
+</tr>
+</tbody></table>
+
       
       <!-- reward -->
       
@@ -186,6 +359,15 @@
   
   
   <nav class="article-nav">
+    
+      <a href="/2020/10/29/Leetcode/Leetcode-129-%E6%B1%82%E6%A0%B9%E5%88%B0%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E6%95%B0%E5%AD%97%E4%B9%8B%E5%92%8C/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Leetcode-129-求根到叶子节点数字之和
+          
+        </div>
+      </a>
     
     
       <a href="/2020/10/24/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-18-%E6%96%87%E4%BB%B6%E5%9F%BA%E7%A1%80/" class="article-nav-link">
