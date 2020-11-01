@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">564字</span>
+            <span class="post-count">490字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">1分钟</span>
         </span>
     </span>
 </div>
@@ -100,50 +100,28 @@
 
       
       <h1 id="Leetcode-1038-把二叉搜索树转换为累加树"><a href="#Leetcode-1038-把二叉搜索树转换为累加树" class="headerlink" title="Leetcode-1038-把二叉搜索树转换为累加树"></a>Leetcode-1038-<a href="https://leetcode-cn.com/problems/binary-search-tree-to-greater-sum-tree/" target="_blank" rel="noopener">把二叉搜索树转换为累加树</a></h1><h2 id="思路：反向中序遍历"><a href="#思路：反向中序遍历" class="headerlink" title="思路：反向中序遍历"></a>思路：反向中序遍历</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li><p>这里有一个非负整数数组 <code>arr</code>，你最开始位于该数组的起始下标 <code>start</code> 处。</p>
-</li>
-<li><p>当你位于下标 <code>i</code> 处时，你可以跳到 <code>i + arr[i]</code> 或者 <code>i - arr[i]</code>。</p>
-</li>
-<li><p>请你判断自己是否能够跳到对应元素值为 0 的 <strong>任意</strong> 下标处</p>
-</li>
+<li>给出二叉搜索树的根节点，该树的节点值各不相同，请你将其转换成累加树（Greater Sum Tree），使得每个节点的<code>node</code> 的新值等于原书中大于等于<code>node.val</code> 的值之和。</li>
 </ul>
-<p>示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入：arr &#x3D; [4,2,3,0,3,1,2], start &#x3D; 5</span><br><span class="line">输出：true</span><br><span class="line">解释：</span><br><span class="line">到达值为 0 的下标 3 有以下可能方案： </span><br><span class="line">下标 5 -&gt; 下标 4 -&gt; 下标 1 -&gt; 下标 3 </span><br><span class="line">下标 5 -&gt; 下标 6 -&gt; 下标 4 -&gt; 下标 1 -&gt; 下标 3</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：arr &#x3D; [4,2,3,0,3,1,2], start &#x3D; 0</span><br><span class="line">输出：true </span><br><span class="line">解释：</span><br><span class="line">到达值为 0 的下标 3 有以下可能方案： </span><br><span class="line">下标 0 -&gt; 下标 4 -&gt; 下标 1 -&gt; 下标 3</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：arr &#x3D; [3,0,2,1,2], start &#x3D; 2</span><br><span class="line">输出：false</span><br><span class="line">解释：无法到达值为 0 的下标 1 处。</span><br></pre></td></tr></table></figure>
-
-
-
-<a id="more"></a>
-
-
-
-<p><strong>Solution：DFS</strong></p>
+<p>提醒一下，二叉搜索树满足下列约束条件：</p>
 <ul>
-<li>初始化一个长度为arr的boolean数组，记录已访问过的位置</li>
-<li>递归进入判断当前位置是否是0<ul>
-<li>不是的话：处理start左边的元素（索引递减，往左走找0）；处理start右边的元素（索引递增，往右走找0）, 最后还找不到的话返回false</li>
-<li>是的话：返回true</li>
+<li>节点的左子树仅包含键 <strong>小于</strong> 节点键的节点。</li>
+<li>节点的右子树仅包含键 <strong>大于</strong> 节点键的节点。</li>
+<li>左右子树也必须是二叉搜索树。</li>
 </ul>
-</li>
+<p><strong>示例 1：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201029/085842282.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：root &#x3D; [0,null,1]</span><br><span class="line">输出：[1,null,1]</span><br><span class="line"></span><br><span class="line">示例 3：</span><br><span class="line"></span><br><span class="line">输入：root &#x3D; [1,0,2]</span><br><span class="line">输出：[3,3,2]</span><br><span class="line"></span><br><span class="line">示例 4：</span><br><span class="line"></span><br><span class="line">输入：root &#x3D; [3,2,4,1]</span><br><span class="line">输出：[7,9,4,10]</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="方法-反向中序遍历"><a href="#方法-反向中序遍历" class="headerlink" title="方法 : 反向中序遍历"></a>方法 : 反向中序遍历</h2><ul>
+<li><strong>关于二叉搜索树的问题，第一个想到的就是中序遍历</strong>，这是二叉搜索树的一个非常重要的性质</li>
+<li><strong>二叉搜索树的中序遍历是一个递增的有序序列</strong></li>
 </ul>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p><strong>Solution :</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canReach</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 初始化一个长度为arr的boolean数组，记录已访问过的位置</span></span><br><span class="line">        <span class="keyword">boolean</span>[] visited = <span class="keyword">new</span> <span class="keyword">boolean</span>[arr.length];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 深度优先遍历</span></span><br><span class="line">        <span class="keyword">return</span> dfs(arr,start,visited);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> start, <span class="keyword">boolean</span>[] visited)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 递归进入判断当前位置是否是0</span></span><br><span class="line">        <span class="keyword">if</span> (arr[start] == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 记录start位置已被访问</span></span><br><span class="line">        visited[start] = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理start左边的元素（索引递减，往左走找0）</span></span><br><span class="line">        <span class="keyword">int</span> left = start - arr[start];</span><br><span class="line">        <span class="keyword">if</span> (left &gt;= <span class="number">0</span> &amp;&amp; !visited[left] &amp;&amp; dfs(arr,left,visited))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理start右边的元素（索引递增，往右走找0）</span></span><br><span class="line">        <span class="keyword">int</span> right = start + arr[start];</span><br><span class="line">        <span class="keyword">if</span> (right &lt; arr.length &amp;&amp; !visited[right] &amp;&amp; dfs(arr,right,visited))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 没有能达到0的位置</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<ul>
-<li><p>时间复杂度：O(n)   n是数组的长度</p>
-</li>
-<li><p>空间复杂度：O(n)   boolean数组的长度</p>
-</li>
-</ul>
-<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p><strong>Solution :</strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201029/090116634.png" alt="mark"></p>
+<p>观察<strong>累加前中序遍历</strong>和<strong>累加后中序遍历</strong>，我们会发现，其实后者就是前者的一个从后的累加结果。</p>
+<p>那么问题就迎刃而解了，我们秩序反向中序遍历即可，并且把每次的节点值进行累加，就能得到最终的累加树。并且保证了这样只会访问每个节点一次。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val, TreeNode left, TreeNode right) &#123;</span></span><br><span class="line"><span class="comment"> *         this.val = val;</span></span><br><span class="line"><span class="comment"> *         this.left = left;</span></span><br><span class="line"><span class="comment"> *         this.right = right;</span></span><br><span class="line"><span class="comment"> *     &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">bstToGst</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="comment">// 1. 如果是叶子节点的话</span></span><br><span class="line">            <span class="comment">// 进行反向的中序遍历</span></span><br><span class="line">            bstToGst(root.right); <span class="comment">// 递归右子树</span></span><br><span class="line">            sum = sum + root.val; <span class="comment">// 累加</span></span><br><span class="line">            root.val = sum; <span class="comment">// 更新节点的值</span></span><br><span class="line">            bstToGst(root.left); <span class="comment">// 递归左子树</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
       

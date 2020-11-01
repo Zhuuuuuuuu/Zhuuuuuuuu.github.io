@@ -75,6 +75,407 @@
     
     
     
+    <article id="post-Spring/Spring-08-声明式事务" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/20/Spring/Spring-08-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/"
+    >Spring-08-声明式事务</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/20/Spring/Spring-08-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="article-date">
+  <time datetime="2020-05-20T00:22:24.000Z" itemprop="datePublished">2020-05-20</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Spring-08-声明式事务"><a href="#Spring-08-声明式事务" class="headerlink" title="Spring-08-声明式事务"></a>Spring-08-声明式事务</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><ul>
+<li>官网mybatis-spring : <a href="http://mybatis.org/spring/zh/index.html" target="_blank" rel="noopener">http://mybatis.org/spring/zh/index.html</a></li>
+</ul>
+<h2 id="1-回顾事务"><a href="#1-回顾事务" class="headerlink" title="1. 回顾事务"></a>1. 回顾事务</h2><ul>
+<li>事务在项目开发过程非常重要，涉及到数据的一致性的问题，不容马虎！</li>
+<li>事务管理是企业级应用程序开发中必备技术，用来确保数据的完整性和一致性。</li>
+</ul>
+<p>事务就是把一系列的动作当成一个独立的工作单元，这些动作要么全部完成，要么全部不起作用。</p>
+<p><strong>事务的ACID原则：</strong></p>
+<ol>
+<li><p>原子性（Atomicity）：事务是一个原子操作，由一系列动作组成。事务的原子性确保动作要么全部完成，要么完全不起作用。</p>
+</li>
+<li><p>一致性（Consistency）：一旦事务完成（不管成功还是失败），系统必须确保它所建模的业务处于一致的状态，而不会是部分完成部分失败。在现实中的数据不应该被破坏。</p>
+</li>
+<li><p>隔离性（Isolation）：可能有许多事务会同时处理相同的数据，因此每个事务都应该与其他事务隔离开来，防止数据损坏。</p>
+</li>
+<li><p>持久性（Durability）：一旦事务完成，无论发生什么系统错误，它的结果都不应该受到影响，这样就能从任何系统崩溃中恢复过来。通常情况下，事务的结果被写到持久化存储器中。</p>
+</li>
+</ol>
+      
+      <a class="article-more-link" href="/2020/05/20/Spring/Spring-08-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Spring/Spring-09-CGLIB" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/20/Spring/Spring-09-CGLIB/"
+    >Spring-09-CGLIB</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/20/Spring/Spring-09-CGLIB/" class="article-date">
+  <time datetime="2020-05-20T00:22:24.000Z" itemprop="datePublished">2020-05-20</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Spring-09-CGLIB"><a href="#Spring-09-CGLIB" class="headerlink" title="Spring-09-CGLIB"></a>Spring-09-CGLIB</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200805-150918958.png" alt="mark"></p>
+<ul>
+<li>CGLIB代理主要通过对字节码的操作，为对象引入间接级别，以控制对象的访问。</li>
+<li>我们知道Java中有一个动态代理也是做这个事情的，那我们为什么不直接使用Java动态代理，而要使用CGLIB呢？<strong>答案是CGLIB相比于JDK动态代理更加强大，JDK动态代理虽然简单易用，但是其有一个致命缺陷是，只能对接口进行代理</strong>。</li>
+<li>如果要代理的类为一个普通类、没有接口，那么Java动态代理就没法使用了。</li>
+</ul>
+<p>CGLIB底层使用了ASM（一个短小精悍的字节码操作框架）来操作字节码生成新的类。除了CGLIB库外，脚本语言（如Groovy何BeanShell）也使用ASM生成字节码。ASM使用类似SAX的解析器来实现高性能</p>
+      
+      <a class="article-more-link" href="/2020/05/20/Spring/Spring-09-CGLIB/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Spring/Spring-10-Bean的生命周期" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/20/Spring/Spring-10-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/"
+    >Spring-10-Bean的生命周期</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/20/Spring/Spring-10-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" class="article-date">
+  <time datetime="2020-05-20T00:22:24.000Z" itemprop="datePublished">2020-05-20</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Spring-10-Bean的生命周期"><a href="#Spring-10-Bean的生命周期" class="headerlink" title="Spring-10-Bean的生命周期"></a>Spring-10-Bean的生命周期</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>Spring Bean的生命周期是Spring面试热点问题。这个问题即考察对Spring的微观了解，又考察对Spring的宏观认识，想要答好并不容易！本文希望能够从源码角度入手，帮助面试者彻底搞定Spring Bean的生命周期。</p>
+<p><strong>只有四个！</strong></p>
+<p>是的，Spring Bean的生命周期只有这四个阶段。把这四个阶段和每个阶段对应的扩展点糅合在一起虽然没有问题，但是这样非常凌乱，难以记忆。要彻底搞清楚Spring的生命周期，首先要把这四个阶段牢牢记住。实例化和属性赋值对应构造方法和setter方法的注入，初始化和销毁是用户能自定义扩展的两个阶段。在这四步之间穿插的各种扩展点，稍后会讲。</p>
+<ol>
+<li><strong>实例化 Instantiation</strong></li>
+<li><strong>属性赋值 Populate</strong></li>
+<li><strong>初始化 Initialization</strong></li>
+<li><strong>销毁 Destruction</strong></li>
+</ol>
+<p>实例化 -&gt; 属性赋值 -&gt; 初始化 -&gt; 销毁</p>
+<p>主要逻辑都在<code>doCreate()</code>方法中，逻辑很清晰，就是顺序调用以下三个方法，这三个方法与三个生命周期阶段一一对应，非常重要，在后续扩展接口分析中也会涉及。</p>
+<ol>
+<li><code>createBeanInstance()</code> -&gt; 实例化</li>
+<li><code>populateBean()</code> -&gt; 属性赋值</li>
+<li><code>initializeBean()</code> -&gt; 初始化</li>
+</ol>
+<p>源码如下，能证明实例化，属性赋值和初始化这三个生命周期的存在。关于本文的Spring源码都将忽略无关部分，便于理解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 忽略了无关代码</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doCreateBean</span><span class="params">(<span class="keyword">final</span> String beanName, <span class="keyword">final</span> RootBeanDefinition mbd, <span class="keyword">final</span> @Nullable Object[] args)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Instantiate the bean.</span></span><br><span class="line">   BeanWrapper instanceWrapper = <span class="keyword">null</span>;</span><br><span class="line">   <span class="keyword">if</span> (instanceWrapper == <span class="keyword">null</span>) &#123;</span><br><span class="line">       <span class="comment">// 实例化阶段！</span></span><br><span class="line">      instanceWrapper = createBeanInstance(beanName, mbd, args);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Initialize the bean instance.</span></span><br><span class="line">   Object exposedObject = bean;</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="comment">// 属性赋值阶段！</span></span><br><span class="line">      populateBean(beanName, mbd, instanceWrapper);</span><br><span class="line">       <span class="comment">// 初始化阶段！</span></span><br><span class="line">      exposedObject = initializeBean(beanName, exposedObject, mbd);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>至于销毁，是在容器关闭时调用的，详见<code>ConfigurableApplicationContext#close()</code></p>
+      
+      <a class="article-more-link" href="/2020/05/20/Spring/Spring-10-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" rel="tag">bean的生命周期</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-GoF23/设计模式-代理模式" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/19/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"
+    >代理模式</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/19/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" class="article-date">
+  <time datetime="2020-05-19T07:22:24.000Z" itemprop="datePublished">2020-05-19</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h1><p>为什么要学习代理模式，因为AOP的底层机制就是动态代理！</p>
+<p>代理模式：</p>
+<ul>
+<li>静态代理</li>
+<li>动态代理</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/193958809.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/05/19/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/" rel="tag">设计者模式</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Guide/读书笔记-阿里巴巴开发手册" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/19/Guide/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/"
+    >读书笔记-阿里巴巴开发手册</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/05/19/Guide/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/" class="article-date">
+  <time datetime="2020-05-19T04:30:53.000Z" itemprop="datePublished">2020-05-19</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="读书笔记-阿里巴巴开发手册"><a href="#读书笔记-阿里巴巴开发手册" class="headerlink" title="读书笔记-阿里巴巴开发手册"></a>读书笔记-阿里巴巴开发手册</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>本笔记针对最新版本-<strong>泰山版</strong>开发手册进行阐述分析</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/123256378.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/123313920.png" alt="mark"></p>
+<p>希望各位未来可以有所大成，达到（会当凌绝顶，一览众山小）的境界。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/224430806.png" alt="mark"></p>
+<p>废话不多说，我们直接来看正文….</p>
+      
+      <a class="article-more-link" href="/2020/05/19/Guide/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/" rel="tag">开发手册</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Leetcode/Leetcode-371-两整数之和" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -435,371 +836,13 @@
 
 </article>
     
-    <article id="post-Leetcode/Leetcode-155-最小栈" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/12/Leetcode/Leetcode-155-%E6%9C%80%E5%B0%8F%E6%A0%88/"
-    >Leetcode-155-最小栈</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/12/Leetcode/Leetcode-155-%E6%9C%80%E5%B0%8F%E6%A0%88/" class="article-date">
-  <time datetime="2020-05-12T07:52:53.000Z" itemprop="datePublished">2020-05-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-155-Min-Stack"><a href="#Leecode-155-Min-Stack" class="headerlink" title="Leecode-155-Min Stack"></a>Leecode-155-<a href="https://leetcode-cn.com/problems/min-stack/" target="_blank" rel="noopener">Min Stack</a></h1><h2 id="思路：辅助栈-数据同步"><a href="#思路：辅助栈-数据同步" class="headerlink" title="思路：辅助栈/数据同步"></a>思路：辅助栈/数据同步</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>设计一个支持 push ，pop ，top 操作，并能在常数时间内检索到最小元素的栈。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">push(x) ——   将元素 x 推入栈中。</span><br><span class="line">pop() ——     删除栈顶的元素。</span><br><span class="line">top() ——     获取栈顶元素。</span><br><span class="line">getMin() —— 检索栈中的最小元素。</span><br></pre></td></tr></table></figure>
-
-
-
-<p>示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">[<span class="string">"MinStack"</span>,<span class="string">"push"</span>,<span class="string">"push"</span>,<span class="string">"push"</span>,<span class="string">"getMin"</span>,<span class="string">"pop"</span>,<span class="string">"top"</span>,<span class="string">"getMin"</span>]</span><br><span class="line">[[],[-<span class="number">2</span>],[<span class="number">0</span>],[-<span class="number">3</span>],[],[],[],[]]</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">[<span class="keyword">null</span>,<span class="keyword">null</span>,<span class="keyword">null</span>,<span class="keyword">null</span>,-<span class="number">3</span>,<span class="keyword">null</span>,<span class="number">0</span>,-<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">解释：</span><br><span class="line">MinStack minStack = <span class="keyword">new</span> MinStack();</span><br><span class="line">minStack.push(-<span class="number">2</span>);</span><br><span class="line">minStack.push(<span class="number">0</span>);</span><br><span class="line">minStack.push(-<span class="number">3</span>);</span><br><span class="line">minStack.getMin();   --&gt; 返回 -<span class="number">3</span>.</span><br><span class="line">minStack.pop();</span><br><span class="line">minStack.top();      --&gt; 返回 <span class="number">0</span>.</span><br><span class="line">minStack.getMin();   --&gt; 返回 -<span class="number">2</span>.</span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2020/05/12/Leetcode/Leetcode-155-%E6%9C%80%E5%B0%8F%E6%A0%88/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A0%88/" rel="tag">栈</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-FileIO/IO-06-序列化和反序列化" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"
-    >IO-06-序列化和反序列化</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date">
-  <time datetime="2020-05-12T07:38:38.000Z" itemprop="datePublished">2020-05-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="IO-序列化和反序列化"><a href="#IO-序列化和反序列化" class="headerlink" title="IO-序列化和反序列化"></a>IO-序列化和反序列化</h1><h2 id="1-什么是序列化和反序列化？"><a href="#1-什么是序列化和反序列化？" class="headerlink" title="1. 什么是序列化和反序列化？"></a>1. 什么是序列化和反序列化？</h2><ul>
-<li><p><strong>序列化</strong>：把堆内存上的Java对象数据，通过某种方式把对象存储到磁盘文件中或者传递给其他网络节点。这个过程称为序列化，<strong>通俗来说就是将数据结构或者对象转换成二进制串的过程。</strong></p>
-</li>
-<li><p><strong>反序列化</strong>：把磁盘文件中的对象数据或者把网络节点上的对象数据，恢复成Java对象模型的过程。<strong>也就是将在序列化过程中所产生的二进制串转换成数据结构或者对象的过程。</strong></p>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-FileIO/IO-07-随机访问文件流" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/"
-    >IO-07-随机访问文件流</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/" class="article-date">
-  <time datetime="2020-05-12T07:38:38.000Z" itemprop="datePublished">2020-05-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="IO-随机访问文件流"><a href="#IO-随机访问文件流" class="headerlink" title="IO-随机访问文件流"></a>IO-随机访问文件流</h1><h2 id="1-什么是随机访问文件流？"><a href="#1-什么是随机访问文件流？" class="headerlink" title="1. 什么是随机访问文件流？"></a>1. 什么是随机访问文件流？</h2><ul>
-<li><strong>RandomAccessFile</strong></li>
-<li></li>
-</ul>
-
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Spring/Spring-04-自动装配" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/12/Spring/Spring-04-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D/"
-    >Spring-04-自动装配</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/12/Spring/Spring-04-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D/" class="article-date">
-  <time datetime="2020-05-12T07:02:24.000Z" itemprop="datePublished">2020-05-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Spring-04-自动装配"><a href="#Spring-04-自动装配" class="headerlink" title="Spring-04-自动装配"></a>Spring-04-自动装配</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/05/12/Spring/Spring-04-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-FileIO/IO-05-包装流" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/12/FileIO/IO-05-%E5%8C%85%E8%A3%85%E6%B5%81/"
-    >IO-05-包装流</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/12/FileIO/IO-05-%E5%8C%85%E8%A3%85%E6%B5%81/" class="article-date">
-  <time datetime="2020-05-12T03:38:38.000Z" itemprop="datePublished">2020-05-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="IO-包装流"><a href="#IO-包装流" class="headerlink" title="IO-包装流"></a>IO-包装流</h1><p><strong>根据功能分为节点流和包装流（处理流）</strong></p>
-<ul>
-<li><p>节点流：可以从或向一个特定的地方(节点)读写数据。如FileReader</p>
-</li>
-<li><p>处理流：是对一个已存在的流的连接和封装，通过所封装的流的功能调用实现数据的读写。如BufferedReader,处理流的构造方法总是要带一个其他的流的参数做对象。一个流对象经过其他流的多次包装，称为流的链接。</p>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/05/12/FileIO/IO-05-%E5%8C%85%E8%A3%85%E6%B5%81/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/19/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="page-number" href="/page/19/">19</a><span class="page-number current">20</span><a class="page-number" href="/page/21/">21</a><a class="page-number" href="/page/22/">22</a><span class="space">&hellip;</span><a class="page-number" href="/page/42/">42</a><a class="extend next" rel="next" href="/page/21/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/19/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="page-number" href="/page/19/">19</a><span class="page-number current">20</span><a class="page-number" href="/page/21/">21</a><a class="page-number" href="/page/22/">22</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/21/">下一页</a>
   </nav>
   
 </section>

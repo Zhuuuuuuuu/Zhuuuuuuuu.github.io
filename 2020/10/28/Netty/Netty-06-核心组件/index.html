@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.7k字</span>
+            <span class="post-count">2.4k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">6分钟</span>
+            <span class="post-count">9分钟</span>
         </span>
     </span>
 </div>
@@ -152,7 +152,7 @@
 
 
 <h2 id="2-Future、ChannelFuture"><a href="#2-Future、ChannelFuture" class="headerlink" title="2. Future、ChannelFuture"></a>2. Future、ChannelFuture</h2><ul>
-<li><code>Netty</code> 中所有的 <code>IO</code> 操作都是异步的，不能立刻得知消息是否被正确处理。但是可以过一会等它执行完成或者直接注册一个监听，具体的实现就是通过 <code>Future</code> 和 <code>ChannelFutures</code>，他们可以注册一个监听，当操作执行成功或失败时监听会自动触发注册的监听事件</li>
+<li><code>Netty</code> 中所有的 <code>IO</code> 操作都是异步的，不能立刻得知消息是否被正确处理。但是可以过一会等它执行完成或者直接注册一个监听，具体的实现就是通过 <code>Future</code> 和 <code>ChannelFuture</code>，他们可以注册一个监听，当操作执行成功或失败时监听会自动触发注册的监听事件</li>
 </ul>
 <p><strong>常见的方法有</strong></p>
 <table>
@@ -247,7 +247,7 @@
 <li><code>ChannelOutboundHandlerAdapter</code> 用于处理出站 I/O 操作。</li>
 <li><code>ChannelDuplexHandler</code> 用于处理入站和出站事件。</li>
 </ul>
-<h2 id="7-Pipeline和ChannelPipeline"><a href="#7-Pipeline和ChannelPipeline" class="headerlink" title="7. Pipeline和ChannelPipeline"></a>7. Pipeline和ChannelPipeline</h2><ul>
+<h2 id="7-Pipeline-和-ChannelPipeline"><a href="#7-Pipeline-和-ChannelPipeline" class="headerlink" title="7. Pipeline 和 ChannelPipeline"></a>7. Pipeline 和 ChannelPipeline</h2><ul>
 <li><code>ChannelPipeline</code> 是一个 <code>Handler</code> 的集合，它负责处理和拦截 <code>inbound</code> 或者 <code>outbound</code> 的事件和操作，相当于一个贯穿 <code>Netty</code> 的链。(也可以这样理解：<code>ChannelPipeline</code> 是 保存 <code>ChannelHandler</code> 的 <code>List</code>，用于处理或拦截 <code>Channel</code> 的入站事件和出站操作)</li>
 <li><code>ChannelPipeline</code> 实现了一种高级形式的拦截过滤器模式，使用户可以完全控制事件的处理方式，以及 <code>Channel</code> 中各个的 <code>ChannelHandler</code> 如何相互交互</li>
 <li>在 <code>Netty</code> 中每个 <code>Channel</code> 都有且仅有一个 <code>ChannelPipeline</code> 与之对应，它们的组成关系如下</li>
@@ -255,7 +255,7 @@
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/123220946.png" alt="mark"></p>
 <p><strong>组成关系</strong></p>
 <ul>
-<li>一个 <code>Channel</code> 包含了一个 <code>ChannelPipeline</code>，而 <code>ChannelPipeline</code> 中又维护了一个由 <code>ChannelHandlerContext</code> 组成的双向链表，并且每个 <code>ChannelHandlerContext</code> 中又关联着一个 <code>ChannelHandler</code></li>
+<li>一个 <code>Channel</code> 包含了一个 <code>ChannelPipeline</code>，而 <code>ChannelPipeline</code> 中又维护了一个由 <code>ChannelHandlerContext</code> 组成的<strong>双向链表</strong>，并且每个 <code>ChannelHandlerContext</code> 中又关联着一个 <code>ChannelHandler</code></li>
 <li><strong>入站事件和出站事件在一个双向链表中</strong>，入站事件会从链表 <code>head</code> 往后传递到最后一个入站的 <code>handler</code>，出站事件会从链表 <code>tail</code> 往前传递到最前一个出站的 <code>handler</code>，两种类型的 <code>handler</code> 互不干扰</li>
 </ul>
 <p><strong>常用方法：</strong></p>
@@ -275,6 +275,76 @@
 <td>把一个业务处理类（handler）添加到链中的最后一个位置</td>
 </tr>
 </tbody></table>
+<h2 id="8-ChannelOption"><a href="#8-ChannelOption" class="headerlink" title="8. ChannelOption"></a>8. ChannelOption</h2><ul>
+<li><code>Netty</code> 在创建 <code>Channel</code> 实例后,一般都需要设置 <code>ChannelOption</code> 参数。</li>
+</ul>
+<p><strong>ChannelOption 参数如下</strong></p>
+<p><code>ChannelOption.SO_BACKLOG</code></p>
+<ul>
+<li><strong>对应 TCP/IP 协议 listen 函数中的 backlog 参数，用来初始化服务器可连接队列大小。</strong></li>
+<li>服务端处理客户端连接请求是顺序处理的，所以同一时间只能处理一个客户端连接。多个客户端来的时候，<strong>服务端将不能处理的客户端连接请求放在队列中等待处理，backlog 参数指定了队列的大小。</strong></li>
+</ul>
+<p><code>ChannelOption.SO_KEEPALIVE</code></p>
+<ul>
+<li><strong>一直保持TCP连接活动的状态</strong></li>
+</ul>
+<h2 id="9-EventLoopGroup-和-NioEventLoopGroup"><a href="#9-EventLoopGroup-和-NioEventLoopGroup" class="headerlink" title="9. EventLoopGroup 和 NioEventLoopGroup"></a>9. EventLoopGroup 和 NioEventLoopGroup</h2><ul>
+<li><code>EventLoopGroup</code> 是一组 <code>EventLoop</code> 的抽象，Netty为了更好的利用多核CPU资源，一般会有多个<code>EventLoop</code> 同时工作，每个<code>EventLoop</code>维护着一个Selector 实例</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201029/092123789.png" alt="mark"></p>
+<ul>
+<li><code>EventLoopGroup</code> 提供 next 接口，可以从组里面按照一定规则获取其中一个 <code>EventLoop</code>来处理任务。<ul>
+<li>在 Netty 服务器端编程中，我们一般都需要提供两个 <code>EventLoopGroup</code>，例如：<code>BossEventLoopGroup</code> 和<code>WorkerEventLoopGroup</code>。</li>
+</ul>
+</li>
+<li>通常一个服务端口即一个<code>ServerSocketChannel</code> 对应一个 <code>Selector</code> 和 一个<code>EventLoop</code> 线程。<ul>
+<li>BossEventLoop 负责接收客户端的连接并将 SocketChannel 交给 WorkerEventLoopGroup 来进行 IO 处理</li>
+</ul>
+</li>
+<li>BossEventLoopGroup 通常是一个单线程的 EventLoop，EventLoop 维护者一个注册了ServerSocketChannel 的Selector 实例BossEventLoop 不断轮询 Selector 将连接事件分离出来<ul>
+<li>通常是 OP_ACCEPT 事件，然后将接收到的 SocketChannel 交给 WorkerEventLoopGroup</li>
+<li>WorkerEventLoopGroup 会由 next 选择其中一个EventLoop 来讲这个SocketChannel 注册到其维护的Selector 并对和后续的IO事件进行处理</li>
+</ul>
+</li>
+</ul>
+<p><strong>常用方法：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>public NioEventLoopGroup()</code></td>
+<td>构造方法</td>
+</tr>
+<tr>
+<td><code>public Future&lt;?&gt; shutdownGracefully()</code></td>
+<td>断开连接，关闭线程</td>
+</tr>
+</tbody></table>
+<h2 id="10-ByteBuf"><a href="#10-ByteBuf" class="headerlink" title="10. ByteBuf"></a>10. ByteBuf</h2><ul>
+<li><strong>Netty 提供一个专门用来操作缓冲区(即Netty的数据容器)的工具类</strong></li>
+</ul>
+<p><strong>常用方法</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>public static ByteBuf copiedBuffer(CharSequence string, Charset charset)</code></td>
+<td>通过给定的数据和字符编码返回一个 ByteBuf 对象（类似于 NIO 中的 ByteBuffer 但有区别）</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>使用举例</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建一个ByteBuf</span></span><br><span class="line"><span class="comment">//1、创建对象，该对象包含一个数组，是一个byte[10]</span></span><br><span class="line"><span class="comment">//2、在netty的buffer中，写入数据后再读取数据不需要使用 flip 进行反转</span></span><br><span class="line"><span class="comment">// 底层维护了 readerIndex 和 writeIndex</span></span><br><span class="line"><span class="comment">//往buffer中写的范围为 [writeIndex, capacity)</span></span><br><span class="line"><span class="comment">//往buffer中可读的范围为 [readerIndex, writeIndex)。使用 buf.readByte() 会往后移动 readerIndex 指针，使用 buf.getByte(i) 通过索引获取就不会移动该指针</span></span><br><span class="line">ByteBuf byteBuf = Unpooled.buffer(<span class="number">10</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    byteBuf.writeByte(i);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//获取该buf的大小</span></span><br><span class="line"><span class="keyword">int</span> capacity = byteBuf.capacity();</span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; byteBuf.capacity(); i++) &#123;</span><br><span class="line">    System.out.println(byteBuf.getByte(i));</span><br><span class="line">    System.out.println(byteBuf.readByte());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">byte</span>[] content = byteBuf.array();</span><br><span class="line"><span class="comment">//将content转成字符串</span></span><br><span class="line">String c = <span class="keyword">new</span> String(content, StandardCharsets.UTF_8);</span><br><span class="line"><span class="comment">//数组偏移量</span></span><br><span class="line"><span class="keyword">int</span> offset = byteBuf.arrayOffset();</span><br><span class="line"><span class="comment">//获取读取偏移量</span></span><br><span class="line"><span class="keyword">int</span> readerIndex = byteBuf.readerIndex();</span><br><span class="line"><span class="comment">//获取写偏移量</span></span><br><span class="line"><span class="keyword">int</span> writerIndex = byteBuf.writerIndex();</span><br><span class="line"><span class="comment">//获取容量</span></span><br><span class="line"><span class="keyword">int</span> capacity = byteBuf.capacity();</span><br><span class="line"><span class="comment">//获取可读取的字节数</span></span><br><span class="line"><span class="keyword">int</span> readableBytes = byteBuf.readableBytes();</span><br><span class="line"><span class="comment">//通过索引获取某个位置的字节</span></span><br><span class="line"><span class="keyword">byte</span> aByte = byteBuf.getByte(<span class="number">0</span>);</span><br><span class="line"><span class="comment">//获取Buf中某个范围的字符序列</span></span><br><span class="line">CharSequence charSequence = byteBuf.getCharSequence(<span class="number">0</span>, <span class="number">4</span>, StandardCharsets.UTF_8);</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->

@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">981字</span>
+            <span class="post-count">1.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3分钟</span>
+            <span class="post-count">5分钟</span>
         </span>
     </span>
 </div>
@@ -206,6 +206,74 @@
 <li>当文件被打开的时候，磁盘索引节点复制到<strong>内存索引节点</strong>中</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201024/094516179.png" alt="mark"></p>
+<h2 id="4-文件的基本操作"><a href="#4-文件的基本操作" class="headerlink" title="4. 文件的基本操作"></a>4. 文件的基本操作</h2><ul>
+<li><strong>创建文件(creat)</strong><ul>
+<li>在外存中找到文件所需的<strong>空间</strong></li>
+<li>根据<strong>文件路径找到对应的目录</strong>，创建文件对应的目录项</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>删除文件(delete)</strong><ul>
+<li>根据文件路径找到对应的目录文件，找到文件名对应的目录项</li>
+<li>回收文件占用的磁盘块</li>
+<li>删除目录项</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>打开文件(open)</strong><ul>
+<li>根据路径找到目录文件，找到文件名对应的目录项，检测用户的权限</li>
+<li>将目录项复制到该进程在内存中的<strong>打开文件表</strong>中，返回<strong>表目编号</strong>(<strong>索引号/文件描述符FD</strong>)</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>关闭文件(close)</strong><ul>
+<li>删除进程的打开文件表的对应项</li>
+<li>回收分配给该文件的内存空间等资源</li>
+<li>系统打开文件表的打开计数器count -= 1 (归零时删除该项)</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>读文件(read)</strong><ul>
+<li>需要提供进程<strong>打开文件表中的索引号</strong>，读入的数据量，数据在内存中存放的位置</li>
+<li>从读指针指向的外存位置读取指定大小的数据到指定的内存区域</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>写文件(write)</strong><ul>
+<li>需要提供打开文件表中的索引号，写出的数据量，写回外存的数据位置(写指针指向)</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-文件共享"><a href="#5-文件共享" class="headerlink" title="5. 文件共享"></a>5. 文件共享</h2><h3 id="5-1-基于索引节点的共享（硬链接）"><a href="#5-1-基于索引节点的共享（硬链接）" class="headerlink" title="5.1 基于索引节点的共享（硬链接）"></a>5.1 基于索引节点的共享（硬链接）</h3><ul>
+<li>索引节点里面放了一个链接计数器 count </li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/094159031.png" alt="mark"></p>
+<h3 id="5-2-基于符号链的共享（软链接）"><a href="#5-2-基于符号链的共享（软链接）" class="headerlink" title="5.2 基于符号链的共享（软链接）"></a>5.2 基于符号链的共享（软链接）</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/094226319.png" alt="mark"></p>
+<ul>
+<li>系统会创建一个<strong>Link 类型的新文件</strong><ul>
+<li><strong>新文件的路径名</strong>只被视为是符号链</li>
+<li>在利用符号链实现文件共享时候<ul>
+<li><strong>只有文件的拥有</strong>者才拥有指向其索引节点的指针</li>
+<li><strong>共享该文件的其他用户</strong>只有该为文件的路径名</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="6-文件保护"><a href="#6-文件保护" class="headerlink" title="6. 文件保护"></a>6. 文件保护</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/094509107.png" alt="mark"></p>
+<ol>
+<li><strong>口令保护</strong></li>
+<li><strong>加密保护</strong></li>
+<li><strong>访问控制</strong></li>
+</ol>
+<h2 id="7-文件的系统层次结构"><a href="#7-文件的系统层次结构" class="headerlink" title="7. 文件的系统层次结构"></a>7. 文件的系统层次结构</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/094625764.png" alt="mark"></p>
+<p><strong>举个例子：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/094641719.png" alt="mark"></p>
 <p><strong>参考书籍：《王道考研计算机操作系统》</strong></p>
 <p><strong>参考博客</strong> ：<a href="https://mubu.com/doc/Cd-Y4YOfkh#o-1d01735b78f18c07f" target="_blank" rel="noopener">https://mubu.com/doc/Cd-Y4YOfkh#o-1d01735b78f18c07f</a></p>
 
