@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Netty-11-ProtoBuf |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-Netty/Netty-11-ProtoBuf" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Netty-11-ProtoBuf
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/02/Netty/Netty-11-ProtoBuf/" class="article-date">
+  <time datetime="2020-11-02T05:05:24.000Z" itemprop="datePublished">2020-11-02</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.1k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-11-ProtoBuf"><a href="#Netty-11-ProtoBuf" class="headerlink" title="Netty-11-ProtoBuf"></a>Netty-11-ProtoBuf</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>编写网络应用程序时，因为<strong>数据在网络中传输的都是二进制字节码数据</strong>，在发送数据的时候就需要编码，接收数据时候就需要解码</li>
+<li><strong>codec(编解码器)的组成部分有两个</strong><ul>
+<li><code>decoder</code>(解码器) ： 负责把字节码数据转换成业务逻辑</li>
+<li><code>encoder</code>(编码器) ： 负责把业务数据转换成字节码数据</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201104/084813142.png" alt="mark"></p>
+<a id="more"></a>
+
+
+
+<h2 id="1-Netty-提供的编解码机制"><a href="#1-Netty-提供的编解码机制" class="headerlink" title="1. Netty 提供的编解码机制"></a>1. Netty 提供的编解码机制</h2><ul>
+<li>Netty 本身的编解码器的机制和问题分析（为什么要引入<code>protobuf</code> ?）</li>
+<li><code>Netty</code> 自身提供了一些 <code>codec</code>(编解码器)<ul>
+<li><code>Netty</code> 提供的编码器 <code>StringEncoder</code>，对字符串数据进行编码 <code>ObjectEncoder</code>，对Java对象进行编码…</li>
+<li><code>Netty</code> 提供的解码器 <code>StringDecoder</code>,对字符串数据进行解码 <code>ObjectDecoder</code>，对 <code>Java</code> 对象进行解码…</li>
+</ul>
+</li>
+<li><strong><code>Netty</code> 本身自带的 <code>ObjectDecoder</code> 和 <code>ObjectEncoder</code> 可以用来实现 <code>POJO</code> 对象或各种业务对象的编码和解码，底层使用的仍是Java序列化技术,而Java序列化技术本身效率就不高，</strong>存在如下问题<ul>
+<li>无法跨语言</li>
+<li>序列化后的体积太大，是二进制编码的5倍多</li>
+<li>序列化性能太低</li>
+</ul>
+</li>
+</ul>
+<p><strong>于是引出了新的解决方案（Google Protobuf）</strong></p>
+<h2 id="2-ProtoBuf-简介"><a href="#2-ProtoBuf-简介" class="headerlink" title="2. ProtoBuf 简介"></a>2. ProtoBuf 简介</h2><p><strong>1. Google ProtoBuf 参考文档</strong>：</p>
+<ul>
+<li><a href="https://developers.google.com/protocol-buffers/docs/proto" target="_blank" rel="noopener">https://developers.google.com/protocol-buffers/docs/proto</a> <strong>语言指南</strong></li>
+</ul>
+<p><strong>2. 简介概述</strong></p>
+<ul>
+<li>首先，<strong>ProtoBuf 是用来将对象进行序列化的</strong>，相类似的技术还有<code>Json</code> 序列化等等，它是一种高效的结构化数据存储格式，</li>
+<li>可以用于结构化数据串行化（序列化）。它很适合做数据存储或者<strong>RPC(远程工程调用)数据交换格式</strong> （目前很多公司 <code>http + json || tcp + protobuf</code>）</li>
+<li><strong>ProtoBuf 是以 message的方式来管理数据的</strong></li>
+</ul>
+<p><strong>3. 优点：</strong></p>
+<ul>
+<li><strong>支持跨平台跨语言</strong> 【即客户端可以使用不同的语言编写】<ul>
+<li>支持目前绝大多数语言，例如 C++、C#、Java、python 等</li>
+</ul>
+</li>
+<li><strong>使用 protobuf 编译器能自动生成代码</strong></li>
+<li><code>protobuf</code> 是将 类的定义使用<code>.proto</code> 文件进行描述<ul>
+<li>说明，在<code>idea</code> 中编写 <code>.proto</code> 文件时，会自动提示是否下载 <code>.proto</code> 编写插件，可以让语法高亮</li>
+<li><strong>然后通过 <code>proto.exe</code> 编译器根据 <code>.proto</code> 自动的生成java 文件</strong></li>
+</ul>
+</li>
+</ul>
+<p><strong>使用示意图 ：</strong> </p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201104/085943886.png" alt="mark"></p>
+<h2 id="3-Proto-文件格式"><a href="#3-Proto-文件格式" class="headerlink" title="3. Proto 文件格式"></a>3. Proto 文件格式</h2><ul>
+<li><strong>首先我们需要在<code>.proto</code>文件中定义好实体及他们的属性，再进行编译成<code>java</code>对象为我们所用。下面将介绍<code>proto</code>文件的写法。</strong></li>
+</ul>
+<ol>
+<li><strong>文件头</strong></li>
+</ol>
+<ul>
+<li>像写<code>java</code>需要写<code>package</code>包名一样，<code>.proto</code>文件也要写一些文件的全局属性，主要用于将<code>.proto</code>文件编译成<code>Java</code>文件。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><code>实例</code></th>
+<th><code>介绍</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>syntax=&quot;proto3&quot;;</code></td>
+<td>声明使用到的protobuf的版本</td>
+</tr>
+<tr>
+<td><code>optimize_for=SPEED;</code></td>
+<td>表示</td>
+</tr>
+<tr>
+<td><code>java_package=&quot;com.mical.netty.pojo&quot;;</code></td>
+<td>表示生成Java对象所在包名</td>
+</tr>
+<tr>
+<td><code>java_outer_classname=&quot;MyWorker&quot;;</code></td>
+<td>表示生成的Java对象的外部类名</td>
+</tr>
+</tbody></table>
+<ul>
+<li>我们一般将这些代码写在<code>proto</code>文件的开头，以表明生成<code>Java</code>对象的相关文件属性。</li>
+</ul>
+<ol start="2">
+<li><strong>定义类和属性</strong></li>
+</ol>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">"proto3"</span>; <span class="comment">//版本</span></span><br><span class="line"><span class="keyword">option</span> optimize_for = SPEED; <span class="comment">//加快解析</span></span><br><span class="line"><span class="keyword">option</span> java_outer_classname = <span class="string">"MyDataInfo"</span>; <span class="comment">//生成的外部类名，同时也是文件名</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">Student</span> </span>&#123; <span class="comment">//会在StudentPojo 外部类生成一个内部类Student，他是真正发送的pojo对象</span></span><br><span class="line">    <span class="built_in">int32</span> id = <span class="number">1</span>; <span class="comment">//Student类中有一个属性名字为ID，类型为int32（protobuf类型），1表示序号，不是值</span></span><br><span class="line">    <span class="built_in">string</span> name = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">DateType</span> </span>&#123;</span><br><span class="line">    StudentType = <span class="number">0</span>; <span class="comment">//在proto3中，要求enum的编号从0开始</span></span><br><span class="line">    WorkerType = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>如上图所示，我们在文件中不但声明了<code>protobuf</code>的版本，还声明了生成java对象的类名。当生成java对象后，<code>MyDataInfo</code>将是对象的类名，同时，它使用<code>message</code>声明了<code>Student</code>这个内部类，使用<code>enum</code>声明了<code>DataType</code>这个内部枚举类。就像下面这个样子</p>
+</li>
+<li><p><code>messag</code>：声明类。</p>
+</li>
+<li><p><code>enum</code>：声明枚举类。</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">MyDataInfo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> </span>&#123; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">enum</span> DataType &#123; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后需要注意的是，protobuf中的变量类型和其他语言的声明有所不同。下面是<strong>类型的对照表</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>.proto类型</th>
+<th>java类型</th>
+<th>C++类型</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>double</strong></td>
+<td><strong>double</strong></td>
+<td><strong>double</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>float</strong></td>
+<td><strong>float</strong></td>
+<td><strong>float</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>int32</strong></td>
+<td><strong>int</strong></td>
+<td><strong>int32</strong></td>
+<td><strong>使用可变长编码方式。编码负数时不够高效——如果你的字段可能含有负数，那么请使用sint32。</strong></td>
+</tr>
+<tr>
+<td><strong>int64</strong></td>
+<td><strong>long</strong></td>
+<td><strong>int64</strong></td>
+<td><strong>使用可变长编码方式。编码负数时不够高效——如果你的字段可能含有负数，那么请使用sint64。</strong></td>
+</tr>
+<tr>
+<td>unit32</td>
+<td>int[1]</td>
+<td>unit32</td>
+<td>总是4个字节。如果数值总是比总是比228大的话，这个类型会比uint32高效。</td>
+</tr>
+<tr>
+<td>unit64</td>
+<td>long[1]</td>
+<td>unit64</td>
+<td>总是8个字节。如果数值总是比总是比256大的话，这个类型会比uint64高效。</td>
+</tr>
+<tr>
+<td>sint32</td>
+<td>int</td>
+<td>int32</td>
+<td>使用可变长编码方式。有符号的整型值。编码时比通常的int32高效。</td>
+</tr>
+<tr>
+<td>sint64</td>
+<td>long</td>
+<td>int64</td>
+<td>使用可变长编码方式。有符号的整型值。编码时比通常的int64高效。</td>
+</tr>
+<tr>
+<td>fixed32</td>
+<td>int[1]</td>
+<td>unit32</td>
+<td></td>
+</tr>
+<tr>
+<td>fixed64</td>
+<td>long[1]</td>
+<td>unit64</td>
+<td>总是8个字节。如果数值总是比总是比256大的话，这个类型会比uint64高效。</td>
+</tr>
+<tr>
+<td>sfixed32</td>
+<td>int</td>
+<td>int32</td>
+<td>总是4个字节。</td>
+</tr>
+<tr>
+<td>sfixed64</td>
+<td>long</td>
+<td>int64</td>
+<td>总是8个字节。</td>
+</tr>
+<tr>
+<td><strong>bool</strong></td>
+<td><strong>boolean</strong></td>
+<td><strong>bool</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>string</strong></td>
+<td><strong>String</strong></td>
+<td><strong>string</strong></td>
+<td><strong>一个字符串必须是UTF-8编码或者7-bit ASCII编码的文本。</strong></td>
+</tr>
+<tr>
+<td>bytes</td>
+<td>ByteString</td>
+<td>string</td>
+<td>可能包含任意顺序的字节数据</td>
+</tr>
+</tbody></table>
+<ul>
+<li>类型关注之后,我们看到代码中<code>string name = 2</code>，它并不是给name这个变量赋值，而是给它标号。每个类都需要给其中的变量标号，且需要注意的是类的标号是从1开始的，枚举的标号是从0开始的。</li>
+</ul>
+<ol start="3">
+<li><strong>复杂对象</strong></li>
+</ol>
+<ul>
+<li>当我们<strong>需要统一发送对象和接受对象时，就需要使用一个对象将其他所有对象进行包装</strong>，再获取里面的某一类对象。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">"proto3"</span>; <span class="comment">//版本</span></span><br><span class="line">option optimize_for = SPEED; <span class="comment">//加快解析</span></span><br><span class="line">option java_outer_classname = <span class="string">"MyDataInfo"</span>; <span class="comment">//生成的外部类名，同时也是文件名</span></span><br><span class="line"></span><br><span class="line">message MyMessage &#123;</span><br><span class="line">    <span class="comment">//定义一个枚举类型</span></span><br><span class="line">    <span class="keyword">enum</span> DateType &#123;</span><br><span class="line">        StudentType = <span class="number">0</span>; <span class="comment">//在proto3中，要求enum的编号从0开始</span></span><br><span class="line">        WorkerType = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//用data_type来标识传的是哪一个枚举类型</span></span><br><span class="line">    DateType data_type = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//标识每次枚举类型最多只能出现其中的一个类型，节省空间</span></span><br><span class="line">    oneof dataBody &#123;</span><br><span class="line">        Student stuent = <span class="number">2</span>;</span><br><span class="line">        Worker worker = <span class="number">4</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message Student &#123; <span class="comment">//会在StudentPojo 外部类生成一个内部类Student，他是真正发送的pojo对象</span></span><br><span class="line">    int32 id = <span class="number">1</span>; <span class="comment">//Student类中有一个属性名字为ID，类型为int32（protobuf类型），1表示序号，不是值</span></span><br><span class="line">    string name = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line">message Worker &#123;</span><br><span class="line">    string name = <span class="number">1</span>;</span><br><span class="line">    int32 age = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这里面我们定义了<code>MyMessage</code>、<code>Student</code>、<code>Worker</code>三个对象</li>
+<li><code>MyMessage</code>里面持有了一个枚举类<code>DataType</code>和，<code>Student</code>、<code>Worker</code>这两个类对象中的其中一个。</li>
+<li>这样设计的目的是什么呢？当我们在发送对象时，设置<code>MyMessage</code>里面的对象的同时就可以给枚举赋值，这样当我们接收对象时，就可以根据枚举判断我们接受到哪个实例类了。</li>
+</ul>
+<h2 id="4-Netty-ProtoBuf编解码器"><a href="#4-Netty-ProtoBuf编解码器" class="headerlink" title="4. Netty ProtoBuf编解码器"></a>4. Netty ProtoBuf编解码器</h2><h3 id="4-1-发送端"><a href="#4-1-发送端" class="headerlink" title="4.1 发送端"></a>4.1 发送端</h3><ol>
+<li>需要给发送端的<code>pipeline</code>添加编码器：<code>ProtobufEncoder</code>。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">bootstrap.group(group)</span><br><span class="line">    .channel(NioSocketChannel<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">    .<span class="title">handler</span>(<span class="title">new</span> <span class="title">ChannelInitializer</span>&lt;<span class="title">SocketChannel</span>&gt;() </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            ChannelPipeline pipeline = ch.pipeline();</span><br><span class="line">            pipeline.addLast(<span class="string">"encoder"</span>, <span class="keyword">new</span> ProtobufEncoder());</span><br><span class="line">            pipeline.addLast(<span class="keyword">new</span> ProtoClientHandler());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>在发送时，如何<strong>构造一个具体对象</strong>呢？以上面复杂对象为例，我们主要构造的是<code>MyMessage</code>对象，设置里面的枚举属性，和对应的对象。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MyDataInfo.MyMessage build = MyDataInfo.MyMessage.</span><br><span class="line">    newBuilder().</span><br><span class="line">    setDataType(MyDataInfo.MyMessage.DateType.StudentType)</span><br><span class="line">    .setStuent(MyDataInfo.Student</span><br><span class="line">                        .newBuilder()</span><br><span class="line">               .setId(<span class="number">5</span>)</span><br><span class="line">               .setName(<span class="string">"王五"</span>)</span><br><span class="line">               .build())</span><br><span class="line">    .build();</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="4-2-接收端"><a href="#4-2-接收端" class="headerlink" title="4.2 接收端"></a>4.2 接收端</h3><ol>
+<li>需要在接收端添加解码器：<code>ProtobufDecoder</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">serverBootstrap.group(bossGroup, workerGroup)</span><br><span class="line">    .channel(NioServerSocketChannel<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">    .<span class="title">handler</span>(<span class="title">new</span> <span class="title">LoggingHandler</span>())</span></span><br><span class="line"><span class="class">    .<span class="title">option</span>(<span class="title">ChannelOption</span>.<span class="title">SO_BACKLOG</span>, 128)</span></span><br><span class="line"><span class="class">    .<span class="title">childOption</span>(<span class="title">ChannelOption</span>.<span class="title">SO_KEEPALIVE</span>, <span class="title">true</span>)</span></span><br><span class="line"><span class="class">    .<span class="title">childHandler</span>(<span class="title">new</span> <span class="title">ChannelInitializer</span>&lt;<span class="title">SocketChannel</span>&gt;() </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            ChannelPipeline pipeline = ch.pipeline();</span><br><span class="line">            <span class="comment">//需要指定对哪种对象进行解码</span></span><br><span class="line">            pipeline.addLast(<span class="string">"decoder"</span>, <span class="keyword">new</span> ProtobufDecoder(MyDataInfo.MyMessage.getDefaultInstance()));</span><br><span class="line">            pipeline.addLast(<span class="keyword">new</span> ProtoServerHandler());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>在接收对象时，我们就可以根据枚举变量去获取实例对象了。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">MyDataInfo.MyMessage message = (MyDataInfo.MyMessage) msg;</span><br><span class="line">MyDataInfo.MyMessage.DateType dataType = message.getDataType();</span><br><span class="line"></span><br><span class="line"><span class="keyword">switch</span> (dataType) &#123;</span><br><span class="line">    <span class="keyword">case</span> StudentType:</span><br><span class="line">        MyDataInfo.Student student = message.getStuent();</span><br><span class="line">        System.out.println(<span class="string">"学生Id = "</span> + student.getId() + student.getName());</span><br><span class="line">    <span class="keyword">case</span> WorkerType:</span><br><span class="line">        MyDataInfo.Worker worker = message.getWorker();</span><br><span class="line">        System.out.println(<span class="string">"工人：name = "</span> + worker.getName() + worker.getAge());</span><br><span class="line">    <span class="keyword">case</span> UNRECOGNIZED:</span><br><span class="line">        System.out.println(<span class="string">"输入的类型不正确"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<blockquote>
+<p> 本文档整理自 尚硅谷韩顺平Netty 相关课程。</p>
+</blockquote>
+<p><strong>参考博客 ：</strong> <a href="https://dongzl.github.io/netty-handbook/#/README" target="_blank" rel="noopener">https://dongzl.github.io/netty-handbook/#/README</a></p>
+<p><strong>idea 使用 protobuf 问题 ：</strong> <a href="https://www.cnblogs.com/liugh/p/7505533.html" target="_blank" rel="noopener">https://www.cnblogs.com/liugh/p/7505533.html</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/11/02/Netty/Netty-11-ProtoBuf/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ProtoBuf/" rel="tag">ProtoBuf</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/11/03/Leetcode/Leetcode-941-%E6%9C%89%E6%95%88%E7%9A%84%E5%B1%B1%E8%84%89%E6%95%B0%E7%BB%84/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Leetcode-941-有效的山脉数组
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/11/02/Netty/Netty-10-WebSocket/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Netty-10-WebSocket</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2020
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">数据库</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/travel/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

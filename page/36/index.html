@@ -75,6 +75,302 @@
     
     
     
+    <article id="post-JVM_Notes/JVM-06-内存分配" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/30/JVM_Notes/JVM-06-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"
+    >JVM-06-内存分配</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/01/30/JVM_Notes/JVM-06-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-date">
+  <time datetime="2020-01-30T02:38:38.000Z" itemprop="datePublished">2020-01-30</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JVM-06-内存分配"><a href="#JVM-06-内存分配" class="headerlink" title="JVM-06-内存分配"></a>JVM-06-内存分配</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>​    </p>
+<p>Java是自动进行内存管理的，所谓自动化就是，不需要程序员操心，Java会自动进行<strong>内存分配</strong>和<strong>内存回收</strong>这两方面。</p>
+<p>前面我们介绍过如何通过垃圾回收器来回收内存，那么这篇聊一聊如何进行内存分配。</p>
+<ul>
+<li>对象的分配，往大方向上讲，就是堆上进行分配（但是也有可能经过JIT编译后被差三位标量类型并间接在栈上分配）</li>
+<li>对象主要分配在新生代 Eden 区上，如果启动了本地线程分配缓冲，将按线程优先在 TLAB 上分配</li>
+<li>少数情况下也有可能直接分配在老年代上</li>
+<li>分配的规则并不是百分之百固定的，其细节取决于当前使用哪一种垃圾收集器组合，还有虚拟机中与内存相关的参数设置。</li>
+</ul>
+<p>本篇会介绍几条最普遍的内存分配规则。通过增加 -XX:+UseParallelGC 参数，表示使用的垃圾收集器是 Parallel Scavenge + Serial Old ，通过这两个垃圾收集器组合进行校验。</p>
+      
+      <a class="article-more-link" href="/2020/01/30/JVM_Notes/JVM-06-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-JVM_Notes/JVM-05-JVM参数" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/28/JVM_Notes/JVM-05-JVM%E5%8F%82%E6%95%B0/"
+    >JVM-05-JVM参数</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/01/28/JVM_Notes/JVM-05-JVM%E5%8F%82%E6%95%B0/" class="article-date">
+  <time datetime="2020-01-28T02:38:38.000Z" itemprop="datePublished">2020-01-28</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JVM-05-JVM参数"><a href="#JVM-05-JVM参数" class="headerlink" title="JVM-05-JVM参数"></a>JVM-05-JVM参数</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>详细参数配置：<a href="https://www.oracle.com/java/technologies/javase/vmoptions-jsp.html" target="_blank" rel="noopener">https://www.oracle.com/java/technologies/javase/vmoptions-jsp.html</a></p>
+<p>​    JVM参数有很多，其实我们直接使用默认的JVM参数，不去修改都可以满足大多数情况。</p>
+<p>​    但如果在有限的硬件资源下，部署的系统达到最大的运行效率，那么进行相关的JVM参数设置是必不可少的。</p>
+<p>​    下面我们就来对这些JVM参数进行详细的介绍。</p>
+<p>​    JVM参数主要分为以下几种（可以根据书写形式来区分）：</p>
+<h2 id="1-标准参数"><a href="#1-标准参数" class="headerlink" title="1. 标准参数"></a>1. 标准参数</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200519/090115287.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/01/28/JVM_Notes/JVM-05-JVM%E5%8F%82%E6%95%B0/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-JVM_Notes/JVM-04-垃圾收集器" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/27/JVM_Notes/JVM-04-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/"
+    >JVM-04-垃圾收集器</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/01/27/JVM_Notes/JVM-04-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" class="article-date">
+  <time datetime="2020-01-27T02:38:38.000Z" itemprop="datePublished">2020-01-27</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JVM-04-垃圾收集器"><a href="#JVM-04-垃圾收集器" class="headerlink" title="JVM-04-垃圾收集器"></a>JVM-04-垃圾收集器</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>上一篇介绍了几种常用的垃圾回收算法，包括标记-清除，标记整理，复制等，这些算法我们可以看做是内存回收的理论方法，那么在Java虚拟机中，由谁来具体实现这些方法呢？</p>
+<p>没错，就是本篇博客介绍的内容——垃圾收集器。</p>
+<h2 id="1-垃圾收集器的种类"><a href="#1-垃圾收集器的种类" class="headerlink" title="1. 垃圾收集器的种类"></a>1. 垃圾收集器的种类</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200518/104357156.png" alt="mark"></p>
+<p>由上图我们可以总结出几个结论：</p>
+      
+      <a class="article-more-link" href="/2020/01/27/JVM_Notes/JVM-04-%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-JVM_Notes/JVM-03-垃圾回收" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/26/JVM_Notes/JVM-03-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/"
+    >JVM-03-垃圾回收</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/01/26/JVM_Notes/JVM-03-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" class="article-date">
+  <time datetime="2020-01-26T02:38:38.000Z" itemprop="datePublished">2020-01-26</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JVM-03-垃圾回收"><a href="#JVM-03-垃圾回收" class="headerlink" title="JVM-03-垃圾回收"></a>JVM-03-垃圾回收</h1><h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><p>如果对C++这门语言熟悉的人，再来看Java，就会发现这两者对垃圾（内存）回收的策略有很大的不同。</p>
+<ul>
+<li>C++：垃圾回收很重要，我们必须要自己来回收！！！</li>
+<li>Java：垃圾回收很重要，我们必须交给系统来帮我们完成！！！</li>
+</ul>
+<p>我想这也能看出这两门语言设计者的心态吧，</p>
+<p><strong>总之，Java和C++之间有一堵由内存动态分布和垃圾回收技术所围成的高墙，墙外面的人想进去，墙里面的人想出来。</strong></p>
+<p>本篇我们就来详细介绍Java的垃圾回收策略。</p>
+      
+      <a class="article-more-link" href="/2020/01/26/JVM_Notes/JVM-03-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-JVM_Notes/JVM-02-运行时内存结构" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -552,314 +848,13 @@
 
 </article>
     
-    <article id="post-Leetcode/Leetcode-056-合并区间" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/12/Leetcode/Leetcode-056-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/"
-    >Leetcode-056-合并区间</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/12/12/Leetcode/Leetcode-056-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/" class="article-date">
-  <time datetime="2019-12-12T07:52:53.000Z" itemprop="datePublished">2019-12-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leecode-056-Merge-Intervals"><a href="#Leecode-056-Merge-Intervals" class="headerlink" title="Leecode-056-Merge Intervals"></a>Leecode-056-<a href="https://leetcode-cn.com/problems/merge-intervals/" target="_blank" rel="noopener">Merge Intervals</a></h1><h2 id="思路：分类讨论"><a href="#思路：分类讨论" class="headerlink" title="思路：分类讨论"></a>思路：分类讨论</h2><p><strong>题目描述：</strong></p>
-<p>给定一个二维数组，其中的元素表示一个区间，返回重叠的区间或者没有重叠的区间</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Input: [[1,3],[2,6],[8,10],[15,18]]</span><br><span class="line">Output: [[1,6],[8,10],[15,18]]</span><br><span class="line">Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].</span><br><span class="line"></span><br><span class="line">Input: [[1,4],[4,5]]</span><br><span class="line">Output: [[1,5]]</span><br><span class="line">Explanation: Intervals [1,4] and [4,5] are considered overlapping.</span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2019/12/12/Leetcode/Leetcode-056-%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-personal_server/MarkDown语法" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/12/personal_server/MarkDown%E8%AF%AD%E6%B3%95/"
-    >MarkDown语法</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/12/12/personal_server/MarkDown%E8%AF%AD%E6%B3%95/" class="article-date">
-  <time datetime="2019-12-12T07:02:24.000Z" itemprop="datePublished">2019-12-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MarkDown-语法（快速上手）"><a href="#MarkDown-语法（快速上手）" class="headerlink" title="MarkDown 语法（快速上手）"></a>MarkDown 语法（快速上手）</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Markdown是一种纯文本格式的标记语言。通过简单的标记语法，它可以使普通文本内容具有一定的格式。</p>
-<p><strong>优点：</strong></p>
-<p>1、因为是纯文本，所以只要支持Markdown的地方都能获得一样的编辑效果，可以让作者摆脱排版的困扰，专心写作。</p>
-<p>2、操作简单。比如:WYSIWYG编辑时标记个标题，先选中内容，再点击导航栏的标题按钮，选择几级标题。要三个步骤。而Markdown只需要在标题内容前加#即可</p>
-      
-      <a class="article-more-link" href="/2019/12/12/personal_server/MarkDown%E8%AF%AD%E6%B3%95/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MarkDown/" rel="tag">MarkDown</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Spring/Spring" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/01/Spring/Spring/"
-    >Spring</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/12/01/Spring/Spring/" class="article-date">
-  <time datetime="2019-12-01T07:02:24.000Z" itemprop="datePublished">2019-12-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="1、Spring"><a href="#1、Spring" class="headerlink" title="1、Spring"></a>1、Spring</h2><h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><ul>
-<li>Spring：春天—-&gt;给软件行业带来了春天！</li>
-<li>2002，首次推出了Spring框架的雏形：interface21框架！</li>
-<li>Spring框架即以interface21框架为基础，经过重新设计，并不断丰富内涵，于2004年3月24日，发布了1.0正式版。</li>
-<li><strong>Rod Johnson</strong>，Spring Framework创始人，著名作者。很难想象其学历，真的让好多人大吃一惊，他是悉尼大学的博士，然而他的专业不是计算机，而是音乐学。</li>
-<li>spring理念：使现有的技术更加容易使用，本身是一个大杂烩，整合了现有的技术框架。</li>
-<li><strong>SSH：Struct2+Spring+Hibernate!</strong></li>
-<li><strong>SSM：SpringMVC+Spring+Mybatis!</strong>
-      
-      <a class="article-more-link" href="/2019/12/01/Spring/Spring/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-SpringMVC/SpringMVC-文件上传下载" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/11/20/SpringMVC/SpringMVC-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/"
-    >SpringMVC-文件上传下载</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/11/20/SpringMVC/SpringMVC-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/" class="article-date">
-  <time datetime="2019-11-20T03:02:24.000Z" itemprop="datePublished">2019-11-20</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringMVC-文件上传下载"><a href="#SpringMVC-文件上传下载" class="headerlink" title="SpringMVC-文件上传下载"></a>SpringMVC-文件上传下载</h1><p>文件上传是项目开发中最常见的功能之一 ,springMVC 可以很好的支持文件上传，但是SpringMVC上下文中默认没有装配MultipartResolver，因此默认情况下其不能处理文件上传工作。如果想使用Spring的文件上传功能，则需要在上下文中配置MultipartResolver。</p>
-<p><strong>前端表单要求：为了能上传文件，必须将表单的method设置为POST，并将enctype设置为multipart/form-data。只有在这样的情况下，浏览器才会把用户选择的文件以二进制数据发送给服务器；</strong></p>
-<p><strong>对表单中的 enctype 属性做个详细的说明：</strong></p>
-<ul>
-<li>application/x-www=form-urlencoded：默认方式，只处理表单域中的value属性值，采用这种编码方式的表单会将表单域中的值处理成URL编码的方法</li>
-<li>multipart/form-data：这种编码的方式会以二进制流的方式来处理表单数据，这种编码方式会把文件域指定的文件内容也封装到请求参数中，不会对字符编码。</li>
-<li>text/plain:除了把空格转换成“+” 号外，其他字符都不做编码处理，这种方式适合直接通过表单发送邮件。</li>
-</ul>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">""</span> <span class="attr">enctype</span>=<span class="string">"multipart/form-data"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"file"</span> <span class="attr">name</span>=<span class="string">"file"</span>/&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"submit"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>一旦设置了enctype为multipart/form-data，浏览器即会采用二进制流的方式来处理表单数据，而对于文件上传的处理则涉及在服务器解析原始的HTTP响应。在2003年，Apache Software Foundation发布了开源的Commons FileUpload组件，其很快成为Servlet/JSP程序员上传文件的最佳选择。</p>
-<ul>
-<li>Servlet3.0规范已经提供方法来处理文件上传，但这种上传需要在Servlet中完成。</li>
-<li>而Spring MVC则提供了更简单的封装。</li>
-<li>Spring MVC为文件上传提供了直接的支持，这种支持是用即插即用的MultipartResolver实现的。</li>
-<li>Spring MVC使用Apache Commons FileUpload技术实现了一个MultipartResolver实现类：</li>
-<li>CommonsMultipartResolver。因此，SpringMVC的文件上传还需要依赖Apache Commons FileUpload的组件。</li>
-</ul>
-      
-      <a class="article-more-link" href="/2019/11/20/SpringMVC/SpringMVC-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B8%8B%E8%BD%BD/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/35/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/34/">34</a><a class="page-number" href="/page/35/">35</a><span class="page-number current">36</span><a class="page-number" href="/page/37/">37</a><a class="page-number" href="/page/38/">38</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/37/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/35/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/34/">34</a><a class="page-number" href="/page/35/">35</a><span class="page-number current">36</span><a class="page-number" href="/page/37/">37</a><a class="page-number" href="/page/38/">38</a><span class="space">&hellip;</span><a class="page-number" href="/page/44/">44</a><a class="extend next" rel="next" href="/page/37/">下一页</a>
   </nav>
   
 </section>
