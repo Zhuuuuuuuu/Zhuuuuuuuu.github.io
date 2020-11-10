@@ -75,6 +75,163 @@
     
     
     
+    <article id="post-Leetcode/Leetcode-031-下一个排列" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/10/Leetcode/Leetcode-031-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%8E%92%E5%88%97/"
+    >Leetcode-031-下一个排列</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/10/Leetcode/Leetcode-031-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%8E%92%E5%88%97/" class="article-date">
+  <time datetime="2020-11-10T02:52:53.000Z" itemprop="datePublished">2020-11-10</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-031-下一个排列"><a href="#Leecode-031-下一个排列" class="headerlink" title="Leecode-031-下一个排列"></a>Leecode-031-<a href="https://leetcode-cn.com/problems/next-permutation/" target="_blank" rel="noopener">下一个排列</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li><p>实现获取<strong>下一个排列的函数</strong>，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。</p>
+</li>
+<li><p>如果<strong>不存在下一个更大的排列</strong>，则将<strong>数字重新排列成最小的排列（即升序排列）。</strong></p>
+</li>
+<li><p>必须<strong><a href="https://baike.baidu.com/item/原地算法" target="_blank" rel="noopener">原地</a></strong>修改，只允许使用额外常数空间。</p>
+</li>
+</ul>
+<p>以下是一些例子，输入位于左侧列，其相应输出位于右侧列。<br><code>1,2,3</code> → <code>1,3,2</code><br><code>3,2,1</code> → <code>1,2,3</code><br><code>1,1,5</code> → <code>1,5,1</code></p>
+      
+      <a class="article-more-link" href="/2020/11/10/Leetcode/Leetcode-031-%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%8E%92%E5%88%97/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Netty/Netty-13-TCP粘包和拆包" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/08/Netty/Netty-13-TCP%E7%B2%98%E5%8C%85%E5%92%8C%E6%8B%86%E5%8C%85/"
+    >Netty-13-TCP粘包和拆包</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/08/Netty/Netty-13-TCP%E7%B2%98%E5%8C%85%E5%92%8C%E6%8B%86%E5%8C%85/" class="article-date">
+  <time datetime="2020-11-08T02:05:24.000Z" itemprop="datePublished">2020-11-08</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-13-TCP粘包和拆包"><a href="#Netty-13-TCP粘包和拆包" class="headerlink" title="Netty-13-TCP粘包和拆包"></a>Netty-13-TCP粘包和拆包</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>TCP是面向连接的，面向流的，提供高可靠性服务。</li>
+<li>收发两端（<strong>客户端和服务器端）</strong>都要有一一成对的socket，因此，发送端为了将多个发给接收端的包，更有效的发给对方，<strong>使用了优化方法（Nagle算法</strong>），将多次<strong>间隔较小且数据量小</strong>的数据，合并成一个大的数据块，然后进行封包。</li>
+<li>这样做虽然提高了效率，但是<strong>接收端就难于分辨出完整的数据包</strong>了，因为<strong>面向流的通信是无消息保护边界</strong>的</li>
+</ul>
+<p><strong>通常的解决方案</strong></p>
+<ol>
+<li><p><strong>发送端</strong>每发送一次消息，就需要在消息的内容之前<strong>携带消息的长度</strong></p>
+</li>
+<li><p>这样，<strong>接收方</strong>每次先接受消息的长度，再<strong>根据长度去读取消息剩余的元素</strong></p>
+</li>
+<li><p>如果 <code>socket</code> 中还有没有读取的内容，也只能放在下一次读取事件中读取</p>
+</li>
+</ol>
+      
+      <a class="article-more-link" href="/2020/11/08/Netty/Netty-13-TCP%E7%B2%98%E5%8C%85%E5%92%8C%E6%8B%86%E5%8C%85/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TCP/" rel="tag">TCP</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Leetcode/Leetcode-127-单词接龙" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -131,6 +288,78 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E5%90%91BFS/" rel="tag">双向BFS</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Netty/Netty-12-handler调用机制" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/05/Netty/Netty-12-handler%E8%B0%83%E7%94%A8%E6%9C%BA%E5%88%B6/"
+    >Netty-12-handler调用机制</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/05/Netty/Netty-12-handler%E8%B0%83%E7%94%A8%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2020-11-05T05:05:24.000Z" itemprop="datePublished">2020-11-05</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-12-handler调用机制"><a href="#Netty-12-handler调用机制" class="headerlink" title="Netty-12-handler调用机制"></a>Netty-12-handler调用机制</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>netty的组件设计：Netty的主要组件有<code>Channel、EventLoop、ChannelFuture、ChannelHandler、ChannelPipe</code>等</li>
+<li>我们先来复习一下<code>ChannelHandler</code>和<code>ChannelPipeline</code>的关系。示例图如下：我们可以将<code>pipeline</code>理解为一个双向链表，<code>ChannelHandlerContext</code>看作链表中的一个节点，<code>ChannelHandler</code>则为每个节点中保存的一个属性对象。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/123220946.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/11/05/Netty/Netty-12-handler%E8%B0%83%E7%94%A8%E6%9C%BA%E5%88%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/handler/" rel="tag">handler</a></li></ul>
 
 
     </footer>
@@ -572,219 +801,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Netty/Netty-09-心跳检测机制" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/02/Netty/Netty-09-%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"
-    >Netty-09-心跳检测机制</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/11/02/Netty/Netty-09-%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/" class="article-date">
-  <time datetime="2020-11-02T02:05:24.000Z" itemprop="datePublished">2020-11-02</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Netty-09-心跳检测机制"><a href="#Netty-09-心跳检测机制" class="headerlink" title="Netty-09-心跳检测机制"></a>Netty-09-心跳检测机制</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>实例要求</strong></p>
-<ul>
-<li>编写一个 Netty心跳检测机制案例, 当服务器超过3秒没有读时，就提示读空闲</li>
-<li>当服务器超过5秒没有写操作时，就提示写空闲</li>
-<li>实现当服务器超过7秒没有读或者写操作时，就提示读写空闲</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/11/02/Netty/Netty-09-%E5%BF%83%E8%B7%B3%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/操作系统-23-IO管理" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-23-IO%E7%AE%A1%E7%90%86/"
-    >操作系统-23-IO管理</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-23-IO%E7%AE%A1%E7%90%86/" class="article-date">
-  <time datetime="2020-11-01T03:00:53.000Z" itemprop="datePublished">2020-11-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="操作系统-23-IO管理"><a href="#操作系统-23-IO管理" class="headerlink" title="操作系统-23-IO管理"></a>操作系统-23-IO管理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>首先了解一下什么是IO 设备</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201101/112638277.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-23-IO%E7%AE%A1%E7%90%86/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/操作系统-22-磁盘调度算法" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-22-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/"
-    >操作系统-22-磁盘调度算法</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-22-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/" class="article-date">
-  <time datetime="2020-11-01T02:00:53.000Z" itemprop="datePublished">2020-11-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="操作系统-22-磁盘调度算法"><a href="#操作系统-22-磁盘调度算法" class="headerlink" title="操作系统-22-磁盘调度算法"></a>操作系统-22-磁盘调度算法</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201101/111815980.png" alt="mark"></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/114232317.jpg" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-22-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/" rel="tag">磁盘管理</a></li></ul>
 
 
     </footer>
