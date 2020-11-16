@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-Spring/Spring-04-自动装配" class="article article-type-post" itemscope
+  <article id="post-Spring/Spring-04-byNameType" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -53,7 +53,7 @@
 
     
     <div class="article-meta">
-      <a href="/2020/05/12/Spring/Spring-04-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D/" class="article-date">
+      <a href="/2020/05/12/Spring/Spring-04-byNameType/" class="article-date">
   <time datetime="2020-05-12T07:02:24.000Z" itemprop="datePublished">2020-05-12</time>
 </a>
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.6k字</span>
+            <span class="post-count">740字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">7分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -100,160 +100,82 @@
 
       
       <h1 id="Spring-04-自动装配"><a href="#Spring-04-自动装配" class="headerlink" title="Spring-04-自动装配"></a>Spring-04-自动装配</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
+<h2 id="1-自动装配说明"><a href="#1-自动装配说明" class="headerlink" title="1. 自动装配说明"></a>1. 自动装配说明</h2><ul>
+<li><strong>自动装配是使用spring满足bean依赖的一种方法</strong></li>
+<li><strong>spring会在应用上下文中为某个bean寻找其依赖的bean。</strong></li>
+</ul>
+<p><code>Spring</code>中<code>bean</code>有<strong>三种装配机制</strong>，分别是：</p>
+<ol>
+<li><strong>在xml中显式配置；</strong></li>
+<li><strong>在java中显式配置；</strong></li>
+<li><strong>隐式的bean发现机制和自动装配。（重要）</strong></li>
+</ol>
+<p><strong>这里我们主要讲第三种：自动化的装配bean</strong></p>
+<p><strong><code>Spring</code>的自动装配要从两个角度实现，或者说是两个操作</strong></p>
+<ol>
+<li><strong>组件扫描(component scanning)：spring会自动发现应用上下文中所创建的bean；</strong></li>
+<li><strong>自动装配(autowiring)：spring自动满足bean之间的依赖，也就是我们说的IoC/DI；</strong></li>
+<li>组件扫描和自动装配组合发挥巨大威力，使得显示的配置降低到最少。</li>
+</ol>
+<p><strong>注意：推荐不使用自动装配xml配置 , 而使用注解 .</strong></p>
+<p><strong>官方文档位置 ：</strong> <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-autowire" target="_blank" rel="noopener">https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-autowire</a></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201116/150916997.png" alt="mark"></p>
 <a id="more"></a>
 
-<h2 id="1-自动装配说明"><a href="#1-自动装配说明" class="headerlink" title="1. 自动装配说明"></a>1. 自动装配说明</h2><ul>
-<li>自动装配是使用spring满足bean依赖的一种方法</li>
-<li>spring会在应用上下文中为某个bean寻找其依赖的bean。</li>
-</ul>
-<p>Spring中bean有三种装配机制，分别是：</p>
-<ol>
-<li>在xml中显式配置；</li>
-<li>在java中显式配置；</li>
-<li>隐式的bean发现机制和自动装配。</li>
-</ol>
-<p>这里我们主要讲第三种：自动化的装配bean</p>
-<p>Spring的自动装配要从两个角度实现，或者说是两个操作</p>
-<ol>
-<li>组件扫描(component scanning)：spring会自动发现应用上下文中所创建的bean；</li>
-<li>自动装配(autowiring)：spring自动满足bean之间的依赖，也就是我们说的IoC/DI；</li>
-</ol>
-<p>组件扫描和自动装配组合发挥巨大威力，使得显示的配置降低到最少。</p>
-<p><strong>推荐不使用自动装配xml配置 , 而使用注解 .</strong></p>
+
+
+
+
 <h2 id="2-测试环境搭建"><a href="#2-测试环境搭建" class="headerlink" title="2. 测试环境搭建"></a>2. 测试环境搭建</h2><ol>
-<li>实体类 Dog.java/Cat.java</li>
+<li>实体类 <code>Dog.java/Cat.java</code></li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Cat</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shout</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       System.out.println(<span class="string">"miao~"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shout</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       System.out.println(<span class="string">"wang~"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>用户类User</li>
+<li>用户类<code>User</code></li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">   <span class="keyword">private</span> Cat cat;</span><br><span class="line">   <span class="keyword">private</span> Dog dog;</span><br><span class="line">   <span class="keyword">private</span> String str;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">   <span class="keyword">private</span> Cat cat;</span><br><span class="line">   <span class="keyword">private</span> Dog dog;</span><br><span class="line">   <span class="keyword">private</span> String str;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"User&#123;"</span> +</span><br><span class="line">              <span class="string">"cat="</span> + cat +</span><br><span class="line">              <span class="string">", dog="</span> + dog +</span><br><span class="line">              <span class="string">", str='"</span> + str + <span class="string">'\''</span> +</span><br><span class="line">              <span class="string">'&#125;'</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> Cat <span class="title">getCat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> cat;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setCat</span><span class="params">(Cat cat)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.cat = cat;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> Dog <span class="title">getDog</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> dog;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDog</span><span class="params">(Dog dog)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.dog = dog;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> String <span class="title">getStr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> str;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setStr</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.str = str;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="3">
-<li>编写Spring配置文件</li>
+<li><strong>编写Spring配置文件</strong></li>
 </ol>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;beans xmlns=<span class="string">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">      xmlns:xsi=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">      xsi:schemaLocation=<span class="string">"http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">       http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span><br><span class="line"></span><br><span class="line">   &lt;bean id=<span class="string">"dog"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.kuang.pojo.Dog"</span>/&gt;</span><br><span class="line">   &lt;bean id=<span class="string">"cat"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.kuang.pojo.Cat"</span>/&gt;</span><br><span class="line"></span><br><span class="line">   &lt;bean id=<span class="string">"user"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.zhuuu.pojo.User"</span>&gt;</span><br><span class="line">       &lt;property name=<span class="string">"cat"</span> ref=<span class="string">"cat"</span>/&gt;</span><br><span class="line">       &lt;property name=<span class="string">"dog"</span> ref=<span class="string">"dog"</span>/&gt;</span><br><span class="line">       &lt;property name=<span class="string">"str"</span> value=<span class="string">"朱酱酱"</span>/&gt;</span><br><span class="line">   &lt;/bean&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;beans xmlns=<span class="string">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">       xmlns:xsi=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">       xsi:schemaLocation=<span class="string">"http://www.springframework.org/schema/beans</span></span><br><span class="line"><span class="string">       http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean id=<span class="string">"dog"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"Dog"</span>/&gt;</span><br><span class="line">    &lt;bean id=<span class="string">"cat"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"Cat"</span>/&gt;</span><br><span class="line"></span><br><span class="line">    &lt;bean id=<span class="string">"user"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"User"</span>&gt;</span><br><span class="line">        &lt;property name=<span class="string">"cat"</span> ref=<span class="string">"cat"</span>/&gt;</span><br><span class="line">        &lt;property name=<span class="string">"dog"</span> ref=<span class="string">"dog"</span>/&gt;</span><br><span class="line">        &lt;property name=<span class="string">"str"</span> value=<span class="string">"朱酱酱"</span>/&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
 
 <ol start="4">
-<li>测试</li>
+<li><strong>测试</strong></li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyTest</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Test</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMethodAutowire</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"beans.xml"</span>);</span><br><span class="line">       User user = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line">       user.getCat().shout();</span><br><span class="line">       user.getDog().shout();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
 <h2 id="3-ByName-ByType"><a href="#3-ByName-ByType" class="headerlink" title="3. ByName/ByType"></a>3. ByName/ByType</h2><h3 id="3-1-ByName"><a href="#3-1-ByName" class="headerlink" title="3.1 ByName"></a>3.1 ByName</h3><p><strong>autowire byName (按名称自动装配)</strong></p>
-<p>由于在手动配置xml过程中，常常发生字母缺漏和大小写等错误，而无法对其进行检查，使得开发效率降低。</p>
-<p>采用自动装配将避免这些错误，并且使配置简单化。</p>
-<p><strong>小结：</strong></p>
-<p>当一个bean节点带有 autowire byName的属性时。</p>
 <ul>
-<li>将查找其类中所有的set方法名，例如setCat，获得将set去掉并且首字母 小写的字符串</li>
-<li>去spring容器中查找是否有此字符串的名称id对象</li>
-<li>如果有，就取出注入，没有就报空指针异常错误。</li>
+<li>由于在手动配置xml过程中，常常发生字母缺漏和大小写等错误，而无法对其进行检查，使得开发效率降低。</li>
+<li>采用自动装配将避免这些错误，并且使配置简单化。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201116/151224089.png" alt="mark"></p>
+<p><strong>小结：</strong></p>
+<p>当一个bean节点带有 <code>autowire byName</code>的属性时。</p>
+<ul>
+<li><strong>将查找其类中所有的set方法名，例如setCat，获得将set去掉并且首字母 小写的字符串</strong></li>
+<li><strong>去<code>spring</code>容器中查找是否有此字符串的名称<code>id</code>对象</strong></li>
+<li><strong>如果有，就取出注入，没有就报空指针异常错误。</strong></li>
 </ul>
 <h3 id="3-2-ByType"><a href="#3-2-ByType" class="headerlink" title="3.2 ByType"></a>3.2 ByType</h3><p><strong>autowire byType (按类型自动装配)</strong></p>
-<p>使用autowire byType首先需要保证：同一类型的对象，在spring容器中唯一。如果不唯一，会报不唯一的异常。</p>
+<ul>
+<li>使用<code>autowire byType</code>首先需要保证：<ul>
+<li><strong>同一类型的对象，在spring容器中唯一。如果不唯一，会报不唯一的异常。</strong></li>
+</ul>
+</li>
+</ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NoUniqueBeanDefinitionException</span><br></pre></td></tr></table></figure>
 
-
-
-<p>小结：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201116/151340006.png" alt="mark"></p>
+<p><strong>小结：</strong></p>
 <ul>
-<li>一个类只能出现一次注入（不然就会因重复而报错）</li>
-</ul>
-<h2 id="4-使用注解"><a href="#4-使用注解" class="headerlink" title="4. 使用注解"></a>4. 使用注解</h2><p>jdk1.5开始支持注解，spring2.5开始全面支持注解。</p>
-<p>准备工作：利用注解的方式注入属性。</p>
-<ol>
-<li>在spring配置文件中引入context文件头</li>
-</ol>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xmlns:context="http://www.springframework.org/schema/context"</span><br><span class="line"></span><br><span class="line">http://www.springframework.org/schema/context</span><br><span class="line">http://www.springframework.org/schema/context/spring-context.xsd</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>开启注解支持</li>
-</ol>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-1-AutoWired"><a href="#4-1-AutoWired" class="headerlink" title="4.1 @AutoWired"></a>4.1 @AutoWired</h3><ul>
-<li>@Autowired是按类型自动转配的，不支持id匹配。</li>
-<li>需要导入 spring-aop的包！</li>
-</ul>
-<ol>
-<li>将User类中的set方法去掉，使用@Autowired注解</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line">   <span class="keyword">private</span> Cat cat;</span><br><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line">   <span class="keyword">private</span> Dog dog;</span><br><span class="line">   <span class="keyword">private</span> String str;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> Cat <span class="title">getCat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> cat;</span><br><span class="line">  &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> Dog <span class="title">getDog</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> dog;</span><br><span class="line">  &#125;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> String <span class="title">getStr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> str;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>此时配置文件的内容</li>
-</ol>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="tag"><span class="string">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/context/spring-context.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--开启注解的支持--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dog"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Dog"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cat"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Cat"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"people"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.People"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>测试，成功输出结果！</li>
-</ol>
-<p>PS:</p>
-<p><code>@Autowired(required=false)</code></p>
-<ul>
-<li>false 说明对象可以是null</li>
-<li>true说明不能为null</li>
-</ul>
-<h3 id="4-2-Qualifiers"><a href="#4-2-Qualifiers" class="headerlink" title="4.2 @Qualifiers"></a>4.2 @Qualifiers</h3><ul>
-<li>@Autowired是根据类型自动装配的,加上@Qualifiers就可以根据byName方法自动装配</li>
-<li>@Qualifier不能单独使用。</li>
-</ul>
-<p>测试步骤</p>
-<ol>
-<li>配置文件修改内容，保证类型存在对象。且名字不为类的默认名字！</li>
-</ol>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dog1"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Dog"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dog2"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Dog"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cat1"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Cat"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cat2"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Cat"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>没有加Qualifier测试，直接报错</li>
-<li>在属性上添加Qualifier注解</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier</span>(value = <span class="string">"cat2"</span>)</span><br><span class="line"><span class="keyword">private</span> Cat cat;</span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier</span>(value = <span class="string">"dog2"</span>)</span><br><span class="line"><span class="keyword">private</span> Dog dog;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-3-Resource"><a href="#4-3-Resource" class="headerlink" title="4.3 @Resource"></a>4.3 @Resource</h3><ul>
-<li>@Resource如有指定的name属性，先按该属性进行byName方式查找装配；</li>
-<li>其次再进行默认的byName方式进行装配；</li>
-<li>如果以上都不成功，则按byType的方式自动装配。</li>
-<li>都不成功，则报异常</li>
-</ul>
-<ol>
-<li>实体类</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">   <span class="comment">//如果允许对象为null，设置required = false,默认为true</span></span><br><span class="line">   <span class="meta">@Resource</span>(name = <span class="string">"cat2"</span>)</span><br><span class="line">   <span class="keyword">private</span> Cat cat;</span><br><span class="line">   <span class="meta">@Resource</span></span><br><span class="line">   <span class="keyword">private</span> Dog dog;</span><br><span class="line">   <span class="keyword">private</span> String str;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>applicaionContext.xml</li>
-</ol>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dog"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Dog"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cat1"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Cat"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cat2"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Cat"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"user"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.User"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>测试：结果OK</p>
-<p>配置文件2：beans.xml ， 删掉cat2</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dog"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Dog"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cat1"</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.pojo.Cat"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>实体类上只保留注解</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> Cat cat;</span><br><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> Dog dog;</span><br></pre></td></tr></table></figure>
-
-<p>结果：OK</p>
-<p>结论：</p>
-<ul>
-<li>先进行byName查找</li>
-<li>失败了在进行byType查找</li>
-</ul>
-<h3 id="4-4-小结"><a href="#4-4-小结" class="headerlink" title="4.4 小结"></a>4.4 小结</h3><p>@Autowired与@Resource异同：</p>
-<ul>
-<li>@Autowired与@Resource都可以用来装配bean。都可以写在字段上，或写在setter方法上。</li>
-<li>@Autowired默认按类型装配（属于spring规范），默认情况下必须要求依赖对象必须存在，如果要允许null 值，可以设置它的required属性为false，如：@Autowired(required=false) ，如果我们想使用名称装配可以结合@Qualifier注解进行使用</li>
-<li>@Resource（属于J2EE复返），默认按照名称进行装配，名称可以通过name属性进行指定。如果没有指定name属性，当注解写在字段上时，默认取字段名进行按照名称查找，如果注解写在setter方法上默认取属性名进行装配。当找不到与名称匹配的bean时才按照类型进行装配。但是需要注意的是，如果name属性一旦指定，就只会按照名称进行装配。</li>
-<li>它们的作用相同都是用注解方式注入对象，但执行顺序不同。@Autowired先byType，@Resource先byName。</li>
+<li><strong>一个类只能出现一次注入（不然就会因重复而报错）</strong></li>
 </ul>
 
       
@@ -322,7 +244,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/05/12/Spring/Spring-04-%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/05/12/Spring/Spring-04-byNameType/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -340,11 +262,11 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/05/12/FileIO/IO-06-%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-nav-link">
+      <a href="/2020/05/12/FileIO/IO-07-%E9%9A%8F%E6%9C%BA%E8%AE%BF%E9%97%AE%E6%96%87%E4%BB%B6%E6%B5%81/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            IO-06-序列化和反序列化
+            IO-07-随机访问文件流
           
         </div>
       </a>
