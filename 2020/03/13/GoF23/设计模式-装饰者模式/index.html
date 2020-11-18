@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Mysql-09-索引 |  朱酱酱的学习博客
+    设计模式-装饰者模式 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-Mysql/Mysql-09-索引" class="article article-type-post" itemscope
+  <article id="post-GoF23/设计模式-装饰者模式" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Mysql-09-索引
+  设计模式-装饰者模式
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2019/02/21/Mysql/Mysql-09-%E7%B4%A2%E5%BC%95/" class="article-date">
-  <time datetime="2019-02-21T08:02:27.000Z" itemprop="datePublished">2019-02-21</time>
+      <a href="/2020/03/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/" class="article-date">
+  <time datetime="2020-03-13T07:02:24.000Z" itemprop="datePublished">2020-03-13</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">677字</span>
+            <span class="post-count">997字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -99,37 +99,94 @@
       
 
       
-      <h1 id="Mysql-09-索引"><a href="#Mysql-09-索引" class="headerlink" title="Mysql-09-索引"></a>Mysql-09-索引</h1><h2 id="1-页面管理"><a href="#1-页面管理" class="headerlink" title="1. 页面管理"></a>1. 页面管理</h2><ul>
-<li>CPU位数准确地说应该是CPU一次能够并行处理的数据宽度，一般就是指数据总线宽度</li>
-<li>页面的大小是4K</li>
+      <h1 id="设计模式-装饰者模式"><a href="#设计模式-装饰者模式" class="headerlink" title="设计模式-装饰者模式"></a>设计模式-装饰者模式</h1><h2 id="装饰者模式（Decorator）"><a href="#装饰者模式（Decorator）" class="headerlink" title="装饰者模式（Decorator）"></a>装饰者模式（Decorator）</h2><ul>
+<li>装饰者模式（<code>Decorator Pattern</code>）也称为包装模式（<code>Wrapper Pattern</code>），以透明动态的方式来动态扩展对象的功能，也是<strong>继承关系中一种代替方案</strong>。</li>
+<li><strong>装饰者模式与继承关系的目的都是要扩展对象的功能，但是装饰者模式可以提供比继承更多的灵活性。(减少代码的冗余)</strong></li>
+<li><strong>通过不同具体装饰类以及这些装饰类的排列组合，设计师可以创造出很多不同行为的组合。</strong></li>
 </ul>
-<p><a href="https://www.cnblogs.com/lfs2640666960/p/8550452.html" target="_blank" rel="noopener">https://www.cnblogs.com/lfs2640666960/p/8550452.html</a></p>
-<h3 id="1-1-mysql索引和页的关系"><a href="#1-1-mysql索引和页的关系" class="headerlink" title="1.1 mysql索引和页的关系"></a>1.1 mysql索引和页的关系</h3><ul>
-<li><p>B-tree，B是balance，一般用于数据库的索引。使用B-tree结构可以显著减少定位记录时所经历的中间过程，从而加快存取速度。而B+tree是B-tree的一个变种，<strong>MySQL就普遍使用B+tree实现其索引结构。</strong>　　</p>
-</li>
-<li><p>一般来说，索引本身也很大，不可能全部存储在内存中，<strong>因此索引往往以索引文件的形式存储的磁盘上。这样的话，索引查找过程中就要产生磁盘I/O消耗，相对于内存存取，I/O存取的消耗要高几个数量级，所以评价一个数据结构作为索引的优劣最重要的指标就是在查找过程中磁盘I/O操作次数的渐进复杂度</strong>。换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数。</p>
-</li>
-<li><p>为了达到这个目的，磁盘按需读取，<strong>要求每次都会预读的长度一般为页的整数倍。而且数据库系统将一个节点的大小设为等于一个页，这样每个节点只需要一次I/O就可以完全载入。</strong>每次新建节点时，直接申请一个页的空间，这样就保证一个节点物理上也存储在一个页里，加之计算机存储分配都是按页对齐的，就实现了一个node只需一次I/O。并把B-tree中的m值设的非常大，就会让树的高度降低，有利于一次完全载入。</p>
-</li>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/104532725.webp" alt="mark"></p>
+<ul>
+<li><code>Component:</code> 抽象组件（可以是抽象类或者接口），被装饰的原始对象</li>
+<li><code>ConcreteComponent</code>：具体的实现类，被装饰的具体对象</li>
+<li><code>Decorator</code> ： 抽象的装饰者，职责就是为了装饰我们的组件对象，内部一定要有一个指向组件的对象引用。</li>
+<li><code>ConcreteDecoratorA</code>：装饰者具体实现类，只对抽象装饰者做出具体实现</li>
+<li><code>ConcreteDecoratorB</code>：同上</li>
 </ul>
 <a id="more"></a>
 
 
 
-<h2 id="2-B-树索引分类"><a href="#2-B-树索引分类" class="headerlink" title="2. B+树索引分类"></a>2. B+树索引分类</h2><p>[参考博客][<a href="https://blog.csdn.net/kennyrose/article/details/7532032?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.edu_weight]" target="_blank" rel="noopener">https://blog.csdn.net/kennyrose/article/details/7532032?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.edu_weight&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.edu_weight]</a></p>
-<p>[面试题合集][<a href="https://blog.csdn.net/ThinkWon/article/details/104778621]" target="_blank" rel="noopener">https://blog.csdn.net/ThinkWon/article/details/104778621]</a></p>
+<h2 id="解决的问题"><a href="#解决的问题" class="headerlink" title="解决的问题"></a>解决的问题</h2><ol>
+<li><p><strong>在某些情况下我们可能会过度的使用继承来扩展对象的功能</strong>，由于继承为类型引入了静态的特质，使得这种扩展方式缺乏灵活性，</p>
+</li>
+<li><p>并且随着子类的增多（扩展功能的增多） <strong>各种子类的组合（扩展功能）会导致更多子类急剧的膨胀</strong></p>
+</li>
+</ol>
+<p><strong>装饰者模式定义：</strong></p>
 <ul>
-<li><p>首先要搞明白的是聚簇索引和非聚簇索引底层实现都是B+树，所以都叫做B+树索引</p>
+<li><p><strong>动态组合的给一个对象增加一些额外的职责</strong></p>
 </li>
-<li><p><strong>B+Tree结构都可以用在MyISAM和InnoDB上</strong>。</p>
+<li><p><strong>一般只有装饰者模式的装饰类才会既继承一个类又会组合一个类</strong></p>
 </li>
 </ul>
-<h3 id="2-1-非聚簇索引"><a href="#2-1-非聚簇索引" class="headerlink" title="2.1 非聚簇索引"></a>2.1 非聚簇索引</h3><ul>
-<li><code>MyISAM</code> 的是非聚簇索引，B<strong>+Tree的叶子节点上的data，并不是数据本身，而是数据存放的地址</strong></li>
+<p><strong>举个例子：</strong></p>
+<ol>
+<li>人定义为抽象类，有一个抽象方法<code>eat()</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>创建一个<code>NormalPerson</code>类继承<code>Person</code>，对<code>eat()</code>方法有了具体实现；</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NormalPerson</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"吃饭"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li>定义一个<code>PersonFood</code>类来表示装饰者的抽象类，保持了一个对<code>Person</code>的引用，可以方便调用<strong>具体被装饰的对象方法</strong>，这样就可以方便的对其进行扩展功能，并且不改变原类的层次结构。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonFood</span> <span class="keyword">extends</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Person person;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PersonFood</span><span class="params">(Person person)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.person = person;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        person.eat();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li>接着就是具体的装饰类了，这两个类没有本质上的区别，都是为了扩展<code>PersonFood</code>类，不修改原有类的方法和结构</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExpensiveFood</span> <span class="keyword">extends</span> <span class="title">PersonFood</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ExpensiveFood</span><span class="params">(Person person)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(person);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.eat();</span><br><span class="line">        eatSteak();</span><br><span class="line">        drinkRedWine();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eatSteak</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"吃牛排"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">drinkRedWine</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"喝拉菲"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CheapFood</span> <span class="keyword">extends</span> <span class="title">PersonFood</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CheapFood</span><span class="params">(Person person)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(person);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.eat();</span><br><span class="line">        eatNoodles();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eatNoodles</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"吃面条"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Client:测试</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        Person person = <span class="keyword">new</span> NormalPerson();</span><br><span class="line"></span><br><span class="line">        PersonFood cheapFood = <span class="keyword">new</span> CheapFood(person);</span><br><span class="line">        cheapFood.eat();</span><br><span class="line"></span><br><span class="line">        PersonFood expensiveFood = <span class="keyword">new</span> ExpensiveFood(person);</span><br><span class="line">        expensiveFood.eat();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>总结：</strong></p>
+<ul>
+<li><h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><ul>
+<li>装饰者模式与<strong>继承关系</strong>的目的都是要<strong>扩展对象的功能</strong>，但是装饰者模式可以提供比继承更多的灵活性。</li>
+<li>通过使用不同的具体装饰类以及这些装饰类的排列组合，设计师可以创造出很多不同行为的<strong>组合</strong>。</li>
 </ul>
-<h3 id="2-2-聚簇索引"><a href="#2-2-聚簇索引" class="headerlink" title="2.2 聚簇索引"></a>2.2 聚簇索引</h3><ul>
-<li>InnoDB的数据文件本身就是索引文件，<strong>B+Tree的叶子节点上的data就是数据本身</strong>，key为主键，这是聚簇索引。聚簇索引，叶子节点上的data是主键(所以聚簇索引的key，不能过长)。</li>
+</li>
 </ul>
+<p><strong>与代理模式的区别：</strong></p>
+<ul>
+<li>其实装饰着模式和代理模式很想，但两个目的不尽相同</li>
+<li>装饰者模式是以对客户端透明的方式扩展对象的功能，是继承关系的一个替代方案，目的是为了减少类的冗余</li>
+<li>代理模式是提供一个代理对象，并有代理对象来控制原来对象的引用。</li>
+<li>总而言之：代理模式是为了对代理对象进行控制，但不做功能的扩展；装饰者模式为本装饰的对象进行功能的扩展。</li>
+</ul>
+<p><strong>未使用装饰者模式和使用装饰者模式 类数量变化</strong></p>
+<ol>
+<li><strong>未使用</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201118/143213364.png" alt="mark"></p>
+<ol start="2">
+<li><strong>使用了装饰者模式</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201118/143250195.png" alt="mark"></p>
 
       
       <!-- reward -->
@@ -197,14 +254,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/02/21/Mysql/Mysql-09-%E7%B4%A2%E5%BC%95/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/03/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
 
 
     </footer>
@@ -215,19 +272,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2019/02/24/Mysql/Mysql-%E5%A4%87%E4%BB%BD/" class="article-nav-link">
+      <a href="/2020/03/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Mysql-备份
+            工厂模式
           
         </div>
       </a>
     
     
-      <a href="/2019/02/21/Mysql/Mysql-%E7%B4%A2%E5%BC%95/" class="article-nav-link">
+      <a href="/2020/03/12/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Mysql-索引</div>
+        <div class="article-nav-title">单例模式</div>
       </a>
     
   </nav>
