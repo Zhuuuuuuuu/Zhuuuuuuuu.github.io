@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">2.5k字</span>
+            <span class="post-count">2.7k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">11分钟</span>
+            <span class="post-count">12分钟</span>
         </span>
     </span>
 </div>
@@ -261,76 +261,104 @@
 </ul>
 </li>
 </ul>
-<h2 id="前序"><a href="#前序" class="headerlink" title="前序"></a>前序</h2><ul>
-<li>在spring4之后，想要使用注解形式，必须得要引入aop的包</li>
+<h2 id="前序（正式使用注解开发）"><a href="#前序（正式使用注解开发）" class="headerlink" title="前序（正式使用注解开发）"></a>前序（正式使用注解开发）</h2><ul>
+<li>在<code>spring4</code>之后，想要使用注解形式，必须得要引入<code>aop</code>的包</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200517/201802462.png" alt="mark"></p>
-<p>在配置文件当中，还得要引入一个context约束</p>
+<ul>
+<li>在配置文件当中，还得要引入一个<code>context</code>约束</li>
+</ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="tag"><span class="string">        https://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="tag"><span class="string">        http://www.springframework.org/schema/context/spring-context.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--开启注解的支持--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
 
 <!--more-->
 
 
 
-<h2 id="1-Bean的实现"><a href="#1-Bean的实现" class="headerlink" title="1. Bean的实现"></a>1. Bean的实现</h2><p>我们之前都是使用 bean 的标签进行bean注入，但是实际开发中，我们一般都会使用注解！</p>
+<p><strong>特别注意：</strong></p>
+<ul>
+<li><strong>上述所有内容都是为了实现正常开发使用注解的前奏铺垫</strong></li>
+<li><strong>以下内容才是真正使用注解开发的落地实现</strong></li>
+</ul>
+<h2 id="1-扫描包（不用在xml中配置Bean）"><a href="#1-扫描包（不用在xml中配置Bean）" class="headerlink" title="1. 扫描包（不用在xml中配置Bean）"></a>1. 扫描包（不用在xml中配置Bean）</h2><ul>
+<li>我们之前都是使用 bean 的标签进行bean注入，但是实际开发中，我们一般都会使用注解！</li>
+<li>这就是Bean的实例化（不用配置xml）</li>
+</ul>
 <ol>
-<li>配置扫描哪些包下的注解</li>
+<li><strong>配置扫描哪些包下的注解</strong></li>
 </ol>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--扫描包--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.zhuuu"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>在指定包下编写类，增加注解</li>
+<li><strong>在指定包下编写类，增加注解</strong></li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Scope;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价于在applicationContext.xml写了一个bean</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> String name = <span class="string">"朱酱酱"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Scope;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个@Component 注解等价于 写了一行xml代码 &lt;bean id = "user" class = "pojo.User"/&gt;</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String name = <span class="string">"朱酱酱"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
 <ol start="3">
-<li>测试</li>
+<li><strong>测试(使用的bean的 id 是类名的小写)</strong></li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mytest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line"></span><br><span class="line">        User user = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(user.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mytest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line">        User user = (User) context.getBean(<span class="string">"user"</span>);</span><br><span class="line">        System.out.println(user.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="2-属性注入"><a href="#2-属性注入" class="headerlink" title="2. 属性注入"></a>2. 属性注入</h2><p>使用注解注入属性</p>
+<h2 id="2-属性注入-property-注入"><a href="#2-属性注入-property-注入" class="headerlink" title="2. 属性注入(property 注入)"></a>2. 属性注入(property 注入)</h2><ul>
+<li><strong>使用注解注入属性(property name = “” …)</strong></li>
+</ul>
 <ol>
-<li>可以不使用Set方法，直接在属性上增加@Value(“值”)</li>
+<li><strong>可以不使用<code>Set</code>方法，直接在属性上增加<code>@Value(&quot;值&quot;)</code></strong></li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(<span class="string">"user"</span>)</span><br><span class="line"><span class="comment">// 相当于配置文件中 &lt;bean id="user" class="当前注解的类"/&gt;</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Value</span>(<span class="string">"朱酱酱"</span>)</span><br><span class="line">   <span class="comment">// 相当于配置文件中 &lt;property name="name" value="秦疆"/&gt;</span></span><br><span class="line">   <span class="keyword">public</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(<span class="string">"user"</span>)</span><br><span class="line"><span class="comment">// 相当于配置文件中 &lt;bean id="user" class="当前注解的类"/&gt;</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">   <span class="meta">@Value</span>(<span class="string">"朱酱酱"</span>)</span><br><span class="line">   <span class="comment">// 相当于配置文件中 &lt;property name="name" value="朱酱酱"/&gt;</span></span><br><span class="line">   <span class="keyword">public</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>如果提供了set方法，在set方法上添加@value(“值”);</li>
+<li><strong>如果提供了<code>set</code>方法，在<code>set</code>方法上添加<code>@value(&quot;值&quot;);</code></strong></li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(<span class="string">"user"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"朱酱酱"</span>)</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">this</span>.name = name;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="3-衍生注解"><a href="#3-衍生注解" class="headerlink" title="3. 衍生注解"></a>3. 衍生注解</h2><p><strong>@Component三个衍生注解</strong></p>
-<p>为了更好的进行分层，Spring可以使用其它三个注解，功能一样，目前使用哪一个功能都一样。</p>
+<h2 id="3-衍生注解-MVC-三层分类"><a href="#3-衍生注解-MVC-三层分类" class="headerlink" title="3. 衍生注解(MVC 三层分类)"></a>3. 衍生注解(MVC 三层分类)</h2><p><strong>@Component三个衍生注解</strong></p>
+<p><strong>为了更好的进行分层，Spring可以使用其它三个注解，功能一样，目前使用哪一个功能都一样。</strong></p>
 <ul>
-<li>@Controller：web层</li>
-<li>@Service：service层</li>
-<li>@Repository：dao层</li>
+<li><strong><code>@Controller：web层</code></strong></li>
+<li><strong><code>@Service：service层</code></strong></li>
+<li><strong>@Repository：dao层</strong></li>
 </ul>
-<p>写上这些注解，就相当于将这个类交给Spring管理装配了</p>
-<h2 id="4-作用域"><a href="#4-作用域" class="headerlink" title="4. 作用域"></a>4. 作用域</h2><p><strong>@scope</strong></p>
+<p><strong>写上这些注解，就相当于将这个类交给Spring管理装配了</strong></p>
+<p><strong>重要说明</strong></p>
 <ul>
-<li>singleton：默认的，Spring会采用单例模式创建这个对象。关闭工厂 ，所有的对象都会销毁。</li>
-<li>prototype：多例模式。关闭工厂 ，所有的对象不会销毁。内部的垃圾回收机制会回收</li>
+<li><strong><code>@Controller：web层</code></strong></li>
+<li><strong><code>@Service：service层</code></strong></li>
+<li><strong>@Repository：dao层</strong></li>
+<li><strong>这三个注解本质作用就是为了不写 <code>&lt;bean id = xxx class = &quot;xxx&quot;&gt;</code></strong></li>
+<li>并且这四个注解的功能是一模一样的</li>
+</ul>
+<h2 id="4-自动装配Bean-Autowired"><a href="#4-自动装配Bean-Autowired" class="headerlink" title="4. 自动装配Bean(@Autowired)"></a>4. 自动装配Bean(@Autowired)</h2><ul>
+<li><strong>见上</strong></li>
+</ul>
+<h2 id="5-作用域（-Scope）"><a href="#5-作用域（-Scope）" class="headerlink" title="5. 作用域（@Scope）"></a>5. 作用域（@Scope）</h2><p><strong>@scope</strong></p>
+<ul>
+<li><code>singleton：</code>默认的，Spring会采用单例模式创建这个对象。关闭工厂 ，所有的对象都会销毁。</li>
+<li><code>prototype：</code>多例模式。关闭工厂 ，所有的对象不会销毁。内部的垃圾回收机制会回收</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 等价于在applicationContext.xml写了一个bean</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="comment">// 作用域</span></span><br><span class="line"><span class="meta">@Scope</span>(<span class="string">"singleton"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"朱酱酱"</span>)</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-<h2 id="5-小结"><a href="#5-小结" class="headerlink" title="5. 小结"></a>5. 小结</h2><p><strong>XML与注解比较</strong></p>
+
+
+
+<h2 id="6-小结"><a href="#6-小结" class="headerlink" title="6. 小结"></a>6. 小结</h2><p><strong>XML与注解比较</strong></p>
 <ul>
-<li>XML可以适用任何场景 ，结构清晰，维护方便</li>
-<li>注解不是自己提供的类使用不了，开发简单方便</li>
+<li><strong><code>XML</code>可以适用任何场景 ，结构清晰，维护方便</strong></li>
+<li><strong>注解不是自己提供的类使用不了，开发简单方便</strong></li>
 </ul>
 <p><strong>最佳配合</strong></p>
 <ul>
-<li>xml管理bean</li>
-<li>注解完成属性的注入</li>
-<li>使用过程中，扫描主街上的类</li>
+<li><strong><code>xml</code>管理<code>bean</code></strong></li>
+<li><strong>注解完成属性的注入</strong></li>
+<li><strong>使用过程中，只需要注意一个问题,要让注解生效 ：开启注解支持/ 扫描包</strong></li>
 </ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br></pre></td></tr></table></figure>
 
@@ -341,7 +369,9 @@
 <li>如果不扫描包，就需要手动配置bean</li>
 <li>如果不加注解驱动，则注入的值为null</li>
 </ul>
-<h2 id="6-基于Java类进行配置"><a href="#6-基于Java类进行配置" class="headerlink" title="6. 基于Java类进行配置"></a>6. 基于Java类进行配置</h2><p>JavaConfig 原来是 Spring 的一个子项目，它通过 Java 类的方式提供 Bean 的定义信息，在 Spring4 的版本， JavaConfig 已正式成为 Spring4 的核心功能 。</p>
+<h2 id="7-基于Java类进行配置-非常重要"><a href="#7-基于Java类进行配置-非常重要" class="headerlink" title="7. 基于Java类进行配置(非常重要)"></a>7. 基于Java类进行配置(非常重要)</h2><ul>
+<li><code>JavaConfig</code> 原来是 Spring 的一个子项目，它通过 Java 类的方式提供<code>Bean</code> 的定义信息，在 <code>Spring4</code>的版本，<code>JavaConfig</code>已正式成为<code>Spring4</code> 的核心功能 。</li>
+</ul>
 <p><strong>这个作用就可以完全避免配置applicationContext.xml</strong></p>
 <ol>
 <li>编写一个实体类User(本质就是一个Bean)</li>
