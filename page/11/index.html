@@ -75,6 +75,161 @@
     
     
     
+    <article id="post-Redis/Redis-16-Redis分布式" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/"
+    >Redis-16-Redis分布式</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/" class="article-date">
+  <time datetime="2020-08-22T10:32:24.000Z" itemprop="datePublished">2020-08-22</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Redis-16-Redis分布式"><a href="#Redis-16-Redis分布式" class="headerlink" title="Redis-16-Redis分布式"></a>Redis-16-Redis分布式</h1><h2 id="1-为什么用Redis"><a href="#1-为什么用Redis" class="headerlink" title="1. 为什么用Redis?"></a>1. 为什么用Redis?</h2><ol>
+<li>单线程的redis为什么这么快??</li>
+</ol>
+<p><strong>分析</strong>:这个问题其实是对redis内部机制的一个考察。</p>
+<p><strong>回答</strong>:主要是以下三点<br>(一)纯内存操作<br>(二)单线程操作，避免了频繁的上下文切换<br>(三)采用了非阻塞<strong>I/O多路复用机制</strong></p>
+<p><strong>关于Redis的 I/O多路复用：</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-154227633.png" alt="mark"></p>
+<ul>
+<li>参照上图，简单来说，就是。我们的redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。</li>
+<li>需要说明的是，这个I/O多路复用机制，redis还提供了<code>select、epoll、evport、kqueue</code>等多路复用函数库</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">Redis分布式</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Redis/Redis-15-mysql和redis缓存不一致" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/"
+    >Redis-15-mysql和redis缓存不一致</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/" class="article-date">
+  <time datetime="2020-08-22T10:32:24.000Z" itemprop="datePublished">2020-08-22</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Redis-15-mysql和redis缓存不一致"><a href="#Redis-15-mysql和redis缓存不一致" class="headerlink" title="Redis-15-mysql和redis缓存不一致"></a>Redis-15-mysql和redis缓存不一致</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><p>这实际上是个“如果要做的足够精致是非常难的“问题。缓存失效被称为计算机科学里最难的两个问题之一（另外一个是起名字）。</p>
+</li>
+<li><p>先对本题一致性做个说明。这里的不一致是指：假如一个数据访问者同时读取Redis和DB，他能在一段时间里发现二者不一样。</p>
+</li>
+<li><p><strong>不错，如果一份数据放在DB，然后copy到Redis，然后改DB，那么Redis是不会自己魔幻般同步变更的。</strong></p>
+</li>
+<li><p><strong>必须有某种机制告诉Redis该变了。这些机制包括（但不仅仅限于）：</strong></p>
+</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/" rel="tag">mysql和redis缓存不一致</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Dubbo/Dubbo-01-调用过程" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -595,83 +750,6 @@
 
 </article>
     
-    <article id="post-distributed/分布式-脑裂问题" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/17/distributed/%E5%88%86%E5%B8%83%E5%BC%8F-%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98/"
-    >分布式-脑裂问题</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/17/distributed/%E5%88%86%E5%B8%83%E5%BC%8F-%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98/" class="article-date">
-  <time datetime="2020-08-17T09:38:38.000Z" itemprop="datePublished">2020-08-17</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="分布式-脑裂问题"><a href="#分布式-脑裂问题" class="headerlink" title="分布式-脑裂问题"></a>分布式-脑裂问题</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>这是分布式系统中一个很实际的问题，书上说的不是很详细，整理总结一下。</li>
-</ul>
-<h2 id="1-脑裂和假死"><a href="#1-脑裂和假死" class="headerlink" title="1. 脑裂和假死"></a>1. 脑裂和假死</h2><h3 id="1-1-脑裂"><a href="#1-1-脑裂" class="headerlink" title="1.1 脑裂"></a>1.1 脑裂</h3><ul>
-<li>官方定义：当一个集群的不同部分在同一时间都认为自己是活动的时候，我们就可以将这个现象称为脑裂症状。</li>
-<li>通俗的说，就是比如当你的 cluster 里面有两个结点，它们都知道在这个 cluster 里需要选举出一个 master。那么当它们两之间的通信完全没有问题的时候，就会达成共识，选出其中一个作为 master。</li>
-<li>但是如果它们之间的通信出了问题，那么两个结点都会觉得现在没有 master，所以每个都把自己选举成 master。于是 cluster 里面就会有两个 master。</li>
-</ul>
-<p><strong>举例：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200922/223556058.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/08/17/distributed/%E5%88%86%E5%B8%83%E5%BC%8F-%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Zookeeper/" rel="tag">Zookeeper</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
     <article id="post-Zookeeper/ZooKeeper-01-脑裂问题" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -733,72 +811,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Zookeeper/" rel="tag">Zookeeper</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mysql/Mysql-XX-Mysql面试总结" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/17/Mysql/Mysql-XX-Mysql%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/"
-    >Mysql-XX-Mysql面试总结</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/17/Mysql/Mysql-XX-Mysql%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93/" class="article-date">
-  <time datetime="2020-08-17T08:02:27.000Z" itemprop="datePublished">2020-08-17</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Mysql-XX-Mysql面试总结"><a href="#Mysql-XX-Mysql面试总结" class="headerlink" title="Mysql-XX-Mysql面试总结"></a>Mysql-XX-Mysql面试总结</h1><p><a href="https://www.jianshu.com/p/c189439fb32e" target="_blank" rel="noopener">https://www.jianshu.com/p/c189439fb32e</a> <strong>一定要看</strong></p>
-
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
 
 
     </footer>
