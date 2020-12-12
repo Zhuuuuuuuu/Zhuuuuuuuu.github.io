@@ -75,6 +75,343 @@
     
     
     
+    <article id="post-SpringMVC/SpringMVC-数据处理" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/05/SpringMVC/SpringMVC-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/"
+    >SpringMVC-数据处理</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/11/05/SpringMVC/SpringMVC-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/" class="article-date">
+  <time datetime="2019-11-05T09:02:24.000Z" itemprop="datePublished">2019-11-05</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="SpringMVC-数据处理"><a href="#SpringMVC-数据处理" class="headerlink" title="SpringMVC-数据处理"></a>SpringMVC-数据处理</h1><h2 id="1-处理提交数据"><a href="#1-处理提交数据" class="headerlink" title="1. 处理提交数据"></a>1. 处理提交数据</h2><p><strong>1、提交的域名称和处理方法的参数名一致</strong></p>
+<p>提交数据 : <a href="http://localhost/" target="_blank" rel="noopener">http://localhost</a>:8080/hello?name=zhuuu</p>
+<p>处理方法 :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(String name)</span></span>&#123;</span><br><span class="line">    System.out.println(name);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>后台输出：zhuuu</p>
+<p><strong>2、提交的域名称和处理方法的参数名不一致</strong></p>
+<p>提交数据 : <a href="http://localhost/" target="_blank" rel="noopener">http://localhost</a>:8080/hello?username=zhuuu</p>
+<p>处理方法 :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(@RequestParam(<span class="string">"username"</span>)</span> String name)</span>&#123;</span><br><span class="line">    System.out.println(name);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3、提交的是一个对象</strong></p>
+<p>要求提交的表单域和对象的属性名一致 , 参数使用对象即可</p>
+<ol>
+<li>实体类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="comment">//构造</span></span><br><span class="line">    <span class="comment">//get/set</span></span><br><span class="line">    <span class="comment">//tostring()</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>提交数据 : <a href="http://localhost/" target="_blank" rel="noopener">http://localhost</a>:8080/mvc04/user?name=zhuuu&amp;id=1&amp;age=15</li>
+<li>处理方法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/user"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">user</span><span class="params">(User user)</span></span>&#123;</span><br><span class="line">    System.out.println(user);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>后台输出：User(id=1,name=”zhuuu”,age=15)</strong></p>
+<p><strong>说明：如果使用对象的话，前端传递的参数名和对象名必须一致，否则就是null。</strong></p>
+<h2 id="2-数据显示到前端"><a href="#2-数据显示到前端" class="headerlink" title="2. 数据显示到前端"></a>2. 数据显示到前端</h2><p><strong>第一种 : 通过ModelAndView</strong></p>
+<p>我们前面一直都是如此 . 就不过多解释</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ControllerTest1</span> <span class="keyword">implements</span> <span class="title">Controller</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ModelAndView <span class="title">handleRequest</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//返回一个模型视图对象</span></span><br><span class="line">        ModelAndView mv = <span class="keyword">new</span> ModelAndView();</span><br><span class="line">        mv.addObject(<span class="string">"msg"</span>,<span class="string">"ControllerTest1"</span>);</span><br><span class="line">        mv.setViewName(<span class="string">"test"</span>);</span><br><span class="line">        <span class="keyword">return</span> mv;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二种 : 通过ModelMap</strong></p>
+<p>ModelMap</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(@RequestParam(<span class="string">"username"</span>)</span> String name, ModelMap model)</span>&#123;</span><br><span class="line">    <span class="comment">//封装要显示到视图中的数据</span></span><br><span class="line">    <span class="comment">//相当于req.setAttribute("name",name);</span></span><br><span class="line">    model.addAttribute(<span class="string">"name"</span>,name);</span><br><span class="line">    System.out.println(name);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>第三种 : 通过Model</strong></p>
+<p>Model</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/ct2/hello"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(@RequestParam(<span class="string">"username"</span>)</span> String name, Model model)</span>&#123;</span><br><span class="line">    <span class="comment">//封装要显示到视图中的数据</span></span><br><span class="line">    <span class="comment">//相当于req.setAttribute("name",name);</span></span><br><span class="line">    model.addAttribute(<span class="string">"msg"</span>,name);</span><br><span class="line">    System.out.println(name);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"test"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-1-三种方式对比"><a href="#2-1-三种方式对比" class="headerlink" title="2.1 三种方式对比"></a>2.1 三种方式对比</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Model 只有寥寥几个方法只适合用于储存数据，简化了新手对于Model对象的操作和理解；</span><br><span class="line"></span><br><span class="line">ModelMap 继承了 LinkedMap ，除了实现了自身的一些方法，同样的继承 LinkedMap 的方法和特性；</span><br><span class="line"></span><br><span class="line">ModelAndView 可以在储存数据的同时，可以进行设置返回的逻辑视图，进行控制展示层的跳转。</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-SpringMVC/SpringMVC-整合SSM" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/05/SpringMVC/SpringMVC-%E6%95%B4%E5%90%88SSM/"
+    >SpringMVC-整合SSM</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/11/05/SpringMVC/SpringMVC-%E6%95%B4%E5%90%88SSM/" class="article-date">
+  <time datetime="2019-11-05T07:02:24.000Z" itemprop="datePublished">2019-11-05</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="整合SSM：书籍管理系统"><a href="#整合SSM：书籍管理系统" class="headerlink" title="整合SSM：书籍管理系统"></a>整合SSM：书籍管理系统</h1><h2 id="1-环境要求"><a href="#1-环境要求" class="headerlink" title="1. 环境要求"></a>1. 环境要求</h2><p>环境：</p>
+<ul>
+<li>IDEA</li>
+<li>MySQL 5.7.19</li>
+<li>Tomcat 9</li>
+<li>Maven 3.6</li>
+</ul>
+<p>要求：</p>
+<ul>
+<li>需要熟练掌握MySQL数据库，Spring，JavaWeb及MyBatis知识，简单的前端知识；</li>
+</ul>
+<h3 id="1-1-数据库环境"><a href="#1-1-数据库环境" class="headerlink" title="1.1 数据库环境"></a>1.1 数据库环境</h3><p>创建一个存放书籍数据的数据库表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">CREATE DATABASE &#96;ssmbuild&#96;;</span><br><span class="line"></span><br><span class="line">USE &#96;ssmbuild&#96;;</span><br><span class="line"></span><br><span class="line">DROP TABLE IF EXISTS &#96;books&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;books&#96; (</span><br><span class="line">&#96;bookID&#96; INT(10) NOT NULL AUTO_INCREMENT COMMENT &#39;书id&#39;,</span><br><span class="line">&#96;bookName&#96; VARCHAR(100) NOT NULL COMMENT &#39;书名&#39;,</span><br><span class="line">&#96;bookCounts&#96; INT(11) NOT NULL COMMENT &#39;数量&#39;,</span><br><span class="line">&#96;detail&#96; VARCHAR(200) NOT NULL COMMENT &#39;描述&#39;,</span><br><span class="line">KEY &#96;bookID&#96; (&#96;bookID&#96;)</span><br><span class="line">) ENGINE&#x3D;INNODB DEFAULT CHARSET&#x3D;utf8</span><br><span class="line"></span><br><span class="line">INSERT  INTO &#96;books&#96;(&#96;bookID&#96;,&#96;bookName&#96;,&#96;bookCounts&#96;,&#96;detail&#96;)VALUES </span><br><span class="line">(1,&#39;Java&#39;,1,&#39;从入门到放弃&#39;),</span><br><span class="line">(2,&#39;MySQL&#39;,10,&#39;从删库到跑路&#39;),</span><br><span class="line">(3,&#39;Linux&#39;,5,&#39;从进门到进牢&#39;);</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2019/11/05/SpringMVC/SpringMVC-%E6%95%B4%E5%90%88SSM/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-SpringMVC/SpringMVC-结果跳转方式" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/04/SpringMVC/SpringMVC-%E7%BB%93%E6%9E%9C%E8%B7%B3%E8%BD%AC%E6%96%B9%E5%BC%8F/"
+    >SpringMVC-结果跳转方式</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/11/04/SpringMVC/SpringMVC-%E7%BB%93%E6%9E%9C%E8%B7%B3%E8%BD%AC%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time datetime="2019-11-04T07:02:24.000Z" itemprop="datePublished">2019-11-04</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="SpringMVC-结果跳转方式"><a href="#SpringMVC-结果跳转方式" class="headerlink" title="SpringMVC-结果跳转方式"></a>SpringMVC-结果跳转方式</h1><h2 id="1-ModelAndView"><a href="#1-ModelAndView" class="headerlink" title="1. ModelAndView"></a>1. ModelAndView</h2><p>设置ModelAndView对象 , 根据view的名称 , 和视图解析器跳到指定的页面 .</p>
+<p>页面 : {视图解析器前缀} + viewName +{视图解析器后缀}</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 视图解析器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.view.InternalResourceViewResolver"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">id</span>=<span class="string">"internalResourceViewResolver"</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 前缀 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"prefix"</span> <span class="attr">value</span>=<span class="string">"/WEB-INF/jsp/"</span> /&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 后缀 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"suffix"</span> <span class="attr">value</span>=<span class="string">".jsp"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>对应的Controller类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ControllerTest1</span> <span class="keyword">implements</span> <span class="title">Controller</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ModelAndView <span class="title">handleRequest</span><span class="params">(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//返回一个模型视图对象</span></span><br><span class="line">        ModelAndView mv = <span class="keyword">new</span> ModelAndView();</span><br><span class="line">        mv.addObject(<span class="string">"msg"</span>,<span class="string">"ControllerTest1"</span>);</span><br><span class="line">        mv.setViewName(<span class="string">"test"</span>);</span><br><span class="line">        <span class="keyword">return</span> mv;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2019/11/04/SpringMVC/SpringMVC-%E7%BB%93%E6%9E%9C%E8%B7%B3%E8%BD%AC%E6%96%B9%E5%BC%8F/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-SpringMVC/SpringMVC-Restful风格" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/03/SpringMVC/SpringMVC-Restful%E9%A3%8E%E6%A0%BC/"
+    >SpringMVC-Restful风格</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/11/03/SpringMVC/SpringMVC-Restful%E9%A3%8E%E6%A0%BC/" class="article-date">
+  <time datetime="2019-11-03T07:02:24.000Z" itemprop="datePublished">2019-11-03</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Restful风格"><a href="#Restful风格" class="headerlink" title="Restful风格"></a>Restful风格</h1><h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h2><p>​    Restful就是一个资源定位及资源操作的风格。不是标准也不是协议，只是一种风格。基于这个风格设计的软件可以更简洁，更有层次，更易于实现缓存等机制。</p>
+<h2 id="2-功能"><a href="#2-功能" class="headerlink" title="2. 功能"></a>2. 功能</h2><ul>
+<li>资源：互联网所有的事物都可以被抽象为资源</li>
+<li>资源操作：使用POST、DELETE、PUT、GET，使用不同方法对资源进行操作。</li>
+<li>分别对应 添加、 删除、修改、查询。</li>
+</ul>
+      
+      <a class="article-more-link" href="/2019/11/03/SpringMVC/SpringMVC-Restful%E9%A3%8E%E6%A0%BC/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-SpringMVC/SpringMVC-HelloSpringMVC" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -506,293 +843,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AD%BB%E9%94%81/" rel="tag">死锁</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-JavaInterview/Java-基础-注解和反射" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/10/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%B3%A8%E8%A7%A3%E5%92%8C%E5%8F%8D%E5%B0%84/"
-    >Java-基础-注解和反射</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/10/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%B3%A8%E8%A7%A3%E5%92%8C%E5%8F%8D%E5%B0%84/" class="article-date">
-  <time datetime="2019-10-12T09:38:38.000Z" itemprop="datePublished">2019-10-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="注解和反射"><a href="#注解和反射" class="headerlink" title="注解和反射"></a>注解和反射</h1><h2 id="1-注解"><a href="#1-注解" class="headerlink" title="1. 注解"></a>1. 注解</h2><h3 id="1-1-注解的简介"><a href="#1-1-注解的简介" class="headerlink" title="1.1 注解的简介"></a>1.1 注解的简介</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200310171835.png" alt=""></p>
-<h3 id="1-2-常见内置注解"><a href="#1-2-常见内置注解" class="headerlink" title="1.2 常见内置注解"></a>1.2 常见内置注解</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200310172715.png" alt=""></p>
-      
-      <a class="article-more-link" href="/2019/10/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E6%B3%A8%E8%A7%A3%E5%92%8C%E5%8F%8D%E5%B0%84/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8D%E5%B0%84/" rel="tag">反射</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B3%A8%E8%A7%A3/" rel="tag">注解</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-JavaInterview/Java-基础-面向对象三大特性" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/10/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7/"
-    >Java-基础-面向对象三大特性</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/10/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7/" class="article-date">
-  <time datetime="2019-10-12T09:38:38.000Z" itemprop="datePublished">2019-10-12</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Java-基础-面向对象三大特性"><a href="#Java-基础-面向对象三大特性" class="headerlink" title="Java-基础-面向对象三大特性"></a>Java-基础-面向对象三大特性</h1><h2 id="1-封装"><a href="#1-封装" class="headerlink" title="1. 封装"></a>1. 封装</h2><p>1、概念：</p>
-<p>　　<strong>将类的某些信息隐藏在类内部，不允许外部程序直接访问</strong>，而是通过该类提供的方法来实现对隐藏信息的操作和访问。</p>
-<p>2、好处：</p>
-<ul>
-<li>只能通过规定的方法访问数据。</li>
-<li>隐藏类的实例细节，方便修改和实现。　</li>
-</ul>
-<p><strong>3、封装的实现步骤</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200901/171418537.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2019/10/12/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E4%B8%89%E5%A4%A7%E7%89%B9%E6%80%A7/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E6%80%81/" rel="tag">多态</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%81%E8%A3%85/" rel="tag">封装</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%A7%E6%89%BF/" rel="tag">继承</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mysql/JDBC-详细解析" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/27/Mysql/JDBC-%E8%AF%A6%E7%BB%86%E8%A7%A3%E6%9E%90/"
-    >JDBC</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/09/27/Mysql/JDBC-%E8%AF%A6%E7%BB%86%E8%A7%A3%E6%9E%90/" class="article-date">
-  <time datetime="2019-09-27T08:02:27.000Z" itemprop="datePublished">2019-09-27</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="JDBC"><a href="#JDBC" class="headerlink" title="JDBC"></a>JDBC</h1><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200228170325.png" alt=""></p>
-<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>Sun公司为了简化开发人员的（对数据库统一）的操作，提供了一个（java操作数据库的）规范，俗称JDBC。</p>
-<p>这些规范的实现由具体的厂商去做。</p>
-<p>对于开发人员来说，只需要掌握JDBC接口即可</p>
-      
-      <a class="article-more-link" href="/2019/09/27/Mysql/JDBC-%E8%AF%A6%E7%BB%86%E8%A7%A3%E6%9E%90/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDBC/" rel="tag">JDBC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Mysql/JDBC-详解" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/27/Mysql/JDBC-%E8%AF%A6%E8%A7%A3/"
-    >JDBC</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2019/09/27/Mysql/JDBC-%E8%AF%A6%E8%A7%A3/" class="article-date">
-  <time datetime="2019-09-27T08:02:27.000Z" itemprop="datePublished">2019-09-27</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="JDBC"><a href="#JDBC" class="headerlink" title="JDBC"></a>JDBC</h1><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200228170325.png" alt=""></p>
-<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>Sun公司为了简化开发人员的（对数据库统一）的操作，提供了一个（java操作数据库的）规范，俗称JDBC。</p>
-<p>这些规范的实现由具体的厂商去做。</p>
-<p>对于开发人员来说，只需要掌握JDBC接口即可</p>
-      
-      <a class="article-more-link" href="/2019/09/27/Mysql/JDBC-%E8%AF%A6%E8%A7%A3/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDBC/" rel="tag">JDBC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
 
 
     </footer>
