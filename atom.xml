@@ -407,36 +407,6 @@
   </entry>
   
   <entry>
-    <title>设计模式-观察者模式</title>
-    <link href="http://zhuuu.work/2020/11/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/"/>
-    <id>http://zhuuu.work/2020/11/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</id>
-    <published>2020-11-13T07:02:24.000Z</published>
-    <updated>2020-11-16T09:50:42.843Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="设计模式-观察者模式"><a href="#设计模式-观察者模式" class="headerlink" title="设计模式-观察者模式"></a>设计模式-观察者模式</h1><h4 id="观察者模式（Obersver）"><a href="#观察者模式（Obersver）" class="headerlink" title="观察者模式（Obersver）"></a>观察者模式（Obersver）</h4><ul><li><strong>观察者模式是使用频率非常高的模式了，它定义了对象间一种一对多的关系，使得每当一个对象改变状态，则所有依赖它的对象都会收到通知，并且自动更新。</strong></li><li><strong>例如：<code>Java</code>中的监听器<code>Listener</code>用的就是观察者模式。</strong></li></ul><p><strong>UML类图：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/094333516.png" alt="mark"></p><ul><li><strong><code>Subject:</code> 具有注册和移除观察者，并且通知观察者的功能，主体是通过某种数据结构（可能是列表）来维护一张观察者列表实现这些操作的。</strong></li><li><strong>观察者（<code>Observer</code>）的注册功能需要调用主体的<code>registerObserver()</code>方法。</strong></li></ul><a id="more"></a><p><strong>实现：</strong></p><ul><li>开发<strong>技术周报</strong>，每周会更新一些内容，但是不知道具体的更新时间，又想第一时间阅读更新内容。</li><li>难道要一直按住<code>F5</code>等它更新么？那估计<code>F5</code>烂了可能都没有更新。其实我们只需要简单的订阅一下就好，当有新的内容更新的时候，会发邮件到你订阅的邮箱中。</li></ul><p>上述例子中：</p><ul><li>订阅者就是观察者，技术周报就是被观察者</li></ul><p><strong>代码实现：</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Observable;</span><br><span class="line"><span class="keyword">import</span> java.util.Observer;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 观察者：程序员</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Coder</span> <span class="keyword">implements</span> <span class="title">Observer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Coder</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(Observable o, Object arg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"收到的更新内容为"</span> + o);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 被观察者：主体（开发周报）</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Weekly</span> <span class="keyword">extends</span> <span class="title">Observable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一对多的通知</span></span><br><span class="line">    <span class="keyword">private</span> ArrayList&lt;Observer&gt; observers = <span class="keyword">new</span> ArrayList&lt;Observer&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 增加一个观察者</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(Observer observer)</span> </span>&#123;</span><br><span class="line">        observers.add(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除一个观察者</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unsubscribe</span><span class="params">(Observer observer)</span> </span>&#123;</span><br><span class="line">        observers.remove(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notifyObservers</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">        observers.forEach(observer -&gt; observer.update(<span class="string">"数据更新了"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>JDK中自带的观察者模式的类</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/103921192.png" alt="mark"></p><ul><li><strong>在<code>java.util</code> 包中内置了<code>Observer</code> 和 <code>observable</code>类,同时<code>Observable</code>类实现了注册和反注册等方法，使用起来方便很多。可见观察者模式是非常重要的。</strong></li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Observable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> changed = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">private</span> Vector&lt;java.util.Observer&gt; obs;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Observable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        obs = <span class="keyword">new</span> Vector&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">addObserver</span><span class="params">(Observer o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (o == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        <span class="keyword">if</span> (!obs.contains(o)) &#123;</span><br><span class="line">            obs.addElement(o);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反注册</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">deleteObserver</span><span class="params">(Observer o)</span> </span>&#123;</span><br><span class="line">        obs.removeElement(o);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反注册所有观察者</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">deleteObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        obs.removeAllElements();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通知更新</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notifyObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        notifyObservers(<span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通知更新</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notifyObservers</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">        Object[] arrLocal;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!changed)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            arrLocal = obs.toArray();</span><br><span class="line">            clearChanged();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = arrLocal.length-<span class="number">1</span>; i&gt;=<span class="number">0</span>; i--)</span><br><span class="line">            ((Observer)arrLocal[i]).update(<span class="keyword">this</span>, arg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">setChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        changed = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">clearChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        changed = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">hasChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> changed;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">countObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> obs.size();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ul><li><strong><code>Observer</code>接口则是比较简单的代码</strong>，<code>update()</code>的参数中除了可以传递数据意外，还提供了被观察者的引用对象。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> */</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Observer</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * This method is called whenever the observed object is changed. An</span></span><br><span class="line"><span class="comment">     * application calls an &lt;tt&gt;Observable&lt;/tt&gt; object's</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;notifyObservers&lt;/code&gt; method to have all the object's</span></span><br><span class="line"><span class="comment">     * observers notified of the change.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   o     the observable object.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   arg   an argument passed to the &lt;code&gt;notifyObservers&lt;/code&gt;</span></span><br><span class="line"><span class="comment">     *                 method.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">(Observable o, Object arg)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>JDK中的实现：</strong></p><ul><li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Observer.html" target="_blank" rel="noopener">java.util.Observer</a></li><li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/EventListener.html" target="_blank" rel="noopener">java.util.EventListener</a></li><li><a href="http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpSessionBindingListener.html" target="_blank" rel="noopener">javax.servlet.http.HttpSessionBindingListener</a></li><li><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="noopener">RxJava</a></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;设计模式-观察者模式&quot;&gt;&lt;a href=&quot;#设计模式-观察者模式&quot; class=&quot;headerlink&quot; title=&quot;设计模式-观察者模式&quot;&gt;&lt;/a&gt;设计模式-观察者模式&lt;/h1&gt;&lt;h4 id=&quot;观察者模式（Obersver）&quot;&gt;&lt;a href=&quot;#观察者模式（Obersver）&quot; class=&quot;headerlink&quot; title=&quot;观察者模式（Obersver）&quot;&gt;&lt;/a&gt;观察者模式（Obersver）&lt;/h4&gt;&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;观察者模式是使用频率非常高的模式了，它定义了对象间一种一对多的关系，使得每当一个对象改变状态，则所有依赖它的对象都会收到通知，并且自动更新。&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;例如：&lt;code&gt;Java&lt;/code&gt;中的监听器&lt;code&gt;Listener&lt;/code&gt;用的就是观察者模式。&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;UML类图：&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/094333516.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;&lt;code&gt;Subject:&lt;/code&gt; 具有注册和移除观察者，并且通知观察者的功能，主体是通过某种数据结构（可能是列表）来维护一张观察者列表实现这些操作的。&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;观察者（&lt;code&gt;Observer&lt;/code&gt;）的注册功能需要调用主体的&lt;code&gt;registerObserver()&lt;/code&gt;方法。&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="设计模式" scheme="http://zhuuu.work/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
     <title>设计模式-模板方法模式</title>
     <link href="http://zhuuu.work/2020/11/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/"/>
     <id>http://zhuuu.work/2020/11/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</id>
@@ -462,6 +432,36 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;定义一个操作中的算法的骨架（稳定） ,而将一些步骤（变化）延迟到子类中。&lt;/strong&gt;&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Template Method 使得子类可以不改变（复用）一个算法的结构即可（Override 重写）该算法某些特定的步骤&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="设计模式" scheme="http://zhuuu.work/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>设计模式-观察者模式</title>
+    <link href="http://zhuuu.work/2020/11/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/"/>
+    <id>http://zhuuu.work/2020/11/13/GoF23/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</id>
+    <published>2020-11-13T07:02:24.000Z</published>
+    <updated>2020-11-16T09:50:42.843Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="设计模式-观察者模式"><a href="#设计模式-观察者模式" class="headerlink" title="设计模式-观察者模式"></a>设计模式-观察者模式</h1><h4 id="观察者模式（Obersver）"><a href="#观察者模式（Obersver）" class="headerlink" title="观察者模式（Obersver）"></a>观察者模式（Obersver）</h4><ul><li><strong>观察者模式是使用频率非常高的模式了，它定义了对象间一种一对多的关系，使得每当一个对象改变状态，则所有依赖它的对象都会收到通知，并且自动更新。</strong></li><li><strong>例如：<code>Java</code>中的监听器<code>Listener</code>用的就是观察者模式。</strong></li></ul><p><strong>UML类图：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/094333516.png" alt="mark"></p><ul><li><strong><code>Subject:</code> 具有注册和移除观察者，并且通知观察者的功能，主体是通过某种数据结构（可能是列表）来维护一张观察者列表实现这些操作的。</strong></li><li><strong>观察者（<code>Observer</code>）的注册功能需要调用主体的<code>registerObserver()</code>方法。</strong></li></ul><a id="more"></a><p><strong>实现：</strong></p><ul><li>开发<strong>技术周报</strong>，每周会更新一些内容，但是不知道具体的更新时间，又想第一时间阅读更新内容。</li><li>难道要一直按住<code>F5</code>等它更新么？那估计<code>F5</code>烂了可能都没有更新。其实我们只需要简单的订阅一下就好，当有新的内容更新的时候，会发邮件到你订阅的邮箱中。</li></ul><p>上述例子中：</p><ul><li>订阅者就是观察者，技术周报就是被观察者</li></ul><p><strong>代码实现：</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Observable;</span><br><span class="line"><span class="keyword">import</span> java.util.Observer;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 观察者：程序员</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Coder</span> <span class="keyword">implements</span> <span class="title">Observer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Coder</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(Observable o, Object arg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"收到的更新内容为"</span> + o);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 被观察者：主体（开发周报）</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Weekly</span> <span class="keyword">extends</span> <span class="title">Observable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一对多的通知</span></span><br><span class="line">    <span class="keyword">private</span> ArrayList&lt;Observer&gt; observers = <span class="keyword">new</span> ArrayList&lt;Observer&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 增加一个观察者</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(Observer observer)</span> </span>&#123;</span><br><span class="line">        observers.add(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除一个观察者</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unsubscribe</span><span class="params">(Observer observer)</span> </span>&#123;</span><br><span class="line">        observers.remove(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notifyObservers</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">        observers.forEach(observer -&gt; observer.update(<span class="string">"数据更新了"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>JDK中自带的观察者模式的类</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/103921192.png" alt="mark"></p><ul><li><strong>在<code>java.util</code> 包中内置了<code>Observer</code> 和 <code>observable</code>类,同时<code>Observable</code>类实现了注册和反注册等方法，使用起来方便很多。可见观察者模式是非常重要的。</strong></li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Observable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> changed = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">private</span> Vector&lt;java.util.Observer&gt; obs;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Observable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        obs = <span class="keyword">new</span> Vector&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">addObserver</span><span class="params">(Observer o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (o == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        <span class="keyword">if</span> (!obs.contains(o)) &#123;</span><br><span class="line">            obs.addElement(o);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反注册</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">deleteObserver</span><span class="params">(Observer o)</span> </span>&#123;</span><br><span class="line">        obs.removeElement(o);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反注册所有观察者</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">deleteObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        obs.removeAllElements();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通知更新</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notifyObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        notifyObservers(<span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通知更新</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notifyObservers</span><span class="params">(Object arg)</span> </span>&#123;</span><br><span class="line">        Object[] arrLocal;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!changed)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            arrLocal = obs.toArray();</span><br><span class="line">            clearChanged();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = arrLocal.length-<span class="number">1</span>; i&gt;=<span class="number">0</span>; i--)</span><br><span class="line">            ((Observer)arrLocal[i]).update(<span class="keyword">this</span>, arg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">setChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        changed = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">clearChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        changed = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">hasChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> changed;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">countObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> obs.size();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ul><li><strong><code>Observer</code>接口则是比较简单的代码</strong>，<code>update()</code>的参数中除了可以传递数据意外，还提供了被观察者的引用对象。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> */</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Observer</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * This method is called whenever the observed object is changed. An</span></span><br><span class="line"><span class="comment">     * application calls an &lt;tt&gt;Observable&lt;/tt&gt; object's</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;notifyObservers&lt;/code&gt; method to have all the object's</span></span><br><span class="line"><span class="comment">     * observers notified of the change.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   o     the observable object.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   arg   an argument passed to the &lt;code&gt;notifyObservers&lt;/code&gt;</span></span><br><span class="line"><span class="comment">     *                 method.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">(Observable o, Object arg)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>JDK中的实现：</strong></p><ul><li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Observer.html" target="_blank" rel="noopener">java.util.Observer</a></li><li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/EventListener.html" target="_blank" rel="noopener">java.util.EventListener</a></li><li><a href="http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpSessionBindingListener.html" target="_blank" rel="noopener">javax.servlet.http.HttpSessionBindingListener</a></li><li><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="noopener">RxJava</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;设计模式-观察者模式&quot;&gt;&lt;a href=&quot;#设计模式-观察者模式&quot; class=&quot;headerlink&quot; title=&quot;设计模式-观察者模式&quot;&gt;&lt;/a&gt;设计模式-观察者模式&lt;/h1&gt;&lt;h4 id=&quot;观察者模式（Obersver）&quot;&gt;&lt;a href=&quot;#观察者模式（Obersver）&quot; class=&quot;headerlink&quot; title=&quot;观察者模式（Obersver）&quot;&gt;&lt;/a&gt;观察者模式（Obersver）&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;观察者模式是使用频率非常高的模式了，它定义了对象间一种一对多的关系，使得每当一个对象改变状态，则所有依赖它的对象都会收到通知，并且自动更新。&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;例如：&lt;code&gt;Java&lt;/code&gt;中的监听器&lt;code&gt;Listener&lt;/code&gt;用的就是观察者模式。&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;UML类图：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200624/094333516.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;Subject:&lt;/code&gt; 具有注册和移除观察者，并且通知观察者的功能，主体是通过某种数据结构（可能是列表）来维护一张观察者列表实现这些操作的。&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;观察者（&lt;code&gt;Observer&lt;/code&gt;）的注册功能需要调用主体的&lt;code&gt;registerObserver()&lt;/code&gt;方法。&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
     
     </summary>
@@ -697,11 +697,11 @@
     
     
     
-      <category term="WebSocket" scheme="http://zhuuu.work/tags/WebSocket/"/>
-    
       <category term="Netty" scheme="http://zhuuu.work/tags/Netty/"/>
     
       <category term="NIO" scheme="http://zhuuu.work/tags/NIO/"/>
+    
+      <category term="WebSocket" scheme="http://zhuuu.work/tags/WebSocket/"/>
     
   </entry>
   
@@ -863,9 +863,9 @@
     
     
     
-      <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
-    
       <category term="WebSocket" scheme="http://zhuuu.work/tags/WebSocket/"/>
+    
+      <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
     
   </entry>
   
@@ -1409,9 +1409,9 @@
     
     
     
-      <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1483,9 +1483,9 @@
     
     
     
-      <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1638,9 +1638,9 @@
     
     
     
-      <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1712,9 +1712,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -1735,9 +1735,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -1759,9 +1759,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -1810,9 +1810,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
   </entry>
   
@@ -2221,9 +2221,9 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
   </entry>
   
@@ -2260,9 +2260,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -2317,9 +2317,9 @@
     
     
     
-      <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
-    
       <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
+    
+      <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
     
   </entry>
   
@@ -2381,9 +2381,9 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
   </entry>
   
@@ -2475,9 +2475,9 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
   </entry>
   
@@ -2539,13 +2539,13 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
   </entry>
   
@@ -2571,9 +2571,9 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
       <category term="分库分表" scheme="http://zhuuu.work/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/"/>
     
@@ -2599,9 +2599,9 @@
     
     
     
-      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
-    
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+      <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
       <category term="分库分表" scheme="http://zhuuu.work/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/"/>
     
@@ -2633,11 +2633,11 @@
     
     
     
-      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
-    
       <category term="ClassLoader" scheme="http://zhuuu.work/tags/ClassLoader/"/>
     
       <category term="双亲委派" scheme="http://zhuuu.work/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE/"/>
+    
+      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
     
   </entry>
   
@@ -2692,9 +2692,9 @@
     
     
     
-      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
-    
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
     
       <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
@@ -2878,40 +2878,6 @@
   </entry>
   
   <entry>
-    <title>剑指offer--41-数据流中的中位数</title>
-    <link href="http://zhuuu.work/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/"/>
-    <id>http://zhuuu.work/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</id>
-    <published>2020-08-26T07:15:53.000Z</published>
-    <updated>2020-09-09T04:23:13.723Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="剑指offer–41-数据流中的中位数"><a href="#剑指offer–41-数据流中的中位数" class="headerlink" title="剑指offer–41-数据流中的中位数"></a>剑指offer–41-<a href="https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/" target="_blank" rel="noopener">数据流中的中位数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p><p>例如，</p><p>[2,3,4] 的中位数是 3</p><p>[2,3] 的中位数是 (2 + 3) / 2 = 2.5</p><p>设计一个支持以下两种操作的数据结构：</p><ul><li>void addNum(int num) - 从数据流中添加一个整数到数据结构中。</li><li>double findMedian() - 返回目前所有元素的中位数。</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[1],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,null,1.50000,null,2.00000]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,2.00000,null,2.50000]</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="思路-两个堆"><a href="#思路-两个堆" class="headerlink" title="思路 : 两个堆"></a><strong>思路 : 两个堆</strong></h2><p><strong>待优化的思路1：快排</strong></p><ul><li>其中位数的计算方法：首先对数组执行排序（使用O<em>(</em>N<em>log</em>N) 时间），然后返回中间元素即可（使用 O(1)时间）。</li><li>针对本题，根据以上思路，可以将数据流保存在一个列表中，并在添加元素时 保持数组有序 。此方法的时间复杂度为 O(N)，其中包括： 查找元素插入位置O(logN) （二分查找）、向数组某位置插入元素 O(N) （插入位置之后的元素都需要向后移动一位）。</li></ul><p><strong>思路2： 两个堆</strong></p><ul><li>事实上，我们只关心在中间的那两个数（或者一个数），其它数没有必要进行 “比较” 和 “交换” 的操作。</li><li>在我们学习过的数据结构里，堆就有类似的性质，每次都从堆里得到一个 “最值” 而其它元素无需排序，这样就可以以O(logN) 的复杂度每次都从堆中取出最值。</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111604101.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111617276.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111821068.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-112110039.png" alt="mark"></p><p><strong>总结：</strong></p><ul><li><strong>为了找到添加新数据以后，数据流的中位数，我们让这个新数据在大顶堆和小顶堆中都走了一遍。而为了让大顶堆的元素多 1 个，我们让从小顶堆中又拿出一个元素“送回”给大顶堆；</strong></li><li>将元素放入优先队列以后，优先队列会以对数时间复杂度自行调整，把“最优值”放入堆顶，这是使用优先队列解决这个问题的原因。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当前大顶堆和小顶堆的元素个数之和</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;Integer&gt; maxheap;</span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;Integer&gt; minheap;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * initialize your data structure here.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MedianFinder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">        maxheap = <span class="keyword">new</span> PriorityQueue&lt;&gt;((x, y) -&gt; y - x);</span><br><span class="line">        minheap = <span class="keyword">new</span> PriorityQueue&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        count += <span class="number">1</span>;</span><br><span class="line">        maxheap.offer(num);</span><br><span class="line">        minheap.add(maxheap.poll());</span><br><span class="line">        <span class="comment">// 如果两个堆合起来的元素个数是奇数，小顶堆要拿出堆顶元素给大顶堆</span></span><br><span class="line">        <span class="keyword">if</span> ((count &amp; <span class="number">1</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            maxheap.add(minheap.poll());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ((count &amp; <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果两个堆合起来的元素个数是偶数，数据流的中位数就是各自堆顶元素的平均值</span></span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">double</span>) (maxheap.peek() + minheap.peek()) / <span class="number">2</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果两个堆合起来的元素个数是奇数，数据流的中位数大顶堆的堆顶元素</span></span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">double</span>) maxheap.peek();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析：</strong></p><ul><li><strong>时间复杂度：</strong>O(logN) 优先队列的出队入队操作都是对数级别的，数据在两个堆中间来回操作是常数级别的，综上时间复杂度是 O(logN) 级别的。</li><li><strong>空间复杂度：</strong>O(N) 占用堆的大小</li></ul>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;剑指offer–41-数据流中的中位数&quot;&gt;&lt;a href=&quot;#剑指offer–41-数据流中的中位数&quot; class=&quot;headerlink&quot; title=&quot;剑指offer–41-数据流中的中位数&quot;&gt;&lt;/a&gt;剑指offer–41-&lt;a href=&quot;https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;数据流中的中位数&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;p&gt;如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。&lt;/p&gt;
-&lt;p&gt;例如，&lt;/p&gt;
-&lt;p&gt;[2,3,4] 的中位数是 3&lt;/p&gt;
-&lt;p&gt;[2,3] 的中位数是 (2 + 3) / 2 = 2.5&lt;/p&gt;
-&lt;p&gt;设计一个支持以下两种操作的数据结构：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;void addNum(int num) - 从数据流中添加一个整数到数据结构中。&lt;/li&gt;
-&lt;li&gt;double findMedian() - 返回目前所有元素的中位数。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例 1：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[&amp;quot;MedianFinder&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[[],[1],[2],[],[3],[]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[null,null,null,1.50000,null,2.00000]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 2：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[&amp;quot;MedianFinder&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[[],[2],[],[3],[]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[null,null,2.00000,null,2.50000]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
-      <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
-    
-      <category term="剑指offer" scheme="http://zhuuu.work/tags/%E5%89%91%E6%8C%87offer/"/>
-    
-  </entry>
-  
-  <entry>
     <title>剑指offer--40-最小的K个数</title>
     <link href="http://zhuuu.work/2020/08/26/offer/%E5%89%91%E6%8C%87offer--40-%E6%9C%80%E5%B0%8F%E7%9A%84K%E4%B8%AA%E6%95%B0/"/>
     <id>http://zhuuu.work/2020/08/26/offer/%E5%89%91%E6%8C%87offer--40-%E6%9C%80%E5%B0%8F%E7%9A%84K%E4%B8%AA%E6%95%B0/</id>
@@ -2942,6 +2908,40 @@
       <category term="剑指offer" scheme="http://zhuuu.work/tags/%E5%89%91%E6%8C%87offer/"/>
     
       <category term="优先队列" scheme="http://zhuuu.work/tags/%E4%BC%98%E5%85%88%E9%98%9F%E5%88%97/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>剑指offer--41-数据流中的中位数</title>
+    <link href="http://zhuuu.work/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/"/>
+    <id>http://zhuuu.work/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</id>
+    <published>2020-08-26T07:15:53.000Z</published>
+    <updated>2020-09-09T04:23:13.723Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="剑指offer–41-数据流中的中位数"><a href="#剑指offer–41-数据流中的中位数" class="headerlink" title="剑指offer–41-数据流中的中位数"></a>剑指offer–41-<a href="https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/" target="_blank" rel="noopener">数据流中的中位数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p><p>例如，</p><p>[2,3,4] 的中位数是 3</p><p>[2,3] 的中位数是 (2 + 3) / 2 = 2.5</p><p>设计一个支持以下两种操作的数据结构：</p><ul><li>void addNum(int num) - 从数据流中添加一个整数到数据结构中。</li><li>double findMedian() - 返回目前所有元素的中位数。</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[1],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,null,1.50000,null,2.00000]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,2.00000,null,2.50000]</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="思路-两个堆"><a href="#思路-两个堆" class="headerlink" title="思路 : 两个堆"></a><strong>思路 : 两个堆</strong></h2><p><strong>待优化的思路1：快排</strong></p><ul><li>其中位数的计算方法：首先对数组执行排序（使用O<em>(</em>N<em>log</em>N) 时间），然后返回中间元素即可（使用 O(1)时间）。</li><li>针对本题，根据以上思路，可以将数据流保存在一个列表中，并在添加元素时 保持数组有序 。此方法的时间复杂度为 O(N)，其中包括： 查找元素插入位置O(logN) （二分查找）、向数组某位置插入元素 O(N) （插入位置之后的元素都需要向后移动一位）。</li></ul><p><strong>思路2： 两个堆</strong></p><ul><li>事实上，我们只关心在中间的那两个数（或者一个数），其它数没有必要进行 “比较” 和 “交换” 的操作。</li><li>在我们学习过的数据结构里，堆就有类似的性质，每次都从堆里得到一个 “最值” 而其它元素无需排序，这样就可以以O(logN) 的复杂度每次都从堆中取出最值。</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111604101.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111617276.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111821068.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-112110039.png" alt="mark"></p><p><strong>总结：</strong></p><ul><li><strong>为了找到添加新数据以后，数据流的中位数，我们让这个新数据在大顶堆和小顶堆中都走了一遍。而为了让大顶堆的元素多 1 个，我们让从小顶堆中又拿出一个元素“送回”给大顶堆；</strong></li><li>将元素放入优先队列以后，优先队列会以对数时间复杂度自行调整，把“最优值”放入堆顶，这是使用优先队列解决这个问题的原因。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当前大顶堆和小顶堆的元素个数之和</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;Integer&gt; maxheap;</span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;Integer&gt; minheap;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * initialize your data structure here.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MedianFinder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">        maxheap = <span class="keyword">new</span> PriorityQueue&lt;&gt;((x, y) -&gt; y - x);</span><br><span class="line">        minheap = <span class="keyword">new</span> PriorityQueue&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        count += <span class="number">1</span>;</span><br><span class="line">        maxheap.offer(num);</span><br><span class="line">        minheap.add(maxheap.poll());</span><br><span class="line">        <span class="comment">// 如果两个堆合起来的元素个数是奇数，小顶堆要拿出堆顶元素给大顶堆</span></span><br><span class="line">        <span class="keyword">if</span> ((count &amp; <span class="number">1</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            maxheap.add(minheap.poll());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ((count &amp; <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果两个堆合起来的元素个数是偶数，数据流的中位数就是各自堆顶元素的平均值</span></span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">double</span>) (maxheap.peek() + minheap.peek()) / <span class="number">2</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果两个堆合起来的元素个数是奇数，数据流的中位数大顶堆的堆顶元素</span></span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">double</span>) maxheap.peek();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析：</strong></p><ul><li><strong>时间复杂度：</strong>O(logN) 优先队列的出队入队操作都是对数级别的，数据在两个堆中间来回操作是常数级别的，综上时间复杂度是 O(logN) 级别的。</li><li><strong>空间复杂度：</strong>O(N) 占用堆的大小</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;剑指offer–41-数据流中的中位数&quot;&gt;&lt;a href=&quot;#剑指offer–41-数据流中的中位数&quot; class=&quot;headerlink&quot; title=&quot;剑指offer–41-数据流中的中位数&quot;&gt;&lt;/a&gt;剑指offer–41-&lt;a href=&quot;https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;数据流中的中位数&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;p&gt;如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。&lt;/p&gt;
+&lt;p&gt;例如，&lt;/p&gt;
+&lt;p&gt;[2,3,4] 的中位数是 3&lt;/p&gt;
+&lt;p&gt;[2,3] 的中位数是 (2 + 3) / 2 = 2.5&lt;/p&gt;
+&lt;p&gt;设计一个支持以下两种操作的数据结构：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;void addNum(int num) - 从数据流中添加一个整数到数据结构中。&lt;/li&gt;
+&lt;li&gt;double findMedian() - 返回目前所有元素的中位数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例 1：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[&amp;quot;MedianFinder&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[[],[1],[2],[],[3],[]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[null,null,null,1.50000,null,2.00000]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 2：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[&amp;quot;MedianFinder&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[[],[2],[],[3],[]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[null,null,2.00000,null,2.50000]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
+    
+      <category term="剑指offer" scheme="http://zhuuu.work/tags/%E5%89%91%E6%8C%87offer/"/>
     
   </entry>
   
@@ -3036,9 +3036,9 @@
     
     
     
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
       <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
     
       <category term="雪花算法" scheme="http://zhuuu.work/tags/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/"/>
     
