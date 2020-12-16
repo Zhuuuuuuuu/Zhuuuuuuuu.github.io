@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2020-12-12T02:29:42.580Z</updated>
+  <updated>2020-12-16T08:34:44.575Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,58 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Leetcode-290-单词规律</title>
+    <link href="http://zhuuu.work/2020/12/16/Leetcode/Leetcode-290-%E5%8D%95%E8%AF%8D%E8%A7%84%E5%BE%8B/"/>
+    <id>http://zhuuu.work/2020/12/16/Leetcode/Leetcode-290-%E5%8D%95%E8%AF%8D%E8%A7%84%E5%BE%8B/</id>
+    <published>2020-12-16T05:52:53.000Z</published>
+    <updated>2020-12-16T08:34:44.575Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leetcode-290-单词规律"><a href="#Leetcode-290-单词规律" class="headerlink" title="Leetcode-290-单词规律"></a>Leetcode-290-<a href="https://leetcode-cn.com/problems/word-pattern/" target="_blank" rel="noopener">单词规律</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul><li><p>给定一种规律 pattern 和一个字符串 str ，判断 str 是否遵循相同的规律。</p></li><li><p>这里的 遵循 指完全匹配，例如， pattern 里的每个字母和字符串 str 中的每个非空单词之间存在着<strong>双向连接的对应规律</strong>。</p></li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">示例1:</span><br><span class="line"></span><br><span class="line">输入: pattern &#x3D; &quot;abba&quot;, str &#x3D; &quot;dog cat cat dog&quot;</span><br><span class="line">输出: true</span><br><span class="line"></span><br><span class="line">示例 2:</span><br><span class="line"></span><br><span class="line">输入:pattern &#x3D; &quot;abba&quot;, str &#x3D; &quot;dog cat cat fish&quot;</span><br><span class="line">输出: false</span><br><span class="line"></span><br><span class="line">示例 3:</span><br><span class="line"></span><br><span class="line">输入: pattern &#x3D; &quot;aaaa&quot;, str &#x3D; &quot;dog cat cat dog&quot;</span><br><span class="line">输出: false</span><br><span class="line"></span><br><span class="line">示例 4:</span><br><span class="line"></span><br><span class="line">输入: pattern &#x3D; &quot;abba&quot;, str &#x3D; &quot;dog dog dog dog&quot;</span><br><span class="line">输出: false</span><br><span class="line">说明:</span><br><span class="line">你可以假设 pattern 只包含小写字母， str 包含了由单个空格分隔的小写字母。</span><br></pre></td></tr></table></figure><p>​    </p><a id="more"></a><h2 id="算法思路"><a href="#算法思路" class="headerlink" title="算法思路"></a>算法思路</h2><ul><li><p>在本题中，我们需要判断字符与字符串之间是否恰好一一对应。即任意一个字符都对应着唯一的字符串，任意一个字符串也只被唯一的一个字符对应。<strong>在集合论中，这种关系被称为「双射」。</strong></p></li><li><p>想要解决本题，我们可以利用<strong>哈希表记录每一个字符对应的字符串</strong>，<strong>以及每一个字符串对应的字符。</strong></p></li><li><p>然后我们枚举每一对字符与字符串的配对过程，不断更新哈希表，如果发生了冲突，则说明给定的输入不满足双射关系。</p></li></ul><p><strong>在实际代码中，我们枚举 pattern 中的每一个字符，利用双指针来均摊线性地找到该字符在 str 中对应的字符串。</strong></p><p><strong>每次确定一个字符与字符串的组合，我们就检查是否出现冲突，最后我们再检查两字符串是否比较完毕即可。</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">wordPattern</span><span class="params">(String pattern, String s)</span> </span>&#123;</span><br><span class="line">        Map&lt;String,Character&gt; str2ch = <span class="keyword">new</span> HashMap&lt;&gt;();         <span class="comment">// 字符串映射字符</span></span><br><span class="line">        Map&lt;Character,String&gt; ch2str = <span class="keyword">new</span> HashMap&lt;&gt;();         <span class="comment">// 字符映射字符串</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> m   = s.length();</span><br><span class="line">        <span class="keyword">int</span> idx = <span class="number">0</span>;                                            <span class="comment">// idx 用于记录每个单词的开头位置</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 枚举pattern中的每一个字符</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> p = <span class="number">0</span>;p &lt; pattern.length();++p)&#123;</span><br><span class="line">            <span class="keyword">char</span> ch = pattern.charAt(p);                                <span class="comment">// 枚举pattern中的每一个字符</span></span><br><span class="line">            <span class="keyword">if</span>(idx &gt;= m)&#123;                                               <span class="comment">// 说明字符和对应字符串的数量不匹配，直接返回false</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 处理空格之间的字符串单词</span></span><br><span class="line">            <span class="keyword">int</span> j = idx;</span><br><span class="line">            <span class="keyword">while</span>(j &lt; m &amp;&amp; s.charAt(j) != <span class="string">' '</span>)&#123;                         <span class="comment">// j用于记录每个字符串单词的结束位置</span></span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            String temp = s.substring(idx,j);                           <span class="comment">// 拿出空格之间的这个单词</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 离散数学：集合的双射匹配</span></span><br><span class="line">            <span class="keyword">if</span>(str2ch.containsKey(temp) &amp;&amp; str2ch.get(temp) != ch)&#123;     <span class="comment">// 字符串不匹配字符直接返回false</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(ch2str.containsKey(ch) &amp;&amp; !temp.equals(ch2str.get(ch)))&#123; <span class="comment">// 字符不匹配字符串直接返回false</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 不在哈希表中 就加入到哈希表中 并且进入下一轮字符匹配</span></span><br><span class="line">            str2ch.put(temp,ch);</span><br><span class="line">            ch2str.put(ch,temp);</span><br><span class="line">            idx = j + <span class="number">1</span>;            <span class="comment">// 从下一个单词的开头进行匹配 </span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 匹配到结束都满足条件（idx = j + 1）</span></span><br><span class="line">        <span class="keyword">return</span> idx &gt; m;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li><strong>时间复杂度</strong> ： O(n + m)。 其中 n 是pattern的长度 , m是str 的长度。每个字符至多只被遍历一次，插入和查询哈希表的均摊时间复杂度为O(n + m)</li><li><strong>空间复杂度</strong> ： O(n + m) 。其中 n 是pattern的长度 , m是str 的长度。最坏情况下，我们需要存储pattern的每一个字符和str中的每一个字符串</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leetcode-290-单词规律&quot;&gt;&lt;a href=&quot;#Leetcode-290-单词规律&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-290-单词规律&quot;&gt;&lt;/a&gt;Leetcode-290-&lt;a href=&quot;https://leetcode-cn.com/problems/word-pattern/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;单词规律&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;给定一种规律 pattern 和一个字符串 str ，判断 str 是否遵循相同的规律。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;这里的 遵循 指完全匹配，例如， pattern 里的每个字母和字符串 str 中的每个非空单词之间存在着&lt;strong&gt;双向连接的对应规律&lt;/strong&gt;。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例1:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入: pattern &amp;#x3D; &amp;quot;abba&amp;quot;, str &amp;#x3D; &amp;quot;dog cat cat dog&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出: true&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 2:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入:pattern &amp;#x3D; &amp;quot;abba&amp;quot;, str &amp;#x3D; &amp;quot;dog cat cat fish&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出: false&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 3:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入: pattern &amp;#x3D; &amp;quot;aaaa&amp;quot;, str &amp;#x3D; &amp;quot;dog cat cat dog&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出: false&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 4:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入: pattern &amp;#x3D; &amp;quot;abba&amp;quot;, str &amp;#x3D; &amp;quot;dog dog dog dog&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出: false&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;说明:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;你可以假设 pattern 只包含小写字母， str 包含了由单个空格分隔的小写字母。&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;​    &lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="哈希表" scheme="http://zhuuu.work/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>排序-04-基数排序</title>
+    <link href="http://zhuuu.work/2020/12/13/Sort/%E6%8E%92%E5%BA%8F-04-%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F/"/>
+    <id>http://zhuuu.work/2020/12/13/Sort/%E6%8E%92%E5%BA%8F-04-%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F/</id>
+    <published>2020-12-13T10:33:24.000Z</published>
+    <updated>2020-12-13T08:34:19.492Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="排序-04-基数排序"><a href="#排序-04-基数排序" class="headerlink" title="排序-04-基数排序"></a>排序-04-基数排序</h1><a id="more"></a>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;排序-04-基数排序&quot;&gt;&lt;a href=&quot;#排序-04-基数排序&quot; class=&quot;headerlink&quot; title=&quot;排序-04-基数排序&quot;&gt;&lt;/a&gt;排序-04-基数排序&lt;/h1&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="排序算法" scheme="http://zhuuu.work/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
   
   <entry>
     <title>Leetcode-376-摆动序列</title>
@@ -1253,9 +1305,9 @@
     
     
     
-      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
     
   </entry>
   
@@ -1276,9 +1328,9 @@
     
     
     
-      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
     
   </entry>
   
@@ -1360,9 +1412,9 @@
     
     
     
-      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
     
   </entry>
   
@@ -1386,9 +1438,9 @@
     
     
     
-      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="内存管理" scheme="http://zhuuu.work/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
     
   </entry>
   
@@ -1409,9 +1461,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1483,9 +1535,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1638,9 +1690,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1810,9 +1862,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
@@ -2120,11 +2172,11 @@
     
     
     
+      <category term="死锁" scheme="http://zhuuu.work/tags/%E6%AD%BB%E9%94%81/"/>
+    
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
-    
-      <category term="死锁" scheme="http://zhuuu.work/tags/%E6%AD%BB%E9%94%81/"/>
     
   </entry>
   
@@ -2221,9 +2273,9 @@
     
     
     
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
+    
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
@@ -2317,9 +2369,9 @@
     
     
     
-      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
-    
       <category term="IO" scheme="http://zhuuu.work/tags/IO/"/>
+    
+      <category term="多路复用" scheme="http://zhuuu.work/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"/>
     
   </entry>
   
@@ -2381,9 +2433,9 @@
     
     
     
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
+    
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
@@ -2475,9 +2527,9 @@
     
     
     
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
+    
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
   </entry>
   
@@ -2539,13 +2591,13 @@
     
     
     
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
     
-      <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
       <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
+    
+      <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   
@@ -2571,9 +2623,9 @@
     
     
     
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
+    
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
       <category term="分库分表" scheme="http://zhuuu.work/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/"/>
     
@@ -2599,9 +2651,9 @@
     
     
     
-      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
       <category term="Mysql" scheme="http://zhuuu.work/tags/Mysql/"/>
+    
+      <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
       <category term="分库分表" scheme="http://zhuuu.work/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/"/>
     
@@ -2633,11 +2685,11 @@
     
     
     
+      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
+    
       <category term="ClassLoader" scheme="http://zhuuu.work/tags/ClassLoader/"/>
     
       <category term="双亲委派" scheme="http://zhuuu.work/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE/"/>
-    
-      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
     
   </entry>
   
@@ -2692,9 +2744,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
@@ -3000,73 +3052,6 @@
       <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
     
       <category term="剑指offer" scheme="http://zhuuu.work/tags/%E5%89%91%E6%8C%87offer/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式ID</title>
-    <link href="http://zhuuu.work/2020/08/25/distributed/%E5%88%86%E5%B8%83%E5%BC%8FID/"/>
-    <id>http://zhuuu.work/2020/08/25/distributed/%E5%88%86%E5%B8%83%E5%BC%8FID/</id>
-    <published>2020-08-25T09:38:38.000Z</published>
-    <updated>2020-09-20T06:15:49.217Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="分布式ID"><a href="#分布式ID" class="headerlink" title="分布式ID"></a>分布式ID</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul><li>在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？</li></ul><p><strong>1、什么是分布式ID？</strong></p><p>拿MySQL数据库举个栗子：</p><ul><li>在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。</li><li>但随着数据日渐增长，主从同步也扛不住了，就需要<strong>对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据</strong>，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有<code>唯一ID</code>做标识。此时一个能够生成<code>全局唯一ID</code>的系统是非常必要的。那么这个<code>全局唯一ID</code>就叫<code>分布式ID</code>。</li></ul><p><strong>2、那么分布式ID需要满足那些条件？</strong></p><ul><li>全局唯一：必须保证ID是全局性唯一的，基本要求</li><li>高性能：高可用低延时，ID生成响应要快，否则反倒会成为业务瓶颈</li><li>高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性</li><li>好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单</li><li>趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求</li></ul><a id="more"></a><h2 id="一-九种生成方案"><a href="#一-九种生成方案" class="headerlink" title="一. 九种生成方案"></a>一. 九种生成方案</h2><p>今天主要分析一下以下9种，分布式ID生成器方式以及优缺点：</p><ul><li>UUID</li><li>数据库自增ID</li><li>数据库多主模式</li><li>号段模式</li><li>Redis</li><li>雪花算法（SnowFlake）</li><li>滴滴出品（TinyID）</li><li>百度 （Uidgenerator）</li><li>美团（Leaf）</li></ul><p>那么它们都是如何实现？以及各自有什么优缺点？我们往下看</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224053071.png" alt="mark"></p><p><strong>1、基于UUID</strong></p><p>在Java的世界里，想要得到一个具有唯一性的ID，首先被想到可能就是UUID，毕竟它有着全球唯一的特性。那么UUID可以做分布式ID吗？答案是可以的，但是并不推荐</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) &#123; </span><br><span class="line">       String uuid &#x3D; UUID.randomUUID().toString().replaceAll(&quot;-&quot;,&quot;&quot;);</span><br><span class="line">       System.out.println(uuid);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure><p><code>UUID</code>的生成简单到只有一行代码，输出结果 <code>c2b8c2b9e46c47e3b30dca3b0d447718</code>，但UUID却并不适用于实际的业务需求。像用作订单号<code>UUID</code>这样的字符串没有丝毫的意义，看不出和订单相关的有用信息；而对于数据库来说用作业务<code>主键ID</code>，它不仅是太长还是字符串，存储性能差查询也很耗时，所以不推荐用作<code>分布式ID</code>。</p><p><strong>优点：</strong></p><ul><li>生成足够简单，本地生成无网络消耗，具有唯一性</li></ul><p><strong>缺点：</strong></p><ul><li>无序的字符串，不具备趋势自增特性</li><li>没有具体的业务含义</li><li>长度过长16 字节128位，36位长度的字符串，存储以及查询对MySQL的性能消耗较大，MySQL官方明确建议主键要尽量越短越好，作为数据库主键 <code>UUID</code> 的无序性会导致数据位置频繁变动，严重影响性能。</li></ul><p><strong>2、基于数据库自增ID</strong></p><p>基于数据库的<code>auto_increment</code>自增ID完全可以充当<code>分布式ID</code>，具体实现：需要一个单独的MySQL实例用来生成ID，建表结构如下：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224302161.png" alt="mark"></p><p>当我们需要一个ID的时候，向表中插入一条记录返回<code>主键ID</code>，但这种方式有一个比较致命的缺点，访问量激增时MySQL本身就是系统的瓶颈，用它来实现分布式服务风险比较大，不推荐！</p><p><strong>优点：</strong></p><ul><li>实现简单，ID单调自增，数值类型查询速度快</li></ul><p><strong>缺点：</strong></p><ul><li>DB单点存在宕机风险，无法扛住高并发场景</li></ul><p><strong>3、基于数据库集群模式</strong></p><ul><li>前边说了单点数据库方式不可取，那对上边的方式做一些高可用优化，换成主从模式集群。害怕一个主节点挂掉没法用，那就做双主模式集群，也就是两个Mysql实例都能单独的生产自增ID。</li><li>那这样还会有个问题，两个MySQL实例的自增ID都从1开始，<strong>会生成重复的ID怎么办？</strong></li></ul><p><strong>解决方案</strong>：设置<code>起始值</code>和<code>自增步长</code></p><p>MySQL_1 配置：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224410327.png" alt="mark"></p><p>MySQL_2 配置：</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224414705.png" alt="mark"></p><p>这样两个MySQL实例的自增ID分别就是：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1、3、5、7、9</span><br><span class="line">2、4、6、8、10</span><br></pre></td></tr></table></figure><p>那如果集群后的性能还是扛不住高并发咋办？就要进行MySQL扩容增加节点，这是一个比较麻烦的事。</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224448462.png" alt="mark"></p><p><strong>缺点：</strong></p><ul><li>增加第三台<code>MySQL</code>实例需要人工修改一、二两台<code>MySQL实例</code>的起始值和步长，把<code>第三台机器的ID</code>起始生成位置设定在比现有<code>最大自增ID</code>的位置远一些，但必须在一、二两台<code>MySQL实例</code>ID还没有增长到<code>第三台MySQL实例</code>的<code>起始ID</code>值的时候，否则<code>自增ID</code>就要出现重复了，<strong>必要时可能还需要停机修改</strong>。</li></ul><p><strong>优点：</strong></p><ul><li>解决DB单点问题</li></ul><p><strong>4、基于数据库的号段模式</strong></p><ul><li>号段模式是当下<strong>分布式ID生成器的主流实现方式之一</strong>，号段模式可以理解为从数据库批量的获取自增ID，每次从数据库取出一个号段范围</li><li>例如 (1,1000] 代表1000个ID，具体的业务服务将本号段，生成1~1000的自增ID并加载到内存。表结构如下：</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE id_generator (</span><br><span class="line">  id int(10) NOT NULL,</span><br><span class="line">  max_id bigint(20) NOT NULL COMMENT &#39;当前最大id&#39;,</span><br><span class="line">  step int(20) NOT NULL COMMENT &#39;号段的布长&#39;,</span><br><span class="line">  biz_type    int(20) NOT NULL COMMENT &#39;业务类型&#39;,</span><br><span class="line">  version int(20) NOT NULL COMMENT &#39;版本号&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;)</span><br><span class="line">)</span><br></pre></td></tr></table></figure><p>biz_type ：代表不同业务类型</p><p>max_id ：当前最大的可用id</p><p>step ：代表号段的长度</p><p>version ：是一个乐观锁，每次都更新version，保证并发时数据的正确性</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224734804.png" alt="mark"></p><ul><li>等这批号段ID用完，再次向数据库申请新号段，对<code>max_id</code>字段做一次<code>update</code>操作，<code>update max_id= max_id + step</code>，update成功则说明新号段获取成功，新的号段范围是<code>(max_id ,max_id +step]</code>。</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update id_generator set max_id &#x3D; #&#123;max_id+step&#125;, version &#x3D; version + 1 where version &#x3D; # &#123;version&#125; and biz_type &#x3D; XXX</span><br></pre></td></tr></table></figure><ul><li>由于多业务端可能同时操作，所以采用版本号<code>version</code>乐观锁方式更新，这种<code>分布式ID</code>生成方式不强依赖于数据库，不会频繁的访问数据库，对数据库的压力小很多。</li></ul><p><strong>5、基于Redis模式</strong></p><p><code>Redis</code>也同样可以实现，原理就是利用<code>redis</code>的 <code>incr</code>命令实现ID的原子性自增</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200916/224902154.png" alt="mark"></p><p>用<code>redis</code>实现需要注意一点，要考虑到redis持久化的问题。<code>redis</code>有两种持久化方式<code>RDB</code>和<code>AOF</code></p><ul><li><strong><code>RDB</code>会定时打一个快照进行持久化</strong>，假如连续自增但<code>redis</code>没及时持久化，而这会Redis挂掉了，重启Redis后会出现ID重复的情况。</li><li><strong><code>AOF</code>会对每条写命令进行持久化</strong>，即使<code>Redis</code>挂掉了也不会出现ID重复的情况，但由于incr命令的特殊性，会导致<code>Redis</code>重启恢复的数据时间过长。</li></ul><p><strong>6、基于雪花算法（Snowflake）模式</strong></p><ul><li>雪花算法（<code>Snowflake</code>）是<code>twitter</code>公司内部分布式项目采用的ID生成算法，开源后广受国内大厂的好评，在该算法影响下各大公司相继开发出各具特色的分布式生成器。</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/161626004.png" alt="mark"></p><ul><li><code>Snowflake</code>生成的是Long类型的ID，一个Long类型占8个字节，每个字节占8比特，也就是说一个Long类型占64个比特。<ul><li><code>Snowflake</code> ID组成结构：<code>正数位</code>（占1比特）+ <code>时间戳</code>（占41比特）+ <code>机器ID</code>（占5比特）+ <code>数据中心</code>（占5比特）+ <code>自增值</code>（占12比特），总共64比特组成的一个Long类型。</li></ul></li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">第一个bit位（1bit）：Java中long的最高位是符号位代表正负，正数是0，负数是1，一般生成ID都为正数，所以默认为0。</span><br><span class="line">时间戳部分（41bit）：毫秒级的时间，不建议存当前时间戳，而是用（当前时间戳 - 固定开始时间戳）的差值，可以使产生的ID从更小的值开始；41位的时间戳可以使用69年，(1L &lt;&lt; 41) &#x2F; (1000L * 60 * 60 * 24 * 365) &#x3D; 69年</span><br><span class="line">工作机器id（10bit）：也被叫做workId，这个可以灵活配置，机房或者机器号组合都可以。</span><br><span class="line">序列号部分（12bit），自增值支持同一毫秒内同一个节点可以生成4096个ID</span><br></pre></td></tr></table></figure><ul><li>根据这个算法的逻辑，只需要将这个算法用Java语言实现出来，封装为一个工具方法，那么各个业务应用可以直接使用该工具方法来获取分布式ID，只需保证每个业务应用有自己的工作机器id即可，而不需要单独去搭建一个获取分布式ID的应用。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Twitter的SnowFlake算法,使用SnowFlake算法生成一个整数，然后转化为62进制变成一个短地址URL</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * https://github.com/beyondfengyu/SnowFlake</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SnowFlakeShortUrl</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 起始的时间戳</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> START_TIMESTAMP = <span class="number">1480166465631L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 每一部分占用的位数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> SEQUENCE_BIT = <span class="number">12</span>;   <span class="comment">//序列号占用的位数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MACHINE_BIT = <span class="number">5</span>;     <span class="comment">//机器标识占用的位数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> DATA_CENTER_BIT = <span class="number">5</span>; <span class="comment">//数据中心占用的位数</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 每一部分的最大值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MAX_SEQUENCE = -<span class="number">1L</span> ^ (-<span class="number">1L</span> &lt;&lt; SEQUENCE_BIT);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MAX_MACHINE_NUM = -<span class="number">1L</span> ^ (-<span class="number">1L</span> &lt;&lt; MACHINE_BIT);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MAX_DATA_CENTER_NUM = -<span class="number">1L</span> ^ (-<span class="number">1L</span> &lt;&lt; DATA_CENTER_BIT);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 每一部分向左的位移</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> MACHINE_LEFT = SEQUENCE_BIT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> DATA_CENTER_LEFT = SEQUENCE_BIT + MACHINE_BIT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> TIMESTAMP_LEFT = DATA_CENTER_LEFT + DATA_CENTER_BIT;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> dataCenterId;  <span class="comment">//数据中心</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> machineId;     <span class="comment">//机器标识</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> sequence = <span class="number">0L</span>; <span class="comment">//序列号</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> lastTimeStamp = -<span class="number">1L</span>;  <span class="comment">//上一次时间戳</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">getNextMill</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> mill = getNewTimeStamp();</span><br><span class="line">        <span class="keyword">while</span> (mill &lt;= lastTimeStamp) &#123;</span><br><span class="line">            mill = getNewTimeStamp();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> mill;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">getNewTimeStamp</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> System.currentTimeMillis();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据指定的数据中心ID和机器标志ID生成指定的序列号</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> dataCenterId 数据中心ID</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> machineId    机器标志ID</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SnowFlakeShortUrl</span><span class="params">(<span class="keyword">long</span> dataCenterId, <span class="keyword">long</span> machineId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (dataCenterId &gt; MAX_DATA_CENTER_NUM || dataCenterId &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"DtaCenterId can't be greater than MAX_DATA_CENTER_NUM or less than 0！"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (machineId &gt; MAX_MACHINE_NUM || machineId &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"MachineId can't be greater than MAX_MACHINE_NUM or less than 0！"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.dataCenterId = dataCenterId;</span><br><span class="line">        <span class="keyword">this</span>.machineId = machineId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 产生下一个ID</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">long</span> <span class="title">nextId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> currTimeStamp = getNewTimeStamp();</span><br><span class="line">        <span class="keyword">if</span> (currTimeStamp &lt; lastTimeStamp) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Clock moved backwards.  Refusing to generate id"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (currTimeStamp == lastTimeStamp) &#123;</span><br><span class="line">            <span class="comment">//相同毫秒内，序列号自增</span></span><br><span class="line">            sequence = (sequence + <span class="number">1</span>) &amp; MAX_SEQUENCE;</span><br><span class="line">            <span class="comment">//同一毫秒的序列数已经达到最大</span></span><br><span class="line">            <span class="keyword">if</span> (sequence == <span class="number">0L</span>) &#123;</span><br><span class="line">                currTimeStamp = getNextMill();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//不同毫秒内，序列号置为0</span></span><br><span class="line">            sequence = <span class="number">0L</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        lastTimeStamp = currTimeStamp;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> (currTimeStamp - START_TIMESTAMP) &lt;&lt; TIMESTAMP_LEFT <span class="comment">//时间戳部分</span></span><br><span class="line">                | dataCenterId &lt;&lt; DATA_CENTER_LEFT       <span class="comment">//数据中心部分</span></span><br><span class="line">                | machineId &lt;&lt; MACHINE_LEFT             <span class="comment">//机器标识部分</span></span><br><span class="line">                | sequence;                             <span class="comment">//序列号部分</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SnowFlakeShortUrl snowFlake = <span class="keyword">new</span> SnowFlakeShortUrl(<span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; (<span class="number">1</span> &lt;&lt; <span class="number">4</span>); i++) &#123;</span><br><span class="line">            <span class="comment">//10进制</span></span><br><span class="line">            System.out.println(snowFlake.nextId());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>7、百度（uid-generator）</strong></p><ul><li><code>uid-generator</code>是由百度技术部开发，项目GitHub地址 </li><li><code>uid-generator</code>是基于<code>Snowflake</code>算法实现的，与原始的<code>snowflake</code>算法不同在于，<code>uid-generator</code>支持自<code>定义时间戳</code>、<code>工作机器ID</code>和 <code>序列号</code> 等各部分的位数，而且<code>uid-generator</code>中采用用户自定义<code>workId</code>的生成策略。</li><li><code>uid-generator</code>需要与数据库配合使用，需要新增一个<code>WORKER_NODE</code>表。当应用启动时会向数据库表中去插入一条数据，插入成功后返回的自增ID就是该机器的<code>workId</code>数据由host，port组成。</li></ul><p><strong>对于<code>uid-generator</code> ID组成结构</strong>：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#96;workId&#96;，占用了22个bit位，时间占用了28个bit位，序列化占用了13个bit位，</span><br><span class="line">需要注意的是，和原始的&#96;snowflake&#96;不太一样，时间的单位是秒，而不是毫秒，</span><br><span class="line">&#96;workId&#96;也不一样，而且同一应用每次重启就会消费一个&#96;workId&#96;</span><br></pre></td></tr></table></figure><p><strong>8、美团（Leaf）</strong></p><p><code>Leaf</code>由美团开发，github地址：<a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2FMeituan-Dianping%2FLeaf">https://github.com/Meituan-Dianping/Leaf</a><br><code>Leaf</code>同时支持号段模式和<code>snowflake</code>算法模式，可以切换使用。</p><p><strong>号段模式</strong></p><ul><li>先导入源码 <a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2FMeituan-Dianping%2FLeaf">https://github.com/Meituan-Dianping/Leaf</a> ，在建一张表<code>leaf_alloc</code></li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DROP TABLE IF EXISTS &#96;leaf_alloc&#96;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;leaf_alloc&#96; (</span><br><span class="line">  &#96;biz_tag&#96; varchar(128)  NOT NULL DEFAULT &#39;&#39; COMMENT &#39;业务key&#39;,</span><br><span class="line">  &#96;max_id&#96; bigint(20) NOT NULL DEFAULT &#39;1&#39; COMMENT &#39;当前已经分配了的最大id&#39;,</span><br><span class="line">  &#96;step&#96; int(11) NOT NULL COMMENT &#39;初始步长，也是动态调整的最小步长&#39;,</span><br><span class="line">  &#96;description&#96; varchar(256)  DEFAULT NULL COMMENT &#39;业务key的描述&#39;,</span><br><span class="line">  &#96;update_time&#96; timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#39;数据库维护的更新时间&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;biz_tag&#96;)</span><br><span class="line">) ENGINE&#x3D;InnoDB;</span><br></pre></td></tr></table></figure><ul><li>然后在项目中开启<code>号段模式</code>，配置对应的数据库信息，并关闭<code>snowflake</code>模</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">leaf.name&#x3D;com.sankuai.leaf.opensource.test</span><br><span class="line">leaf.segment.enable&#x3D;true</span><br><span class="line">leaf.jdbc.url&#x3D;jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;leaf_test?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf8&amp;characterSetResults&#x3D;utf8</span><br><span class="line">leaf.jdbc.username&#x3D;root</span><br><span class="line">leaf.jdbc.password&#x3D;root</span><br><span class="line"></span><br><span class="line">leaf.snowflake.enable&#x3D;false</span><br><span class="line">#leaf.snowflake.zk.address&#x3D;</span><br><span class="line">#leaf.snowflake.port&#x3D;</span><br></pre></td></tr></table></figure><ul><li>启动<code>leaf-server</code> 模块的 <code>LeafServerApplication</code>项目就跑起来了</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">号段模式获取分布式自增ID的测试url ：http：&#x2F;&#x2F;localhost：8080&#x2F;api&#x2F;segment&#x2F;get&#x2F;leaf-segment-test</span><br><span class="line"></span><br><span class="line">监控号段模式：http:&#x2F;&#x2F;localhost:8080&#x2F;cache</span><br></pre></td></tr></table></figure><p><strong>snowflake模式</strong></p><ul><li><code>Leaf</code>的<code>snowflake</code>模式依赖于<code>ZooKeeper</code>，<strong>不同于<code>原始snowflake</code>算法也主要是在<code>workId</code>的生成上</strong></li><li><code>Leaf</code>中<code>workId</code>是基于<code>ZooKeeper</code>的顺序Id来生成的，每个应用在使用<code>Leaf-snowflake</code>时，启动时都会都在<code>Zookeeper</code>中生成一个顺序Id，相当于一台机器对应一个顺序节点，也就是一个<code>workId</code>。</li></ul><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163411884.png" alt="mark" style="zoom:200%;" /><ul><li>snowflake模式获取分布式自增ID的测试url：[<a href="http://localhost:8080/api/snowflake/get/test]" target="_blank" rel="noopener">http://localhost:8080/api/snowflake/get/test]</a></li></ul><p><strong>9、滴滴（Tinyid）</strong></p><p><code>Tinyid</code>由滴滴开发，Github地址：<a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2Fdidi%2Ftinyid">https://github.com/didi/tinyid</a>。</p><p><code>Tinyid</code>是基于号段模式原理实现的与<code>Leaf</code>如出一辙，每个服务获取一个号段（1000,2000]、（2000,3000]、（3000,4000]</p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163635480.png" alt="mark"></p><p><strong>Http方式接入</strong></p><p>（1）导入Tinyid源码：<br>git clone <a href="https://link.zhihu.com/?target=https%3A//links.jianshu.com/go%3Fto%3Dhttps%3A%2F%2Fgithub.com%2Fdidi%2Ftinyid.git">https://github.com/didi/tinyid.git</a></p><p>（2）创建数据表：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE &#96;tiny_id_info&#96; (</span><br><span class="line">  &#96;id&#96; bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT &#39;自增主键&#39;,</span><br><span class="line">  &#96;biz_type&#96; varchar(63) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;业务类型，唯一&#39;,</span><br><span class="line">  &#96;begin_id&#96; bigint(20) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;开始id，仅记录初始值，无其他含义。初始化时begin_id和max_id应相同&#39;,</span><br><span class="line">  &#96;max_id&#96; bigint(20) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;当前最大id&#39;,</span><br><span class="line">  &#96;step&#96; int(11) DEFAULT &#39;0&#39; COMMENT &#39;步长&#39;,</span><br><span class="line">  &#96;delta&#96; int(11) NOT NULL DEFAULT &#39;1&#39; COMMENT &#39;每次id增量&#39;,</span><br><span class="line">  &#96;remainder&#96; int(11) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;余数&#39;,</span><br><span class="line">  &#96;create_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;创建时间&#39;,</span><br><span class="line">  &#96;update_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;更新时间&#39;,</span><br><span class="line">  &#96;version&#96; bigint(20) NOT NULL DEFAULT &#39;0&#39; COMMENT &#39;版本号&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;),</span><br><span class="line">  UNIQUE KEY &#96;uniq_biz_type&#96; (&#96;biz_type&#96;)</span><br><span class="line">) ENGINE&#x3D;InnoDB AUTO_INCREMENT&#x3D;1 DEFAULT CHARSET&#x3D;utf8 COMMENT &#39;id信息表&#39;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE &#96;tiny_id_token&#96; (</span><br><span class="line">  &#96;id&#96; int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT &#39;自增id&#39;,</span><br><span class="line">  &#96;token&#96; varchar(255) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;token&#39;,</span><br><span class="line">  &#96;biz_type&#96; varchar(63) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;此token可访问的业务类型标识&#39;,</span><br><span class="line">  &#96;remark&#96; varchar(255) NOT NULL DEFAULT &#39;&#39; COMMENT &#39;备注&#39;,</span><br><span class="line">  &#96;create_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;创建时间&#39;,</span><br><span class="line">  &#96;update_time&#96; timestamp NOT NULL DEFAULT &#39;2010-01-01 00:00:00&#39; COMMENT &#39;更新时间&#39;,</span><br><span class="line">  PRIMARY KEY (&#96;id&#96;)</span><br><span class="line">) ENGINE&#x3D;InnoDB AUTO_INCREMENT&#x3D;1 DEFAULT CHARSET&#x3D;utf8 COMMENT &#39;token信息表&#39;;</span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_info&#96; (&#96;id&#96;, &#96;biz_type&#96;, &#96;begin_id&#96;, &#96;max_id&#96;, &#96;step&#96;, &#96;delta&#96;, &#96;remainder&#96;, &#96;create_time&#96;, &#96;update_time&#96;, &#96;version&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (1, &#39;test&#39;, 1, 1, 100000, 1, 0, &#39;2018-07-21 23:52:58&#39;, &#39;2018-07-22 23:19:27&#39;, 1);</span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_info&#96; (&#96;id&#96;, &#96;biz_type&#96;, &#96;begin_id&#96;, &#96;max_id&#96;, &#96;step&#96;, &#96;delta&#96;, &#96;remainder&#96;, &#96;create_time&#96;, &#96;update_time&#96;, &#96;version&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (2, &#39;test_odd&#39;, 1, 1, 100000, 2, 1, &#39;2018-07-21 23:52:58&#39;, &#39;2018-07-23 00:39:24&#39;, 3);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_token&#96; (&#96;id&#96;, &#96;token&#96;, &#96;biz_type&#96;, &#96;remark&#96;, &#96;create_time&#96;, &#96;update_time&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (1, &#39;0f673adf80504e2eaa552f5d791b644c&#39;, &#39;test&#39;, &#39;1&#39;, &#39;2017-12-14 16:36:46&#39;, &#39;2017-12-14 16:36:48&#39;);</span><br><span class="line"></span><br><span class="line">INSERT INTO &#96;tiny_id_token&#96; (&#96;id&#96;, &#96;token&#96;, &#96;biz_type&#96;, &#96;remark&#96;, &#96;create_time&#96;, &#96;update_time&#96;)</span><br><span class="line">VALUES</span><br><span class="line">    (2, &#39;0f673adf80504e2eaa552f5d791b644c&#39;, &#39;test_odd&#39;, &#39;1&#39;, &#39;2017-12-14 16:36:46&#39;, &#39;2017-12-14 16:36:48&#39;);</span><br></pre></td></tr></table></figure><p>（3）配置数据库：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">datasource.tinyid.names&#x3D;primary</span><br><span class="line">datasource.tinyid.primary.driver-class-name&#x3D;com.mysql.jdbc.Driver</span><br><span class="line">datasource.tinyid.primary.url&#x3D;jdbc:mysql:&#x2F;&#x2F;ip:port&#x2F;databaseName?autoReconnect&#x3D;true&amp;useUnicode&#x3D;true&amp;characterEncoding&#x3D;UTF-8</span><br><span class="line">datasource.tinyid.primary.username&#x3D;root</span><br><span class="line">datasource.tinyid.primary.password&#x3D;123456</span><br></pre></td></tr></table></figure><p>（4）启动<code>tinyid-server</code>后测试</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">获取分布式自增ID: http:&#x2F;&#x2F;localhost:9999&#x2F;tinyid&#x2F;id&#x2F;nextIdSimple?bizType&#x3D;test&amp;token&#x3D;0f673adf80504e2eaa552f5d791b644c&#39;</span><br><span class="line">返回结果: 3</span><br><span class="line"></span><br><span class="line">批量获取分布式自增ID:</span><br><span class="line">http:&#x2F;&#x2F;localhost:9999&#x2F;tinyid&#x2F;id&#x2F;nextIdSimple?bizType&#x3D;test&amp;token&#x3D;0f673adf80504e2eaa552f5d791b644c&amp;batchSize&#x3D;10&#39;</span><br><span class="line">返回结果:  4,5,6,7,8,9,10,11,12,13</span><br></pre></td></tr></table></figure><p><strong>Java客户端方式接入</strong></p><ul><li>重复Http方式的（2）（3）操作</li><li>引入依赖</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163740832.png" alt="mark"></p><ul><li>配置文件</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163753437.png" alt="mark"></p><ul><li><code>test</code> 、<code>tinyid.token</code>是在数据库表中预先插入的数据，<code>test</code> 是具体业务类型，<code>tinyid.token</code>表示可访问的业务类型</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200917/163811537.png" alt="mark"></p><h2 id="二-总结"><a href="#二-总结" class="headerlink" title="二. 总结"></a><strong>二. 总结</strong></h2><ul><li>本文只是简单介绍一下每种分布式ID生成器，旨在给大家一个详细学习的方向，每种生成方式都有它自己的优缺点，具体如何使用还要看具体的业务需求。</li></ul><p><strong>参考博客 ：</strong> <a href="https://zhuanlan.zhihu.com/p/152179727?utm_source" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/152179727?utm_source</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;分布式ID&quot;&gt;&lt;a href=&quot;#分布式ID&quot; class=&quot;headerlink&quot; title=&quot;分布式ID&quot;&gt;&lt;/a&gt;分布式ID&lt;/h1&gt;&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;在说分布式ID的具体实现之前，我们来简单分析一下为什么用分布式ID？分布式ID应该满足哪些特征？&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;1、什么是分布式ID？&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;拿MySQL数据库举个栗子：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在我们业务数据量不大的时候，单库单表完全可以支撑现有业务，数据再大一点搞个MySQL主从同步读写分离也能对付。&lt;/li&gt;
-&lt;li&gt;但随着数据日渐增长，主从同步也扛不住了，就需要&lt;strong&gt;对数据库进行分库分表，但分库分表后需要有一个唯一ID来标识一条数据&lt;/strong&gt;，数据库的自增ID显然不能满足需求；特别一点的如订单、优惠券也都需要有&lt;code&gt;唯一ID&lt;/code&gt;做标识。此时一个能够生成&lt;code&gt;全局唯一ID&lt;/code&gt;的系统是非常必要的。那么这个&lt;code&gt;全局唯一ID&lt;/code&gt;就叫&lt;code&gt;分布式ID&lt;/code&gt;。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;2、那么分布式ID需要满足那些条件？&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;全局唯一：必须保证ID是全局性唯一的，基本要求&lt;/li&gt;
-&lt;li&gt;高性能：高可用低延时，ID生成响应要快，否则反倒会成为业务瓶颈&lt;/li&gt;
-&lt;li&gt;高可用：100%的可用性是骗人的，但是也要无限接近于100%的可用性&lt;/li&gt;
-&lt;li&gt;好接入：要秉着拿来即用的设计原则，在系统设计和实现上要尽可能的简单&lt;/li&gt;
-&lt;li&gt;趋势递增：最好趋势递增，这个要求就得看具体业务场景了，一般不严格要求&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
-      <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
-    
-      <category term="雪花算法" scheme="http://zhuuu.work/tags/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux-03-PV</title>
-    <link href="http://zhuuu.work/2020/08/25/Linux/Linux-03-PV/"/>
-    <id>http://zhuuu.work/2020/08/25/Linux/Linux-03-PV/</id>
-    <published>2020-08-25T08:52:53.000Z</published>
-    <updated>2020-09-14T12:05:37.328Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><ul><li>进程通常分为<strong>就绪、运行和阻塞</strong>三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p><p>进程三个状态之间的转换就是靠PV操作来控制的。</p><p><strong>PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</strong></p><a id="more"></a><p><strong>信号量</strong></p><p>信号量是最早出现的用来解决<strong>进程同步与互斥问题</strong>的机制。　</p><ul><li>信号量由一个值和一个指针组成，指针指向等待该信号量的进程。信号量的值表示相应资源的使用情况。</li><li>信号量<code>S&gt;=0</code>时，S表示可用资源的数量。<strong>执行一次P操作意味着请求分配一个资源，因此S的值减1；</strong></li><li>当<code>S&lt;0</code>时，表示已经没有可用资源，S的绝对值表示当前等待该资源的进程数。请求者必须等待其他进程释放该类资源，才能继续运行。而执行<strong>一个V操作意味着释放一个资源，因此S的值加1；</strong></li><li>若S&lt;0，表示有某些进程正在等待该资源，因此要唤醒一个等待状态的进程，使之运行下去。</li></ul><p>注意，信号量的值只能由PV操作来改变。</p><p><strong><em>\</em>关于PV操作容易产生的一些疑问：**</strong></p><p><strong>1，S大于0那就表示有临界资源可供使用，为什么不唤醒进程？</strong></p><ul><li>S大于0的确表示有临界资源可供使用，也就是说这个时候没有进程被阻塞在这个资源上，所以不需要唤醒。</li></ul><p><strong>2，S小于0应该是说没有临界资源可供使用，为什么还要唤醒进程？</strong></p><ul><li>V原语操作的本质在于：一个进程使用完临界资源后，释放临界资源，使S加1，以通知其它的进程，这个时候如果S&lt;0，表明有进程阻塞在该类资源上，因此要从阻塞队列里唤醒一个进程来“转手”该类资源。</li><li>比如，有两个某类资源，四个进程A、B、C、D要用该类资源，最开始S=2，当A进入，S=1，当B进入S=0，表明该类资源刚好用完， 当C进入时S=-1，表明有一个进程被阻塞了，D进入，S=-2。当A用完该类资源时，进行V操作，S=-1，释放该类资源，因为S&lt;0，表明有进程阻塞在该类资源上，于是唤醒一个。</li></ul><p><strong>3，如果是互斥信号量的话，应该设置信号量S=1，但是当有5个进程都访问的话，最后在该信号量的链表里会有4个在等待，也是说S=-4，那么第一个进程执行了V操作使S加1，释放了资源，下一个应该能够执行，但唤醒的这个进程在执行P操作时因S&lt;0，也还是执行不了，这是怎么回事呢？</strong></p><ul><li>当一个进程阻塞了的时候，它已经执行过了P操作，并卡在临界区那个地方。当唤醒它时就立即进入它自己的临界区，并不需要执行P操作了，当执行完了临界区的程序后，就执行V操作。</li></ul><p><strong>4，S的绝对值表示等待的进程数，同时又表示临界资源，这到底是怎么回事？</strong></p><ul><li>当信号量S小于0时，其绝对值表示系统中因请求该类资源而被阻塞的进程数目</li><li>S大于0时表示可用的临界资源数。注意在不同情况下所表达的含义不一样。当等于0时，表示刚好用完。</li></ul><h2 id="2-临界区和临界资源"><a href="#2-临界区和临界资源" class="headerlink" title="2. 临界区和临界资源"></a>2. 临界区和临界资源</h2><ol><li><strong>临界区</strong></li></ol><ul><li>每个进程中访问临界资源的那段<strong>程序代码称为临界区</strong></li><li>每次只准许一个进程进入临界区，进入后不允许其他进程进入。</li></ul><ol start="2"><li><strong>临界资源</strong></li></ol><ul><li>临界资源是一次<strong>仅允许一个进程使用的共享资源</strong></li></ul><ol start="3"><li><strong>进程进入临界区的调度原则是：</strong></li></ol><ul><li>如果有若干进程要求进入空闲的临界区，一次仅允许一个进程进入</li><li>任何时候，处于临界区内的进程不可多于一个。如已有进程进入自己的临界区，则其它所有试图进入临界区的进程必须等待。</li><li>进入临界区的进程要在有限时间内退出，以便其它进程能及时进入自己的临界区</li><li>如果进程不能进入自己的临界区，则应让出CPU，避免进程出现“忙等”现象。</li></ul><h2 id="3-PV操作"><a href="#3-PV操作" class="headerlink" title="3. PV操作"></a>3. PV操作</h2><p><strong>临界区：</strong>我们把并发进程中与共享变量有关的<strong>程序段称为临界区。</strong></p><p><strong>信号量S</strong>：</p><ul><li>信号量的值与相应资源的使用情况有关。当它的值大于0时，表示当前可用资源的数量；</li><li>当它的值小于0时，其绝对值表示等待使用该资源的进程个数。</li></ul><p>​    <strong>P操作P（S）</strong>：将信号量S减去1，若结果小于0，则把调用P（S）的进程置成等待信号量S的状态。即为请求资源。</p><p>​    <strong>V操作V（S）</strong>：将信号量S加上1，若结果不大于0，则释放一个等待信号量S的进程。即为释放资源。</p><p>正如老师上课时所举的父亲给孩子吃苹果的例子一样，假如一个盘子只能放一个苹果，父亲往盘子里放了一个苹果。如果儿子吃了（<strong>V操作</strong>），父亲才可以接着放（<strong>P操作</strong>）；如果儿子不吃，那父亲就不能放苹果，只能等着。</p><p><strong>伪代码如下</strong></p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Procedure P (Var S：Semaphore)</span><br><span class="line"></span><br><span class="line">begin</span><br><span class="line"></span><br><span class="line">S：=S - 1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> S&lt;0 <span class="keyword">then</span> W(S) </span><br><span class="line"></span><br><span class="line">end; &#123; P &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Procedure V (Var S：Semaphore)</span><br><span class="line"></span><br><span class="line">begin</span><br><span class="line"></span><br><span class="line">S：=S + 1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> S&lt; = 0 <span class="keyword">then</span> R(S) </span><br><span class="line"></span><br><span class="line">end; &#123; V &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#       W(S)：表示把调用P（S）的进程置成等待信号量S的状态。</span></span><br><span class="line"><span class="comment">#R(S)：表示释放一个等待信号量S的进程。</span></span><br></pre></td></tr></table></figure><h3 id="3-1-进程互斥"><a href="#3-1-进程互斥" class="headerlink" title="3.1 进程互斥"></a>3.1 进程互斥</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">    利用信号量和PV操作实现进程互斥的一般模型是：</span><br><span class="line">进程P1              进程P2           ……          进程Pn</span><br><span class="line">……                  ……                           ……</span><br><span class="line">P（S）；              P（S）；                         P（S）；</span><br><span class="line">临界区；             临界区；                        临界区；</span><br><span class="line">V（S）；              V（S）；                        V（S）；</span><br><span class="line">……                  ……            ……           ……</span><br></pre></td></tr></table></figure><pre><code>其中信号量S用于互斥，初值为1。使用PV操作实现进程互斥时应该注意的是：（1）每个程序中用户实现互斥的P、V操作必须成对出现，先做P操作，进临界区，后做V操作，出临界区。若有多个分支，要认真检查其成对性。（2）P、V操作应分别紧靠临界区的头尾部，临界区的代码应尽可能短，不能有死循环。（3）互斥信号量的初值一般为1。</code></pre><h3 id="3-2-进程同步"><a href="#3-2-进程同步" class="headerlink" title="3.2 进程同步"></a>3.2 进程同步</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">利用信号量和PV操作实现进程同步</span><br><span class="line">PV操作是典型的同步机制之一。用一个信号量与一个消息联系起来，当信号量的值为0时，表示期望的消息尚未产生；当信号量的值非0时，表示期望的消息已经存在。用PV操作实现进程同步时，调用P操作测试消息是否到达，调用V操作发送消息。</span><br><span class="line"></span><br><span class="line">    使用PV操作实现进程同步时应该注意的是：</span><br><span class="line"></span><br><span class="line">    （1）分析进程间的制约关系，确定信号量种类。在保持进程间有正确的同步关系情况下，哪个进程先执行，哪些进程后执行，彼此间通过什么资源（信号量）进行协调，从而明确要设置哪些信号量。</span><br><span class="line">    （2）信号量的初值与相应资源的数量有关，也与P、V操作在程序代码中出现的位置有关。</span><br><span class="line">    （3）同一信号量的P、V操作要成对出现，但它们分别在不同的进程代码中。</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Linux-03-PV&quot;&gt;&lt;a href=&quot;#Linux-03-PV&quot; class=&quot;headerlink&quot; title=&quot;Linux-03-PV&quot;&gt;&lt;/a&gt;Linux-03-PV&lt;/h1&gt;&lt;h2 id=&quot;1-疑惑解答&quot;&gt;&lt;a href=&quot;#1-疑惑解答&quot; class=&quot;headerlink&quot; title=&quot;1. 疑惑解答&quot;&gt;&lt;/a&gt;1. 疑惑解答&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;进程通常分为&lt;strong&gt;就绪、运行和阻塞&lt;/strong&gt;三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
-&lt;p&gt;进程三个状态之间的转换就是靠PV操作来控制的。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。&lt;/strong&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="进程通信方式" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"/>
     
   </entry>
   

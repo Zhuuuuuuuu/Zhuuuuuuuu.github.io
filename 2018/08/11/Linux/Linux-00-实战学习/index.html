@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">7.4k字</span>
+            <span class="post-count">8.1k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">28分钟</span>
+            <span class="post-count">30分钟</span>
         </span>
     </span>
 </div>
@@ -963,7 +963,101 @@
 </ol>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201213/150121943.png" alt="mark"></p>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201213/150232060.png" alt="mark"></p>
+<p><strong>注意 ：</strong></p>
+<ol>
+<li><p><strong>文件具体的权限以用户的权限为主</strong></p>
+<ul>
+<li><strong>如果发生权限冲突，即有种情况：用户没有权限但是属组有权限，该用户仍然没有权限，但是该组下其他用户是有对应权限的。</strong></li>
+</ul>
+</li>
+<li><p><strong>目录的具体权限</strong></p>
+<ul>
+<li><strong><code>x</code> 表示可以进入目录的权限</strong></li>
+<li><code>进入目录并且查看 需要 rx权限</code></li>
+<li><code>进入目录并且删除文件 需要 wx权限</code></li>
+</ul>
+</li>
+</ol>
+<h4 id="5-特殊权限"><a href="#5-特殊权限" class="headerlink" title="5. 特殊权限"></a>5. 特殊权限</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/164053623.png" alt="mark"></p>
+<ol>
+<li><strong><code>SUID</code> : 获取属主权限</strong> <ul>
+<li><strong>比如用户修改自己的密码</strong></li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/164651088.png" alt="mark"></p>
+<ol start="2">
+<li><strong><code>SGID</code> : 文件共享时，权限改为该目录的属组</strong></li>
+<li><strong><code>SBIT</code> :  防止自己的文件被其他普通用户误删掉</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/164924045.png" alt="mark"></p>
+<ul>
+<li><strong>增加特殊权限</strong><ul>
+<li><strong>SUID : <code>chmod 4xxx</code>   xxx为原有的权限</strong></li>
+<li><strong>SBIT : <code>chmod 1xxx</code>    xxx为原有的权限</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="5-网络管理"><a href="#5-网络管理" class="headerlink" title="5. 网络管理"></a>5. 网络管理</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/165552875.png" alt="mark"></p>
+<h3 id="5-1-网络状态的查看"><a href="#5-1-网络状态的查看" class="headerlink" title="5.1 网络状态的查看"></a>5.1 网络状态的查看</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/165748465.png" alt="mark"></p>
+<ol>
+<li><strong>net-tools 适用于 centos7 之前的系统</strong></li>
+<li><strong>iproute2 适用于 centos7 以后的系统</strong></li>
+</ol>
+<h4 id="1-ifconfig"><a href="#1-ifconfig" class="headerlink" title="1. ifconfig"></a>1. ifconfig</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/170029026.png" alt="mark"></p>
+<ol>
+<li><strong>if = interface缩写（if）</strong></li>
+<li><strong>第一块网卡的不同命名</strong>  <ul>
+<li>对于服务器来说 如果服务器很多 那么批量操作就显得不便捷</li>
+</ul>
+</li>
+<li><strong>普通用户</strong>查看 <code>sbin/ifconfig</code> 进行网络查看</li>
+</ol>
+<p><strong>重写网卡名回到eth0</strong></p>
+<p> <img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/171945267.png" alt="mark"></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu <span class="built_in">test</span>]<span class="comment"># ifconfig</span></span><br><span class="line">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.21.0.6  netmask 255.255.240.0  broadcast 172.21.15.255 <span class="comment"># ip地址 子网掩码 广播地址</span></span><br><span class="line">        inet6 fe80::5054:ff:fe02:6706  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether 52:54:00:02:67:06  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 3234415  bytes 289214162 (275.8 MiB)	<span class="comment"># 发送数据包个数 和 大小</span></span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 3149017  bytes 549055111 (523.6 MiB) <span class="comment"># 接受数据包个数 和 大小</span></span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line"><span class="comment"># lo 本地环回</span></span><br><span class="line">lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536</span><br><span class="line">        inet 127.0.0.1  netmask 255.0.0.0</span><br><span class="line">        inet6 ::1  prefixlen 128  scopeid 0x10&lt;host&gt;</span><br><span class="line">        loop  txqueuelen 1000  (Local Loopback)</span><br><span class="line">        RX packets 4450  bytes 218920 (213.7 KiB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 4450  bytes 218920 (213.7 KiB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure>
 
+
+
+<h4 id="2-mii-tool"><a href="#2-mii-tool" class="headerlink" title="2. mii-tool"></a>2. mii-tool</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/172847300.png" alt="mark"></p>
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>虚拟机/云服务器不支持此命令查看</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/173304520.png" alt="mark"></p>
+<h4 id="3-route"><a href="#3-route" class="headerlink" title="3. route"></a>3. route</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/172922241.png" alt="mark"></p>
+<ol>
+<li><strong><code>route</code> 中的 ip 会变成域名</strong></li>
+<li><strong><code>route -n</code> 不会反解ip 为域名</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/173452329.png" alt="mark"></p>
+<h3 id="5-2-网络配置的修改"><a href="#5-2-网络配置的修改" class="headerlink" title="5.2 网络配置的修改"></a>5.2 网络配置的修改</h3><h4 id="1-ifup-ifdown"><a href="#1-ifup-ifdown" class="headerlink" title="1. ifup ifdown"></a>1. ifup ifdown</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/173615526.png" alt="mark"></p>
+<ol>
+<li><p><strong>启动关闭指定网卡</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># ifconfig eth0 down</span><br><span class="line"># ifconfig eth0 up</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h4 id="2-网关配置"><a href="#2-网关配置" class="headerlink" title="2. 网关配置"></a>2. 网关配置</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/173651195.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/190418802.png" alt="mark"></p>
+<p><strong>指定明细路由</strong></p>
+<ol>
+<li><strong>指定走特定ip 使用特定的路由</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/190635734.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/190654328.png" alt="mark"></p>
+<ol start="2">
+<li><strong>指定走特定的网段 使用特定的路由</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/190815409.png" alt="mark"></p>
+<h4 id="3-ip-命令"><a href="#3-ip-命令" class="headerlink" title="3. ip 命令"></a>3. ip 命令</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/184014703.png" alt="mark"></p>
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>云服务器暂时不需要改动，因为改动可能就连不上了</strong></li>
+</ul>
+<h3 id="5-3-网络故障的排除"><a href="#5-3-网络故障的排除" class="headerlink" title="5.3 网络故障的排除"></a>5.3 网络故障的排除</h3>
       
       <!-- reward -->
       
