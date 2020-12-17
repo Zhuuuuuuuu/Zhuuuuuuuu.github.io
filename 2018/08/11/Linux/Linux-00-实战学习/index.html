@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">8.1k字</span>
+            <span class="post-count">10.8k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">30分钟</span>
+            <span class="post-count">42分钟</span>
         </span>
     </span>
 </div>
@@ -1013,7 +1013,7 @@
 </li>
 <li><strong>普通用户</strong>查看 <code>sbin/ifconfig</code> 进行网络查看</li>
 </ol>
-<p><strong>重写网卡名回到eth0</strong></p>
+<p><strong>注意： 如何重写网卡名回到eth0</strong></p>
 <p> <img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201215/171945267.png" alt="mark"></p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu <span class="built_in">test</span>]<span class="comment"># ifconfig</span></span><br><span class="line">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 172.21.0.6  netmask 255.255.240.0  broadcast 172.21.15.255 <span class="comment"># ip地址 子网掩码 广播地址</span></span><br><span class="line">        inet6 fe80::5054:ff:fe02:6706  prefixlen 64  scopeid 0x20&lt;link&gt;</span><br><span class="line">        ether 52:54:00:02:67:06  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 3234415  bytes 289214162 (275.8 MiB)	<span class="comment"># 发送数据包个数 和 大小</span></span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 3149017  bytes 549055111 (523.6 MiB) <span class="comment"># 接受数据包个数 和 大小</span></span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line"><span class="comment"># lo 本地环回</span></span><br><span class="line">lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536</span><br><span class="line">        inet 127.0.0.1  netmask 255.0.0.0</span><br><span class="line">        inet6 ::1  prefixlen 128  scopeid 0x10&lt;host&gt;</span><br><span class="line">        loop  txqueuelen 1000  (Local Loopback)</span><br><span class="line">        RX packets 4450  bytes 218920 (213.7 KiB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 4450  bytes 218920 (213.7 KiB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br></pre></td></tr></table></figure>
 
@@ -1057,7 +1057,228 @@
 <ul>
 <li><strong>云服务器暂时不需要改动，因为改动可能就连不上了</strong></li>
 </ul>
-<h3 id="5-3-网络故障的排除"><a href="#5-3-网络故障的排除" class="headerlink" title="5.3 网络故障的排除"></a>5.3 网络故障的排除</h3>
+<h3 id="5-3-网络故障的排除"><a href="#5-3-网络故障的排除" class="headerlink" title="5.3 网络故障的排除"></a>5.3 网络故障的排除</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/170800833.png" alt="mark"></p>
+<h4 id="1-ping"><a href="#1-ping" class="headerlink" title="1. ping"></a>1. ping</h4><ul>
+<li><strong>执行ping指令会使用ICMP传输协议</strong>，发出要求回应的信息，若远端主机的网络功能没有问题，就会回应该信息，因而得知该主机运作正常。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping [-dfnqrRv][-c&lt;完成次数&gt;][-i&lt;间隔秒数&gt;][-I&lt;网络界面&gt;][-l&lt;前置载入&gt;][-p&lt;范本样式&gt;][-s&lt;数据包大小&gt;][-t&lt;存活数值&gt;][主机名称或IP地址]</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong>：</p>
+<ul>
+<li>-d 使用Socket的SO_DEBUG功能。</li>
+<li><strong>-c&lt;完成次数&gt; 设置完成要求回应的次数。</strong></li>
+<li>-f 极限检测。</li>
+<li>-i&lt;间隔秒数&gt; 指定收发信息的间隔时间。</li>
+<li>-I&lt;网络界面&gt; 使用指定的网络接口送出数据包。</li>
+<li>-l&lt;前置载入&gt; 设置在送出要求信息之前，先行发出的数据包。</li>
+<li>-n 只输出数值。</li>
+<li>-p&lt;范本样式&gt; 设置填满数据包的范本样式。</li>
+<li>-q 不显示指令执行过程，开头和结尾的相关信息除外。</li>
+<li>-r 忽略普通的Routing Table，直接将数据包送到远端主机上。</li>
+<li>-R 记录路由过程。</li>
+<li>-s&lt;数据包大小&gt; 设置数据包的大小。</li>
+<li>-t&lt;存活数值&gt; 设置存活数值TTL的大小。</li>
+<li>-v 详细显示指令的执行过程。</li>
+</ul>
+<p><strong>举例子</strong></p>
+<ol>
+<li><strong>检测是否与主机连通</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping www.w3cschool.cc //ping主机</span></span><br><span class="line">PING aries.m.alikunlun.com (114.80.174.110) 56(84) bytes of data.</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=1 ttl=64 time=0.025 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=2 ttl=64 time=0.036 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=3 ttl=64 time=0.034 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=4 ttl=64 time=0.034 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=5 ttl=64 time=0.028 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=6 ttl=64 time=0.028 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=7 ttl=64 time=0.034 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=8 ttl=64 time=0.034 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=9 ttl=64 time=0.036 ms</span><br><span class="line">64 bytes from 114.80.174.110: icmp_seq=10 ttl=64 time=0.041 ms</span><br><span class="line"></span><br><span class="line">--- aries.m.alikunlun.com ping statistics ---</span><br><span class="line">10 packets transmitted, 30 received, 0% packet loss, time 29246ms</span><br><span class="line">rtt min/avg/max/mdev = 0.021/0.035/0.078/0.011 ms</span><br><span class="line"></span><br><span class="line">//需要手动终止Ctrl+C</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li><p><strong>指定接收包的次数</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping -c 2 www.w3cschool.cc</span></span><br><span class="line">PING aries.m.alikunlun.com (114.80.174.120) 56(84) bytes of data.</span><br><span class="line">64 bytes from 114.80.174.120: icmp_seq=1 ttl=54 time=6.18 ms</span><br><span class="line">64 bytes from 114.80.174.120: icmp_seq=2 ttl=54 time=15.4 ms</span><br><span class="line"></span><br><span class="line">--- aries.m.alikunlun.com ping statistics ---</span><br><span class="line">2 packets transmitted, 2 received, 0% packet loss, time 1016ms</span><br><span class="line">rtt min/avg/max/mdev = 6.185/10.824/15.464/4.640 ms</span><br><span class="line"></span><br><span class="line">//收到两次包后，自动退出</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="3">
+<li><p><strong>多参数使用</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping -i 3 -s 1024 -t 255 g.cn //ping主机</span></span><br><span class="line">PING g.cn (203.208.37.104) 1024(1052) bytes of data.</span><br><span class="line">1032 bytes from <span class="built_in">bg</span>-in-f104.1e100.net (203.208.37.104): icmp_seq=0 ttl=243 time=62.5 ms</span><br><span class="line">1032 bytes from <span class="built_in">bg</span>-in-f104.1e100.net (203.208.37.104): icmp_seq=1 ttl=243 time=63.9 ms</span><br><span class="line">1032 bytes from <span class="built_in">bg</span>-in-f104.1e100.net (203.208.37.104): icmp_seq=2 ttl=243 time=61.9 ms</span><br><span class="line"></span><br><span class="line">--- g.cn ping statistics ---</span><br><span class="line">3 packets transmitted, 3 received, 0% packet loss, time 6001ms</span><br><span class="line">rtt min/avg/max/mdev = 61.959/62.843/63.984/0.894 ms, pipe 2</span><br><span class="line">[root@linux ~]<span class="comment"># </span></span><br><span class="line"></span><br><span class="line">//-i 3 发送周期为 3秒 -s 设置发送包的大小 -t 设置TTL值为 255</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h4 id="2-traceroute"><a href="#2-traceroute" class="headerlink" title="2. traceroute"></a>2. traceroute</h4><ul>
+<li><code>Linux traceroute</code>命令用于显示数据包到主机间的路径。</li>
+<li><code>traceroute</code>指令让<strong>你追踪网络数据包的路由途径</strong>，预设数据包大小是40Bytes，用户可另行设置。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute [-dFlnrvx][-f&lt;存活数值&gt;][-g&lt;网关&gt;...][-i&lt;网络界面&gt;][-m&lt;存活数值&gt;][-p&lt;通信端口&gt;][-s&lt;来源地址&gt;][-t&lt;服务类型&gt;][-w&lt;超时秒数&gt;][主机名称或IP地址][数据包大小]</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong>：</p>
+<ul>
+<li>-d 使用Socket层级的排错功能。</li>
+<li>-f&lt;存活数值&gt; 设置第一个检测数据包的存活数值TTL的大小。</li>
+<li>-F 设置勿离断位。</li>
+<li>-g&lt;网关&gt; 设置来源路由网关，最多可设置8个。</li>
+<li>-i&lt;网络界面&gt; 使用指定的网络界面送出数据包。</li>
+<li>-I 使用ICMP回应取代UDP资料信息。</li>
+<li>-m&lt;存活数值&gt; 设置检测数据包的最大存活数值TTL的大小。</li>
+<li>-n 直接使用IP地址而非主机名称。</li>
+<li>-p&lt;通信端口&gt; 设置UDP传输协议的通信端口。</li>
+<li>-r 忽略普通的Routing Table，直接将数据包送到远端主机上。</li>
+<li>-s&lt;来源地址&gt; 设置本地主机送出数据包的IP地址。</li>
+<li>-t&lt;服务类型&gt; 设置检测数据包的TOS数值。</li>
+<li>-v 详细显示指令的执行过程。</li>
+<li><strong>-w&lt;超时秒数&gt; 设置等待远端主机回报的时间。</strong></li>
+<li>-x 开启或关闭数据包的正确性检验。</li>
+</ul>
+<p><strong>举例子：</strong></p>
+<ol>
+<li><strong>追踪到 百度页面 等待时间1秒</strong></li>
+</ol>
+<p><code>traceroute -w 1 www.baidu.com</code></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/171630478.png" alt="mark"></p>
+<h4 id="3-mtr"><a href="#3-mtr" class="headerlink" title="3. mtr"></a>3. mtr</h4><ul>
+<li>输入mtr后进入该界面</li>
+<li><strong>显示主机之间的通信（常用）</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/171718804.png" alt="mark"></p>
+<h4 id="4-nslookup"><a href="#4-nslookup" class="headerlink" title="4. nslookup"></a>4. nslookup</h4><ul>
+<li><strong>将域名解析为 ip 地址</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/171919025.png" alt="mark"></p>
+<h4 id="5-telnet"><a href="#5-telnet" class="headerlink" title="5. telnet"></a>5. telnet</h4><ul>
+<li>Linux telnet命令用于远端登入。</li>
+<li>执行telnet指令开启终端机阶段作业，并登入远端主机。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet [-8acdEfFKLrx][-b&lt;主机别名&gt;][-e&lt;脱离字符&gt;][-k&lt;域名&gt;][-l&lt;用户名称&gt;][-n&lt;记录文件&gt;][-S&lt;服务类型&gt;][-X&lt;认证形态&gt;][主机名称或IP地址&lt;通信端口&gt;]</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong>：</p>
+<ul>
+<li>-8 允许使用8位字符资料，包括输入与输出。</li>
+<li>-a 尝试自动登入远端系统。</li>
+<li>-b&lt;主机别名&gt; 使用别名指定远端主机名称。</li>
+<li>-c 不读取用户专属目录里的.telnetrc文件。</li>
+<li>-d 启动排错模式。</li>
+<li>-e&lt;脱离字符&gt; 设置脱离字符。</li>
+<li>-E 滤除脱离字符。</li>
+<li>-f 此参数的效果和指定”-F”参数相同。</li>
+<li>-F 使用Kerberos V5认证时，加上此参数可把本地主机的认证数据上传到远端主机。</li>
+<li>-k&lt;域名&gt; 使用Kerberos认证时，加上此参数让远端主机采用指定的领域名，而非该主机的域名。</li>
+<li>-K 不自动登入远端主机。</li>
+<li>-l&lt;用户名称&gt; 指定要登入远端主机的用户名称。</li>
+<li>-L 允许输出8位字符资料。</li>
+<li>-n&lt;记录文件&gt; 指定文件记录相关信息。</li>
+<li>-r 使用类似rlogin指令的用户界面。</li>
+<li>-S&lt;服务类型&gt; 设置telnet连线所需的IP TOS信息。</li>
+<li>-x 假设主机有支持数据加密的功能，就使用它。</li>
+<li>-X&lt;认证形态&gt; 关闭指定的认证形态。</li>
+</ul>
+<p>举例子：</p>
+<ol>
+<li><strong>查看端口是否畅通</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/172307347.png" alt="mark"></p>
+<p><code>telnet 域名/ip 端口号</code></p>
+<ol start="2">
+<li><strong>退出<code>telnet</code></strong><ul>
+<li><strong><code>ctrl + ]</code></strong></li>
+<li><strong>再次输入quit</strong></li>
+</ul>
+</li>
+</ol>
+<h4 id="6-tcpdump-网络抓包"><a href="#6-tcpdump-网络抓包" class="headerlink" title="6. tcpdump 网络抓包"></a>6. tcpdump 网络抓包</h4><ul>
+<li><code>Linux tcpdump</code>命令用于倾倒网络传输数据。</li>
+<li>执行<code>tcpdump</code>指令可列出经过指定网络界面的数据包文件头</li>
+<li>在<code>Linux</code>操作系统中，你必须是系统管理员。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump [-adeflnNOpqStvx][-c&lt;数据包数目&gt;][-dd][-ddd][-F&lt;表达文件&gt;][-i&lt;网络界面&gt;][-r&lt;数据包文件&gt;][-s&lt;数据包大小&gt;][-tt][-T&lt;数据包类型&gt;][-vv][-w&lt;数据包文件&gt;][输出数据栏位]</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong>：</p>
+<ul>
+<li>-a 尝试将网络和广播地址转换成名称。</li>
+<li>-c&lt;数据包数目&gt; 收到指定的数据包数目后，就停止进行倾倒操作。</li>
+<li>-d 把编译过的数据包编码转换成可阅读的格式，并倾倒到标准输出。</li>
+<li>-dd 把编译过的数据包编码转换成C语言的格式，并倾倒到标准输出。</li>
+<li>-ddd 把编译过的数据包编码转换成十进制数字的格式，并倾倒到标准输出。</li>
+<li>-e 在每列倾倒资料上显示连接层级的文件头。</li>
+<li>-f 用数字显示网际网络地址。</li>
+<li>-F&lt;表达文件&gt; 指定内含表达方式的文件。</li>
+<li><strong>-i&lt;网络界面&gt; 使用指定的网络截面送出数据包。</strong></li>
+<li>-l 使用标准输出列的缓冲区。</li>
+<li><strong>-n 不把主机的网络地址转换成名字。</strong></li>
+<li>-N 不列出域名。</li>
+<li>-O 不将数据包编码最佳化。</li>
+<li>-p 不让网络界面进入混杂模式。</li>
+<li>-q 快速输出，仅列出少数的传输协议信息。</li>
+<li>-r&lt;数据包文件&gt; 从指定的文件读取数据包数据。</li>
+<li>-s&lt;数据包大小&gt; 设置每个数据包的大小。</li>
+<li>-S 用绝对而非相对数值列出TCP关联数。</li>
+<li>-t 在每列倾倒资料上不显示时间戳记。</li>
+<li>-tt 在每列倾倒资料上显示未经格式化的时间戳记。</li>
+<li>-T&lt;数据包类型&gt; 强制将表达方式所指定的数据包转译成设置的数据包类型。</li>
+<li>-v 详细显示指令执行过程。</li>
+<li>-vv 更详细显示指令执行过程。</li>
+<li>-x 用十六进制字码列出数据包资料。</li>
+<li>-w&lt;数据包文件&gt; 把数据包数据写入指定的文件。</li>
+</ul>
+<p><strong>举例</strong></p>
+<ol>
+<li><strong>抓取80端口 不显示域名 的所有数据包</strong></li>
+</ol>
+<p><code>tcpdump -i any -n port 80</code></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/172941487.png" alt="mark"></p>
+<ol start="2">
+<li><strong>抓取特定主机 不显示域名 的所有数据包</strong></li>
+</ol>
+<p><code>tcpdump -i any -n host 10.0.0.1</code></p>
+<ol start="3">
+<li><strong>同时抓取ip + port 的数据包</strong></li>
+</ol>
+<p><code>tcpdump -i any -n host 10.0.0.1 and port 80</code></p>
+<ol start="4">
+<li><strong>抓取数据包 并 保存成为日志文件</strong></li>
+</ol>
+<p><code>tcpdump -i any -n host 10.0.0.1 and port 80 -w 指定路径</code></p>
+<h4 id="7-netstat"><a href="#7-netstat" class="headerlink" title="7. netstat"></a>7. netstat</h4><ul>
+<li>Linux netstat 命令用于显示网络状态。</li>
+<li>利用 netstat 指令可让你得知整个 Linux 系统的网络情况。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat [-acCeFghilMnNoprstuvVwx][-A&lt;网络类型&gt;][--ip]</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong>：</p>
+<ul>
+<li>-a或–all 显示所有连线中的Socket。</li>
+<li>-A&lt;网络类型&gt;或–&lt;网络类型&gt; 列出该网络类型连线中的相关地址。</li>
+<li>-c或–continuous 持续列出网络状态。</li>
+<li>-C或–cache 显示路由器配置的快取信息。</li>
+<li>-e或–extend 显示网络其他相关信息。</li>
+<li>-F或–fib 显示FIB。</li>
+<li>-g或–groups 显示多重广播功能群组组员名单。</li>
+<li>-h或–help 在线帮助。</li>
+<li>-i或–interfaces 显示网络界面信息表单。</li>
+<li><strong>-l或–listening 显示监控中的服务器的Socket。</strong></li>
+<li>-M或–masquerade 显示伪装的网络连线。</li>
+<li><strong>-n或–numeric 直接使用IP地址，而不通过域名服务器。</strong></li>
+<li>-N或–netlink或–symbolic 显示网络硬件外围设备的符号连接名称。</li>
+<li>-o或–timers 显示计时器。</li>
+<li><strong>-p或–programs 显示正在使用Socket的程序识别码和程序名称。</strong></li>
+<li>-r或–route 显示Routing Table。</li>
+<li>-s或–statistics 显示网络工作信息统计表。</li>
+<li><strong>-t或–tcp 显示TCP传输协议的连线状况。</strong></li>
+<li>-u或–udp 显示UDP传输协议的连线状况。</li>
+<li>-v或–verbose 显示指令执行过程。</li>
+<li>-V或–version 显示版本信息。</li>
+<li>-w或–raw 显示RAW传输协议的连线状况。</li>
+<li>-x或–unix 此参数的效果和指定”-A unix”参数相同。</li>
+<li>–ip或–inet 此参数的效果和指定”-A inet”参数相同。</li>
+</ul>
+<p><strong>举例</strong></p>
+<ol>
+<li><strong>不显示域名 监听 tcp 的进程</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/173546348.png" alt="mark"></p>
+<h4 id="8-ss"><a href="#8-ss" class="headerlink" title="8. ss"></a>8. ss</h4><ul>
+<li><strong>另外一种格式的netstat</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/173827867.png" alt="mark"></p>
+
       
       <!-- reward -->
       
@@ -1339,6 +1560,10 @@
     </li>
     
     <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
       <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
     </li>
     
@@ -1352,10 +1577,6 @@
     
     <li class="nav-item">
       <a class="nav-item-link" href="/tags/Python/">Python</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags/travel/">旅行</a>
     </li>
     
     <li class="nav-item">
