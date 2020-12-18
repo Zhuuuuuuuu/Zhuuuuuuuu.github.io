@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">10.9k字</span>
+            <span class="post-count">13.8k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">42分钟</span>
+            <span class="post-count">54分钟</span>
         </span>
     </span>
 </div>
@@ -1144,8 +1144,8 @@
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/171919025.png" alt="mark"></p>
 <h4 id="5-telnet"><a href="#5-telnet" class="headerlink" title="5. telnet"></a>5. telnet</h4><ul>
-<li>Linux telnet命令用于远端登入。</li>
-<li>执行telnet指令开启终端机阶段作业，并登入远端主机。</li>
+<li><code>Linux telnet</code>命令用于远端登入。</li>
+<li>执行<code>telnet</code>指令开启终端机阶段作业，并登入远端主机。</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet [-8acdEfFKLrx][-b&lt;主机别名&gt;][-e&lt;脱离字符&gt;][-k&lt;域名&gt;][-l&lt;用户名称&gt;][-n&lt;记录文件&gt;][-S&lt;服务类型&gt;][-X&lt;认证形态&gt;][主机名称或IP地址&lt;通信端口&gt;]</span><br></pre></td></tr></table></figure>
 
@@ -1237,8 +1237,8 @@
 </ol>
 <p><code>tcpdump -i any -n host 10.0.0.1 and port 80 -w 指定路径</code></p>
 <h4 id="7-netstat"><a href="#7-netstat" class="headerlink" title="7. netstat"></a>7. netstat</h4><ul>
-<li>Linux netstat 命令用于显示网络状态。</li>
-<li>利用 netstat 指令可让你得知整个 Linux 系统的网络情况。</li>
+<li><code>Linux netstat</code> 命令用于显示网络状态。</li>
+<li>利用 <code>netstat</code> 指令可让你得知整个 Linux 系统的网络情况。</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat [-acCeFghilMnNoprstuvVwx][-A&lt;网络类型&gt;][--ip]</span><br></pre></td></tr></table></figure>
 
@@ -1278,6 +1278,294 @@
 <li><strong>另外一种格式的netstat</strong></li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201216/173827867.png" alt="mark"></p>
+<h3 id="5-4-网络服务管理（保存网络配置）"><a href="#5-4-网络服务管理（保存网络配置）" class="headerlink" title="5.4 网络服务管理（保存网络配置）"></a>5.4 网络服务管理（保存网络配置）</h3><ol>
+<li><strong>网络服务管理命令</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/111516475.png" alt="mark"></p>
+<ul>
+<li><strong>SysV : centos 7 之前使用</strong></li>
+<li><strong>sytemd : centos 7 之后使用</strong></li>
+</ul>
+<ol start="2">
+<li><strong>网络配置文件</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/111650112.png" alt="mark"></p>
+<h4 id="1-查看网卡"><a href="#1-查看网卡" class="headerlink" title="1. 查看网卡"></a>1. 查看网卡</h4><p><code>service network status</code>  ： 查看网卡状态</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/111955637.png" alt="mark"></p>
+<p><code>service network start</code>  :  重新还原默认配置</p>
+<h4 id="2-NetworkManager"><a href="#2-NetworkManager" class="headerlink" title="2. NetworkManager"></a>2. NetworkManager</h4><ol>
+<li><strong>首先需要禁用上述第一点的 network</strong><ul>
+<li><code>chkconfig --list network</code> : 查看network 状态</li>
+<li><code>chkconfig --level 2345 network off</code> : 禁用network</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/112326853.png" alt="mark"></p>
+<ol start="2">
+<li><strong>NetworkManger 的作用</strong><ul>
+<li><strong>个人电脑 ： 自动连接Wi-fi网络</strong></li>
+<li><strong>服务器 ： 沿用network</strong> <ul>
+<li><code>chkconfig --level 2345 network on</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<ol start="3">
+<li><strong>禁用NetworkManger</strong><ul>
+<li><code>systemctl disable NetworkManager</code></li>
+<li><code>systemctl enable NetworkManager</code></li>
+</ul>
+</li>
+</ol>
+<h4 id="3-网卡配置文件修改（network-scripts）"><a href="#3-网卡配置文件修改（network-scripts）" class="headerlink" title="3. 网卡配置文件修改（network-scripts）"></a>3. 网卡配置文件修改（network-scripts）</h4><ul>
+<li><code>cd /etc/sysconfig/network-scripts/</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu ~]# cd &#x2F;etc&#x2F;sysconfig&#x2F;network-scripts&#x2F;</span><br><span class="line">[root@zhuuu network-scripts]# ls</span><br><span class="line">ifcfg-eth0   ifdown-eth   ifdown-post    ifdown-Team      ifup-aliases  ifup-ipv6   ifup-post    ifup-Team      init.ipv6-global</span><br><span class="line">ifcfg-lo     ifdown-ippp  ifdown-ppp     ifdown-TeamPort  ifup-bnep     ifup-isdn   ifup-ppp     ifup-TeamPort  network-functions</span><br><span class="line">ifdown       ifdown-ipv6  ifdown-routes  ifdown-tunnel    ifup-eth      ifup-plip   ifup-routes  ifup-tunnel    network-functions-ipv6</span><br><span class="line">ifdown-bnep  ifdown-isdn  ifdown-sit     ifup             ifup-ippp     ifup-plusb  ifup-sit     ifup-wireless  route6-eth0</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>举例子</strong></p>
+<ol>
+<li><code>vim ifcfg-eth0</code> : <strong>默认动态ip配置的网卡</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/113004512.png" alt="mark"></p>
+<ol start="2">
+<li><strong>静态ip配置修改(重点)</strong><ul>
+<li>修改设置生效 ： <code>systemctl restart NetworkManager.service</code></li>
+<li>修改设置生效 ： <code>service network restart</code></li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/113307108.png" alt="mark"></p>
+<h4 id="4-host-修改"><a href="#4-host-修改" class="headerlink" title="4. host 修改"></a>4. host 修改</h4><ol>
+<li><code>hostname</code> : 查看自己的主机名</li>
+<li><strong>临时修改</strong> ： <code>hostname 修改后的主机名</code></li>
+<li><strong>永久修改</strong> ： <code>hostnamectl set-hostname 修改后的主机名</code></li>
+</ol>
+<p><strong>注意 ： 主机名一旦更改，有其他的配置也需要同时修改</strong></p>
+<ul>
+<li><code>vim /etc/hosts</code></li>
+<li>加入<code>127.0.0.1 修改后的主机名</code></li>
+</ul>
+<h2 id="6-软件安装"><a href="#6-软件安装" class="headerlink" title="6. 软件安装"></a>6. 软件安装</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/114211348.png" alt="mark"></p>
+<ul>
+<li><code>redhat,centos : rpm 包</code></li>
+<li><code>yum : 仓库</code></li>
+</ul>
+<h3 id="6-1-软件包的管理器"><a href="#6-1-软件包的管理器" class="headerlink" title="6.1 软件包的管理器"></a>6.1 软件包的管理器</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/114318257.png" alt="mark"></p>
+<ul>
+<li><strong>rpm ： centos redhat</strong></li>
+<li><strong>apt : debian ubuntu</strong></li>
+</ul>
+<h3 id="6-2-rpm"><a href="#6-2-rpm" class="headerlink" title="6.2 rpm"></a>6.2 rpm</h3><ul>
+<li><code>Linux rpm</code> 命令用于管理套件。</li>
+<li><code>rpm</code>（英文全拼：<code>redhat package manager</code>） 原本是 Red Hat Linux 发行版专门用来管理 Linux 各项套件的程序，由于它遵循 GPL 规则且功能强大方便，因而广受欢迎。逐渐受到其他发行版的采用。RPM 套件管理方式的出现，让 Linux 易于安装，升级，间接提升了 Linux 的适用度。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/141128384.png" alt="mark"></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm [-acdhilqRsv][-b&lt;完成阶段&gt;&lt;套间档&gt;+][-e&lt;套件挡&gt;][-f&lt;文件&gt;+][-i&lt;套件档&gt;][-p&lt;套件档&gt;＋][-U&lt;套件档&gt;][-vv][--addsign&lt;套件档&gt;+][--allfiles][--allmatches][--badreloc][--buildroot&lt;根目录&gt;][--changelog][--checksig&lt;套件档&gt;+][--clean][--dbpath&lt;数据库目录&gt;][--dump][--excludedocs][--excludepath&lt;排除目录&gt;][--force][--ftpproxy&lt;主机名称或IP地址&gt;][--ftpport&lt;通信端口&gt;][--<span class="built_in">help</span>][--httpproxy&lt;主机名称或IP地址&gt;][--httpport&lt;通信端口&gt;][--ignorearch][--ignoreos][--ignoresize][--includedocs][--initdb][justdb][--nobulid][--nodeps][--nofiles][--nogpg][--nomd5][--nopgp][--noorder][--noscripts][--notriggers][--oldpackage][--percent][--pipe&lt;执行指令&gt;][--prefix&lt;目的目录&gt;][--provides][--queryformat&lt;档头格式&gt;][--querytags][--rcfile&lt;配置档&gt;][--rebulid&lt;套件档&gt;][--rebuliddb][--recompile&lt;套件档&gt;][--relocate&lt;原目录&gt;=&lt;新目录&gt;][--replacefiles][--replacepkgs][--requires][--resign&lt;套件档&gt;+][--rmsource][--rmsource&lt;文件&gt;][--root&lt;根目录&gt;][--scripts][--setperms][--setugids][--short-circuit][--sign][--target=&lt;安装平台&gt;+][--<span class="built_in">test</span>][--timecheck&lt;检查秒数&gt;][--triggeredby&lt;套件档&gt;][--triggers][--verify][--version][--whatprovides&lt;功能特性&gt;][--whatrequires&lt;功能特性&gt;]</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong>：</p>
+<ul>
+<li>-a 　查询所有套件。</li>
+<li>-b&lt;完成阶段&gt;&lt;套件档&gt;+或-t &lt;完成阶段&gt;&lt;套件档&gt;+ 　设置包装套件的完成阶段，并指定套件档的文件名称。</li>
+<li>-c 　只列出组态配置文件，本参数需配合”-l”参数使用。</li>
+<li>-d 　只列出文本文件，本参数需配合”-l”参数使用。</li>
+<li><strong>-e&lt;套件档&gt;或–erase&lt;套件档&gt; 　删除指定的套件。</strong></li>
+<li>-f&lt;文件&gt;+ 　查询拥有指定文件的套件。</li>
+<li>-h或–hash 　套件安装时列出标记。</li>
+<li>-i 　显示套件的相关信息。</li>
+<li><strong>-i&lt;套件档&gt;或–install&lt;套件档&gt; 　安装指定的套件档。</strong></li>
+<li>-l 　显示套件的文件列表。</li>
+<li>-p&lt;套件档&gt;+ 　查询指定的RPM套件档。</li>
+<li><strong>-q 　使用询问模式，当遇到任何问题时，rpm指令会先询问用户。</strong></li>
+<li>-R 　显示套件的关联性信息。</li>
+<li>-s 　显示文件状态，本参数需配合”-l”参数使用。</li>
+<li>-U&lt;套件档&gt;或–upgrade&lt;套件档&gt; 升级指定的套件档。</li>
+<li>-v 　显示指令执行过程。</li>
+<li>-vv 　详细显示指令执行过程，便于排错。</li>
+<li>-addsign&lt;套件档&gt;+ 　在指定的套件里加上新的签名认证。</li>
+<li>–allfiles 　安装所有文件。</li>
+<li>–allmatches 　删除符合指定的套件所包含的文件。</li>
+<li>–badreloc 　发生错误时，重新配置文件。</li>
+<li>–buildroot&lt;根目录&gt; 　设置产生套件时，欲当作根目录的目录。</li>
+<li>–changelog 　显示套件的更改记录。</li>
+<li>–checksig&lt;套件档&gt;+ 　检验该套件的签名认证。</li>
+<li>–clean 　完成套件的包装后，删除包装过程中所建立的目录。</li>
+<li>–dbpath&lt;数据库目录&gt; 　设置欲存放RPM数据库的目录。</li>
+<li>–dump 　显示每个文件的验证信息。本参数需配合”-l”参数使用。</li>
+<li>–excludedocs 　安装套件时，不要安装文件。</li>
+<li>–excludepath&lt;排除目录&gt; 　忽略在指定目录里的所有文件。</li>
+<li>–force 　强行置换套件或文件。</li>
+<li>–ftpproxy&lt;主机名称或IP地址&gt; 　指定FTP代理服务器。</li>
+<li>–ftpport&lt;通信端口&gt; 　设置FTP服务器或代理服务器使用的通信端口。</li>
+<li>–help 　在线帮助。</li>
+<li>–httpproxy&lt;主机名称或IP地址&gt; 　指定HTTP代理服务器。</li>
+<li>–httpport&lt;通信端口&gt; 　设置HTTP服务器或代理服务器使用的通信端口。</li>
+<li>–ignorearch 　不验证套件档的结构正确性。</li>
+<li>–ignoreos 　不验证套件档的结构正确性。</li>
+<li>–ignoresize 　安装前不检查磁盘空间是否足够。</li>
+<li>–includedocs 　安装套件时，一并安装文件。</li>
+<li>–initdb 　确认有正确的数据库可以使用。</li>
+<li>–justdb 　更新数据库，当不变动任何文件。</li>
+<li>–nobulid 　不执行任何完成阶段。</li>
+<li>–nodeps 　不验证套件档的相互关联性。</li>
+<li>–nofiles 　不验证文件的属性。</li>
+<li>–nogpg 　略过所有GPG的签名认证。</li>
+<li>–nomd5 　不使用MD5编码演算确认文件的大小与正确性。</li>
+<li>–nopgp 　略过所有PGP的签名认证。</li>
+<li>–noorder 　不重新编排套件的安装顺序，以便满足其彼此间的关联性。</li>
+<li>–noscripts 　不执行任何安装Script文件。</li>
+<li>–notriggers 　不执行该套件包装内的任何Script文件。</li>
+<li>–oldpackage 　升级成旧版本的套件。</li>
+<li>–percent 　安装套件时显示完成度百分比。</li>
+<li>–pipe&lt;执行指令&gt; 　建立管道，把输出结果转为该执行指令的输入数据。</li>
+<li>–prefix&lt;目的目录&gt; 　若重新配置文件，就把文件放到指定的目录下。</li>
+<li>–provides 　查询该套件所提供的兼容度。</li>
+<li>–queryformat&lt;档头格式&gt; 　设置档头的表示方式。</li>
+<li>–querytags 　列出可用于档头格式的标签。</li>
+<li>–rcfile&lt;配置文件&gt; 　使用指定的配置文件。</li>
+<li>–rebulid&lt;套件档&gt; 　安装原始代码套件，重新产生二进制文件的套件。</li>
+<li>–rebuliddb 　以现有的数据库为主，重建一份数据库。</li>
+<li>–recompile&lt;套件档&gt; 　此参数的效果和指定”–rebulid”参数类似，当不产生套件档。</li>
+<li>–relocate&lt;原目录&gt;=&lt;新目录&gt; 　把本来会放到原目录下的文件改放到新目录。</li>
+<li>–replacefiles 　强行置换文件。</li>
+<li>–replacepkgs 　强行置换套件。</li>
+<li>–requires 　查询该套件所需要的兼容度。</li>
+<li>–resing&lt;套件档&gt;+ 　删除现有认证，重新产生签名认证。</li>
+<li>–rmsource 　完成套件的包装后，删除原始代码。</li>
+<li>–rmsource&lt;文件&gt; 　删除原始代码和指定的文件。</li>
+<li>–root&lt;根目录&gt; 　设置欲当作根目录的目录。</li>
+<li>–scripts 　列出安装套件的Script的变量。</li>
+<li>–setperms 　设置文件的权限。</li>
+<li>–setugids 　设置文件的拥有者和所属群组。</li>
+<li>–short-circuit 　直接略过指定完成阶段的步骤。</li>
+<li>–sign 　产生PGP或GPG的签名认证。</li>
+<li>–target=&lt;安装平台&gt;+ 　设置产生的套件的安装平台。</li>
+<li>–test 　仅作测试，并不真的安装套件。</li>
+<li>–timecheck&lt;检查秒数&gt; 　设置检查时间的计时秒数。</li>
+<li>–triggeredby&lt;套件档&gt; 　查询该套件的包装者。</li>
+<li>–triggers 　展示套件档内的包装Script。</li>
+<li>–verify 　此参数的效果和指定”-q”参数相同。</li>
+<li>–version 　显示版本信息。</li>
+<li>–whatprovides&lt;功能特性&gt; 　查询该套件对指定的功能特性所提供的兼容度。</li>
+<li>–whatrequires&lt;功能特性&gt; 　查询该套件对指定的功能特性所需要的兼容度。</li>
+</ul>
+<p><strong>举个例子</strong></p>
+<ol>
+<li>安装<code>vim</code></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/140846135.png" alt="mark"></p>
+<ol start="2">
+<li>查询系统中所有安装的软件包 ：<code>rpm -qa</code>   </li>
+<li>分屏显示所有安装的软件包 : <code>rpm -qa | more</code></li>
+<li>查询一个单独的软件包版本 : <code>rpm -q 软件名</code></li>
+<li>安装软件包 <code>rpm -i 软件名</code></li>
+<li>卸载软件包  <code>rpm -e 软件名</code></li>
+</ol>
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>查询Linux设备路径 <code>ls -al /dev</code></strong></li>
+<li><strong>Linux 光驱 <code>ls -l /dev/sr0</code></strong></li>
+<li>把光驱做成iso 文件 ： <code>dd if=/dev/sr0 of=/xxx/xx.iso</code></li>
+<li><strong>挂载光驱 ： <code>mount /dev/sr0 /mnt</code>     注：/mnt 是Linux 用来挂载的目录</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/141912592.png" alt="mark"></p>
+<ul>
+<li><strong>软件包的依赖问题</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/143922544.png" alt="mark"></p>
+<h3 id="6-3-yum"><a href="#6-3-yum" class="headerlink" title="6.3 yum"></a>6.3 yum</h3><ul>
+<li>yum（ <code>Yellow dog Updater, Modified</code>）是一个在 Fedora 和 RedHat 以及 SUSE 中的 Shell 前端软件包管理器。</li>
+<li><strong>基于 RPM 包管理</strong>，能够<strong>从指定的服务器自动下载 RPM 包并且安装</strong>，可以<strong>自动处理依赖性关系，并且一次安装所有依赖的软体包，无须繁琐地一次次下载、安装。</strong></li>
+<li>yum 提供了查找、安装、删除某一个、一组甚至全部软件包的命令，而且命令简洁而又好记。</li>
+</ul>
+<ol>
+<li><strong>yum仓库</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/144153552.png" alt="mark"></p>
+<ol start="2">
+<li><strong>修改yum 配置文件</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/144240621.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/144405278.png" alt="mark"></p>
+<ol start="3">
+<li><strong>yum 常用命令</strong></li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum [options] [command] [package ...]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>options：</strong>可选，选项包括-h（帮助），-y（当安装过程提示选择全部为 “yes”），-q（不显示安装的过程）等等。</li>
+<li><strong>command：</strong>要进行的操作。</li>
+<li><strong>package：</strong>安装的包名。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/144428038.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">1. 列出所有可更新的软件清单命令：yum check-update</span><br><span class="line"></span><br><span class="line">2. 更新所有软件命令：yum update</span><br><span class="line"></span><br><span class="line">3. 仅安装指定的软件命令：yum install &lt;package_name&gt;</span><br><span class="line"></span><br><span class="line">4. 仅更新指定的软件命令：yum update &lt;package_name&gt;</span><br><span class="line"></span><br><span class="line">5. 列出所有可安裝的软件清单命令：yum list</span><br><span class="line"></span><br><span class="line">6. 删除软件包命令：yum remove &lt;package_name&gt;</span><br><span class="line"></span><br><span class="line">7. 查找软件包命令：yum search &lt;keyword&gt;</span><br><span class="line"></span><br><span class="line">8. 清除缓存命令:</span><br><span class="line"></span><br><span class="line">yum clean packages: 清除缓存目录下的软件包</span><br><span class="line">yum clean headers: 清除缓存目录下的 headers</span><br><span class="line">yum clean oldheaders: 清除缓存目录下旧的 headers</span><br><span class="line">yum clean, yum clean all (&#x3D; yum clean packages; yum clean oldheaders) :清除缓存目录下的软件包及旧的 headers</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="国内yum-源"><a href="#国内yum-源" class="headerlink" title="国内yum 源"></a>国内yum 源</h4><ul>
+<li>网易（163）yum源是国内最好的yum源之一 ，无论是速度还是软件版本，都非常的不错。</li>
+<li>将yum源设置为163 yum，可以提升软件包安装和更新的速度，同时避免一些常见软件版本无法找到。</li>
+</ul>
+<p><strong>安装步骤</strong></p>
+<ol>
+<li>首先备份/etc/yum.repos.d/CentOS-Base.repo</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-Base.repo.backup</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>下载对应版本 repo 文件, 放入 /etc/yum.repos.d/ (操作前请做好相应备份)</li>
+</ol>
+<ul>
+<li><a href="http://mirrors.163.com/.help/CentOS5-Base-163.repo" target="_blank" rel="noopener">CentOS5</a> ：<a href="http://mirrors.163.com/.help/CentOS5-Base-163.repo" target="_blank" rel="noopener">http://mirrors.163.com/.help/CentOS5-Base-163.repo</a></li>
+<li><a href="http://mirrors.163.com/.help/CentOS6-Base-163.repo" target="_blank" rel="noopener">CentOS6</a> ：<a href="http://mirrors.163.com/.help/CentOS6-Base-163.repo" target="_blank" rel="noopener">http://mirrors.163.com/.help/CentOS6-Base-163.repo</a></li>
+<li><a href="http://mirrors.163.com/.help/CentOS7-Base-163.repo" target="_blank" rel="noopener">CentOS7</a> ：<a href="http://mirrors.163.com/.help/CentOS7-Base-163.repo" target="_blank" rel="noopener">http://mirrors.163.com/.help/CentOS7-Base-163.repo</a></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;mirrors.163.com&#x2F;.help&#x2F;CentOS6-Base-163.repo</span><br><span class="line">mv CentOS6-Base-163.repo CentOS-Base.repo</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>运行以下命令生成缓存</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum clean all</span><br><span class="line">yum makecache</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/145021767.png" alt="mark"></p>
+<h3 id="6-4-源代码编译安装"><a href="#6-4-源代码编译安装" class="headerlink" title="6.4 源代码编译安装"></a>6.4 源代码编译安装</h3><ul>
+<li><strong>适用于YUM上没有的软件包</strong></li>
+</ul>
+<ol>
+<li><strong>举个例子 ： 流程</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201217/145605769.png" alt="mark"></p>
+<p><strong>注意：</strong></p>
+<ol>
+<li><strong>如果没有gcc编译器</strong><ul>
+<li><code>yum install gcc gcc-c++</code></li>
+</ul>
+</li>
+<li><strong>缺少库</strong><ul>
+<li><code>yum install 软件名</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="6-5-升级内核"><a href="#6-5-升级内核" class="headerlink" title="6.5 升级内核"></a>6.5 升级内核</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201218/085623218.png" alt="mark"></p>
+<ol>
+<li><p><strong>查询内核版本 <code>uname -r</code></strong></p>
+</li>
+<li><p><strong>rpm 方式安装和 yum方式安装</strong></p>
+</li>
+<li><p><strong>源代码编译方式安装内核</strong></p>
+</li>
+<li><p><strong>查看 cpu 核心 <code>lscpu</code></strong></p>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201218/085742818.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201218/090905068.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201218/091037603.png" alt="mark"></p>
+<h4 id="1-更新仓库版本内核"><a href="#1-更新仓库版本内核" class="headerlink" title="1. 更新仓库版本内核"></a>1. 更新仓库版本内核</h4><ol>
+<li><code>yum install epel-release</code>  具有较新软件版本的仓库</li>
+<li><code>yum install kernel</code>   更新仓库中的版本内核</li>
+</ol>
 
       
       <!-- reward -->
