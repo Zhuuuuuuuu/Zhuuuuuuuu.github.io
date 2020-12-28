@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">2.1k字</span>
+            <span class="post-count">3.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">8分钟</span>
+            <span class="post-count">14分钟</span>
         </span>
     </span>
 </div>
@@ -144,7 +144,7 @@
 
 
 
-<h2 id="121-买卖股票的最佳时机"><a href="#121-买卖股票的最佳时机" class="headerlink" title="121. 买卖股票的最佳时机"></a><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock" target="_blank" rel="noopener">121. 买卖股票的最佳时机</a></h2><h3 id="1-题目描述"><a href="#1-题目描述" class="headerlink" title="1. 题目描述"></a>1. 题目描述</h3><ul>
+<h2 id="1-leetcode-121-买卖股票的最佳时机"><a href="#1-leetcode-121-买卖股票的最佳时机" class="headerlink" title="1. leetcode-121. 买卖股票的最佳时机"></a>1. leetcode-<a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock" target="_blank" rel="noopener">121. 买卖股票的最佳时机</a></h2><h3 id="1-题目描述"><a href="#1-题目描述" class="headerlink" title="1. 题目描述"></a>1. 题目描述</h3><ul>
 <li><p>给定一个数组，它的第 i 个元素是一支给定股票第 i 天的价格。</p>
 </li>
 <li><p>如果你最多只允许完成一笔交易（即买入和卖出一支股票一次），设计一个算法来计算你所能获取的最大利润。</p>
@@ -216,7 +216,20 @@
 
 
 
-<h3 id="5-优化1：滚动数组"><a href="#5-优化1：滚动数组" class="headerlink" title="5. 优化1：滚动数组"></a>5. 优化1：滚动数组</h3><h3 id="6-知识点：无后效性"><a href="#6-知识点：无后效性" class="headerlink" title="6. 知识点：无后效性"></a>6. 知识点：无后效性</h3><ul>
+<h3 id="5-优化1：滚动数组-待续"><a href="#5-优化1：滚动数组-待续" class="headerlink" title="5. 优化1：滚动数组 (待续)"></a>5. 优化1：滚动数组 (待续)</h3><h3 id="6-优化2-：-空间优化"><a href="#6-优化2-：-空间优化" class="headerlink" title="6. 优化2 ： 空间优化"></a>6. 优化2 ： 空间优化</h3><p><strong>说明</strong>：空间优化只看状态转移方程。</p>
+<p>状态转移方程里下标为 <code>i</code> 的行只参考下标为 <code>i - 1</code> 的行（即只参考上一行），并且：</p>
+<ul>
+<li>下标为 <code>i</code> 的行并且状态为 <code>0</code> 的行参考了<strong>上一行状态为 <code>0</code> 和 <code>1</code> 的行；</strong></li>
+<li>下标为 <code>i</code> 的行并且状态为 <code>1</code> 的行只参考了<strong>上一行状态为 <code>1</code> 的行。</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = prices.length;</span><br><span class="line">        <span class="keyword">if</span>(len &lt; <span class="number">2</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        dp[<span class="number">1</span>] = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>;i &lt; len;i++)&#123;</span><br><span class="line">            dp[<span class="number">0</span>] = Math.max(dp[<span class="number">0</span>],dp[<span class="number">1</span>] + prices[i]);</span><br><span class="line">            dp[<span class="number">1</span>] = Math.max(dp[<span class="number">1</span>],-prices[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析</strong>：</p>
+<ul>
+<li>时间复杂度：O(N)，遍历股价数组可以得到最优解；</li>
+<li>空间复杂度：O(1)，状态数组的长度为 2。</li>
+</ul>
+<h3 id="7-知识点：无后效性"><a href="#7-知识点：无后效性" class="headerlink" title="7. 知识点：无后效性"></a>7. 知识点：无后效性</h3><ul>
 <li><p>以下截图来自《算法导论》中文版第 15 章第 1 节的描述，这里借用它的图说明动态规划求解过程需要满足无后效性的意思</p>
 </li>
 <li><p>一个问题的递归结构如下图所示（这里忽略问题场景）。</p>
@@ -234,8 +247,86 @@
 <li><strong>自顶向下</strong>：也就是记忆化递归，求解过程会遇到重复子问题，所以需要记录每一个子问题的结果；</li>
 <li><strong>自底向上</strong>：通过发现一个问题最开始的样子，通过「递推」一步一步求得原始问题的解。</li>
 </ul>
-<p>在「力扣」上的绝大多数问题都可以通过「自底向上」递推的方式去做。</p>
-<h2 id="309-最佳买卖股票时机含冷冻期"><a href="#309-最佳买卖股票时机含冷冻期" class="headerlink" title="309. 最佳买卖股票时机含冷冻期"></a><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown" target="_blank" rel="noopener">309. 最佳买卖股票时机含冷冻期</a></h2><h2 id="714-买卖股票的最佳时机含手续费"><a href="#714-买卖股票的最佳时机含手续费" class="headerlink" title="714. 买卖股票的最佳时机含手续费"></a><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee" target="_blank" rel="noopener">714. 买卖股票的最佳时机含手续费</a></h2>
+<p><strong>在「力扣」上的绝大多数问题都可以通过「自底向上」递推的方式去做。</strong></p>
+<hr>
+<h2 id="2-Leetcode-309-最佳买卖股票时机含冷冻期"><a href="#2-Leetcode-309-最佳买卖股票时机含冷冻期" class="headerlink" title="2. Leetcode-309. 最佳买卖股票时机含冷冻期"></a>2. Leetcode-<a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown" target="_blank" rel="noopener">309. 最佳买卖股票时机含冷冻期</a></h2><h3 id="1-题目描述-1"><a href="#1-题目描述-1" class="headerlink" title="1. 题目描述"></a>1. 题目描述</h3><ul>
+<li>给定一个数组，它的第 <em>i</em> 个元素是一支给定股票第 <em>i</em> 天的价格。</li>
+<li>设计一个算法来计算你所能获取的最大利润。你可以尽可能地完成更多的交易（多次买卖一支股票）。</li>
+</ul>
+<p><strong>注意：</strong>你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">示例 1:</span><br><span class="line"></span><br><span class="line">输入: [7,1,5,3,6,4]</span><br><span class="line">输出: 7</span><br><span class="line">解释: 在第 2 天（股票价格 &#x3D; 1）的时候买入，在第 3 天（股票价格 &#x3D; 5）的时候卖出, 这笔交易所能获得利润 &#x3D; 5-1 &#x3D; 4 。</span><br><span class="line">     随后，在第 4 天（股票价格 &#x3D; 3）的时候买入，在第 5 天（股票价格 &#x3D; 6）的时候卖出, 这笔交易所能获得利润 &#x3D; 6-3 &#x3D; 3 。</span><br><span class="line">     </span><br><span class="line">示例 2:</span><br><span class="line"></span><br><span class="line">输入: [1,2,3,4,5]</span><br><span class="line">输出: 4</span><br><span class="line">解释: 在第 1 天（股票价格 &#x3D; 1）的时候买入，在第 5 天 （股票价格 &#x3D; 5）的时候卖出, 这笔交易所能获得利润 &#x3D; 5-1 &#x3D; 4 。</span><br><span class="line">     注意你不能在第 1 天和第 2 天接连购买股票，之后再将它们卖出。</span><br><span class="line">     因为这样属于同时参与了多笔交易，你必须在再次购买前出售掉之前的股票。</span><br><span class="line">     </span><br><span class="line">示例 3:</span><br><span class="line"></span><br><span class="line">输入: [7,6,4,3,1]</span><br><span class="line">输出: 0</span><br><span class="line">解释: 在这种情况下, 没有交易完成, 所以最大利润为 0。</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= prices.length &lt;= 3 * 10 ^ 4</code></li>
+<li><code>0 &lt;= prices[i] &lt;= 10 ^ 4</code></li>
+</ul>
+<h3 id="2-思路一-：-暴力-1"><a href="#2-思路一-：-暴力-1" class="headerlink" title="2. 思路一 ： 暴力"></a>2. 思路一 ： 暴力</h3><ul>
+<li>根据题意：由于不限制交易次数，在每一天，就可以根据当前是否持有股票选择相应的操作。「暴力搜索」在树形问题里也叫「回溯搜索」、「回溯法」。</li>
+<li>首先画出树形图，然后编码。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201228/093250252.png" alt="mark"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DFS</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = prices.length;</span><br><span class="line">        <span class="keyword">if</span> (len &lt; <span class="number">2</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        dfs(prices,<span class="number">0</span>,len,<span class="number">0</span>,res);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="keyword">int</span>[] prices, <span class="keyword">int</span> start, <span class="keyword">int</span> len, <span class="keyword">int</span> status, <span class="keyword">int</span> profit)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 递归结束的条件</span></span><br><span class="line">        <span class="keyword">if</span> (start == len)&#123;</span><br><span class="line">            res = Math.max(res,profit);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. DFS</span></span><br><span class="line">        dfs(prices,start + <span class="number">1</span>,len,status,profit);</span><br><span class="line">        <span class="keyword">if</span> (status == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">// 说明当前不持有股票 可以购入股票</span></span><br><span class="line">            dfs(prices,start + <span class="number">1</span>,len,<span class="number">1</span>,profit - prices[start]);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 说明当前持有股票 可以卖掉</span></span><br><span class="line">            dfs(prices,start + <span class="number">1</span>,len,<span class="number">0</span>,profit + prices[start]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>很显然，超时在意料之中。注意看这个超时是在数据规模很大的时候，因此，可以说明<strong>搜索算法是正确的</strong>。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201228/103117506.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201228/103121704.png" alt="mark"></p>
+<h3 id="3-思路二-：-动态规划-1"><a href="#3-思路二-：-动态规划-1" class="headerlink" title="3. 思路二 ： 动态规划"></a>3. 思路二 ： 动态规划</h3><p>根据 「力扣」第 121 题的思路，需要设置一个二维矩阵表示状态。</p>
+<ol>
+<li><strong>状态定义</strong></li>
+</ol>
+<ul>
+<li><code>dp[i][j]</code> 表示到下标为 <code>i</code> 的这一天，持股状态为 <code>j</code> 时，我们手上拥有的最大现金数。</li>
+</ul>
+<p><strong>注意</strong>：限定持股状态为 <code>j</code> 是为了方便推导状态转移方程，这样的做法满足 <strong>无后效性</strong>。</p>
+<p><strong>其中：</strong></p>
+<ul>
+<li>第一维 <code>i</code> 表示下标为 <code>i</code> 的那一天（ <strong>具有前缀性质，即考虑了之前天数的交易</strong> ）；</li>
+<li>第二维 <code>j</code> 表示下标为 <code>i</code> 的那一天是持有股票，还是持有现金。这里 <code>0</code> 表示持有现金（cash），<code>1</code> 表示持有股票（stock）。</li>
+</ul>
+<ol start="2">
+<li><strong>状态转移方程</strong></li>
+</ol>
+<ul>
+<li>状态从持有现金（cash）开始，到最后一天我们关心的状态依然是持有现金（cash）；</li>
+<li>每一天状态可以转移，也可以不动。状态转移用下图表示：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201228/104121838.png" alt="mark"></p>
+<p>（状态转移方程写在代码中）</p>
+<ol start="3">
+<li><strong>初始化</strong></li>
+</ol>
+<ul>
+<li>如果什么都不做，<code>dp[0][0] = 0</code>；</li>
+<li>如果持有股票，当前拥有的现金数是当天股价的相反数，即 <code>dp[0][1] = -prices[i]</code>；</li>
+</ul>
+<ol start="4">
+<li><strong>返回值</strong></li>
+</ol>
+<ul>
+<li>终止的时候，上面也分析了，输出 <code>dp[len - 1][0]</code>，因为一定有 <code>dp[len - 1][0] &gt; dp[len - 1][1]</code>。</li>
+</ul>
+<p><strong>代码1 ：</strong> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = prices.length;</span><br><span class="line">        <span class="keyword">if</span>(len &lt; <span class="number">2</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 状态定义</span></span><br><span class="line">        <span class="keyword">int</span>[][] dp = <span class="keyword">new</span> <span class="keyword">int</span>[len][<span class="number">2</span>];           <span class="comment">// 0 表示持有现金 1 表示持有股票</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 初始化</span></span><br><span class="line">        dp[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        dp[<span class="number">0</span>][<span class="number">1</span>] = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 状态转移</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>;i &lt; len;i++)&#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = Math.max(dp[i - <span class="number">1</span>][<span class="number">0</span>],dp[i - <span class="number">1</span>][<span class="number">1</span>] + prices[i]);</span><br><span class="line">            dp[i][<span class="number">1</span>] = Math.max(dp[i - <span class="number">1</span>][<span class="number">1</span>],dp[i - <span class="number">1</span>][<span class="number">0</span>] - prices[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 返回值</span></span><br><span class="line">        <span class="keyword">return</span> dp[len - <span class="number">1</span>][<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：O(N），这里 N表示股价数组的长度；</li>
+<li>空间复杂度：O(N），虽然是二维数组，但是第二维是常数，与问题规模无关。</li>
+</ul>
+<p><strong>代码2：我们也可以将状态数组分开设置。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxProfit</span><span class="params">(<span class="keyword">int</span>[] prices)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> len = prices.length;</span><br><span class="line">        <span class="keyword">if</span> (len &lt; <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// cash：持有现金</span></span><br><span class="line">        <span class="comment">// hold：持有股票</span></span><br><span class="line">        <span class="comment">// 状态数组</span></span><br><span class="line">        <span class="comment">// 状态转移：cash → hold → cash → hold → cash → hold → cash</span></span><br><span class="line">        <span class="keyword">int</span>[] cash = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line">        <span class="keyword">int</span>[] hold = <span class="keyword">new</span> <span class="keyword">int</span>[len];</span><br><span class="line"></span><br><span class="line">        cash[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        hold[<span class="number">0</span>] = -prices[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="comment">// 这两行调换顺序也是可以的</span></span><br><span class="line">            cash[i] = Math.max(cash[i - <span class="number">1</span>], hold[i - <span class="number">1</span>] + prices[i]);</span><br><span class="line">            hold[i] = Math.max(hold[i - <span class="number">1</span>], cash[i - <span class="number">1</span>] - prices[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cash[len - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>同上</li>
+</ul>
+<h3 id="4-优化一-：-滚动变量-（待续）"><a href="#4-优化一-：-滚动变量-（待续）" class="headerlink" title="4. 优化一 ： 滚动变量 （待续）"></a>4. 优化一 ： 滚动变量 （待续）</h3><h3 id="5-优化二-：-贪心算法"><a href="#5-优化二-：-贪心算法" class="headerlink" title="5. 优化二 ： 贪心算法"></a>5. 优化二 ： 贪心算法</h3><p><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/solution/tan-xin-suan-fa-by-liweiwei1419-2/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/solution/tan-xin-suan-fa-by-liweiwei1419-2/</a></p>
+<h2 id="714-买卖股票的最佳时机含手续费"><a href="#714-买卖股票的最佳时机含手续费" class="headerlink" title="714. 买卖股票的最佳时机含手续费"></a><a href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee" target="_blank" rel="noopener">714. 买卖股票的最佳时机含手续费</a></h2>
       
       <!-- reward -->
       
@@ -320,19 +411,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/10/01/LeetcodeExplore/%E5%93%B2%E5%AD%A6%E5%AE%B6%E8%BF%9B%E9%A4%90-%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="article-nav-link">
+      <a href="/2020/10/02/Leetcode/Leetcode-771-%E5%AE%9D%E7%9F%B3%E4%B8%8E%E7%9F%B3%E5%A4%B4/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            哲学家进餐-多线程
+            Leetcode-771-宝石与石头
           
         </div>
       </a>
     
     
-      <a href="/2020/10/01/Netty/Netty-02-NIO%E5%AE%9E%E6%88%98%E5%8F%8A%E5%8E%9F%E7%90%86/" class="article-nav-link">
+      <a href="/2020/10/01/LeetcodeExplore/%E5%93%B2%E5%AD%A6%E5%AE%B6%E8%BF%9B%E9%A4%90-%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Netty-02-NIO实战及原理</div>
+        <div class="article-nav-title">哲学家进餐-多线程</div>
       </a>
     
   </nav>
