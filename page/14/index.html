@@ -75,6 +75,96 @@
     
     
     
+    <article id="post-Mysql/Mysql-11-慢查询优化" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/12/Mysql/Mysql-11-%E6%85%A2%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/"
+    >Mysql-11-慢查询优化</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/12/Mysql/Mysql-11-%E6%85%A2%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" class="article-date">
+  <time datetime="2020-08-12T08:02:27.000Z" itemprop="datePublished">2020-08-12</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Mysql-11-慢查询优化"><a href="#Mysql-11-慢查询优化" class="headerlink" title="Mysql-11-慢查询优化"></a>Mysql-11-慢查询优化</h1><p><strong>注意sql查询慢的原因都是:引起filesort</strong></p>
+<h2 id="1-分析慢查询日志"><a href="#1-分析慢查询日志" class="headerlink" title="1. 分析慢查询日志"></a>1. 分析慢查询日志</h2><ul>
+<li><p>直接分析mysql慢查询日志 ,利用explain关键字可以模拟优化器执行SQL查询语句，来分析sql慢查询语句</p>
+<p>   例如：执行<code>EXPLAIN SELECT * FROM res_user ORDER BYmodifiedtime LIMIT 0,1000</code></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">得到如下结果： 显示结果分析：  </span><br><span class="line"></span><br><span class="line">            table |  type | possible_keys | key |key_len  | ref | rows | Extra  EXPLAIN列的解释：           </span><br><span class="line"></span><br><span class="line">            table                 显示这一行的数据是关于哪张表的           </span><br><span class="line"></span><br><span class="line">           type                  这是重要的列，显示连接使用了何种类型。从最好到最差的连接类型为const、eq_reg、ref、range、indexhe和ALL </span><br><span class="line"></span><br><span class="line">            rows                显示需要扫描行数</span><br><span class="line"></span><br><span class="line">            key                   使用的索引</span><br></pre></td></tr></table></figure>
+
+<p>以下通过explain显示出mysql执行的字段内容：</p>
+<ul>
+<li>id: SELECT 查询的标识符. 每个 SELECT 都会自动分配一个唯一的标识符.</li>
+<li>select_type: SELECT 查询的类型.</li>
+<li>table: 查询的是哪个表</li>
+<li>partitions: 匹配的分区</li>
+<li>type: join 类型</li>
+<li><strong>possible_keys: 此次查询中可能选用的索引</strong></li>
+<li><strong>key: 此次查询中确切使用到的索引.</strong></li>
+<li>ref: 哪个字段或常数与 key 一起被使用</li>
+<li>rows: 显示此查询一共扫描了多少行. 这个是一个估计值.</li>
+<li>filtered: 表示此查询条件所过滤的数据的百分比</li>
+<li>extra: 额外的信息</li>
+</ul>
+<p><strong>注意 : 可以使用explain命令加在要分析的sql语句前面，在执行结果中查看key这一列的值，如果为NULL，说明没有使用索引。</strong></p>
+      
+      <a class="article-more-link" href="/2020/08/12/Mysql/Mysql-11-%E6%85%A2%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-JavaInterview/Java-基础-类初始化造成的死锁" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -1063,93 +1153,13 @@
 
 </article>
     
-    <article id="post-NetworkCoding/计算机网络-06-数据链路层" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"
-    >计算机网络-06-数据链路层</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" class="article-date">
-  <time datetime="2020-08-01T04:45:24.000Z" itemprop="datePublished">2020-08-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="计算机网络-06-数据链路层"><a href="#计算机网络-06-数据链路层" class="headerlink" title="计算机网络-06-数据链路层"></a>计算机网络-06-数据链路层</h1><h1 id="前言-链路层的基本问题"><a href="#前言-链路层的基本问题" class="headerlink" title="前言 : 链路层的基本问题"></a>前言 : 链路层的基本问题</h1><h3 id="1-封装成帧"><a href="#1-封装成帧" class="headerlink" title="1. 封装成帧"></a>1. 封装成帧</h3><p>将网络层传下来的分组添加首部和尾部，用于标记帧的开始和结束。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200828-093935934.png" alt="mark"></p>
-<h3 id="2-透明传输"><a href="#2-透明传输" class="headerlink" title="2. 透明传输"></a>2. 透明传输</h3><ul>
-<li><p>透明表示一个实际存在的事物看起来好像不存在一样。</p>
-</li>
-<li><p>帧使用首部和尾部进行定界，<strong>如果帧的数据部分含有和首部尾部相同的内容</strong>，那么帧的开始和结束位置就会被错误的判定。</p>
-</li>
-<li><p>需要在数据部分出现首部尾部相同的内容前面插入转义字符。<strong>如果数据部分出现转义字符，那么就在转义字符前面再加个转义字符</strong>。在接收端进行处理之后可以还原出原始数据。这个过程透明传输的内容是转义字符，<strong>用户察觉不到转义字符的存在</strong>。</p>
-</li>
-</ul>
-<h3 id="3-差错检测"><a href="#3-差错检测" class="headerlink" title="3. 差错检测"></a>3. 差错检测</h3><ul>
-<li>目前数据链路层广泛使用了循环冗余检验（CRC）来检查比特差错。</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/08/01/NetworkCoding/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-06-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mac%E5%9C%B0%E5%9D%80/" rel="tag">mac地址</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/13/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/47/">47</a><a class="extend next" rel="next" href="/page/15/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/13/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/48/">48</a><a class="extend next" rel="next" href="/page/15/">下一页</a>
   </nav>
   
 </section>
@@ -1160,7 +1170,7 @@
     <ul class="list-inline">
       <li>
         &copy;
-        2019-2020
+        2019-2021
         Zhuuu
       </li>
       <li>
