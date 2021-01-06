@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2021-01-04T01:19:23.400Z</updated>
+  <updated>2021-01-05T01:33:09.428Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,45 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Leetcode-830-较大分组的位置</title>
+    <link href="http://zhuuu.work/2021/01/05/Leetcode/Leetcode-830-%E8%BE%83%E5%A4%A7%E5%88%86%E7%BB%84%E7%9A%84%E4%BD%8D%E7%BD%AE/"/>
+    <id>http://zhuuu.work/2021/01/05/Leetcode/Leetcode-830-%E8%BE%83%E5%A4%A7%E5%88%86%E7%BB%84%E7%9A%84%E4%BD%8D%E7%BD%AE/</id>
+    <published>2021-01-05T00:52:53.000Z</published>
+    <updated>2021-01-05T01:33:09.428Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leetcode-830-较大分组的位置"><a href="#Leetcode-830-较大分组的位置" class="headerlink" title="Leetcode-830-较大分组的位置"></a>Leetcode-830-较大分组的位置</h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul><li><p>在一个由小写字母构成的字符串 s 中，包含由一些连续的相同字符所构成的分组。</p></li><li><p>例如，在字符串<code>s = &quot;abbxxxxzyy&quot;</code>中，就含有 “a”, “bb”, “xxxx”, “z” 和 “yy” 这样的一些分组。</p></li><li><p>分组可以用区间 <code>[start, end]</code>表示,其中 <code>start</code> 和 <code>end</code> 分别表示该分组的起始和终止位置的下标。上例中的 <code>&quot;xxxx&quot;</code> 分组用区间表示为 <code>[3,6]</code> 。</p></li><li><p>我们称所有包含大于或等于三个连续字符的分组为 <strong>较大分组</strong> 。</p></li><li><p>找到每一个 <strong>较大分组</strong> 的区间，<strong>按起始位置下标递增顺序排序后</strong>，返回结果。</p></li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：s &#x3D; &quot;abbxxxxzzy&quot;</span><br><span class="line">输出：[[3,6]]</span><br><span class="line">解释：&quot;xxxx&quot; 是一个起始于 3 且终止于 6 的较大分组。</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：s &#x3D; &quot;abc&quot;</span><br><span class="line">输出：[]</span><br><span class="line">解释：&quot;a&quot;,&quot;b&quot; 和 &quot;c&quot; 均不是符合要求的较大分组。</span><br><span class="line"></span><br><span class="line">示例 3：</span><br><span class="line"></span><br><span class="line">输入：s &#x3D; &quot;abcdddeeeeaabbbcd&quot;</span><br><span class="line">输出：[[3,5],[6,9],[12,14]]</span><br><span class="line">解释：较大分组为 &quot;ddd&quot;, &quot;eeee&quot; 和 &quot;bbb&quot;</span><br><span class="line"></span><br><span class="line">示例 4：</span><br><span class="line"></span><br><span class="line">输入：s &#x3D; &quot;aba&quot;</span><br><span class="line">输出：[]</span><br></pre></td></tr></table></figure><p><strong>提示：</strong></p><ul><li><code>1 &lt;= s.length &lt;= 1000</code></li><li><code>s</code> 仅含小写英文字母</li></ul><a id="more"></a><h2 id="思路：一次遍历"><a href="#思路：一次遍历" class="headerlink" title="思路：一次遍历"></a>思路：一次遍历</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; largeGroupPositions(String s) &#123;</span><br><span class="line">        <span class="comment">// 1. 初始化</span></span><br><span class="line">        List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();                <span class="comment">// 结果集</span></span><br><span class="line">        <span class="keyword">int</span> n   = s.length();                                       <span class="comment">// 字符串长度</span></span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">1</span>;                                                <span class="comment">// 用于记录分组长度 </span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 一次遍历该字符串</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n;i++)&#123;</span><br><span class="line">            <span class="comment">// 2.1 如果下一个字符与当前字符不同,或者已经枚举到字符串尾部,就说明当前字符为当前分组的尾部</span></span><br><span class="line">            <span class="keyword">if</span>(i == n - <span class="number">1</span> || s.charAt(i) != s.charAt(i + <span class="number">1</span>))&#123;</span><br><span class="line">                <span class="keyword">if</span>(num &gt;= <span class="number">3</span>)&#123;                                       <span class="comment">// 如果分组长度达到3</span></span><br><span class="line">                    res.add(Arrays.asList(i - num + <span class="number">1</span>,i));          <span class="comment">// 记录结果</span></span><br><span class="line">                &#125;   </span><br><span class="line">                num = <span class="number">1</span>;                                            <span class="comment">// 重置分组长度</span></span><br><span class="line">            <span class="comment">// 2.2 字符重复的情况</span></span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                num++;                                              <span class="comment">// ++字符分区长度</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 3. 返回结果集</span></span><br><span class="line">        <span class="keyword">return</span> res;                                                </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li>时间复杂度 ： O(n)</li><li>空间复杂度 ： O(1)</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leetcode-830-较大分组的位置&quot;&gt;&lt;a href=&quot;#Leetcode-830-较大分组的位置&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-830-较大分组的位置&quot;&gt;&lt;/a&gt;Leetcode-830-较大分组的位置&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;在一个由小写字母构成的字符串 s 中，包含由一些连续的相同字符所构成的分组。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;例如，在字符串&lt;code&gt;s = &amp;quot;abbxxxxzyy&amp;quot;&lt;/code&gt;中，就含有 “a”, “bb”, “xxxx”, “z” 和 “yy” 这样的一些分组。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;分组可以用区间 &lt;code&gt;[start, end]&lt;/code&gt;表示,其中 &lt;code&gt;start&lt;/code&gt; 和 &lt;code&gt;end&lt;/code&gt; 分别表示该分组的起始和终止位置的下标。上例中的 &lt;code&gt;&amp;quot;xxxx&amp;quot;&lt;/code&gt; 分组用区间表示为 &lt;code&gt;[3,6]&lt;/code&gt; 。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;我们称所有包含大于或等于三个连续字符的分组为 &lt;strong&gt;较大分组&lt;/strong&gt; 。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;找到每一个 &lt;strong&gt;较大分组&lt;/strong&gt; 的区间，&lt;strong&gt;按起始位置下标递增顺序排序后&lt;/strong&gt;，返回结果。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例 1：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：s &amp;#x3D; &amp;quot;abbxxxxzzy&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[[3,6]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：&amp;quot;xxxx&amp;quot; 是一个起始于 3 且终止于 6 的较大分组。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 2：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：s &amp;#x3D; &amp;quot;abc&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：&amp;quot;a&amp;quot;,&amp;quot;b&amp;quot; 和 &amp;quot;c&amp;quot; 均不是符合要求的较大分组。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 3：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：s &amp;#x3D; &amp;quot;abcdddeeeeaabbbcd&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[[3,5],[6,9],[12,14]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;解释：较大分组为 &amp;quot;ddd&amp;quot;, &amp;quot;eeee&amp;quot; 和 &amp;quot;bbb&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 4：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：s &amp;#x3D; &amp;quot;aba&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;提示：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;1 &amp;lt;= s.length &amp;lt;= 1000&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;s&lt;/code&gt; 仅含小写英文字母&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+  </entry>
   
   <entry>
     <title>Leetcode-509-斐波那契数</title>
@@ -1591,9 +1630,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1665,9 +1704,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1820,9 +1859,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1969,9 +2008,9 @@
     
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
-      <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
-    
       <category term="排序" scheme="http://zhuuu.work/tags/%E6%8E%92%E5%BA%8F/"/>
+    
+      <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
     
   </entry>
   
@@ -3087,40 +3126,6 @@
     
     
       <category term="线程中断" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>剑指offer--41-数据流中的中位数</title>
-    <link href="http://zhuuu.work/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/"/>
-    <id>http://zhuuu.work/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</id>
-    <published>2020-08-26T07:15:53.000Z</published>
-    <updated>2020-09-09T04:23:13.723Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="剑指offer–41-数据流中的中位数"><a href="#剑指offer–41-数据流中的中位数" class="headerlink" title="剑指offer–41-数据流中的中位数"></a>剑指offer–41-<a href="https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/" target="_blank" rel="noopener">数据流中的中位数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p><p>例如，</p><p>[2,3,4] 的中位数是 3</p><p>[2,3] 的中位数是 (2 + 3) / 2 = 2.5</p><p>设计一个支持以下两种操作的数据结构：</p><ul><li>void addNum(int num) - 从数据流中添加一个整数到数据结构中。</li><li>double findMedian() - 返回目前所有元素的中位数。</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[1],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,null,1.50000,null,2.00000]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,2.00000,null,2.50000]</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="思路-两个堆"><a href="#思路-两个堆" class="headerlink" title="思路 : 两个堆"></a><strong>思路 : 两个堆</strong></h2><p><strong>待优化的思路1：快排</strong></p><ul><li>其中位数的计算方法：首先对数组执行排序（使用O<em>(</em>N<em>log</em>N) 时间），然后返回中间元素即可（使用 O(1)时间）。</li><li>针对本题，根据以上思路，可以将数据流保存在一个列表中，并在添加元素时 保持数组有序 。此方法的时间复杂度为 O(N)，其中包括： 查找元素插入位置O(logN) （二分查找）、向数组某位置插入元素 O(N) （插入位置之后的元素都需要向后移动一位）。</li></ul><p><strong>思路2： 两个堆</strong></p><ul><li>事实上，我们只关心在中间的那两个数（或者一个数），其它数没有必要进行 “比较” 和 “交换” 的操作。</li><li>在我们学习过的数据结构里，堆就有类似的性质，每次都从堆里得到一个 “最值” 而其它元素无需排序，这样就可以以O(logN) 的复杂度每次都从堆中取出最值。</li></ul><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111604101.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111617276.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-111821068.png" alt="mark"></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200908-112110039.png" alt="mark"></p><p><strong>总结：</strong></p><ul><li><strong>为了找到添加新数据以后，数据流的中位数，我们让这个新数据在大顶堆和小顶堆中都走了一遍。而为了让大顶堆的元素多 1 个，我们让从小顶堆中又拿出一个元素“送回”给大顶堆；</strong></li><li>将元素放入优先队列以后，优先队列会以对数时间复杂度自行调整，把“最优值”放入堆顶，这是使用优先队列解决这个问题的原因。</li></ul><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当前大顶堆和小顶堆的元素个数之和</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;Integer&gt; maxheap;</span><br><span class="line">    <span class="keyword">private</span> PriorityQueue&lt;Integer&gt; minheap;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * initialize your data structure here.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MedianFinder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">        maxheap = <span class="keyword">new</span> PriorityQueue&lt;&gt;((x, y) -&gt; y - x);</span><br><span class="line">        minheap = <span class="keyword">new</span> PriorityQueue&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        count += <span class="number">1</span>;</span><br><span class="line">        maxheap.offer(num);</span><br><span class="line">        minheap.add(maxheap.poll());</span><br><span class="line">        <span class="comment">// 如果两个堆合起来的元素个数是奇数，小顶堆要拿出堆顶元素给大顶堆</span></span><br><span class="line">        <span class="keyword">if</span> ((count &amp; <span class="number">1</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            maxheap.add(minheap.poll());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ((count &amp; <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果两个堆合起来的元素个数是偶数，数据流的中位数就是各自堆顶元素的平均值</span></span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">double</span>) (maxheap.peek() + minheap.peek()) / <span class="number">2</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 如果两个堆合起来的元素个数是奇数，数据流的中位数大顶堆的堆顶元素</span></span><br><span class="line">            <span class="keyword">return</span> (<span class="keyword">double</span>) maxheap.peek();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析：</strong></p><ul><li><strong>时间复杂度：</strong>O(logN) 优先队列的出队入队操作都是对数级别的，数据在两个堆中间来回操作是常数级别的，综上时间复杂度是 O(logN) 级别的。</li><li><strong>空间复杂度：</strong>O(N) 占用堆的大小</li></ul>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;剑指offer–41-数据流中的中位数&quot;&gt;&lt;a href=&quot;#剑指offer–41-数据流中的中位数&quot; class=&quot;headerlink&quot; title=&quot;剑指offer–41-数据流中的中位数&quot;&gt;&lt;/a&gt;剑指offer–41-&lt;a href=&quot;https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;数据流中的中位数&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;p&gt;如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。&lt;/p&gt;
-&lt;p&gt;例如，&lt;/p&gt;
-&lt;p&gt;[2,3,4] 的中位数是 3&lt;/p&gt;
-&lt;p&gt;[2,3] 的中位数是 (2 + 3) / 2 = 2.5&lt;/p&gt;
-&lt;p&gt;设计一个支持以下两种操作的数据结构：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;void addNum(int num) - 从数据流中添加一个整数到数据结构中。&lt;/li&gt;
-&lt;li&gt;double findMedian() - 返回目前所有元素的中位数。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;示例 1：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[&amp;quot;MedianFinder&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[[],[1],[2],[],[3],[]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[null,null,null,1.50000,null,2.00000]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;示例 2：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输入：&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[&amp;quot;MedianFinder&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;,&amp;quot;addNum&amp;quot;,&amp;quot;findMedian&amp;quot;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[[],[2],[],[3],[]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：[null,null,2.00000,null,2.50000]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
-      <category term="双指针" scheme="http://zhuuu.work/tags/%E5%8F%8C%E6%8C%87%E9%92%88/"/>
-    
-      <category term="剑指offer" scheme="http://zhuuu.work/tags/%E5%89%91%E6%8C%87offer/"/>
     
   </entry>
   

@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">19k字</span>
+            <span class="post-count">22.6k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">75分钟</span>
+            <span class="post-count">89分钟</span>
         </span>
     </span>
 </div>
@@ -2334,6 +2334,650 @@
 <li><code>setfacl -x g:group:r afile</code> 收回用户组权限</li>
 <li><code>-rwxrwxrw-+</code> : + 说明使用了facl ，需使用<code>getfacl afile</code> 进行查看</li>
 </ul>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4><h3 id="8-3-分区和挂载"><a href="#8-3-分区和挂载" class="headerlink" title="8.3 分区和挂载"></a>8.3 分区和挂载</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/110714324.png" alt="mark"></p>
+<h4 id="1-进行分区"><a href="#1-进行分区" class="headerlink" title="1. 进行分区"></a>1. 进行分区</h4><ol>
+<li><code>fdisk /dev/sdc(设备名)</code>  : 分区</li>
+<li>获得分区帮助</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/111352891.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/111639209.png" alt="mark"></p>
+<ol start="3">
+<li><strong>新建分区 <code>n</code></strong><ul>
+<li>主分区 ： 只能扩展4个</li>
+<li>扩展分区 ： 多余4个分区</li>
+<li>服务器一般都是一个主分区</li>
+</ul>
+</li>
+<li><strong>创建一个50G的分区</strong><ul>
+<li>p   创建主分区</li>
+<li>p   打印分区情况</li>
+<li>w  保存分区信息</li>
+<li>q   不保存退出</li>
+<li>d    删除当前分区信息</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/111830784.png" alt="mark"></p>
+<ol start="5">
+<li><strong>成功保存</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/112827158.png" alt="mark"></p>
+<h4 id="2-使用分区（mkfs）"><a href="#2-使用分区（mkfs）" class="headerlink" title="2. 使用分区（mkfs）"></a>2. 使用分区（mkfs）</h4><ol>
+<li><strong>首先根据文件系统去管理分区</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/112939458.png" alt="mark"></p>
+<ol start="2">
+<li><code>mkfs.ext4 /dev/sdc1</code> :  mkfs.文件系统名 设备名</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/113115931.png" alt="mark"></p>
+<ol start="3">
+<li><strong>linux 一切皆文件 ： 对设备的操作需要挂载磁盘</strong><ul>
+<li><strong>新建目录</strong> <code>mkdir /mnt/sdc1</code></li>
+</ul>
+</li>
+<li><strong>自动检测文件系统挂载</strong> ： <code>mount -t auto(ext4) 需要挂载的设备 挂载的目录</code> </li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/113335215.png" alt="mark"></p>
+<p><strong>小结</strong></p>
+<ol>
+<li><strong>流程</strong></li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">流程 sdc(磁盘)-&gt;sdc1(分区)-&gt;ext4(文件系统)-&gt;mount(挂载)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>挂载后 对目录的操作就是对设备的操作</strong></li>
+</ol>
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>如果硬盘大于2T</strong><ul>
+<li><strong>需要使用<code>parted</code> 命令进行分区</strong></li>
+<li><strong>不能使用fdisk</strong></li>
+<li>使用方法 ：<code>parted 设备名</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="3-mount-（挂载）"><a href="#3-mount-（挂载）" class="headerlink" title="3. mount （挂载）"></a>3. mount （挂载）</h4><ul>
+<li><strong>mount 挂载是放在内存中临时保存的，重启之后就会消失掉</strong></li>
+<li><strong>固化（开机自动挂载） ： 修改配置文件，开机自动进行挂载</strong><ul>
+<li>位置存放 <code>vim /etc/fstab</code></li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/113718975.png" alt="mark"></p>
+<ul>
+<li><strong>填写方式</strong><ul>
+<li>第一列 ： 设备名</li>
+<li>第二列 ： 指定要挂载的目录</li>
+<li>第三列 ： 使用的文件系统</li>
+<li>第四列 ： （defaults） 给文件系统的权限 ： 默认可读可写</li>
+<li>第五列，第六列 ： 0 0<ul>
+<li>第一个 0 ：dump 硬盘备份 是否要去备份 （现在使用tar 进行备份）</li>
+<li>第二个 0 ：非正常关机 进行磁盘自检（ext2 ext3）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210104/113956637.png" alt="mark"></p>
+<h3 id="8-4-用户磁盘配额"><a href="#8-4-用户磁盘配额" class="headerlink" title="8.4 用户磁盘配额"></a>8.4 用户磁盘配额</h3><h4 id="1-xfs-quota"><a href="#1-xfs-quota" class="headerlink" title="1. xfs_quota"></a>1. xfs_quota</h4><ul>
+<li>用于限制用户/ 用户组使用磁盘的功能</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/094459772.png" alt="mark"></p>
+<ol>
+<li><strong>对分区进行格式化  （-f 强制格式化）</strong><code>mkfs.xfs</code>  </li>
+<li><strong>创建挂载目录</strong><code>mkdir -p /mnt/disk1</code>   </li>
+<li><strong>挂载设备到目录</strong><code>mount -o uquota,gquota /dev/sdb1 /mnt/disk1</code> <ul>
+<li>同时支持磁盘配额 （uquota , gquota : 用户磁盘配额和用户组磁盘配额）</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/094952814.png" alt="mark"></p>
+<ol start="4">
+<li><strong>修改权限</strong> ： <code>chomd 1777 /mnt/disk1</code> </li>
+<li><strong>查看用户磁盘配额</strong> ： <code>xfs_quota -x -c &#39;report -ugibh /mnt/disk1&#39;</code> <ul>
+<li><code>root</code>    用户不受限制，不要使用root用户查看磁盘配额</li>
+<li><code>-ugibh</code> : <code>u:用户 g:用户组 i:i节点 b:块 h:可读</code></li>
+</ul>
+</li>
+<li><strong>限制磁盘配额</strong> ： <code>xfs_quota -x -c &#39;limit -u isoft=5 ihard=10 user1&#39; /mnt/disk1</code><ul>
+<li><code>isoft   :</code>软限制（i 节点）</li>
+<li><code>ihard :</code>硬限制（i 节点）</li>
+<li><code>bsoft  :</code>软限制（数据块）</li>
+<li><code>bhard :</code>硬限制（数据块）</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/095858052.png" alt="mark"></p>
+<p><strong>小结</strong> </p>
+<ul>
+<li><strong>此后，用户1 <code>cd /mnt/disk1</code> 进入该磁盘的时候，会被限制用户磁盘配额</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/100039400.png" alt="mark"></p>
+<h3 id="8-5-交换分区-swap"><a href="#8-5-交换分区-swap" class="headerlink" title="8.5 交换分区 (swap)"></a>8.5 交换分区 (swap)</h3><ul>
+<li><strong>作用  ：扩充分区两种方式</strong><ul>
+<li>新的分区</li>
+<li>用文件制作swap 分区</li>
+</ul>
+</li>
+</ul>
+<h4 id="1-分区方式扩充-swap"><a href="#1-分区方式扩充-swap" class="headerlink" title="1. 分区方式扩充 swap"></a>1. 分区方式扩充 swap</h4><ol>
+<li>查看swap 目前状况 :  <code>free -m</code></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/100850306.png" alt="mark"></p>
+<ol start="2">
+<li><p>首先对硬盘进行分区 ： <code>fdisk 设备</code></p>
+</li>
+<li><p>进行swap格式化 ：<code>mkswap /dev/sdd1(分区)</code></p>
+</li>
+<li><p>swap 进行挂载  : <code>swapon /dev/sdd1(分区)</code></p>
+</li>
+<li><p>swap 进行卸载  : <code>swapoff /dev/sdd1(分区)</code></p>
+</li>
+</ol>
+<p><strong>再次<code>free -m</code> 进行查看 ，发现swap已经被扩展了</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/101143775.png" alt="mark"></p>
+<h4 id="2-文件方式扩充-swap"><a href="#2-文件方式扩充-swap" class="headerlink" title="2. 文件方式扩充 swap"></a>2. 文件方式扩充 swap</h4><ol>
+<li>创造空洞文件 ：为了制造swap 的空间<ul>
+<li><code>dd if=/dev/zero bs=4M count=1024 of=/swapfile</code></li>
+</ul>
+</li>
+<li><strong>注意 ：一定要修改权限</strong> <code>chmod 600 /swapfile</code></li>
+<li>swap 进行挂载  : <code>swapon /swapfile</code></li>
+</ol>
+<p><strong>注意：</strong></p>
+<ul>
+<li><strong>以上方式都是临时的</strong></li>
+<li><strong>永久需要写入配置文件 ： vim /etc/fstab</strong></li>
+<li><strong>写入时候发生问题</strong><ul>
+<li><strong>没有把握 ： # 注释掉</strong></li>
+<li><strong>写错重启失效 ： grub 进行单用户方式，修复<code>/etc/fstab</code></strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/104508640.png" alt="mark"></p>
+<h3 id="8-6-RAID"><a href="#8-6-RAID" class="headerlink" title="8.6 RAID"></a>8.6 RAID</h3><ul>
+<li><strong>RAID : 磁盘阵列</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/105342476.png" alt="mark"></p>
+<ul>
+<li><p><strong>RAID常见级别</strong></p>
+<ul>
+<li>RAID 0 ：   将数据写入磁盘 （各写入百分之50，至少两块硬盘）</li>
+<li>RAID 1 :      镜像方式（自动做备份 ，至少两块硬盘）</li>
+<li>RAID 5 ：   RAID 0 和 RAID  1的结合(轮流写入数据和校验) （坏掉两块磁盘数据还是会丢失）</li>
+<li>RAID 10 ： RAID 1 和 RAID 0 的结合（最少准备四块硬盘）（各两块做RAID1,可以坏两块）</li>
+</ul>
+</li>
+<li><p><strong>RAID 实现方式</strong></p>
+<ul>
+<li>软件实现  (学习用，CPU会飙升）</li>
+<li><strong>硬件实现（工作用）</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="1-软件实现"><a href="#1-软件实现" class="headerlink" title="1. 软件实现"></a>1. 软件实现</h4><ol>
+<li>安装<code>mdadm</code> : <code>yum install mdadm</code></li>
+<li>创建阵列 ：<code>mdadm -C /dev/md0  -a yes -l1 -n2 可以使用的磁盘分区的名称(/dev/sdb1 /dev/sdc1)</code> <ul>
+<li><code>-C :</code>创建阵列</li>
+<li><code>/dev/md0 :</code> 约定俗成的设备名</li>
+<li><code>-a yes</code> :  表示同意后面提示</li>
+<li><code>-l</code> : RAID级别<ul>
+<li><code>l1</code>  : RAID1</li>
+</ul>
+</li>
+<li><code>-n2</code> : 设置几块活动硬盘</li>
+</ul>
+</li>
+<li>查看阵列 ： <code>mdadm —D /dev/md0</code></li>
+<li>停止RAID ： <code>mdadm --stop /dev/md0</code></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/110737374.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/111227817.png" alt="mark"></p>
+<p><strong>注意：</strong></p>
+<ol>
+<li><p>如果不对<code>/dev/md0</code> 进行数据的读写，而对<code>/dev/sdb1 /dev/sdb2</code> 进行读写</p>
+<ul>
+<li><strong>那么RAID就是会失效的</strong></li>
+<li>这提供了破坏RAID 的方式，也就是各向磁盘写入数据</li>
+</ul>
+</li>
+<li><p><strong>RAID 结构 ： 使用<code>/dev/md0</code></strong></p>
+<ul>
+<li><strong>RAID本质 ： 在底层实体硬盘上再叠一层，对虚拟的硬盘进行操作</strong></li>
+<li><code>/dev/md0</code> ： <strong>也是所谓的一个逻辑卷</strong></li>
+</ul>
+</li>
+<li><p><strong>开机自动加载RAID 磁盘</strong></p>
+<ul>
+<li><code>echo DEVICE /dev/sd[b,c]1 &gt;&gt;/etc/mdadm.conf</code></li>
+<li><code>mdadm -Evs &gt;&gt; /etc/mdadm.conf</code></li>
+<li><code>mkfs.xfs /dev/md0</code></li>
+</ul>
+</li>
+<li><p><strong>磁盘的大小最好是一样的</strong></p>
+</li>
+<li><p><strong>软件破坏超级块 : 有几块硬盘同时破坏几块</strong></p>
+<ul>
+<li><code>dd if=/dev/zero of=/dev/sdb1 bs=1M count=1</code></li>
+<li><code>dd if=/dev/zero of=/dev/sdc1 bs=1M count=1</code></li>
+</ul>
+</li>
+<li><p><strong>硬件破坏RAID ： 拔了硬盘就好</strong></p>
+</li>
+</ol>
+<h3 id="8-7-逻辑卷管理"><a href="#8-7-逻辑卷管理" class="headerlink" title="8.7 逻辑卷管理"></a>8.7 逻辑卷管理</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/114009519.png" alt="mark"></p>
+<ul>
+<li><strong>物理设备</strong>就是一个  <strong>物理卷</strong></li>
+<li><strong>逻辑卷</strong>使用起来比物理卷更加灵活<ul>
+<li><strong>逻辑卷是建立在物理设备上的一个虚拟卷</strong></li>
+<li><strong>LVM将存储虚拟化,使用逻辑卷,你不会受限于物理磁盘的大小</strong>,另外,和硬件相关的存储设置被其隐藏,你能不用停止应用或卸载文件系统来调整卷大小或数据迁移.这样能减少操作成本，LVM最大的特点就是可以对磁盘进行动态管理。</li>
+<li>因为逻辑卷的大小是可以动态调整的，而且不会丢失现有的数据。如果我们新增加了硬盘，其也不会改变现有上层的逻辑卷。作为一个<strong>动态磁盘管理机制</strong>，逻辑卷技术大大提高了磁盘管理的灵活性。</li>
+</ul>
+</li>
+<li><strong>作用：</strong><ul>
+<li>可以将硬盘进行隔离</li>
+<li>可以将两个硬盘进行合并</li>
+</ul>
+</li>
+<li><strong>逻辑卷本质 ： 在传统硬盘底层再叠一层，以后的操作是对逻辑卷这个虚拟的硬盘进行操作</strong><ul>
+<li>LVM就是通过将底层的物理硬盘抽象的封装起来，然后以逻辑卷的方式呈现给上层应用。</li>
+<li>在传统的磁盘管理机制中，我们的上层应用是直接访问文件系统，从而对底层的物理硬盘进行读取</li>
+<li>而在LVM中，其通过对底层的硬盘进行封装，当我们对底层的物理硬盘进行操作时，其不再是针对于分区进行操作，而是通过一个叫做逻辑卷的东西来对其进行底层的磁盘管理操作。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>传统磁盘操作 ： 对硬盘数据进行扩容</strong><ul>
+<li>首先把数据进行拷走</li>
+<li>然后重新对硬盘进行分区</li>
+</ul>
+</li>
+<li><strong>工作当中 ：服务器数据是不动的，拷走是不可能的</strong><ul>
+<li>这么大的数据量移动是不可能的</li>
+<li>一般工作中对磁盘空间操作都是只增不减</li>
+<li>传统文件系统 ： 无法跨硬盘进行使用</li>
+</ul>
+</li>
+</ul>
+<p><strong>补充知识 ：</strong></p>
+<ol>
+<li><p><strong>物理卷（PV, Physical Volume）</strong></p>
+<ul>
+<li><strong>物理卷就是指磁盘,磁盘分区或从逻辑上和磁盘分区具有同样功能的设备(如RAID)</strong></li>
+<li>是LVM的基本存储逻辑块，但和基本的物理存储介质（如分区、磁盘等）比较，却包含有和LVM相关的管理参数。当前LVM允许你在每个物理卷上保存这个物理卷的0至2份元数据拷贝.默认为1,保存在设备的开始处.为2时,在设备结束处保存第二份备份.</li>
+</ul>
+</li>
+<li><p><strong>卷组（VG, Volume Group）</strong></p>
+<ul>
+<li><strong>LVM卷组类似于非LVM系统中的物理硬盘，其由物理卷组成。</strong>能在卷组上创建一个或多个“LVM分区”（逻辑卷），LVM卷组由一个或多个物理卷组成。</li>
+</ul>
+</li>
+<li><p><strong>逻辑卷（LV, Logical Volume）</strong></p>
+<ul>
+<li>LVM的逻辑卷类似于非LVM系统中的硬盘分区，<strong>在逻辑卷之上能建立文件系统(比如/home或/usr等)。</strong></li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/091701217.png" alt="mark"></p>
+<p><strong>前提操作</strong></p>
+<p><strong>1：检查系统中是否安装了LVM管理工具</strong></p>
+<p><code># rpm -qa|grep lvm</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# rpm -qa |grep lvm</span><br><span class="line">lvm2-2.02.177-4.el7.x86_64</span><br><span class="line">llvm-private-5.0.0-3.el7.x86_64</span><br><span class="line">lvm2-libs-2.02.177-4.el7.x86_64</span><br><span class="line">[root@localhost ~]#</span><br></pre></td></tr></table></figure>
+
+<p><strong>2：如果未安装，则使用yum 方式安装</strong></p>
+<p><code>yum install lvm</code></p>
+<p><code># rpm -qa|grep lvm</code></p>
+<h4 id="1-增加逻辑卷"><a href="#1-增加逻辑卷" class="headerlink" title="1. 增加逻辑卷"></a>1. 增加逻辑卷</h4><ul>
+<li><strong>新建逻辑卷</strong></li>
+</ul>
+<ol>
+<li><p><strong>添加硬盘</strong> </p>
+<ul>
+<li>查看自己的硬盘 <code>fdisk -l</code></li>
+</ul>
+</li>
+<li><p><strong>创建物理卷</strong></p>
+<ul>
+<li><code>pvcreate  /dev/sd[b,c,d]1</code>   ： 创建三个物理卷</li>
+</ul>
+</li>
+<li><p><code>pvs</code> 进行查看 ： 要显示的物理卷列表。</p>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/170252083.png" alt="mark"></p>
+<ol start="4">
+<li><strong>建立卷组</strong> :<code>vgcreate 卷组名 要加入卷组的设备</code><ul>
+<li><code>vgcreate vg1 /dev/sdb1 /dev/sdc1</code></li>
+<li><strong>注意 ： 一个PV 是不能加到两个不同的卷组的</strong></li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/170420044.png" alt="mark"></p>
+<ol start="5">
+<li><strong>查看卷组</strong> ： <code>vgs</code><ul>
+<li>centos  ：<code>pv  = 1</code> 说明物理卷有一个</li>
+<li><strong>centos  :   中间有一个卷组</strong></li>
+<li>centos  :   <code>lv = 2</code>   说明逻辑卷有两个（<code>/boot</code>   <code>/</code>）</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/170612048.png" alt="mark"></p>
+<ol start="6">
+<li><strong>创建逻辑卷</strong><ul>
+<li><code>lvcreate -L 100M -n lv1 卷组名字</code><ul>
+<li><code>-L</code> ： 指定逻辑卷的大小</li>
+<li><code>-n</code> :    指定逻辑卷的名字</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/170914670.png" alt="mark"></p>
+<h4 id="2-使用逻辑卷"><a href="#2-使用逻辑卷" class="headerlink" title="2. 使用逻辑卷"></a>2. 使用逻辑卷</h4><ol>
+<li><strong>格式化</strong><ul>
+<li><code>mkfs.xfs /dev/vg1/lv1</code></li>
+</ul>
+</li>
+<li><strong>进行挂载</strong><ul>
+<li><code>mkdir</code></li>
+<li><code>mount</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>逻辑卷的整个流程 : 分层结构</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fdisk进行分区-&gt;物理卷pv-&gt;卷组vg-&gt;逻辑卷lv-&gt;文件系统xfs-&gt;挂载mount</span><br><span class="line"></span><br><span class="line">逻辑卷功能 ： 动态增大磁盘大小</span><br><span class="line">最主要步骤 ： 物理卷pv-&gt;卷组vg-&gt;逻辑卷lv</span><br><span class="line"></span><br><span class="line">再加个RAID : fdisk进行分区-&gt;&#x2F;dev&#x2F;md0-&gt;物理卷pv-&gt;卷组vg-&gt;逻辑卷lv-&gt;文件系统xfs-&gt;挂载mount</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-扩展分区-（lvm）"><a href="#3-扩展分区-（lvm）" class="headerlink" title="3. 扩展分区 （lvm）"></a>3. 扩展分区 （lvm）</h4><ul>
+<li>扩展现有的分区<ul>
+<li>根目录</li>
+<li>boot目录</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/173150352.png" alt="mark"></p>
+<p><strong>概括：</strong></p>
+<ul>
+<li>vg空间不够，需先扩展vg，扩展vg就是往vg中加pv</li>
+<li><ol>
+<li>新建pv, </li>
+</ol>
+</li>
+<li><ol start="2">
+<li>进行扩容(vg)，</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>再查看</li>
+<li>进行扩容(lv)</li>
+</ol>
+</li>
+</ul>
+<ol>
+<li><p><strong>给 vg 扩充空间</strong></p>
+<ul>
+<li><p><code>pvcreate /dev/sdd1</code> : 新建pv</p>
+</li>
+<li><p><code>vgextend centos /dev/sdd1</code>  ： <code>vgextend 扩充谁 用谁扩充</code></p>
+</li>
+<li><p><code>pvs</code></p>
+</li>
+<li><p><code>lvs</code></p>
+</li>
+<li><p><code>vgs</code></p>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/173429708.png" alt="mark"></p>
+<ol start="2">
+<li><strong>给<code>lv</code> 扩充空间</strong></li>
+</ol>
+<ul>
+<li><code>lvextend -L +50G /dev/centos/root</code> : <strong>给root逻辑卷增加50G的逻辑卷</strong></li>
+<li><code>pvs</code></li>
+<li><code>lvs</code></li>
+<li><code>vgs</code></li>
+<li>注意 ： 给lv加的容量要小于vg的容量</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/173621196.png" alt="mark"></p>
+<p><strong>注意  ： 空间真的变大了吗？</strong></p>
+<ul>
+<li><code>df -h</code> ：  查看发现一件奇怪的事情<ul>
+<li><strong>原因：逻辑卷上一层还有文件系统，文件系统还未进行扩大</strong></li>
+<li><strong>层次结构 ： 物理卷 -》 逻辑卷-》文件系统</strong><ul>
+<li><strong>不同分层解决不同的问题</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/173715810.png" alt="mark"></p>
+<ul>
+<li><strong>解决方法</strong></li>
+<li><code>xfs_growfs /dev/centos/root</code> ：  告诉文件系统已经扩大了（xfs系统）</li>
+</ul>
+<hr>
+<ul>
+<li><strong>缩容 ： 不建议使用</strong></li>
+</ul>
+<p>1：umount 文件系统</p>
+<p>2：缩减文件系统</p>
+<p><strong>此处参考博客：</strong> <a href="https://blog.csdn.net/qq_27281257/article/details/81603410" target="_blank" rel="noopener">https://blog.csdn.net/qq_27281257/article/details/81603410</a></p>
+<h3 id="8-8-系统检查故障问题"><a href="#8-8-系统检查故障问题" class="headerlink" title="8.8 系统检查故障问题"></a>8.8 系统检查故障问题</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/190045942.png" alt="mark"></p>
+<p><code>sar</code> 命令安装 ： <code>yum install sysstat</code></p>
+<h4 id="1-sar"><a href="#1-sar" class="headerlink" title="1. sar"></a>1. sar</h4><ol>
+<li><strong>cpu 利用率</strong></li>
+</ol>
+<ul>
+<li><p><code>sar -p</code>（查看全天）</p>
+</li>
+<li><p><code>sar -u 1 10</code>（1：每隔一秒，10：写入10次）  </p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/190353090.png" alt="mark"></p>
+<p><strong>CPU输出项说明</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>输出项</strong></th>
+<th><strong>详细说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU</td>
+<td>all 表示统计信息为所有 CPU 的平均值。</td>
+</tr>
+<tr>
+<td>%user</td>
+<td>显示在用户级别(application)运行使用 CPU 总时间的百分比。</td>
+</tr>
+<tr>
+<td>%nice</td>
+<td>显示在用户级别，用于nice操作，所占用 CPU 总时间的百分比。</td>
+</tr>
+<tr>
+<td>%system</td>
+<td>在核心级别(kernel)运行所使用 CPU 总时间的百分比。</td>
+</tr>
+<tr>
+<td>%iowait</td>
+<td>显示用于等待I/O操作占用 CPU 总时间的百分比。</td>
+</tr>
+<tr>
+<td>%steal</td>
+<td>管理程序(hypervisor)为另一个虚拟进程提供服务而等待虚拟 CPU 的百分比。</td>
+</tr>
+<tr>
+<td>%idle</td>
+<td>显示 CPU 空闲时间占用 CPU 总时间的百分比。</td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li><strong>内存情况</strong></li>
+</ol>
+<ul>
+<li><p><code>sar -r</code> （查看全天） </p>
+</li>
+<li><p><code>sar -r 1 10</code> （1：每隔一秒，10：写入10次） </p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/190524289.png" alt="mark"></p>
+<table>
+<thead>
+<tr>
+<th><strong>输出项</strong></th>
+<th><strong>详细说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>kbmemfree</td>
+<td>这个值和free命令中的free值基本一致，所以它不包括buffer和cache的空间。</td>
+</tr>
+<tr>
+<td>kbmemused</td>
+<td>这个值和free命令中的used值基本一致，所以它包括buffer和cache的空间。</td>
+</tr>
+<tr>
+<td>%memused</td>
+<td>这个值是kbmemused和内存总量(不包括swap)的一个百分比。</td>
+</tr>
+<tr>
+<td>kbbuffers和kbcached</td>
+<td>这两个值就是free命令中的buffer和cache。</td>
+</tr>
+<tr>
+<td>kbcommit</td>
+<td>保证当前系统所需要的内存，即为了确保不溢出而需要的内存(RAM+swap)。</td>
+</tr>
+<tr>
+<td>%commit</td>
+<td>这个值是kbcommit与内存总量(包括swap)的一个百分比。</td>
+</tr>
+</tbody></table>
+<ol start="3">
+<li><strong>磁盘IO情况</strong></li>
+</ol>
+<ul>
+<li><p><code>sar -d</code>（查看全天）</p>
+</li>
+<li><p><code>sar -d 1 2</code>（1：每隔一秒，2：写入2次）</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/190602015.png" alt="mark"></p>
+<table>
+<thead>
+<tr>
+<th><strong>输出项</strong></th>
+<th><strong>详细说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>await</td>
+<td>表示平均每次设备I/O操作的等待时间（以毫秒为单位）。</td>
+</tr>
+<tr>
+<td>svctm</td>
+<td>表示平均每次设备I/O操作的服务时间（以毫秒为单位）。</td>
+</tr>
+<tr>
+<td>%util</td>
+<td>表示一秒中有百分之几的时间用于I/O操作。</td>
+</tr>
+</tbody></table>
+<ol start="4">
+<li><strong>进程的使用</strong></li>
+</ol>
+<ul>
+<li><p><code>sar -q</code></p>
+</li>
+<li><p><code>sar -q 1 10</code></p>
+</li>
+</ul>
+<ol start="5">
+<li><strong>IO情况</strong></li>
+</ol>
+<ul>
+<li><code>sar -b</code></li>
+<li><code>sar -b 1 10</code></li>
+</ul>
+<ol start="6">
+<li><strong>网络流量</strong></li>
+</ol>
+<ul>
+<li><p><code>sar -n DEV</code>（查看全天）</p>
+</li>
+<li><p><code>sar -n DEV 1 2</code>（1：每隔一秒，2：写入2次）</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/190858673.png" alt="mark"></p>
+<table>
+<thead>
+<tr>
+<th><strong>输出项</strong></th>
+<th><strong>详细说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IFACE</td>
+<td>就是网络设备的名称。</td>
+</tr>
+<tr>
+<td>rxpck/s</td>
+<td>每秒钟接收到的包数目。</td>
+</tr>
+<tr>
+<td>txpck/s</td>
+<td>每秒钟发送出去的包数目。</td>
+</tr>
+<tr>
+<td>rxkB/s</td>
+<td>每秒钟接收到的字节数。</td>
+</tr>
+<tr>
+<td>txkB/s</td>
+<td>每秒钟发送出去的字节数。</td>
+</tr>
+<tr>
+<td>rxcmp/s</td>
+<td>每秒钟接收到的压缩包数目。</td>
+</tr>
+<tr>
+<td>txcmp/s</td>
+<td>每秒钟发送出去的压缩包数目。</td>
+</tr>
+<tr>
+<td>rxmcst/s</td>
+<td>每秒钟接收到的多播包的包数目。</td>
+</tr>
+</tbody></table>
+<h4 id="2-iftop"><a href="#2-iftop" class="headerlink" title="2. iftop"></a>2. iftop</h4><ul>
+<li><p><strong>查看本地网络流量情况</strong></p>
+</li>
+<li><p><code>iftop -P</code></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/191048391.png" alt="mark"></p>
+<h2 id="9-shell"><a href="#9-shell" class="headerlink" title="9. shell"></a>9. shell</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/191356872.png" alt="mark"></p>
+<h3 id="9-1-什么是shell"><a href="#9-1-什么是shell" class="headerlink" title="9.1 什么是shell?"></a>9.1 什么是shell?</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210105/191459243.png" alt="mark"></p>
+<ul>
+<li><p>Shell 是一个用 C 语言编写的程序，它是用户使用 Linux 的桥梁。<strong>Shell 既是一种命令语言，又是一种程序设计语言。</strong></p>
+</li>
+<li><p><strong>Shell 是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务。</strong></p>
+</li>
+<li><p>Ken Thompson 的 sh 是第一种 Unix Shell，Windows Explorer 是一个典型的图形界面 Shell。</p>
+</li>
+</ul>
+<p><a href="https://www.runoob.com/try/showbash.php?filename=helloworld" target="_blank" rel="noopener"><strong>Shell 在线工具</strong></a></p>
+<p><strong>命令解释器</strong></p>
+<ul>
+<li>Shell 编程跟<code>JavaScript、php</code> 编程一样，只要有一个能编写代码的文本编辑器和一个能解释执行的脚本解释器就可以了。</li>
+<li><code>Linux</code> 的 <code>Shell</code> 种类众多，常见的有：</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu ~]<span class="comment"># cat /etc/shells </span></span><br><span class="line">/bin/sh</span><br><span class="line">/bin/bash</span><br><span class="line">/usr/bin/sh</span><br><span class="line">/usr/bin/bash</span><br><span class="line">/bin/tcsh</span><br><span class="line">/bin/csh</span><br><span class="line"></span><br><span class="line">本教程关注的是 Bash，也就是 Bourne Again Shell，由于易用和免费，Bash 在日常工作中被广泛使用。同时，Bash 也是大多数Linux 系统默认的 Shell。</span><br><span class="line"></span><br><span class="line">在一般情况下，人们并不区分 Bourne Shell 和 Bourne Again Shell，所以，像 <span class="comment">#!/bin/sh，它同样也可以改为 #!/bin/bash。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#! 告诉系统其后路径所指定的程序即是解释此脚本文件的 Shell 程序。</span></span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
