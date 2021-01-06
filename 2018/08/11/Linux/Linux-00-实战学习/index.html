@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">22.6k字</span>
+            <span class="post-count">26.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">89分钟</span>
+            <span class="post-count">107分钟</span>
         </span>
     </span>
 </div>
@@ -2978,6 +2978,275 @@
 </ul>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu ~]<span class="comment"># cat /etc/shells </span></span><br><span class="line">/bin/sh</span><br><span class="line">/bin/bash</span><br><span class="line">/usr/bin/sh</span><br><span class="line">/usr/bin/bash</span><br><span class="line">/bin/tcsh</span><br><span class="line">/bin/csh</span><br><span class="line"></span><br><span class="line">本教程关注的是 Bash，也就是 Bourne Again Shell，由于易用和免费，Bash 在日常工作中被广泛使用。同时，Bash 也是大多数Linux 系统默认的 Shell。</span><br><span class="line"></span><br><span class="line">在一般情况下，人们并不区分 Bourne Shell 和 Bourne Again Shell，所以，像 <span class="comment">#!/bin/sh，它同样也可以改为 #!/bin/bash。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#! 告诉系统其后路径所指定的程序即是解释此脚本文件的 Shell 程序。</span></span><br></pre></td></tr></table></figure>
 
+
+
+<h3 id="9-2-Linux-启动过程"><a href="#9-2-Linux-启动过程" class="headerlink" title="9.2 Linux 启动过程"></a>9.2 Linux 启动过程</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/101300268.png" alt="mark"></p>
+<p><strong>上述图为centos7,下面文字为centos6.</strong></p>
+<p>linux启动时我们会看到许多启动信息。</p>
+<p>Linux系统的启动过程并不是大家想象中的那么复杂，其过程可以分为5个阶段：</p>
+<ul>
+<li>内核的引导。</li>
+<li>运行 init。</li>
+<li>系统初始化。</li>
+<li>建立终端 。</li>
+<li>用户登录系统。</li>
+</ul>
+<p><strong>init程序的类型：</strong></p>
+<ul>
+<li><strong>SysV:</strong> init, CentOS 5之前, 配置文件： /etc/inittab。</li>
+<li><strong>Upstart:</strong> init,CentOS 6, 配置文件： /etc/inittab, /etc/init/*.conf。</li>
+<li><strong>Systemd：</strong> systemd, CentOS 7,配置文件： /usr/lib/systemd/system、 /etc/systemd/system。</li>
+</ul>
+<h4 id="1-内核引导"><a href="#1-内核引导" class="headerlink" title="1. 内核引导"></a>1. 内核引导</h4><ul>
+<li>当计算机打开电源后，首先是BIOS开机自检，按照BIOS中设置的启动设备（通常是硬盘）来启动。</li>
+<li>操作系统接管硬件以后，首先读入 /boot 目录下的内核文件。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/101512420.png" alt="mark"></p>
+<h4 id="2-运行init-1号进程"><a href="#2-运行init-1号进程" class="headerlink" title="2. 运行init(1号进程)"></a>2. 运行init(1号进程)</h4><ul>
+<li><p>init 进程是系统所有进程的起点，你可以把它比拟成系统所有进程的老祖宗，没有这个进程，系统中任何进程都不会启动。</p>
+</li>
+<li><p>init 程序首先是需要读取配置文件 <code>/etc/inittab</code></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/101548955.png" alt="mark"></p>
+<h4 id="3-运行级别"><a href="#3-运行级别" class="headerlink" title="3. 运行级别"></a>3. 运行级别</h4><ul>
+<li><p>许多程序需要开机启动。它们在Windows叫做”服务”（service），<strong>在Linux就叫做”守护进程”（daemon）。</strong></p>
+</li>
+<li><p>init进程的一大任务，就是去运行这些开机启动的程序。</p>
+<ul>
+<li>但是，不同的场合需要启动不同的程序，比如用作服务器时，需要启动Apache，用作桌面就不需要。</li>
+</ul>
+</li>
+<li><p>Linux允许为不同的场合，分配不同的开机启动程序，这就叫做”运行级别”（runlevel）。也就是说，启动时根据”运行级别”，确定要运行哪些程序。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/101649621.png" alt="mark"></p>
+<p><strong>Linux系统有7个运行级别(runlevel)：</strong></p>
+<ul>
+<li>运行级别0：系统停机状态，系统默认运行级别不能设为0，否则不能正常启动</li>
+<li>运行级别1：单用户工作状态，root权限，用于系统维护，禁止远程登陆</li>
+<li>运行级别2：多用户状态(没有NFS)</li>
+<li>运行级别3：完全的多用户状态(有NFS)，登陆后进入控制台命令行模式</li>
+<li>运行级别4：系统未使用，保留</li>
+<li>运行级别5：X11控制台，登陆后进入图形GUI模式</li>
+<li>运行级别6：系统正常关闭并重启，默认运行级别不能设为6，否则不能正常启动</li>
+</ul>
+<h4 id="4-系统初始化"><a href="#4-系统初始化" class="headerlink" title="4. 系统初始化"></a>4. 系统初始化</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/102251678.png" alt="mark"></p>
+<ul>
+<li><p>在init的配置文件中有这么一行： <code>si::sysinit:/etc/rc.d/rc.sysinit</code>　它调用执行了<code>/etc/rc.d/rc.sysinit</code>，而<code>rc.sysinit</code>是一个<code>bash shell</code>的脚本，它主要是完成一些系统初始化的工作，<code>rc.sysinit</code>是每一个运行级别都要首先运行的重要脚本。</p>
+</li>
+<li><p>它主要完成的工作有：激活交换分区，检查磁盘，加载硬件模块以及其它一些需要优先执行任务。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">l5:5:wait:&#x2F;etc&#x2F;rc.d&#x2F;rc 5</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>这一行表示以5为参数运行/etc/rc.d/rc，/etc/rc.d/rc是一个Shell脚本，它接受5作为参数，去执行/etc/rc.d/rc5.d/目录下的所有的rc启动脚本，/etc/rc.d/rc5.d/目录中的这些启动脚本实际上都是一些连接文件，而不是真正的rc启动脚本，真正的rc启动脚本实际上都是放在/etc/rc.d/init.d/目录下。</p>
+</li>
+<li><p>而这些rc启动脚本有着类似的用法，它们一般能接受start、stop、restart、status等参数。</p>
+</li>
+</ul>
+<h4 id="5-建立终端"><a href="#5-建立终端" class="headerlink" title="5. 建立终端"></a>5. 建立终端</h4><ul>
+<li>rc执行完毕后，返回init。这时基本系统环境已经设置好了，各种守护进程也已经启动了。</li>
+<li>init接下来会打开6个终端，以便用户登录系统。在inittab中的以下6行就是定义了6个终端：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1:2345:respawn:&#x2F;sbin&#x2F;mingetty tty1</span><br><span class="line">2:2345:respawn:&#x2F;sbin&#x2F;mingetty tty2</span><br><span class="line">3:2345:respawn:&#x2F;sbin&#x2F;mingetty tty3</span><br><span class="line">4:2345:respawn:&#x2F;sbin&#x2F;mingetty tty4</span><br><span class="line">5:2345:respawn:&#x2F;sbin&#x2F;mingetty tty5</span><br><span class="line">6:2345:respawn:&#x2F;sbin&#x2F;mingetty tty6</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>从上面可以看出在2、3、4、5的运行级别中都将以respawn方式运行mingetty程序，mingetty程序能打开终端、设置模式。</li>
+<li>同时它会显示一个文本登录界面，这个界面就是我们经常看到的登录界面，在这个登录界面中会提示用户输入用户名，而用户输入的用户将作为参数传给login程序来验证用户的身份。</li>
+</ul>
+<h4 id="6-用户登录系统"><a href="#6-用户登录系统" class="headerlink" title="6. 用户登录系统"></a>6. 用户登录系统</h4><p>一般来说，用户的登录方式有三种：</p>
+<ul>
+<li>（1）命令行登录</li>
+<li>（2）ssh登录</li>
+<li>（3）图形界面登录</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/105006930.png" alt="mark"></p>
+<p><strong>图形方式登录</strong></p>
+<p>对于运行级别为5的图形方式用户来说，他们的登录是通过一个图形化的登录界面。登录成功后可以直接进入 KDE、Gnome 等窗口管理器。</p>
+<p>而本文主要讲的还是文本方式登录的情况：当我们看到mingetty的登录界面时，我们就可以输入用户名和密码来登录系统了。</p>
+<p><strong>文字模式登录</strong></p>
+<ul>
+<li>Linux 的账号验证程序是 login，login 会接收 mingetty 传来的用户名作为用户名参数。</li>
+<li>然后 login 会对用户名进行分析：如果用户名不是 root，且存在 /etc/nologin 文件，login 将输出 nologin 文件的内容，然后退出。</li>
+<li>这通常用来系统维护时防止非root用户登录。只有/etc/securetty中登记了的终端才允许 root 用户登录<ul>
+<li>如果不存在这个文件，则 root 用户可以在任何终端上登录。</li>
+<li>/etc/usertty文件用于对用户作出附加访问限制，如果不存在这个文件，则没有其他限制。</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-图形模式和文字模式切换"><a href="#5-图形模式和文字模式切换" class="headerlink" title="5. 图形模式和文字模式切换"></a>5. 图形模式和文字模式切换</h4><ul>
+<li><p><strong>Linux预设提供了六个命令窗口终端机让我们来登录。</strong></p>
+</li>
+<li><p><strong>默认我们登录的就是第一个窗口，也就是tty1，这个六个窗口分别为tty1,tty2 … tty6，你可以按下Ctrl + Alt + F1 ~ F6 来切换它们</strong></p>
+</li>
+<li><p>如果你安装了图形界面，默认情况下是进入图形界面的，此时你就可以按Ctrl + Alt + F1 ~ F6来进入其中一个命令窗口界面。</p>
+</li>
+<li><p>当你进入命令窗口界面后再返回图形界面只要按下Ctrl + Alt + F7 就回来了。</p>
+</li>
+<li><p>如果你用的vmware 虚拟机，命令窗口切换的快捷键为 Alt + Space + F1<del>F6. 如果你在图形界面下请按Alt + Shift + Ctrl + F1</del>F6 切换至命令窗口。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/105327004.png" alt="mark"></p>
+<h4 id="7-linux-关机"><a href="#7-linux-关机" class="headerlink" title="7. linux 关机"></a>7. linux 关机</h4><p>在linux领域内大多用在服务器上，很少遇到关机的操作。毕竟服务器上跑一个服务是永无止境的，除非特殊情况下，不得已才会关机。</p>
+<p>正确的关机流程为：<code>sync &gt; shutdown &gt; reboot &gt; halt</code></p>
+<p>关机指令为：shutdown ，你可以man shutdown 来看一下帮助文档。</p>
+<p>例如你可以运行如下命令关机：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">sync 将数据由内存同步到硬盘中。</span><br><span class="line"></span><br><span class="line">shutdown 关机指令，你可以man shutdown 来看一下帮助文档。例如你可以运行如下命令关机：</span><br><span class="line"></span><br><span class="line">shutdown –h 10 ‘This server will shutdown after 10 mins’ 这个命令告诉大家，计算机将在10分钟后关机，并且会显示在登陆用户的当前屏幕中。</span><br><span class="line"></span><br><span class="line">shutdown –h now 立马关机</span><br><span class="line"></span><br><span class="line">shutdown –h 20:25 系统会在今天20:25关机</span><br><span class="line"></span><br><span class="line">shutdown –h +10 十分钟后关机</span><br><span class="line"></span><br><span class="line">shutdown –r now 系统立马重启</span><br><span class="line"></span><br><span class="line">shutdown –r +10 系统十分钟后重启</span><br><span class="line"></span><br><span class="line">reboot 就是重启，等同于 shutdown –r now</span><br><span class="line"></span><br><span class="line">halt 关闭系统，等同于shutdown –h now 和 poweroff</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>最后总结一下，不管是重启系统还是关闭系统，首先要运行 <strong>sync</strong> 命令，把内存中的数据写到磁盘中。 </p>
+</li>
+<li><p>关机的命令有 <strong>shutdown –h now /halt/ poweroff</strong> 和 <strong>init 0</strong> , 重启系统的命令有 <strong>shutdown –r now /reboot/ init 6</strong>。 </p>
+</li>
+</ul>
+<h3 id="9-3-启动文件位置"><a href="#9-3-启动文件位置" class="headerlink" title="9.3 启动文件位置"></a>9.3 启动文件位置</h3><h4 id="1-MBR-位置"><a href="#1-MBR-位置" class="headerlink" title="1. MBR 位置"></a>1. MBR 位置</h4><ol>
+<li>将MBR的引导写出来(<strong>446字节</strong>) ： <code>dd if=/dev/vda of=mbr.bin bs=446 count=1</code></li>
+<li>16进制字符查看mbr ： <code>hexdump -C mbr.bin</code></li>
+<li>将MBR的引导写出来(<strong>512字节</strong>) ： <code>dd if=/dev/vda of=mbr.bin bs=512 count=1</code><ul>
+<li>512 字节包含磁盘的分区表</li>
+<li>55 aa   ： 说明该磁盘可以正确引导</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu ~]<span class="comment"># dd if=/dev/vda of=mbr.bin bs=446 count=1</span></span><br><span class="line">1+0 records <span class="keyword">in</span></span><br><span class="line">1+0 records out</span><br><span class="line">446 bytes (446 B) copied, 0.000123157 s, 3.6 MB/s</span><br><span class="line">[root@zhuuu ~]<span class="comment"># hexdump -C mbr.bin</span></span><br><span class="line">00000000  eb 63 90 10 8e d0 bc 00  b0 b8 00 00 8e d8 8e c0  |.c..............|</span><br><span class="line">00000010  fb be 00 7c bf 00 06 b9  00 02 f3 a4 ea 21 06 00  |...|.........!..|</span><br><span class="line">00000020  00 be be 07 38 04 75 0b  83 c6 10 81 fe fe 07 75  |....8.u........u|</span><br><span class="line">00000030  f3 eb 16 b4 02 b0 01 bb  00 7c b2 80 8a 74 01 8b  |.........|...t..|</span><br><span class="line">00000040  4c 02 <span class="built_in">cd</span> 13 ea 00 7c 00  00 eb fe 00 00 00 00 00  |L.....|.........|</span><br><span class="line">00000050  00 00 00 00 00 00 00 00  00 00 00 80 01 00 00 00  |................|</span><br><span class="line">00000060  00 00 00 00 ff fa 90 90  f6 c2 80 74 05 f6 c2 70  |...........t...p|</span><br><span class="line">00000070  74 02 b2 80 ea 79 7c 00  00 31 c0 8e d8 8e d0 bc  |t....y|..1......|</span><br><span class="line">00000080  00 20 fb a0 64 7c 3c ff  74 02 88 c2 52 be 05 7c  |. ..d|&lt;.t...R..||</span><br><span class="line">00000090  b4 41 bb aa 55 <span class="built_in">cd</span> 13 5a  52 72 3d 81 fb 55 aa 75  |.A..U..ZRr=..U.u|</span><br><span class="line">000000a0  37 83 e1 01 74 32 31 c0  89 44 04 40 88 44 ff 89  |7...t21..D.@.D..|</span><br><span class="line">000000b0  44 02 c7 04 10 00 66 8b  1e 5c 7c 66 89 5c 08 66  |D.....f..\|f.\.f|</span><br><span class="line">000000c0  8b 1e 60 7c 66 89 5c 0c  c7 44 06 00 70 b4 42 <span class="built_in">cd</span>  |..`|f.\..D..p.B.|</span><br><span class="line">000000d0  13 72 05 bb 00 70 eb 76  b4 08 <span class="built_in">cd</span> 13 73 0d 5a 84  |.r...p.v....s.Z.|</span><br><span class="line">000000e0  d2 0f 83 de 00 be 85 7d  e9 82 00 66 0f b6 c6 88  |.......&#125;...f....|</span><br><span class="line">000000f0  64 ff 40 66 89 44 04 0f  b6 d1 c1 e2 02 88 e8 88  |d.@f.D..........|</span><br><span class="line">00000100  f4 40 89 44 08 0f b6 c2  c0 e8 02 66 89 04 66 a1  |.@.D.......f..f.|</span><br><span class="line">00000110  60 7c 66 09 c0 75 4e 66  a1 5c 7c 66 31 d2 66 f7  |`|f..uNf.\|f1.f.|</span><br><span class="line">00000120  34 88 d1 31 d2 66 f7 74  04 3b 44 08 7d 37 fe c1  |4..1.f.t.;D.&#125;7..|</span><br><span class="line">00000130  88 c5 30 c0 c1 e8 02 08  c1 88 d0 5a 88 c6 bb 00  |..0........Z....|</span><br><span class="line">00000140  70 8e c3 31 db b8 01 02  <span class="built_in">cd</span> 13 72 1e 8c c3 60 1e  |p..1......r...`.|</span><br><span class="line">00000150  b9 00 01 8e db 31 f6 bf  00 80 8e c6 <span class="built_in">fc</span> f3 a5 1f  |.....1..........|</span><br><span class="line">00000160  61 ff 26 5a 7c be 80 7d  eb 03 be 8f 7d e8 34 00  |a.&amp;Z|..&#125;....&#125;.4.|</span><br><span class="line">00000170  be 94 7d e8 2e 00 <span class="built_in">cd</span> 18  eb fe 47 52 55 42 20 00  |..&#125;.......GRUB .|</span><br><span class="line">00000180  47 65 6f 6d 00 48 61 72  64 20 44 69 73 6b 00 52  |Geom.Hard Disk.R|</span><br><span class="line">00000190  65 61 64 00 20 45 72 72  6f 72 0d 0a 00 bb 01 00  |ead. Error......|</span><br><span class="line">000001a0  b4 0e <span class="built_in">cd</span> 10 ac 3c 00 75  f4 c3 00 00 00 00 00 00  |.....&lt;.u........|</span><br><span class="line">000001b0  00 00 00 00 00 00 00 00  89 ac 09 00 00 00        |..............|</span><br><span class="line">000001be</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>512 字节</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">[root@zhuuu ~]# dd if&#x3D;&#x2F;dev&#x2F;vda of&#x3D;mbr2.bin bs&#x3D;512 count&#x3D;1</span><br><span class="line">1+0 records in</span><br><span class="line">1+0 records out</span><br><span class="line">512 bytes (512 B) copied, 0.000130971 s, 3.9 MB&#x2F;s</span><br><span class="line">[root@zhuuu ~]# hexdump -C mbr2.bin</span><br><span class="line">00000000  eb 63 90 10 8e d0 bc 00  b0 b8 00 00 8e d8 8e c0  |.c..............|</span><br><span class="line">00000010  fb be 00 7c bf 00 06 b9  00 02 f3 a4 ea 21 06 00  |...|.........!..|</span><br><span class="line">00000020  00 be be 07 38 04 75 0b  83 c6 10 81 fe fe 07 75  |....8.u........u|</span><br><span class="line">00000030  f3 eb 16 b4 02 b0 01 bb  00 7c b2 80 8a 74 01 8b  |.........|...t..|</span><br><span class="line">00000040  4c 02 cd 13 ea 00 7c 00  00 eb fe 00 00 00 00 00  |L.....|.........|</span><br><span class="line">00000050  00 00 00 00 00 00 00 00  00 00 00 80 01 00 00 00  |................|</span><br><span class="line">00000060  00 00 00 00 ff fa 90 90  f6 c2 80 74 05 f6 c2 70  |...........t...p|</span><br><span class="line">00000070  74 02 b2 80 ea 79 7c 00  00 31 c0 8e d8 8e d0 bc  |t....y|..1......|</span><br><span class="line">00000080  00 20 fb a0 64 7c 3c ff  74 02 88 c2 52 be 05 7c  |. ..d|&lt;.t...R..||</span><br><span class="line">00000090  b4 41 bb aa 55 cd 13 5a  52 72 3d 81 fb 55 aa 75  |.A..U..ZRr&#x3D;..U.u|</span><br><span class="line">000000a0  37 83 e1 01 74 32 31 c0  89 44 04 40 88 44 ff 89  |7...t21..D.@.D..|</span><br><span class="line">000000b0  44 02 c7 04 10 00 66 8b  1e 5c 7c 66 89 5c 08 66  |D.....f..\|f.\.f|</span><br><span class="line">000000c0  8b 1e 60 7c 66 89 5c 0c  c7 44 06 00 70 b4 42 cd  |..&#96;|f.\..D..p.B.|</span><br><span class="line">000000d0  13 72 05 bb 00 70 eb 76  b4 08 cd 13 73 0d 5a 84  |.r...p.v....s.Z.|</span><br><span class="line">000000e0  d2 0f 83 de 00 be 85 7d  e9 82 00 66 0f b6 c6 88  |.......&#125;...f....|</span><br><span class="line">000000f0  64 ff 40 66 89 44 04 0f  b6 d1 c1 e2 02 88 e8 88  |d.@f.D..........|</span><br><span class="line">00000100  f4 40 89 44 08 0f b6 c2  c0 e8 02 66 89 04 66 a1  |.@.D.......f..f.|</span><br><span class="line">00000110  60 7c 66 09 c0 75 4e 66  a1 5c 7c 66 31 d2 66 f7  |&#96;|f..uNf.\|f1.f.|</span><br><span class="line">00000120  34 88 d1 31 d2 66 f7 74  04 3b 44 08 7d 37 fe c1  |4..1.f.t.;D.&#125;7..|</span><br><span class="line">00000130  88 c5 30 c0 c1 e8 02 08  c1 88 d0 5a 88 c6 bb 00  |..0........Z....|</span><br><span class="line">00000140  70 8e c3 31 db b8 01 02  cd 13 72 1e 8c c3 60 1e  |p..1......r...&#96;.|</span><br><span class="line">00000150  b9 00 01 8e db 31 f6 bf  00 80 8e c6 fc f3 a5 1f  |.....1..........|</span><br><span class="line">00000160  61 ff 26 5a 7c be 80 7d  eb 03 be 8f 7d e8 34 00  |a.&amp;Z|..&#125;....&#125;.4.|</span><br><span class="line">00000170  be 94 7d e8 2e 00 cd 18  eb fe 47 52 55 42 20 00  |..&#125;.......GRUB .|</span><br><span class="line">00000180  47 65 6f 6d 00 48 61 72  64 20 44 69 73 6b 00 52  |Geom.Hard Disk.R|</span><br><span class="line">00000190  65 61 64 00 20 45 72 72  6f 72 0d 0a 00 bb 01 00  |ead. Error......|</span><br><span class="line">000001a0  b4 0e cd 10 ac 3c 00 75  f4 c3 00 00 00 00 00 00  |.....&lt;.u........|</span><br><span class="line">000001b0  00 00 00 00 00 00 00 00  89 ac 09 00 00 00 80 00  |................|</span><br><span class="line">000001c0  21 02 83 0f ff ff 00 08  00 00 df f7 3f 06 00 00  |!...........?...|</span><br><span class="line">000001d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|</span><br><span class="line">*</span><br><span class="line">000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|</span><br><span class="line">00000200</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-grub2-位置"><a href="#2-grub2-位置" class="headerlink" title="2. grub2 位置"></a>2. grub2 位置</h4><ul>
+<li><p>位置 ： <code>cd /boot/grub2</code></p>
+</li>
+<li><p>目前引导内核  ： <code>grub2-editenv list</code></p>
+<ul>
+<li>或者 ： <code>uname -r</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="3-init-systemd-区别"><a href="#3-init-systemd-区别" class="headerlink" title="3. init/systemd 区别"></a>3. init/systemd 区别</h4><ul>
+<li><strong>一号进程</strong><ul>
+<li><strong>init</strong> : <code>[root@zhuuu ~]# which init
+/usr/sbin/init</code></li>
+<li><code>systemd</code>:<code>/usr/lib/systemd/systemd</code></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>init</strong></li>
+</ol>
+<ul>
+<li>系统脚本位置 ： <code>cd /etc/rc.d</code></li>
+</ul>
+<ol start="2">
+<li><strong>systemd</strong></li>
+</ol>
+<ul>
+<li>系统配置文件位置 ：<code>cd /etc/systemd/system</code></li>
+</ul>
+<p><strong>注意</strong></p>
+<ul>
+<li>init 用的是脚本 ， systemd 目录存放的多是配置文件</li>
+<li>centos 6 和 centos 7的区别</li>
+</ul>
+<h3 id="9-4-shell-脚本"><a href="#9-4-shell-脚本" class="headerlink" title="9.4 shell 脚本"></a>9.4 shell 脚本</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/112456574.png" alt="mark"></p>
+<ul>
+<li><p>Shell 脚本（shell script），是一种为 shell 编写的脚本程序。</p>
+</li>
+<li><p>业界所说的 shell 通常都是指 shell 脚本，但读者朋友要知道，shell 和 shell script 是两个不同的概念。</p>
+</li>
+</ul>
+<h4 id="1-第一个脚本程序"><a href="#1-第一个脚本程序" class="headerlink" title="1. 第一个脚本程序"></a>1. 第一个脚本程序</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/113752836.png" alt="mark"></p>
+<ul>
+<li><strong>实现功能 ： 进入一个目录并查看目录下的内容</strong></li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/;ls;<span class="built_in">pwd</span>;du -sh *;du -sh</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>vim 1.sh</code></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/</span><br><span class="line">ls</span><br><span class="line"><span class="built_in">pwd</span></span><br><span class="line">du -sh *</span><br><span class="line">du -sh</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p><strong>加上执行权限</strong> ： <code>chmod u+x 1.sh</code></p>
+</li>
+<li><p><strong>运行脚本</strong> ： <code>bash 1.sh</code></p>
+<ul>
+<li>使用bash shell 来执行</li>
+</ul>
+</li>
+</ol>
+<p>注意：</p>
+<ul>
+<li>如果对方默认的shell 不是 bash的话，需要在顶格加上声明</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1 <span class="comment">#!/bin/bash</span></span><br><span class="line">2 <span class="built_in">cd</span> /var/</span><br><span class="line">3 ls</span><br><span class="line">4 <span class="built_in">pwd</span></span><br><span class="line">5 du -sh *</span><br><span class="line">6 du -sh</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>./1.sh</code> : 会用系统自带的shell 进行执行<ul>
+<li>如果有注释，使用注释的shell进行执行</li>
+</ul>
+</li>
+<li>注释使用 # ：注意顶格写</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/143301018.png" alt="mark"></p>
+<h4 id="2-脚本的运行方式"><a href="#2-脚本的运行方式" class="headerlink" title="2. 脚本的运行方式"></a>2. 脚本的运行方式</h4><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/143405366.png" alt="mark"></p>
+<ol>
+<li><code>bash</code> 和 ./filename.sh  ：<strong>会再新开一个bash子进程去执行</strong></li>
+<li><code>source ./filename.sh</code> 和 <code>.filename.sh</code>  ： <strong>会使用当前的进程去执行</strong></li>
+</ol>
+<p><strong>举例子 ： 编写一个2.sh脚本</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd &#x2F;tmp</span><br><span class="line">pwd</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>bash 2.sh</code><ul>
+<li>虽然没有赋予权限，但是执行完脚本，又回到了当前目录</li>
+</ul>
+</li>
+<li><code>./2.sh</code><ul>
+<li>会提示权限不够，必须添加<code>chmod u+x 2.sh</code></li>
+<li>执行完脚本，又回到了当前目录</li>
+</ul>
+</li>
+</ol>
+<p><strong>以上两种方式因为是新的子进程，所以执行完对当前的环境是没有影响的</strong></p>
+<hr>
+<ol start="3">
+<li><code>source ./2.sh</code><ul>
+<li>当前的目录受到更改</li>
+</ul>
+</li>
+<li><code>. 2.sh</code><ul>
+<li>和 source 其实是同一个命令，当前目录受到更改</li>
+</ul>
+</li>
+</ol>
+<p><strong>注意 ：</strong></p>
+<ul>
+<li>如果想要脚本对当前的bash产生影响，使用<code>source ./</code> 或者 <code>.sh</code> </li>
+<li>否则使用<code>./ sh</code> 方式去运行</li>
+</ul>
+<p><strong>内建命令和外部命令的区别</strong></p>
+<ol>
+<li>上述cd 和pwd 命令属于内建命令，对当前的bash 会产生影响(因为不会产生子进程)</li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/145803219.png" alt="mark"></p>
+<h3 id="9-5-管道和重定向"><a href="#9-5-管道和重定向" class="headerlink" title="9.5 管道和重定向"></a>9.5 管道和重定向</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210106/150334158.png" alt="mark"></p>
+<h4 id="1-管道"><a href="#1-管道" class="headerlink" title="1. 管道"></a>1. 管道</h4><ul>
+<li>将多个进程的输入和输出连在一起</li>
+<li>管道符 : <code>|</code> 代表的是匿名管道</li>
+</ul>
+<p><strong>举个例子</strong></p>
+<ol>
+<li><pre><code class="sh">将前面的结果当做 | 后的的输入
+cat /etc/dracut.conf | more</code></pre>
+</li>
+<li></li>
+</ol>
 
       
       <!-- reward -->
