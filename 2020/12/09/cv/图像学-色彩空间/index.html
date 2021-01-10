@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    图像学-色彩空间 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-cv/图像学-色彩空间" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  图像学-色彩空间
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/12/09/cv/%E5%9B%BE%E5%83%8F%E5%AD%A6-%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4/" class="article-date">
+  <time datetime="2020-12-09T09:38:38.000Z" itemprop="datePublished">2020-12-09</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.7k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="图像学-色彩空间"><a href="#图像学-色彩空间" class="headerlink" title="图像学-色彩空间"></a>图像学-色彩空间</h1><ul>
+<li>作为摄影师，你是不是遇到过这样的问题：相机设置里的色彩空间是什么意思？ sRGB 和 Adobe RGB 有什么不同？为什么我的图片在 Photoshop 里看着好好的，一保存发布到网上色彩就变了？</li>
+<li>本篇文章将分为几个部分。首先从几个实验规律出发，借助线性代数相关的概念，定义色彩空间，然后介绍并推导几个重要的色彩空间之间的关系。</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="1-实验基础"><a href="#1-实验基础" class="headerlink" title="1. 实验基础"></a>1. 实验基础</h2><ul>
+<li><p>相信大家都熟悉「三原色」理论，也知道现代显示器是按照 RGB 模式来显示色彩，不知道有没有想过，为什么是「三原色」？为什么是「三」这个数字？为什么一定要选择 RGB 红绿蓝三种颜色作为原色呢？选其他行不行？用四种颜色行不行？</p>
+</li>
+<li><p>知乎上有个问题 <a href="https://www.zhihu.com/question/24886171" target="_blank" rel="noopener">红绿蓝三色是（唯一的）正交基吗？</a> 就提出了这个疑问</p>
+</li>
+<li><p>追根溯源的话，得从我们人类的<strong>视网膜说起。大部分人类的视网膜上有三种感知颜色的感光细胞，叫做视锥细胞，分别对不同波长的光线敏感，称为 L/M/S 型细胞</strong>。三种视锥细胞最敏感的波长分别是橙红色（长波，Long），绿色（中波，Medium），蓝色（短波，Short）。这三种视锥细胞的归一化感光曲线如下图所示（图片数据来自 <a href="https://link.zhihu.com/?target=http%3A//cvrl.ioo.ucl.ac.uk/">CVLR</a> ）</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210110/154904307.png" alt="mark"></p>
+<hr>
+<p>可以看到 L 型视锥细胞与 M 型视锥细胞的感光曲线差别很小，实际上这两种视锥细胞起源于一次基因变异，在这之前人类可都是红绿色盲呢，多亏这个基因变异，让人类可以看到更加多彩的世界——这又是一个庞大的话题了，就此打住。</p>
+<p>总之，大自然的这千千万万种颜色，在人类的眼里看到，最后传送到大脑里的信号，就只有这三种视锥细胞的电信号而已。根据这三种电信号的强弱，大脑解读成了不同的颜色。这就是三原色理论的生物学依据。</p>
+<hr>
+<ul>
+<li><p>不仅如此，人类眼睛对不同颜色光线混合的反应还是 <strong>线性</strong> 的。</p>
+</li>
+<li><p>根据 <a href="https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/Grassmann%27s_law_(optics)">格拉斯曼定律（Grassmann’s Law）</a>，两束不同颜色的光 <img src="https://www.zhihu.com/equation?tex=C_1" alt="[公式]"> 和 <img src="https://www.zhihu.com/equation?tex=C_2" alt="[公式]">，假设某个视锥细胞对他们的反应分别是 <img src="https://www.zhihu.com/equation?tex=r_1" alt="[公式]"> 和 <img src="https://www.zhihu.com/equation?tex=r_2" alt="[公式]">，现在将他们按照一个比例混合，得到第三种颜色 <img src="https://www.zhihu.com/equation?tex=C_3+%3D+%5Calpha+C_1+%2B+%5Cbeta+C_2" alt="[公式]">，那么视锥细胞对这个混合颜色的反应也将是前两个反应的线性叠加 <img src="https://www.zhihu.com/equation?tex=r_3+%3D+%5Calpha+r_1+%2B+%0A%5Cbeta+r_2" alt="[公式]">。</p>
+</li>
+<li><p>格拉斯曼定律是一个实验规律，并没有物理或者生物学上的依据。然而这个规律大大简化了我们对人类彩色视觉系统的建模，并且给我们使用线性代数理论分析人类彩色视觉系统提供了一个前提和基础。</p>
+</li>
+</ul>
+<h2 id="2-色匹配函数"><a href="#2-色匹配函数" class="headerlink" title="2. 色匹配函数"></a>2. 色匹配函数</h2><ul>
+<li>前面已经提到，人类视网膜上有三种感知色彩的视锥细胞，所以理论上我们用三种颜色的光就可以混合出自然界中任何一种颜色来。</li>
+<li>在 20 世纪 20 年代，David Wright 和 John Guild 各自独立地领导了一些实验，通过三种颜色的光源进行匹配，得到了人眼对于不同颜色光的匹配函数。此后，多名科学家多次进行了类似的实验，加深了我们对人类彩色视觉的认识。</li>
+</ul>
+<p>实验过程大致是这样的，把一个屏幕用不透光的挡板分割成两个区域，左边照射某个被测试的颜色的光线，这里记为<img src="https://www.zhihu.com/equation?tex=C" alt="[公式]"> （以下用大写字母表明颜色，用小写字母表明分量大小），右边同时用三种颜色的光同时照射，这里记为<img src="https://www.zhihu.com/equation?tex=R" alt="[公式]">)，<img src="https://www.zhihu.com/equation?tex=G" alt="[公式]">)，<img src="https://www.zhihu.com/equation?tex=B" alt="[公式]">)。然后，调节右边三种颜色光源的强度，直到左右两边的颜色看上去一样为止。假设这个时候三种颜色的光源强度分别为<img src="https://www.zhihu.com/equation?tex=r" alt="[公式]">)，<img src="https://www.zhihu.com/equation?tex=g" alt="[公式]">)，<img src="https://www.zhihu.com/equation?tex=b" alt="[公式]">，那么根据光色叠加的线性性质，我们可以写出</p>
+<p><img src="https://www.zhihu.com/equation?tex=C+%3D+rR+%2B+gG+%2B+bB" alt="[公式]"></p>
+<p>也就是说，只要按照 (r,g,b) 的分量来混合 (R,G,B) 三种颜色的光，就可以得到 C 这个颜色的光。</p>
+<hr>
+<ul>
+<li><p>于是在这一系列实验里，科学家们把左边的颜色按着光谱顺序，挨个测试了一遍，得到了纯光谱色的混合叠加的数据，这就是 <a href="https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/CIE_1931_color_space%23/Color_matching_functions">色匹配函数（Color Matching Function）</a> ，并且在这个基准下定义的色彩空间，就是 CIE RGB 色彩空间。</p>
+</li>
+<li><p>图是 CIE RGB 的色匹配函数曲线，数据来自 <a href="https://link.zhihu.com/?target=http%3A//cvrl.ioo.ucl.ac.uk">CVLR</a>。浅色的细线代表实验中不同参与者个人的色匹配函数曲线，中间深色的粗线代表数据的平均值。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210110/161352290.png" alt="mark"></p>
+<ul>
+<li><p>可以看到，曲线上出现了负数，这是怎么回事？</p>
+<ul>
+<li>回想一下前面描述的实验过程，左边是被测试的光色，右边是可调节的三色光的混合。如果碰到一种情况，右边三色光无论如何调节比例，都不能混合出左边的颜色</li>
+<li>比如某种颜色的光强度已经减小为 0 了，然而看趋势还需要继续减小才能与左边的光色相匹配，怎么办？</li>
+<li>这时候需要往左边的光色中混入三色光中的一种或者几种，继续调节，直到两边的颜色匹配。</li>
+<li>在左边（被测试）的色光中添加，那就是相当于在右边的混合光中减去，这就导致了色匹配函数曲线上出现了负数。实际上，这相当于就是光线的「减法」了。</li>
+</ul>
+</li>
+<li><p>比如，对于 555nm 的黄色光，色匹配函数的值是 (1.30, 0.97, -0.01)，意味着将 1.30 份的红光与 0.97 份的绿光混合放在右边，左边放上 1 份的 555nm 的黄光，以及 0.01 份的蓝光，这样左右两边的光色看上去就一样了。</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li>因为有部分出现了负数，在使用和计算上都有不方便，因此就对这个匹配函数进行了一下线性变换，变换到一个所有分量都是正的空间中。</li>
+<li>变换后的色彩空间就是 CIE XYZ 色彩空间。 图片数据来自 <a href="https://link.zhihu.com/?target=http%3A//cvrl.ioo.ucl.ac.uk">CVLR</a>，</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210110/161910992.png" alt="mark"></p>
+<ul>
+<li>CIE RGB 色彩空间和 CIE XYZ 色彩空间是完全等价的，两者只是差了一个线性变换。由于允许「减法」的存在，因此 CIE RGB 空间是能够表示所有颜色的；同样的，CIE XYZ 空间也能。</li>
+</ul>
+<h2 id="3-从线性空间的角度理解色彩空间"><a href="#3-从线性空间的角度理解色彩空间" class="headerlink" title="3. 从线性空间的角度理解色彩空间"></a>3. 从线性空间的角度理解色彩空间</h2><ul>
+<li>以上的实验基础提示我们，色彩空间和线性代数中的线性空间之间具有某种相似性。我们可以看到，由于人类有三种感知色彩的视锥细胞，自然界千千万万的色彩被眼睛接收后，可以用三个数值来表征。</li>
+<li>而格拉斯曼定律也揭示了色彩叠加的线性性质。<strong>这似乎意味着，色彩空间就是一个 3 维的线性空间。事实上也的确如此</strong>（详细的论证参见末尾小节）。</li>
+</ul>
+<hr>
+<ul>
+<li><p>自然界本身是没有「颜色」这个属性的，只有对不同波长光线的反射率/透过率，到达人眼中的，显然是一个连续的光谱分布函数。数学上，这是一个无穷维的函数空间（巴拿赫空间）。</p>
+<ul>
+<li>而人眼内的三种视锥细胞，它们的感光特性曲线相当于是在这个无穷维的函数空间中建立了三个基底。任何一个光谱分布进来，三种视锥细胞被激发。由于色视觉响应的线性性，这一过程相当于光谱分布函数与三个基底做内积，或者说，「投影」到这三个基底上。</li>
+</ul>
+</li>
+<li><p><strong>从这个观点看，人类的色视觉，是相当于在自然界所有颜色的无穷维函数空间中取了一个三维的投影。这个三维空间的基底，既可以是视锥细胞的感光特性曲线（我们的大脑就用的是这套），当然也可以是选取三种颜色的光进行组合（CIE RGB 空间），甚至还可以是用实际中不存在的「光线」进行组合 （CIE XYZ 空间）。</strong></p>
+<ul>
+<li><strong>既然这几个空间实际上是同一个线性空间，只不过由于选择了不同的基底而有不同的表达形式，那么根据线性代数的结论，这几个空间的表述形式之间，只需要通过矩阵乘法就可以完成转换，这是完全的线性变换。</strong></li>
+<li>当然，色彩空间并不是真正数学意义上的三维线性空间。由于不存在真正数学意义的「减法」，在实际应用中是有所限制的。数学中的「线性组合」在这里就要被替换为「锥组合」，也就是每个分量都必须是大于等于 0 的。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>至此我们终于可以回答开头的部分问题了，<strong>为什么是三原色？因为人类对色彩的感知结果位于一个三维的线性空间中。最少需要三种颜色的光才能有足够的表达能力来表现各种颜色。</strong></li>
+<li>为什么选 RGB 作为三原色？因为色彩空间不是真正数学意义上的线性空间，从工程角度考虑，以 RGB 作为三原色，能让显示器能够显示更多的颜色（此外，最初测试人眼对 RGB 三色光的色匹配曲线，也是希望能尽量单独地刺激三种视锥细胞）。</li>
+</ul>
+<h2 id="4-设备相关的RGB色彩空间"><a href="#4-设备相关的RGB色彩空间" class="headerlink" title="4. 设备相关的RGB色彩空间"></a>4. 设备相关的RGB色彩空间</h2><ul>
+<li><p>如前文所述，色彩空间的基底的选择有一定的任意性。事实上，如果允许真正的减法存在，那么选择哪三种颜色作为基底是无关紧要的。不过由于实际中我们不能对色光采用减法，只能使用「锥组合」而非「线性组合」，这时候到底如何选取基底就显得重要了。好的基底不仅能表达的颜色更丰富，而且工程上也易于稳定地实现。</p>
+</li>
+<li><p>由于 CIE XYZ 空间是一个很方便的线性空间，与具体设备无关，因此常用来做各种颜色空间转换的中间媒介。设想某个颜色的光，经过色匹配函数的计算，得到了三个 XYZ 的值，如果直接将这三个值作为 RGB 颜色显示到屏幕上，显然是不对的。我们必须把 XYZ 的值转换到屏幕的 RGB 空间中的值。</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7D%0A++++++++R_%7B%5Ctext%7Blin%7D%7D+%5C%5C+G_%7B%5Ctext%7Blin%7D%7D+%5C%5C+B_%7B%5Ctext%7Blin%7D%7D%0A++++%5Cend%7Barray%7D%5Cright%5D+%3D+%0A++++%5Cboldsymbol%7BM%7D%0A++++%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7D%0A++++++++X+%5C%5C+Y+%5C%5C+Z%0A++++%5Cend%7Barray%7D%5Cright%5D" alt="[公式]"></p>
+</li>
+</ul>
+<p>这里下标 lin 代表线性空间，<img src="https://www.zhihu.com/equation?tex=%5Cboldsymbol%7BM%7D" alt="[公式]"> 是转换矩阵。得到线性 RGB 空间的表达之后，还需要经过 gamma 校正，才是最终在屏幕上显示的 RGB 的值。一般的 gamma 校正过程为 <img src="https://www.zhihu.com/equation?tex=C+%3D+%5Ctextstyle+C%5E%7B1%2F%5Cgamma%7D_%7B%5Ctext%7Blin%7D%7D" alt="[公式]">，其中 <img src="https://www.zhihu.com/equation?tex=C" alt="[公式]"> 代表 RGB 的某个分量，<img src="https://www.zhihu.com/equation?tex=%5Cgamma" alt="[公式]"> 值通常为 2.2。对于如何计算的细节，我希望在 <a href="https://zhuanlan.zhihu.com/p/24281841" target="_blank" rel="noopener">下一篇文章</a> 中进行详细说明。</p>
+<ul>
+<li>对于 RGB 色彩空间来说，关键点在于两个：<ul>
+<li><strong>如何选择三个作为基底的颜色；</strong></li>
+<li><strong>如何定义白色</strong>。一旦选好这两个关键参数，那么从 CIE XYZ 空间到设备的 RGB 空间的转换就完全确定了。我们平时常说的 sRGB 空间和 Adobe RGB 空间，他们的区别就在于这两个关键参数的定义不同。常用的的 RGB 空间的转换矩阵如下表：</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210110/164118772.png" alt="mark"></p>
+<p>不同的 RGB 空间能表示的范围如下图所示（这个图在 <a href="https://zhuanlan.zhihu.com/p/24281841" target="_blank" rel="noopener">以后的文章</a> 中再详细解释），</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210110/164151141.png" alt="mark"></p>
+<ul>
+<li><p>可以看到，不同的 RGB 空间所能表示的颜色范围是不一样的，并且我们可以推断出，即使是同样的 RGB 分量，在不同的 RGB 空间中所代表的颜色也是不一样的。所以我们在描述一个 RGB 颜色的时候，<strong>不仅需要描述它的 RGB 三个分量，还要说明是在哪个空间，这就是 ICC 文件的作用。</strong></p>
+</li>
+<li><p><strong>很多数码相机都可以设置色彩空间，常见的有 sRGB 和 Adobe RGB</strong></p>
+<ul>
+<li>从上面的图中我们可以看到， Adobe RGB 所能表达的色彩比 sRGB 要丰富很多。然而常见的网络环境下图片的色彩空间是 sRGB，有很多浏览器不能正确地解析图片自带的色彩空间说明，默认按照 sRGB 来进行解析。</li>
+<li>如果使用相机直出的 JPG 文件直接上传，或者说在后期处理过程中没有进行色彩空间转换，保留了相机设置的 Adobe RGB 空间，那么在浏览器中看到的图片很可能与 Photoshop 中看到的不一样。</li>
+<li>浏览器很可能会将一张 Adobe RGB 空间中的图片解释为 sRGB 空间下的图片，引起颜色偏差。<strong>由于 sRGB 是目前屏幕显示的「事实标准」</strong>，大多数屏幕空间都在 sRGB 内（这是颜色复现设备本身决定的），所以我的建议是，对用于网络交流目的的图片，统一转换到 sRGB 中进行保存。</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-数学论证"><a href="#5-数学论证" class="headerlink" title="5. 数学论证"></a>5. 数学论证</h2><p>回顾一下线性代数中构成线性空间的几个要素：</p>
+<blockquote>
+<p>交换律：<img src="https://www.zhihu.com/equation?tex=%5Cboldsymbol%7Bx%7D%2B%5Cboldsymbol%7By%7D+%3D+%5Cboldsymbol%7By%7D%2B%5Cboldsymbol%7Bx%7D" alt="[公式]"></p>
+<p>结合律：<img src="https://www.zhihu.com/equation?tex=%28%5Cboldsymbol%7Bx%7D%2B%5Cboldsymbol%7By%7D%29%2B%5Cboldsymbol%7Bz%7D+%3D+%0A%5Cboldsymbol%7Bx%7D%2B%28%5Cboldsymbol%7By%7D%2B%5Cboldsymbol%7Bz%7D%29" alt="[公式]"></p>
+</blockquote>
+<p>这两条容易理解，显然，交换不同色光叠加的顺序并不会改变叠加的结果。</p>
+<blockquote>
+<p>加法零元：<img src="https://www.zhihu.com/equation?tex=%5Cexists+%5C%3A+%5Cboldsymbol%7B0%7D%2C%5C%3B+%5Cforall+%5C%2C+%5Cboldsymbol%7Bx%7D%2C+%5C%3B%0A%5Cmbox%7Bs.t.%7D%5C%3B+%5Cboldsymbol%7Bx%7D+%2B+%5Cboldsymbol%7B0%7D+%3D+%5Cboldsymbol%7Bx%7D" alt="[公式]"></p>
+</blockquote>
+<p>这一点也很好理解，加法零元就是全黑，什么光都没有。任何一种色光叠加一个全黑那还是它自身。</p>
+<blockquote>
+<p>加法逆元：<img src="https://www.zhihu.com/equation?tex=%5Cforall+%5C%2C+%5Cboldsymbol%7Bx%7D%2C+%5C%3B%5Cexists+%5C%3A+%28-%5Cboldsymbol%7Bx%7D%29%2C%5C%3B+%0A%5Cboldsymbol%7Bx%7D+%2B+%28-%5Cboldsymbol%7Bx%7D%29+%3D+%5Cboldsymbol%7B0%7D" alt="[公式]"></p>
+</blockquote>
+<p>回想前文对实验中需要「负数」数量的光的处理手法，我们可以在左边叠加光线，这就相当于在右边减去光线。如果承认这种形式的「减法」，那么加法逆元也是顺理成章了：在另一边加入自身。</p>
+<blockquote>
+<p>乘法幺元：<img src="https://www.zhihu.com/equation?tex=%5Cexists+%5C%3A+1%2C%5C%3B+%5Cforall+%5C%2C+%5Cboldsymbol%7Bx%7D%2C+%5C%3B%0A1%5Ccdot%5Cboldsymbol%7Bx%7D+%3D+%5Cboldsymbol%7Bx%7D" alt="[公式]"></p>
+</blockquote>
+<p>这也很明显，数字 1 就可以作为乘法幺元。</p>
+<blockquote>
+<p>乘法分配率：<br><img src="https://www.zhihu.com/equation?tex=%5Cforall+%5Cboldsymbol%7Bx%7D%2C+%5C%3A+%5Cboldsymbol%7By%7D%2C+%5C%3A+%5Calpha%2C%5C%3B%0A%5Cmbox%7Bs.t.%7D%5C%3B%5Calpha%5C%2C%28%5Cboldsymbol%7Bx%7D+%2B+%5Cboldsymbol%7By%7D%29+%3D+%5Calpha+%5Cboldsymbol%7Bx%7D+%2B+%0A%5Calpha+%5Cboldsymbol%7By%7D" alt="[公式]"><br><img src="https://www.zhihu.com/equation?tex=%5Cforall+%5Calpha%2C%5C%3A%5Cbeta%2C%5C%3A%5Cboldsymbol%7Bx%7D%2C%5C%3B%0A%5Cmbox%7Bs.t.%7D%5C%3B+%28%5Calpha%2B%5Cbeta%29%5C%2C%5Cboldsymbol%7Bx%7D+%3D+%0A%5Calpha+%5Cboldsymbol%7Bx%7D+%2B+%5Cbeta+%5Cboldsymbol%7Bx%7D" alt="[公式]"></p>
+</blockquote>
+<p>根据格拉斯曼定律，这一点也是实际上成立的。</p>
+<p>综上所述，人类对色彩的感知在实验层面满足线性性质，人眼感知的色彩空间是一个 3 维线性空间。当然，容易想见，通常我们选取的基底（比如 CIE XYZ 空间的色匹配函数），是不正交的。</p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2020/12/09/cv/%E5%9B%BE%E5%83%8F%E5%AD%A6-%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/" rel="tag">计算机图形学</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/12/09/cv/%E5%9B%BE%E5%83%8F%E5%AD%A6-%E4%BC%BD%E9%A9%AC%E4%BF%AE%E6%AD%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            计算机图形学-伽马修正
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/12/07/Leetcode/Leetcode-897-%E9%80%92%E5%A2%9E%E9%A1%BA%E5%BA%8F%E6%9F%A5%E6%89%BE%E6%A0%91/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Leetcode-897-递增顺序查找树</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2021
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">Mysql</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/photoshop/">photoshop</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>
