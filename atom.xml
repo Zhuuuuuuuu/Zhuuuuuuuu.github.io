@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2021-01-10T01:00:35.564Z</updated>
+  <updated>2021-01-17T06:02:14.808Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,41 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Leetcode-1232-缀点成线</title>
+    <link href="http://zhuuu.work/2021/01/17/Leetcode/Leetcode-1232-%E7%BC%80%E7%82%B9%E6%88%90%E7%BA%BF/"/>
+    <id>http://zhuuu.work/2021/01/17/Leetcode/Leetcode-1232-%E7%BC%80%E7%82%B9%E6%88%90%E7%BA%BF/</id>
+    <published>2021-01-17T07:52:53.000Z</published>
+    <updated>2021-01-17T06:02:14.808Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Leetcode-1232-缀点成线"><a href="#Leetcode-1232-缀点成线" class="headerlink" title="Leetcode-1232-缀点成线"></a>Leetcode-1232-缀点成线</h1><h2 id="思路：深度优先遍历-DFS"><a href="#思路：深度优先遍历-DFS" class="headerlink" title="思路：深度优先遍历/DFS"></a>思路：深度优先遍历/DFS</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul><li><p>在一个 XY 坐标系中有一些点，我们用数组 coordinates 来分别记录它们的坐标，其中 coordinates[i] = [x, y] 表示横坐标为 x、纵坐标为 y 的点。</p></li><li><p>请你来判断，这些点是否在该坐标系中属于同一条直线上，是则返回 true，否则请返回 false。</p></li></ul><p><strong>示例1：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210117/135800973.jpg" alt="mark"></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：coordinates &#x3D; [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]]</span><br><span class="line">输出：true</span><br></pre></td></tr></table></figure><p><strong>示例 2：</strong></p><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210117/135821014.png" alt="mark"></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：coordinates &#x3D; [[1,1],[2,2],[3,4],[4,5],[5,6],[7,7]]</span><br><span class="line">输出：false</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="思路-：-数学直线知识"><a href="#思路-：-数学直线知识" class="headerlink" title="思路 ： 数学直线知识"></a>思路 ： 数学直线知识</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210117/140102900.png" alt="mark"></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">checkStraightLine</span><span class="params">(<span class="keyword">int</span>[][] coordinates)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 将所有点向(-deltax,-deltay) 方向进行平移 : 第一个点就移到了原点</span></span><br><span class="line">        <span class="keyword">int</span> deltaX = coordinates[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> deltaY = coordinates[<span class="number">0</span>][<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> n = coordinates.length;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n;i++)&#123;</span><br><span class="line">            coordinates[i][<span class="number">0</span>] -= deltaX;</span><br><span class="line">            coordinates[i][<span class="number">1</span>] -= deltaY;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 两点确定一条直线 设直线方程为 Ax + By = 0 带入(-deltax_1,-deltay_1)坐标</span></span><br><span class="line">        <span class="keyword">int</span> A = coordinates[<span class="number">1</span>][<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> B = -coordinates[<span class="number">1</span>][<span class="number">0</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 3. 判断从原点和第一个点以外的所有点是否在这条直线上</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">2</span>;i &lt; n;i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> x = coordinates[i][<span class="number">0</span>];<span class="comment">// 每个点的横坐标</span></span><br><span class="line">            <span class="keyword">int</span> y = coordinates[i][<span class="number">1</span>];<span class="comment">// 每个点的纵坐标</span></span><br><span class="line">            <span class="keyword">if</span>(A * x + B * y != <span class="number">0</span>)&#123;             <span class="comment">// 说明不在直线上</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li>时间复杂度：O(n)，其中 n 是数组中的元素数量。</li><li>时间复杂度：O(1)</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Leetcode-1232-缀点成线&quot;&gt;&lt;a href=&quot;#Leetcode-1232-缀点成线&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-1232-缀点成线&quot;&gt;&lt;/a&gt;Leetcode-1232-缀点成线&lt;/h1&gt;&lt;h2 id=&quot;思路：深度优先遍历-DFS&quot;&gt;&lt;a href=&quot;#思路：深度优先遍历-DFS&quot; class=&quot;headerlink&quot; title=&quot;思路：深度优先遍历/DFS&quot;&gt;&lt;/a&gt;思路：深度优先遍历/DFS&lt;/h2&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;题目描述&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;在一个 XY 坐标系中有一些点，我们用数组 coordinates 来分别记录它们的坐标，其中 coordinates[i] = [x, y] 表示横坐标为 x、纵坐标为 y 的点。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;请你来判断，这些点是否在该坐标系中属于同一条直线上，是则返回 true，否则请返回 false。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例1：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210117/135800973.jpg&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;输入：coordinates &amp;#x3D; [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：true&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;&lt;strong&gt;示例 2：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210117/135821014.png&quot; alt=&quot;mark&quot;&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;输入：coordinates &amp;#x3D; [[1,1],[2,2],[3,4],[4,5],[5,6],[7,7]]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;输出：false&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
+    
+      <category term="数学" scheme="http://zhuuu.work/tags/%E6%95%B0%E5%AD%A6/"/>
+    
+  </entry>
   
   <entry>
     <title>Leetcode-228-汇总区间</title>
@@ -134,38 +169,11 @@
     
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
+      <category term="并查集" scheme="http://zhuuu.work/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/"/>
+    
       <category term="BFS" scheme="http://zhuuu.work/tags/BFS/"/>
     
       <category term="DFS" scheme="http://zhuuu.work/tags/DFS/"/>
-    
-      <category term="并查集" scheme="http://zhuuu.work/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>并查集-合集</title>
-    <link href="http://zhuuu.work/2021/01/06/LeetcodeExplore/%E5%B9%B6%E6%9F%A5%E9%9B%86-%E5%90%88%E9%9B%86/"/>
-    <id>http://zhuuu.work/2021/01/06/LeetcodeExplore/%E5%B9%B6%E6%9F%A5%E9%9B%86-%E5%90%88%E9%9B%86/</id>
-    <published>2021-01-06T07:11:53.000Z</published>
-    <updated>2021-01-06T06:29:33.120Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="并查集-合集"><a href="#并查集-合集" class="headerlink" title="并查集-合集"></a>并查集-合集</h1><ul><li>链接 : <a href="https://leetcode-cn.com/problems/satisfiability-of-equality-equations/solution/shi-yong-bing-cha-ji-chu-li-bu-xiang-jiao-ji-he-we/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/satisfiability-of-equality-equations/solution/shi-yong-bing-cha-ji-chu-li-bu-xiang-jiao-ji-he-we/</a></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;并查集-合集&quot;&gt;&lt;a href=&quot;#并查集-合集&quot; class=&quot;headerlink&quot; title=&quot;并查集-合集&quot;&gt;&lt;/a&gt;并查集-合集&lt;/h1&gt;&lt;ul&gt;
-&lt;li&gt;链接 : &lt;a href=&quot;https://leetcode-cn.com/problems/s
-      
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
-      <category term="并查集" scheme="http://zhuuu.work/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/"/>
     
   </entry>
   
@@ -240,7 +248,7 @@
     <link href="http://zhuuu.work/2020/12/27/Leetcode/Leetcode-205-%E5%90%8C%E6%9E%84%E5%AD%97%E7%AC%A6%E4%B8%B2/"/>
     <id>http://zhuuu.work/2020/12/27/Leetcode/Leetcode-205-%E5%90%8C%E6%9E%84%E5%AD%97%E7%AC%A6%E4%B8%B2/</id>
     <published>2020-12-27T00:52:53.000Z</published>
-    <updated>2020-12-27T01:06:31.863Z</updated>
+    <updated>2021-01-17T02:21:00.614Z</updated>
     
     <content type="html"><![CDATA[<h1 id="Leetcode-205-同构字符串"><a href="#Leetcode-205-同构字符串" class="headerlink" title="Leetcode-205-同构字符串"></a>Leetcode-205-<a href="https://leetcode-cn.com/problems/isomorphic-strings/" target="_blank" rel="noopener">同构字符串</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul><li>给定两个字符串 <strong><em>s</em></strong> 和 <em>t</em>，判断它们是否是同构的。</li><li>如果 <strong><em>s</em></strong> 中的字符可以被替换得到 <em>t</em> ，那么这两个字符串是同构的。</li><li>所有出现的字符都必须用另一个字符替换，同时保留字符的顺序。两个字符不能映射到同一个字符上，但字符可以映射自己本身。</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">示例 1:</span><br><span class="line"></span><br><span class="line">输入: s &#x3D; &quot;egg&quot;, t &#x3D; &quot;add&quot;</span><br><span class="line">输出: true</span><br><span class="line"></span><br><span class="line">示例 2:</span><br><span class="line"></span><br><span class="line">输入: s &#x3D; &quot;foo&quot;, t &#x3D; &quot;bar&quot;</span><br><span class="line">输出: false</span><br><span class="line"></span><br><span class="line">示例 3:</span><br><span class="line"></span><br><span class="line">输入: s &#x3D; &quot;paper&quot;, t &#x3D; &quot;title&quot;</span><br><span class="line">输出: true</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">说明:</span><br><span class="line">你可以假设 s 和 t 具有相同的长度。</span><br></pre></td></tr></table></figure><a id="more"></a><h2 id="思路-：-集合论双射"><a href="#思路-：-集合论双射" class="headerlink" title="思路 ： 集合论双射"></a>思路 ： 集合论双射</h2><ul><li><p>此题是「290. 单词规律」的简化版，</p></li><li><p><strong>需要我们判断 s 和 t 每个位置上的字符是否都一一对应，即 s 的任意一个字符被 t中唯一的字符对应，同时 t 的任意一个字符被 s 中唯一的字符对应。这也被称为「双射」的关系。</strong></p><ul><li>以示例 2 为例，t 中的字符 a 和 r 虽然有唯一的映射 o，但对于 s 中的字符 o 来说其存在两个映射 {a,r}，故不满足条件。</li></ul></li></ul><ul><li>因此 ， 我们需要维护两张哈希表。<ul><li>第一张哈希表s2t : 以s中的字符为键，t中的字符为值</li><li>第二张哈希表t2s : 以t中的字符为键，s中的字符为值</li></ul></li></ul><p><strong>算法整体</strong></p><ol><li>从左直右遍历两个字符串的字符，不断更新两张哈希表，如果出现冲突，说明两个字符无法构成同构，返回false</li><li>如果遍历没有发生冲突，说明两个字符串是同构的 ， 返回true 即可。</li></ol><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuuu.Leetcode__205;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainClass</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">stringtostring</span><span class="params">(String input)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (input == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"null"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> input.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">booleanToString</span><span class="params">(<span class="keyword">boolean</span> input)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> input?<span class="string">"True"</span>:<span class="string">"False"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        BufferedReader in = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(System.in));</span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span> ((line = in.readLine()) != <span class="keyword">null</span>)&#123;</span><br><span class="line">            String s = stringtostring(line);</span><br><span class="line">            line = in.readLine();</span><br><span class="line">            String t = stringtostring(line);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">boolean</span> ret = <span class="keyword">new</span> Solution().isIsomorphic(s,t);</span><br><span class="line">            String out = booleanToString(ret);</span><br><span class="line">            System.out.println(out);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isIsomorphic</span><span class="params">(String s, String t)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 初始化</span></span><br><span class="line">        Map&lt;Character,Character&gt; s2t = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        Map&lt;Character,Character&gt; t2s = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> len = s.length();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 遍历字符串</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; len;++i)&#123;</span><br><span class="line">            <span class="comment">// 2.1 拿到当前字符做判断</span></span><br><span class="line">            <span class="keyword">char</span> curr_s = s.charAt(i);</span><br><span class="line">            <span class="keyword">char</span> curr_t = t.charAt(i);</span><br><span class="line">            <span class="keyword">if</span>((s2t.containsKey(curr_s) &amp;&amp; s2t.get(curr_s) != curr_t) || (t2s.containsKey(curr_t) &amp;&amp; t2s.get(curr_t) != curr_s))&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 2.2 不在map中就放入到map中</span></span><br><span class="line">            s2t.put(curr_s,curr_t);</span><br><span class="line">            t2s.put(curr_t,curr_s);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li><p><strong>时间复杂度：O(n)，其中 n 为字符串的长度。</strong>我们只需同时遍历一遍字符串 s和 t 即可。</p></li><li><p><strong>空间复杂度：O(∣Σ∣)，其中 \SigmaΣ 是字符串的字符集。</strong>哈希表存储字符的空间取决于字符串的字符集大小，最坏情况下每个字符均不相同，需要 O(∣Σ∣) 的空间。</p></li></ul>]]></content>
     
@@ -1261,9 +1269,9 @@
     
     
     
-      <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
-    
       <category term="WebSocket" scheme="http://zhuuu.work/tags/WebSocket/"/>
+    
+      <category term="计算机网络" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
     
   </entry>
   
@@ -1807,9 +1815,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -1881,9 +1889,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -2036,9 +2044,9 @@
     
     
     
-      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
       <category term="进程同步" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
+    
+      <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="进程互斥" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/"/>
     
@@ -2110,9 +2118,9 @@
     
     
     
-      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
     
   </entry>
   
@@ -2133,9 +2141,9 @@
     
     
     
-      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
     
   </entry>
   
@@ -2157,9 +2165,9 @@
     
     
     
-      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
     
   </entry>
   
@@ -2723,9 +2731,9 @@
     
     
     
-      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
-    
       <category term="操作系统" scheme="http://zhuuu.work/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
+    
+      <category term="进程调度" scheme="http://zhuuu.work/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"/>
     
   </entry>
   
@@ -3006,9 +3014,9 @@
     
       <category term="数据库" scheme="http://zhuuu.work/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
-      <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
       <category term="Redis" scheme="http://zhuuu.work/tags/Redis/"/>
+    
+      <category term="分布式" scheme="http://zhuuu.work/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   
@@ -3096,11 +3104,11 @@
     
     
     
+      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
+    
       <category term="ClassLoader" scheme="http://zhuuu.work/tags/ClassLoader/"/>
     
       <category term="双亲委派" scheme="http://zhuuu.work/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE/"/>
-    
-      <category term="JVM" scheme="http://zhuuu.work/tags/JVM/"/>
     
   </entry>
   
@@ -3155,9 +3163,9 @@
     
     
     
-      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
       <category term="JUC" scheme="http://zhuuu.work/tags/JUC/"/>
+    
+      <category term="多线程" scheme="http://zhuuu.work/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
       <category term="线程池" scheme="http://zhuuu.work/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
