@@ -75,6 +75,185 @@
     
     
     
+    <article id="post-JavaInterview/Java-基础-ClassLoader详解" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/01/JavaInterview/Java-%E5%9F%BA%E7%A1%80-ClassLoader%E8%AF%A6%E8%A7%A3/"
+    >Java-基础-ClassLoader详解</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/09/01/JavaInterview/Java-%E5%9F%BA%E7%A1%80-ClassLoader%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time datetime="2020-09-01T06:34:38.000Z" itemprop="datePublished">2020-09-01</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Java-基础-ClassLoader详解"><a href="#Java-基础-ClassLoader详解" class="headerlink" title="Java-基础-ClassLoader详解"></a>Java-基础-ClassLoader详解</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><p><code>ClassLoader</code>翻译过来就是类加载器，普通的java开发者其实用到的不多，但对于某些框架开发者来说却非常常见。</p>
+</li>
+<li><p>理解<code>ClassLoader</code>的加载机制，也有利于我们编写出更高效的代码。</p>
+</li>
+<li><p><code>ClassLoader</code>的具体作用就是将class文件加载到jvm虚拟机中去，程序就可以正确运行了。但是，<code>jvm</code>启动的时候，并不会一次性加载所有的class文件，而是根据需要去动态加载。</p>
+</li>
+<li><p>想想也是的，一次性加载那么多jar包那么多class，那内存不崩溃。本文的目的也是学习<code>ClassLoader</code>这种加载机制。</p>
+</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/09/01/JavaInterview/Java-%E5%9F%BA%E7%A1%80-ClassLoader%E8%AF%A6%E8%A7%A3/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ClassLoader/" rel="tag">ClassLoader</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE/" rel="tag">双亲委派</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-JUC/JUC-20-ThreadPoolExecutor" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/"
+    >JUC-20-ThreadPoolExecutor</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/" class="article-date">
+  <time datetime="2020-08-31T08:02:24.000Z" itemprop="datePublished">2020-08-31</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="JUC-20-ThreadPoolExecutor"><a href="#JUC-20-ThreadPoolExecutor" class="headerlink" title="JUC-20-ThreadPoolExecutor"></a>JUC-20-ThreadPoolExecutor</h2><h2 id="1-submit-和-execute"><a href="#1-submit-和-execute" class="headerlink" title="1. submit 和 execute"></a>1. submit 和 execute</h2><ol>
+<li><strong>execute</strong></li>
+</ol>
+<ul>
+<li>这个方法是在<code>Executor</code>接口中定义的，不会返回执行结果，在<code>ThreadPoolExecutor</code> 类中有具体的实现。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Executor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li><strong>submit方法</strong></li>
+</ol>
+<ul>
+<li>这个方法是在<code>ExecutorService</code> 接口中定义的，在<code>AbstractExecutorService</code> 类中有具体的实现。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//提交一个Callable</span></span><br><span class="line">&lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Callable&lt;T&gt; task)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//提交一个Runnable</span></span><br><span class="line">Future&lt;?&gt; submit(Runnable task);</span><br><span class="line"></span><br><span class="line"><span class="comment">//提交一个Runnable并默认值result，在任务执行完毕以后，调用&#123;Future.get()&#125;方法会返回这个默认值</span></span><br><span class="line">&lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Runnable task, T result)</span></span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>总结</strong></p>
+<ul>
+<li><strong>其实最终调用的方法，都是execute方法</strong></li>
+<li><strong>sumbit方法相当于把任务包装了一下，返回的是一个Future句柄，这个句柄其实就是FutureTask对象</strong></li>
+</ul>
+<p><strong>区别</strong></p>
+<ul>
+<li><strong>接收的参数不一样</strong></li>
+<li><strong>submit有返回值，而execute没有</strong></li>
+<li><strong>submit方便Exception处理</strong><ul>
+<li>意思就是如果你在你的task里会抛出<code>checked</code>或者<code>unchecked exception</code>，而你又希望外面的调用者能够感知这些<code>exception</code>并做出及时的处理</li>
+<li>那么就需要用到<code>submit</code>，通过捕获<code>Future.get</code>抛出的异常。</li>
+</ul>
+</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="tag">线程池</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-NetworkCoding/HTTP-HTTPS点开网页原理" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -655,155 +834,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BC%98%E5%85%88%E9%98%9F%E5%88%97/" rel="tag">优先队列</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A0%86/" rel="tag">堆</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-offer/剑指offer--41-数据流中的中位数" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/"
-    >剑指offer--41-数据流中的中位数</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/" class="article-date">
-  <time datetime="2020-08-26T07:15:53.000Z" itemprop="datePublished">2020-08-26</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="剑指offer–41-数据流中的中位数"><a href="#剑指offer–41-数据流中的中位数" class="headerlink" title="剑指offer–41-数据流中的中位数"></a>剑指offer–41-<a href="https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/" target="_blank" rel="noopener">数据流中的中位数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p>
-<p>例如，</p>
-<p>[2,3,4] 的中位数是 3</p>
-<p>[2,3] 的中位数是 (2 + 3) / 2 = 2.5</p>
-<p>设计一个支持以下两种操作的数据结构：</p>
-<ul>
-<li>void addNum(int num) - 从数据流中添加一个整数到数据结构中。</li>
-<li>double findMedian() - 返回目前所有元素的中位数。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[1],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,null,1.50000,null,2.00000]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,2.00000,null,2.50000]</span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/剑指offer--56-两个链表的第一个公共节点" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--56-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/"
-    >剑指offer--52-两个链表的第一个公共节点</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--56-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/" class="article-date">
-  <time datetime="2020-08-26T07:12:53.000Z" itemprop="datePublished">2020-08-26</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="剑指offer–52-两个链表的第一个公共节点"><a href="#剑指offer–52-两个链表的第一个公共节点" class="headerlink" title="剑指offer–52-两个链表的第一个公共节点"></a>剑指offer–52-<a href="https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/" target="_blank" rel="noopener">两个链表的第一个公共节点</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>输入两个链表，找出它们的第一个公共节点。</p>
-<p>如下面的两个链表<strong>：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200826-191825466.png" alt="mark"></p>
-<p>在节点 c1 开始相交。</p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200826-191838788.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--56-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
 
 
     </footer>
