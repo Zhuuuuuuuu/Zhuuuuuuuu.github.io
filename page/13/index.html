@@ -75,7 +75,7 @@
     
     
     
-    <article id="post-Linux/操作系统-17-内存页面置换算法" class="article article-type-post" itemscope
+    <article id="post-JUC/JUC-20-ThreadPoolExecutor" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -83,8 +83,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/08/23/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-17-%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"
-    >Linux-10-内存页面置换算法</a
+  <a class="article-title" href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/"
+    >JUC-20-ThreadPoolExecutor</a
   >
 </h2>
   
@@ -94,8 +94,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/08/23/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-17-%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-date">
-  <time datetime="2020-08-23T03:22:53.000Z" itemprop="datePublished">2020-08-23</time>
+      <a href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/" class="article-date">
+  <time datetime="2020-08-31T08:02:24.000Z" itemprop="datePublished">2020-08-31</time>
 </a>
       
       
@@ -113,538 +113,43 @@
       
 
       
-      <h1 id="Linux-10-内存页面置换算法"><a href="#Linux-10-内存页面置换算法" class="headerlink" title="Linux-10-内存页面置换算法"></a>Linux-10-内存页面置换算法</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/114232317.jpg" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/08/23/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-17-%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2/" rel="tag">内存页面置换</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Redis/Redis-15-mysql和redis缓存不一致" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/"
-    >Redis-15-mysql和redis缓存不一致</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/" class="article-date">
-  <time datetime="2020-08-22T10:32:24.000Z" itemprop="datePublished">2020-08-22</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Redis-15-mysql和redis缓存不一致"><a href="#Redis-15-mysql和redis缓存不一致" class="headerlink" title="Redis-15-mysql和redis缓存不一致"></a>Redis-15-mysql和redis缓存不一致</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li><p>这实际上是个“如果要做的足够精致是非常难的“问题。缓存失效被称为计算机科学里最难的两个问题之一（另外一个是起名字）。</p>
-</li>
-<li><p>先对本题一致性做个说明。这里的不一致是指：假如一个数据访问者同时读取Redis和DB，他能在一段时间里发现二者不一样。</p>
-</li>
-<li><p><strong>不错，如果一份数据放在DB，然后copy到Redis，然后改DB，那么Redis是不会自己魔幻般同步变更的。</strong></p>
-</li>
-<li><p><strong>必须有某种机制告诉Redis该变了。这些机制包括（但不仅仅限于）：</strong></p>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/08/22/Redis/Redis-15-mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql%E5%92%8Credis%E7%BC%93%E5%AD%98%E4%B8%8D%E4%B8%80%E8%87%B4/" rel="tag">mysql和redis缓存不一致</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Redis/Redis-16-Redis分布式" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/"
-    >Redis-16-Redis分布式</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/" class="article-date">
-  <time datetime="2020-08-22T10:32:24.000Z" itemprop="datePublished">2020-08-22</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Redis-16-Redis分布式"><a href="#Redis-16-Redis分布式" class="headerlink" title="Redis-16-Redis分布式"></a>Redis-16-Redis分布式</h1><h2 id="1-为什么用Redis"><a href="#1-为什么用Redis" class="headerlink" title="1. 为什么用Redis?"></a>1. 为什么用Redis?</h2><ol>
-<li>单线程的redis为什么这么快??</li>
+      <h2 id="JUC-20-ThreadPoolExecutor"><a href="#JUC-20-ThreadPoolExecutor" class="headerlink" title="JUC-20-ThreadPoolExecutor"></a>JUC-20-ThreadPoolExecutor</h2><h2 id="1-submit-和-execute"><a href="#1-submit-和-execute" class="headerlink" title="1. submit 和 execute"></a>1. submit 和 execute</h2><ol>
+<li><strong>execute</strong></li>
 </ol>
-<p><strong>分析</strong>:这个问题其实是对redis内部机制的一个考察。</p>
-<p><strong>回答</strong>:主要是以下三点<br>(一)纯内存操作<br>(二)单线程操作，避免了频繁的上下文切换<br>(三)采用了非阻塞<strong>I/O多路复用机制</strong></p>
-<p><strong>关于Redis的 I/O多路复用：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-154227633.png" alt="mark"></p>
 <ul>
-<li>参照上图，简单来说，就是。我们的redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。</li>
-<li>需要说明的是，这个I/O多路复用机制，redis还提供了<code>select、epoll、evport、kqueue</code>等多路复用函数库</li>
+<li>这个方法是在<code>Executor</code>接口中定义的，不会返回执行结果，在<code>ThreadPoolExecutor</code> 类中有具体的实现。</li>
 </ul>
-      
-      <a class="article-more-link" href="/2020/08/22/Redis/Redis-16-Redis%E5%88%86%E5%B8%83%E5%BC%8F/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">Redis分布式</a></li></ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Executor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-    </footer>
 
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Dubbo/Dubbo-01-调用过程" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/20/Dubbo/Dubbo-01-%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B/"
-    >Dubbo-01-调用过程</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/20/Dubbo/Dubbo-01-%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B/" class="article-date">
-  <time datetime="2020-08-20T12:32:24.000Z" itemprop="datePublished">2020-08-20</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Dubbo-01-调用过程"><a href="#Dubbo-01-调用过程" class="headerlink" title="Dubbo-01-调用过程"></a>Dubbo-01-调用过程</h1><ul>
-<li>微服务的普及化以及重要性，服务化场景下随之而来的就是服务之间的通信问题，那服务间的通信脑海中想到的就是 RPC，说到 RPC 就离不开咱们的 Dubbo。</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/105245606.jpg" alt="mark"></p>
-<p><strong>本文流程：</strong></p>
-<p><strong>Dubbo 的简介、总体分层、核心组件以及大致调用流程</strong>。</p>
-<p>我们先来谈一谈什么叫 RPC ，我发现有很多同学不太了解这个概念，还有人把 RPC 和 HTTP 来进行对比。所以咱们先来说说什么是 RPC。</p>
-      
-      <a class="article-more-link" href="/2020/08/20/Dubbo/Dubbo-01-%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Dubbo/" rel="tag">Dubbo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RPC/" rel="tag">RPC</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-014-最长公共前缀" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/20/Leetcode/Leetcode-014-%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%89%8D%E7%BC%80/"
-    >Leetcode-014-最长公共前缀</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/20/Leetcode/Leetcode-014-%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%89%8D%E7%BC%80/" class="article-date">
-  <time datetime="2020-08-20T11:52:53.000Z" itemprop="datePublished">2020-08-20</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leetcode-014-最长公共前缀"><a href="#Leetcode-014-最长公共前缀" class="headerlink" title="Leetcode-014-最长公共前缀"></a>Leetcode-014-<a href="https://leetcode-cn.com/problems/longest-common-prefix/" target="_blank" rel="noopener">最长公共前缀</a></h1><h2 id="思路：遍历"><a href="#思路：遍历" class="headerlink" title="思路：遍历"></a>思路：遍历</h2><p>编写一个函数来查找字符串数组中的最长公共前缀。</p>
-<p>如果不存在公共前缀，返回空字符串 “”。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">示例 <span class="number">1</span>:</span><br><span class="line"></span><br><span class="line">输入: [<span class="string">"flower"</span>,<span class="string">"flow"</span>,<span class="string">"flight"</span>]</span><br><span class="line">输出: <span class="string">"fl"</span></span><br><span class="line">示例 <span class="number">2</span>:</span><br><span class="line"></span><br><span class="line">输入: [<span class="string">"dog"</span>,<span class="string">"racecar"</span>,<span class="string">"car"</span>]</span><br><span class="line">输出: <span class="string">""</span></span><br><span class="line">解释: 输入不存在公共前缀。</span><br><span class="line">说明:</span><br><span class="line"></span><br><span class="line">所有输入只包含小写字母 a-z 。</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 横向扫描</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">longestCommonPrefix</span><span class="params">(String[] strs)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (strs == <span class="keyword">null</span> || strs.length == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拿到字符串数组的长度</span></span><br><span class="line">        <span class="keyword">int</span> len = strs.length;</span><br><span class="line">        <span class="comment">// 拿到第一个字符串</span></span><br><span class="line">        String prefix = strs[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 两两比较，找出最长公共前缀</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">            prefix = longestPrefix(prefix, strs[i]);</span><br><span class="line">            <span class="keyword">if</span> (prefix.length() == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> prefix;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  两两比较，找出最长公共前缀</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">longestPrefix</span><span class="params">(String str1, String str2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> length = Math.min(str1.length(),str2.length());</span><br><span class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (index &lt; length &amp;&amp; str1.charAt(index) == str2.charAt(index))&#123;</span><br><span class="line">            index ++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 截取字符串</span></span><br><span class="line">        <span class="keyword">return</span> str1.substring(<span class="number">0</span>,index);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-DataStructure/数据结构-03-红黑树" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/19/DataStructure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-03-%E7%BA%A2%E9%BB%91%E6%A0%91/"
-    >数据结构-03-红黑树</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/19/DataStructure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-03-%E7%BA%A2%E9%BB%91%E6%A0%91/" class="article-date">
-  <time datetime="2020-08-19T10:32:24.000Z" itemprop="datePublished">2020-08-19</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="数据结构-03-红黑树"><a href="#数据结构-03-红黑树" class="headerlink" title="数据结构-03-红黑树"></a>数据结构-03-红黑树</h1><p>参考博客 ： <a href="https://www.cnblogs.com/skywang12345/p/3603935.html" target="_blank" rel="noopener">https://www.cnblogs.com/skywang12345/p/3603935.html</a></p>
-<p>数据结构在线生成工具 ： <a href="https://www.cs.usfca.edu/~galles/visualization/Algorithms.html" target="_blank" rel="noopener">https://www.cs.usfca.edu/~galles/visualization/Algorithms.html</a></p>
-      
-      <a class="article-more-link" href="/2020/08/19/DataStructure/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-03-%E7%BA%A2%E9%BB%91%E6%A0%91/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%A2%E9%BB%91%E6%A0%91/" rel="tag">红黑树</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Redis/Redis-14-key有效时间设置" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/"
-    >Redis-14-key有效时间设置</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/" class="article-date">
-  <time datetime="2020-08-19T10:32:24.000Z" itemprop="datePublished">2020-08-19</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Redis-14-key有效时间设置"><a href="#Redis-14-key有效时间设置" class="headerlink" title="Redis-14-key有效时间设置"></a>Redis-14-key有效时间设置</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>本文对redis的过期处理机制做个简单的概述，让大家有个基本的认识。</li>
-<li><strong>Redis中有个设置时间过期的功能，即对存储在redis数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的</strong>。如我们一般项目中的token或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/08/19/Redis/Redis-14-key%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/Linux-08-netstat详解" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/19/Linux/Linux-08-netstat%E8%AF%A6%E8%A7%A3/"
-    >Linux-08-netstat详解</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/19/Linux/Linux-08-netstat%E8%AF%A6%E8%A7%A3/" class="article-date">
-  <time datetime="2020-08-19T03:44:53.000Z" itemprop="datePublished">2020-08-19</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Linux-08-netstat详解"><a href="#Linux-08-netstat详解" class="headerlink" title="Linux-08-netstat详解"></a>Linux-08-netstat详解</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li><code>Netstat</code> 命令用于显示各种网络相关信息，如网络连接，路由表，接口状态 (<code>Interface Statistics</code>)，<code>masquerade</code> 连接，多播成员 (<code>Multicast Memberships</code>) 等等。</li>
-</ul>
-<p><strong>输出信息含义</strong></p>
+<ol start="2">
+<li><strong>submit方法</strong></li>
+</ol>
 <ul>
-<li>执行<code>netstat</code>后，其输出结果为</li>
+<li>这个方法是在<code>ExecutorService</code> 接口中定义的，在<code>AbstractExecutorService</code> 类中有具体的实现。</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Active Internet connections (w/o servers)</span><br><span class="line">Proto Recv-Q Send-Q Local Address Foreign Address State</span><br><span class="line">tcp 0 2 210.34.6.89:telnet 210.34.6.96:2873 ESTABLISHED</span><br><span class="line">tcp 296 0 210.34.6.89:1165 210.34.6.84:netbios-ssn ESTABLISHED</span><br><span class="line">tcp 0 0 localhost.localdom:9001 localhost.localdom:1162 ESTABLISHED</span><br><span class="line">tcp 0 0 localhost.localdom:1162 localhost.localdom:9001 ESTABLISHED</span><br><span class="line">tcp 0 80 210.34.6.89:1161 210.34.6.10:netbios-ssn CLOSE</span><br><span class="line"></span><br><span class="line">Active UNIX domain sockets (w/o servers)</span><br><span class="line">Proto RefCnt Flags Type State I-Node Path</span><br><span class="line">unix 1 [ ] STREAM CONNECTED 16178 @000000dd</span><br><span class="line">unix 1 [ ] STREAM CONNECTED 16176 @000000dc</span><br><span class="line">unix 9 [ ] DGRAM 5292 /dev/<span class="built_in">log</span></span><br><span class="line">unix 1 [ ] STREAM CONNECTED 16182 @000000df</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//提交一个Callable</span></span><br><span class="line">&lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Callable&lt;T&gt; task)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//提交一个Runnable</span></span><br><span class="line">Future&lt;?&gt; submit(Runnable task);</span><br><span class="line"></span><br><span class="line"><span class="comment">//提交一个Runnable并默认值result，在任务执行完毕以后，调用&#123;Future.get()&#125;方法会返回这个默认值</span></span><br><span class="line">&lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Runnable task, T result)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>从整体上看，<code>netstat</code>的输出结果可以分为两个部分：</p>
+
+
+<p><strong>总结</strong></p>
 <ul>
-<li><p>一个是<code>Active Internet connections</code>，称为有源<code>TCP</code>连接，其中”<code>Recv-Q</code>“和”<code>Send-Q</code>“指<code>%0A</code>的是接收队列和发送队列。这些数字一般都应该是0。如果不是则表示软件包正在队列中堆积。这种情况只能在非常少的情况见到。</p>
-</li>
-<li><p>另一个是<code>Active UNIX domain sockets</code>，称为有源Unix域套接口(和网络套接字一样，但是只能用于本机通信，性能可以提高一倍)。</p>
-</li>
-<li><p>其中 ： <code>Proto</code>显示连接使用的协议,<code>RefCnt</code>表示连接到本套接口上的进程号,Types显示套接口的类型,State显示套接口当前的状态,Path表示连接到套接口的其它进程使用的路径名。</p>
+<li><strong>其实最终调用的方法，都是execute方法</strong></li>
+<li><strong>sumbit方法相当于把任务包装了一下，返回的是一个Future句柄，这个句柄其实就是FutureTask对象</strong></li>
+</ul>
+<p><strong>区别</strong></p>
+<ul>
+<li><strong>接收的参数不一样</strong></li>
+<li><strong>submit有返回值，而execute没有</strong></li>
+<li><strong>submit方便Exception处理</strong><ul>
+<li>意思就是如果你在你的task里会抛出<code>checked</code>或者<code>unchecked exception</code>，而你又希望外面的调用者能够感知这些<code>exception</code>并做出及时的处理</li>
+<li>那么就需要用到<code>submit</code>，通过捕获<code>Future.get</code>抛出的异常。</li>
+</ul>
 </li>
 </ul>
       
-      <a class="article-more-link" href="/2020/08/19/Linux/Linux-08-netstat%E8%AF%A6%E8%A7%A3/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/08/31/JUC/JUC-20-ThreadPoolExecutor/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -655,7 +160,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/" rel="tag">Linux网络管理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JUC/" rel="tag">JUC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="tag">线程池</a></li></ul>
 
 
     </footer>
@@ -672,7 +177,7 @@
 
 </article>
     
-    <article id="post-Linux/Linux-01-网络IO" class="article article-type-post" itemscope
+    <article id="post-NetworkCoding/HTTP-HTTPS点开网页原理" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -680,8 +185,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/08/18/Linux/Linux-01-%E7%BD%91%E7%BB%9CIO/"
-    >Linux-01-网络IO</a
+  <a class="article-title" href="/2020/08/31/NetworkCoding/HTTP-HTTPS%E7%82%B9%E5%BC%80%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/"
+    >HTTP-HTTPS点开网页原理</a
   >
 </h2>
   
@@ -691,8 +196,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/08/18/Linux/Linux-01-%E7%BD%91%E7%BB%9CIO/" class="article-date">
-  <time datetime="2020-08-18T07:52:53.000Z" itemprop="datePublished">2020-08-18</time>
+      <a href="/2020/08/31/NetworkCoding/HTTP-HTTPS%E7%82%B9%E5%BC%80%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2020-08-31T03:02:24.000Z" itemprop="datePublished">2020-08-31</time>
 </a>
       
       
@@ -710,9 +215,20 @@
       
 
       
-      <h1 id="Linux-01-网络IO"><a href="#Linux-01-网络IO" class="headerlink" title="Linux-01-网络IO"></a>Linux-01-网络IO</h1><p>同步IO和异步IO，阻塞IO和非阻塞IO分别是什么，到底有什么区别？不同的人在不同的上下文下给出的答案是不同的。所以先限定一下本文的上下文。</p>
+      <h1 id="HTTP-HTTPS区别"><a href="#HTTP-HTTPS区别" class="headerlink" title="HTTP-HTTPS区别"></a>HTTP-HTTPS区别</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><ul>
+<li><p>安全性上，HTTPS是安全超文本协议，在HTTP基础上有更强的安全性。简单来说，HTTPS是使用TLS/SSL加密的HTTP协议</p>
+</li>
+<li><p>申请证书上，HTTPS需要使用ca申请证书</p>
+</li>
+<li><p>对于抓包而言 ，HTTP是超文本传输协议，明文传输；HTTPS是具有安全性的 SSL 加密传输协议</p>
+</li>
+<li><p>连接方式与端口上，http的连接简单，是无状态的，端口是 80； https 在http的基础上使用了ssl协议进行加密传输，端口是 443</p>
+</li>
+</ul>
+<p><strong>HTTP通信过程</strong></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200919/100535634.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/08/18/Linux/Linux-01-%E7%BD%91%E7%BB%9CIO/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/08/31/NetworkCoding/HTTP-HTTPS%E7%82%B9%E5%BC%80%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -723,7 +239,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" rel="tag">多路复用</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E9%A1%B5%E5%8E%9F%E7%90%86/" rel="tag">网页原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
 
 
     </footer>
@@ -740,7 +256,7 @@
 
 </article>
     
-    <article id="post-Linux/Linux-00-实战学习" class="article article-type-post" itemscope
+    <article id="post-Leetcode/Leetcode-347-前K个高频元素" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -748,8 +264,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/08/18/Linux/Linux-00-%E5%AE%9E%E6%88%98%E5%AD%A6%E4%B9%A0/"
-    >Linux-00-实战学习</a
+  <a class="article-title" href="/2020/08/29/Leetcode/Leetcode-347-%E5%89%8DK%E4%B8%AA%E9%AB%98%E9%A2%91%E5%85%83%E7%B4%A0/"
+    >Leetcode-347-前K个高频元素</a
   >
 </h2>
   
@@ -759,8 +275,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/08/18/Linux/Linux-00-%E5%AE%9E%E6%88%98%E5%AD%A6%E4%B9%A0/" class="article-date">
-  <time datetime="2020-08-18T07:52:53.000Z" itemprop="datePublished">2020-08-18</time>
+      <a href="/2020/08/29/Leetcode/Leetcode-347-%E5%89%8DK%E4%B8%AA%E9%AB%98%E9%A2%91%E5%85%83%E7%B4%A0/" class="article-date">
+  <time datetime="2020-08-29T07:51:53.000Z" itemprop="datePublished">2020-08-29</time>
 </a>
       
       
@@ -778,9 +294,19 @@
       
 
       
-      <h1 id="Linux-00-实战学习"><a href="#Linux-00-实战学习" class="headerlink" title="Linux-00-实战学习"></a>Linux-00-实战学习</h1><p><strong>Linux 命令大全 ：</strong> <a href="https://www.runoob.com/linux/linux-command-manual.html" target="_blank" rel="noopener">https://www.runoob.com/linux/linux-command-manual.html</a></p>
+      <h1 id="Leecode-347-Top-K-Frequent-Elements"><a href="#Leecode-347-Top-K-Frequent-Elements" class="headerlink" title="Leecode-347-Top K Frequent Elements"></a>Leecode-347-<a href="https://leetcode-cn.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener">Top K Frequent Elements</a></h1><h2 id="思路：堆"><a href="#思路：堆" class="headerlink" title="思路：堆"></a>思路：堆</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个非空的整数数组，返回其中出现频率前 <strong>k</strong>高的元素。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">示例 1:</span><br><span class="line"></span><br><span class="line">输入: nums &#x3D; [1,1,1,2,2,3], k &#x3D; 2</span><br><span class="line">输出: [1,2]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">示例 2:</span><br><span class="line"></span><br><span class="line">输入: nums &#x3D; [1], k &#x3D; 1</span><br><span class="line">输出: [1]</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>你可以假设给定的 k 总是合理的，且 1 ≤ k ≤ 数组中不相同的元素的个数。</li>
+<li>你的算法的时间复杂度必须优于 O(n log n) , n 是数组的大小。</li>
+<li>题目数据保证答案唯一，换句话说，数组中前 k 个高频元素的集合是唯一的。</li>
+<li>你可以按任意顺序返回答案。</li>
+</ul>
       
-      <a class="article-more-link" href="/2020/08/18/Linux/Linux-00-%E5%AE%9E%E6%88%98%E5%AD%A6%E4%B9%A0/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/08/29/Leetcode/Leetcode-347-%E5%89%8DK%E4%B8%AA%E9%AB%98%E9%A2%91%E5%85%83%E7%B4%A0/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -791,7 +317,523 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TopK%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">TopK算法题</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Linux/Linux-11-磁盘调度算法" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/29/Linux/Linux-11-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/"
+    >Linux-11-磁盘调度算法</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/29/Linux/Linux-11-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/" class="article-date">
+  <time datetime="2020-08-29T03:22:53.000Z" itemprop="datePublished">2020-08-29</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Linux-11-磁盘调度算法"><a href="#Linux-11-磁盘调度算法" class="headerlink" title="Linux-11-磁盘调度算法"></a>Linux-11-磁盘调度算法</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/114232317.jpg" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/144348215.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/08/29/Linux/Linux-11-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/" rel="tag">磁盘调度算法</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-JavaInterview/Java-基础-try-catch" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/28/JavaInterview/Java-%E5%9F%BA%E7%A1%80-try-catch/"
+    >Java-基础-try-catch</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/28/JavaInterview/Java-%E5%9F%BA%E7%A1%80-try-catch/" class="article-date">
+  <time datetime="2020-08-28T08:39:38.000Z" itemprop="datePublished">2020-08-28</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Java-基础-try-catch"><a href="#Java-基础-try-catch" class="headerlink" title="Java-基础-try-catch"></a>Java-基础-try-catch</h1><h2 id="1-总结"><a href="#1-总结" class="headerlink" title="1. 总结"></a>1. 总结</h2><p><strong>绕口令开始</strong></p>
+<p><strong>1、不管有没有异常，<code>finally</code>中的代码都会执行</strong><br><strong>2、当<code>try、catch</code>中有<code>return</code>时，<code>finally</code>中的代码依然会继续执行</strong><br><strong>3、<code>finally</code>是在<code>return</code>后面的表达式运算之后执行的，此时并没有返回运算之后的值，而是把值保存起来，不管finally对该值做任何的改变，返回的值都不会改变，依然返回保存起来的值。也就是说方法的返回值是在finally运算之前就确定了的。</strong><br><strong>4、如果return的数据是引用数据类型，而在finally中对该引用数据类型的属性值的改变起作用，try中的return语句返回的就是在finally中改变后的该属性的值。</strong><br><strong>5、finally代码中最好不要包含return，程序会提前退出，也就是说返回的值不是try或catch中的值</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. 先执行try中的语句，包括return后面的表达式，</span><br><span class="line">2. 有异常时,先执行catch中的语句，包括return后面的表达式,</span><br><span class="line">3. 然后执行finally中的语句,如果finally里面有return语句，会提前退出，</span><br><span class="line">	最后执行try中的return，有异常时执行catch中的return。</span><br><span class="line"></span><br><span class="line">4. 在执行try、catch中的return之前一定会执行finally中的代码（如果finally存在），如果finally中有return语句，就会直接执行finally中的return方法，所以finally中的return语句一定会被执行的。编译器把finally中的return语句标识为一个warning.</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/28/JavaInterview/Java-%E5%9F%BA%E7%A1%80-try-catch/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/try-catch-finally/" rel="tag">try-catch-finally</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-JavaInterview/Java-基础-线程中断" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/28/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/"
+    >Java-基础-线程中断</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/28/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/" class="article-date">
+  <time datetime="2020-08-28T08:38:38.000Z" itemprop="datePublished">2020-08-28</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Java-基础-线程中断"><a href="#Java-基础-线程中断" class="headerlink" title="Java-基础-线程中断"></a>Java-基础-线程中断</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>Thread提供了interrupt方法，中断线程的执行：</p>
+<ul>
+<li>如果线程堵塞在object.wait、Thread.join和Thread.sleep，将会抛出<code>InterruptedException</code>,同时清除线程的中断状态;</li>
+<li>如果线程堵塞在java.nio.channels.InterruptibleChannel的IO上，Channel将会被关闭，线程被置为中断状态，并抛出java.nio.channels.ClosedByInterruptException；</li>
+<li>如果线程堵塞在java.nio.channels.Selector上，线程被置为中断状态，select方法会马上返回，类似调用wakeup的效果；</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心 interrupt 方法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">interrupt</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">this</span> != Thread.currentThread()) <span class="comment">// 非本线程，需要检查权限</span></span><br><span class="line">         checkAccess();</span><br><span class="line"></span><br><span class="line">     <span class="keyword">synchronized</span> (blockerLock) &#123;</span><br><span class="line">         Interruptible b = blocker;</span><br><span class="line">         <span class="keyword">if</span> (b != <span class="keyword">null</span>) &#123;</span><br><span class="line">             interrupt0();           <span class="comment">// 仅仅设置interrupt标志位</span></span><br><span class="line">             b.interrupt(<span class="keyword">this</span>);    <span class="comment">// 调用如 I/O 操作定义的中断方法</span></span><br><span class="line">             <span class="keyword">return</span>;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     interrupt0();</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="comment">// 静态方法，这个方法有点坑，调用该方法调用后会清除中断状态。</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">interrupted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> currentThread().isInterrupted(<span class="keyword">true</span>);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="comment">// 这个方法不会清除中断状态</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isInterrupted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> isInterrupted(<span class="keyword">false</span>);</span><br><span class="line"> &#125;</span><br><span class="line"><span class="comment">// 上面两个方法会调用这个本地方法，参数代表是否清除中断状态</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">isInterrupted</span><span class="params">(<span class="keyword">boolean</span> ClearInterrupted)</span></span>;</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/28/JavaInterview/Java-%E5%9F%BA%E7%A1%80-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/" rel="tag">线程中断</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/剑指offer--41-数据流中的中位数" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/"
+    >剑指offer--41-数据流中的中位数</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/" class="article-date">
+  <time datetime="2020-08-26T07:15:53.000Z" itemprop="datePublished">2020-08-26</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="剑指offer–41-数据流中的中位数"><a href="#剑指offer–41-数据流中的中位数" class="headerlink" title="剑指offer–41-数据流中的中位数"></a>剑指offer–41-<a href="https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/" target="_blank" rel="noopener">数据流中的中位数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p>
+<p>例如，</p>
+<p>[2,3,4] 的中位数是 3</p>
+<p>[2,3] 的中位数是 (2 + 3) / 2 = 2.5</p>
+<p>设计一个支持以下两种操作的数据结构：</p>
+<ul>
+<li>void addNum(int num) - 从数据流中添加一个整数到数据结构中。</li>
+<li>double findMedian() - 返回目前所有元素的中位数。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[1],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,null,1.50000,null,2.00000]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,2.00000,null,2.50000]</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-offer/剑指offer--21-调整数组顺序使奇数位于偶数前面" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--21-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/"
+    >剑指offer--21-调整数组顺序使奇数位于偶数前面</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--21-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/" class="article-date">
+  <time datetime="2020-08-26T07:15:53.000Z" itemprop="datePublished">2020-08-26</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="剑指offer–21-调整数组顺序使奇数位于偶数前面"><a href="#剑指offer–21-调整数组顺序使奇数位于偶数前面" class="headerlink" title="剑指offer–21-调整数组顺序使奇数位于偶数前面"></a>剑指offer–21-<a href="https://leetcode-cn.com/problems/diao-zheng-shu-zu-shun-xu-shi-qi-shu-wei-yu-ou-shu-qian-mian-lcof/" target="_blank" rel="noopener">调整数组顺序使奇数位于偶数前面</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li>输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。</li>
+</ul>
+<p><strong>示例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums &#x3D; [1,2,3,4]</span><br><span class="line">输出：[1,3,2,4] </span><br><span class="line">注：[3,1,2,4] 也是正确的答案之一。</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--21-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-offer/剑指offer--41-数据流中的中位数" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/"
+    >剑指offer--41-数据流中的中位数</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/" class="article-date">
+  <time datetime="2020-08-26T07:15:53.000Z" itemprop="datePublished">2020-08-26</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="剑指offer–41-数据流中的中位数"><a href="#剑指offer–41-数据流中的中位数" class="headerlink" title="剑指offer–41-数据流中的中位数"></a>剑指offer–41-<a href="https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/" target="_blank" rel="noopener">数据流中的中位数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p>
+<p>例如，</p>
+<p>[2,3,4] 的中位数是 3</p>
+<p>[2,3] 的中位数是 (2 + 3) / 2 = 2.5</p>
+<p>设计一个支持以下两种操作的数据结构：</p>
+<ul>
+<li>void addNum(int num) - 从数据流中添加一个整数到数据结构中。</li>
+<li>double findMedian() - 返回目前所有元素的中位数。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[1],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,null,1.50000,null,2.00000]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">[&quot;MedianFinder&quot;,&quot;addNum&quot;,&quot;findMedian&quot;,&quot;addNum&quot;,&quot;findMedian&quot;]</span><br><span class="line">[[],[2],[],[3],[]]</span><br><span class="line">输出：[null,null,2.00000,null,2.50000]</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--41-%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-offer/剑指offer--40-最小的K个数" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--40-%E6%9C%80%E5%B0%8F%E7%9A%84K%E4%B8%AA%E6%95%B0/"
+    >剑指offer--40-最小的K个数</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--40-%E6%9C%80%E5%B0%8F%E7%9A%84K%E4%B8%AA%E6%95%B0/" class="article-date">
+  <time datetime="2020-08-26T07:15:53.000Z" itemprop="datePublished">2020-08-26</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="剑指offer–40-最小的k个数"><a href="#剑指offer–40-最小的k个数" class="headerlink" title="剑指offer–40-最小的k个数"></a>剑指offer–40-<a href="https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/" target="_blank" rel="noopener">最小的k个数</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>输入整数数组 <code>arr</code> ，找出其中最小的 <code>k</code> 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：arr &#x3D; [3,2,1], k &#x3D; 2</span><br><span class="line">输出：[1,2] 或者 [2,1]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：arr &#x3D; [0,1,2,1], k &#x3D; 1</span><br><span class="line">输出：[0]</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>限制：</strong></p>
+<ul>
+<li><code>0 &lt;= k &lt;= arr.length &lt;= 10000</code></li>
+<li><code>0 &lt;= arr[i] &lt;= 10000</code></li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/08/26/offer/%E5%89%91%E6%8C%87offer--40-%E6%9C%80%E5%B0%8F%E7%9A%84K%E4%B8%AA%E6%95%B0/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BC%98%E5%85%88%E9%98%9F%E5%88%97/" rel="tag">优先队列</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A0%86/" rel="tag">堆</a></li></ul>
 
 
     </footer>
@@ -814,7 +856,7 @@
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/12/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/49/">49</a><a class="extend next" rel="next" href="/page/14/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/12/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/51/">51</a><a class="extend next" rel="next" href="/page/14/">下一页</a>
   </nav>
   
 </section>

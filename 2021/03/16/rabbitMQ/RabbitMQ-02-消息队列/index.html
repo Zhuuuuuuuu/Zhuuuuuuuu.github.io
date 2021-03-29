@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    RabbitMQ-02-消息队列 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-rabbitMQ/RabbitMQ-02-消息队列" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  RabbitMQ-02-消息队列
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/03/16/rabbitMQ/RabbitMQ-02-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="article-date">
+  <time datetime="2021-03-16T11:02:24.000Z" itemprop="datePublished">2021-03-16</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.4k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="RabbitMQ-02-消息队列"><a href="#RabbitMQ-02-消息队列" class="headerlink" title="RabbitMQ-02-消息队列"></a>RabbitMQ-02-消息队列</h2><h2 id="1-消息队列协议"><a href="#1-消息队列协议" class="headerlink" title="1. 消息队列协议"></a>1. 消息队列协议</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210317-210932098.png" alt="mark"></p>
+<ul>
+<li><strong>消息中间件负责数据的传递，存储，和分发消费三个部分</strong>，数据的存储和分发的过程中肯定要遵循某种约定成俗的规范，你是采用底层的TCP/IP，UDP协议还是其他的自己取构建等，而这些约定成俗的规范就称之为：协议。</li>
+<li><strong>所谓协议是指：</strong><ul>
+<li>计算机底层操作系统和应用程序通讯时共同遵守的一组约定，只有<strong>遵循共同的约定和规范，系统和底层操作系统之间才能相互交流。</strong></li>
+<li>和<strong>一般的网络应用程序的不同它主要负责数据的接受和传递，所以性能比较的高。</strong></li>
+<li>协议对数据格式和计算机之间交换数据都必须<strong>严格遵守规范。</strong></li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="2-网络协议需要遵循的要素"><a href="#2-网络协议需要遵循的要素" class="headerlink" title="2. 网络协议需要遵循的要素"></a>2. 网络协议需要遵循的要素</h2><p><strong>1. 语法</strong>。语法是用户数据与控制信息的<strong>结构与格式,</strong>以及数据出现的顺序。<br><strong>2. 语义</strong>。语义是解释控制信息每个部分的意义。它规定了需要发出何种控制信息,以及<strong>完成的动作与做出什么样的响应。</strong><br><strong>3. 时序</strong>。时序是对<strong>事件发生顺序</strong>的详细说明。</p>
+<ul>
+<li><strong>而消息中间件采用的并不是http协议</strong>，而常见的消息中间件协议有：OpenWire、AMQP、MQTT、Kafka，OpenMessage协议。</li>
+<li><strong>面试题：为什么消息中间件不直接使用http协议呢？</strong><ul>
+<li><strong>1: 因为http请求报文头和响应报文头是比较复杂的</strong>，包含了cookie，数据的加密解密，状态码，响应码等附加的功能，但是对于一个消息而言，我们并不需要这么复杂，也没有这个必要性，它其实就是负责数据传递，存储，分发就行，<strong>一定要追求的是高性能。尽量简洁，快速。</strong></li>
+<li><strong>2:大部分情况下http大部分都是短链接</strong>，在实际的交互过程中，一个请求到响应很有可能会中断，中断以后就不会就行持久化，就<strong>会造成请求的丢失</strong>。这样就不利于消息中间件的业务场景，因为消息中间件可能是一个长期的获取消息的过程，出现问题和故障要对数据或消息就行持久化等，目的是为了保证消息和数据的高可靠和稳健的运行。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-消息队列协议"><a href="#3-消息队列协议" class="headerlink" title="3. 消息队列协议"></a>3. 消息队列协议</h2><h3 id="3-1AMQP协议"><a href="#3-1AMQP协议" class="headerlink" title="3.1AMQP协议"></a>3.1AMQP协议</h3><ul>
+<li>AMQP：(全称：Advanced Message Queuing Protocol) 是高级消息队列协议。由摩根大通集团联合其他公司共同设计。是一个提供统一消息服务的应用层标准高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。</li>
+<li>基于此协议的客户端与消息中间件可传递消息，并不受客户端/中间件不同产品，不同的开发语言等条件的限制。Erlang中的实现有RabbitMQ等。</li>
+</ul>
+<p><strong>特性：</strong><br>1：分布式事务支持。<br>2：消息的持久化支持。<br>3：高性能和高可靠的消息处理优势。</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-141250242.png" alt="mark"></p>
+<h3 id="3-2MQTT协议"><a href="#3-2MQTT协议" class="headerlink" title="3.2MQTT协议"></a>3.2MQTT协议</h3><ul>
+<li><strong>MQTT协议：</strong>（Message Queueing Telemetry Transport）消息队列是IBM开放的一个即时通讯协议，<strong>物联网系统架构中的重要组成部分。</strong></li>
+<li><strong>特点：</strong><br>1：轻量<br>2：结构简单<br>3：传输快，不支持事务<br>4：没有持久化设计。</li>
+<li><strong>应用场景：</strong><br>1：适用于计算能力有限<br>2：低带宽<br>3：网络不稳定的场景。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-141351884.png" alt="mark"></p>
+<h3 id="3-3OpenMessage协议"><a href="#3-3OpenMessage协议" class="headerlink" title="3.3OpenMessage协议"></a>3.3OpenMessage协议</h3><ul>
+<li>是近几年由阿里、雅虎和滴滴出行、Stremalio等公司共同参与创立的分布式消息中间件、流处理等领域的应用开发标准。</li>
+<li><strong>特点：</strong><br>1：结构简单<br>2：解析速度快<br>3：支持事务和持久化设计。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-141428320.png" alt="mark"></p>
+<h3 id="3-4Kafka协议"><a href="#3-4Kafka协议" class="headerlink" title="3.4Kafka协议"></a>3.4Kafka协议</h3><ul>
+<li><p><strong>Kafka协议是基于TCP/IP的二进制协议</strong>。消息内部是通过长度来分割，由一些基本数据类型组成。</p>
+</li>
+<li><p><strong>特点是</strong>：<br>1：结构简单<br>2：解析速度快<br>3：无事务支持<br>4：有持久化设计</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-141511555.png" alt="mark"></p>
+<h2 id="4-消息队列的持久化"><a href="#4-消息队列的持久化" class="headerlink" title="4. 消息队列的持久化"></a>4. 消息队列的持久化</h2><ul>
+<li>简单来说就是将数据存入磁盘，而不是存在内存中随服务器重启断开而消失，使数据能够永久保存</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142053516.png" alt="mark"></p>
+<ul>
+<li>常见的持久化方式</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>ActiveMQ</th>
+<th>RabbitMQ</th>
+<th>Kafka</th>
+<th>RocketMQ</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件存储</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>支持</td>
+<td>/</td>
+<td>/</td>
+<td>/</td>
+</tr>
+</tbody></table>
+<h2 id="5-消息的分发策略"><a href="#5-消息的分发策略" class="headerlink" title="5. 消息的分发策略"></a>5. 消息的分发策略</h2><ul>
+<li><strong>MQ消息队列有如下几个角色</strong><br>1：生产者<br>2：存储消息<br>3：消费者</li>
+<li><strong>那么生产者生成消息以后，MQ进行存储，消费者是如何获取消息的呢？</strong><ul>
+<li>一般获取数据的方式无外乎<strong>推（push）或者拉（pull）两种方式，</strong></li>
+<li><strong>典型的git就有推拉机制</strong>，我们发送的http请求就是一种典型的拉取数据库数据返回的过程。</li>
+<li><strong>而消息队列MQ是一种推送的过程</strong>，而这些推机制会适用到很多的业务场景也有很多对应推机制策略。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-1-场景一"><a href="#5-1-场景一" class="headerlink" title="5.1 场景一"></a>5.1 场景一</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142306233.png" alt="mark"></p>
+<ul>
+<li>比如我在APP上下了一个订单，我们的系统和服务很多，我们如何得知这<strong>个消息被那个系统或者那些服务或者系统进行消费，那这个时候就需要一个分发的策略</strong>。这就需要消费策略。或者称之为消费的方法论。</li>
+</ul>
+<h3 id="5-2-场景二"><a href="#5-2-场景二" class="headerlink" title="5.2 场景二"></a>5.2 场景二</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142359085.png" alt="mark"></p>
+<ul>
+<li>在发送消息的过程中可能会出现异常，或者网络的抖动，故障等等因为造成消息的无法消费，比如用户在下订单，消费MQ接受，<strong>订单系统出现故障，导致用户支付失败</strong>，那么这个时候就需要消息中间件就必须支持消息重试机制策略。也就是支持：出现问题和故障的情况下，<strong>消息不丢失还可以进行重发。</strong></li>
+<li><strong>小结如下：</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>ActiveMQ</th>
+<th>RabbitMQ</th>
+<th>Kafka</th>
+<th>RocketMQ</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发布订阅</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>轮询分发</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>/</td>
+</tr>
+<tr>
+<td>公平分发</td>
+<td>/</td>
+<td>支持</td>
+<td>支持</td>
+<td>/</td>
+</tr>
+<tr>
+<td>重发</td>
+<td>支持</td>
+<td>支持</td>
+<td>/</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>消息拉取</td>
+<td>/</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+</tbody></table>
+<h2 id="6-消息队列高可用和高可靠"><a href="#6-消息队列高可用和高可靠" class="headerlink" title="6. 消息队列高可用和高可靠"></a>6. 消息队列高可用和高可靠</h2><h3 id="6-1-高可用"><a href="#6-1-高可用" class="headerlink" title="6.1 高可用"></a>6.1 高可用</h3><ul>
+<li><strong>高可用：</strong>是指产品在规定的条件和规定的时刻或时间内处于可执行规定功能状态的能力。<br>当业务量增加时，请求也过大，一台消息中间件服务器的会触及硬件（CPU,内存，磁盘）的极限，一台消息服务器你已经无法满足业务的需求，所以<strong>消息中间件必须支持集群部署。来达到高可用的目的。</strong></li>
+</ul>
+<ul>
+<li><h3 id="集群模式1-Master-slave主从共享数据的部署方式"><a href="#集群模式1-Master-slave主从共享数据的部署方式" class="headerlink" title="集群模式1 - Master-slave主从共享数据的部署方式"></a>集群模式1 - Master-slave主从共享数据的部署方式</h3></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142651818.png" alt="mark"></p>
+<p>生产者将消费发送到Master节点，所有的都连接这个消息队列共享这块数据区域，Master节点负责写入，一旦Master挂掉，slave节点继续服务。从而形成高可用，</p>
+<ul>
+<li><h3 id="集群模式2-Master-slave主从同步部署方式"><a href="#集群模式2-Master-slave主从同步部署方式" class="headerlink" title="集群模式2 - Master- slave主从同步部署方式"></a>集群模式2 - Master- slave主从同步部署方式</h3></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142728662.png" alt="mark"></p>
+<p>这种模式写入消息同样在Master主节点上，但是主节点会同步数据到slave节点形成副本，和zookeeper或者redis主从机制很类同。这样可以达到负载均衡的效果，如果消费者有多个这样就可以去不同的节点就行消费，以为消息的拷贝和同步会暂用很大的带宽和网络资源。在后续的rabbtmq中会有使用。</p>
+<ul>
+<li><h3 id="集群模式3-多主集群同步部署模式"><a href="#集群模式3-多主集群同步部署模式" class="headerlink" title="集群模式3 - 多主集群同步部署模式"></a>集群模式3 - 多主集群同步部署模式</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142830807.png" alt="mark"></p>
+</li>
+</ul>
+<p><strong>解释：</strong></p>
+<p>如果你插入的数据是broker-1中，元数据信息会存储数据的相关描述和记录存放的位置（队列）。<br>它会对描述信息也就是元数据信息就行同步，如果消费者在broker-2中进行消费，发现自己几点没有对应的消息，可以从<strong>对应的元数据信息中去查询</strong>，然后返回对应的消息信息，场景：比如买火车票或者黄牛买演唱会门票，比如第一个黄牛有顾客说要买的演唱会门票，但是没有但是他会去联系其他的黄牛询问，如果有就返回。</p>
+<ul>
+<li><h3 id="集群模式5-Master-slave与Broker-cluster组合的方案"><a href="#集群模式5-Master-slave与Broker-cluster组合的方案" class="headerlink" title="集群模式5 Master-slave与Broker-cluster组合的方案"></a>集群模式5 Master-slave与Broker-cluster组合的方案</h3></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210318-142935098.png" alt="mark"></p>
+<p><strong>解释：</strong>实现多主多从的热备机制来完成消息的高可用以及数据的热备机制，在生产规模达到一定的阶段的时候，这种使用的频率比较高。</p>
+<p><strong>反正终归三句话：</strong><br><strong>1：要么消息共享，</strong><br><strong>2：要么消息同步</strong><br><strong>3：要么元数据共享</strong></p>
+<h3 id="6-2-高可靠"><a href="#6-2-高可靠" class="headerlink" title="6.2 高可靠"></a>6.2 高可靠</h3><ul>
+<li><strong>高可靠</strong>：是指系统可以无故障低持续运行，比如一个系统突然崩溃，报错，异常等等并不影响线上业务的正常运行，出错的几率极低，就称之为：高可靠。</li>
+<li>在高并发的业务场景中，如果不能保证系统的高可靠，那造成的隐患和损失是非常严重的。</li>
+<li>如何保证<strong>中间件消息的可靠性</strong>呢？可以从两个方面考虑：<br><strong>1：消息的传输：通过协议来保证系统间数据解析的正确性。</strong><br><strong>2：消息的存储可靠：通过持久化来保证消息的可靠性。</strong></li>
+</ul>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/03/16/rabbitMQ/RabbitMQ-02-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2021/03/18/rabbitMQ/RabbitMQ-03-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%85%A5%E9%97%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            RabbitMQ-03-安装与入门
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/03/15/rabbitMQ/RabbitMQ-01-%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%A6%82%E8%BF%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">RabbitMQ-01-中间件概述</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2021
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">Mysql</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Python/">Python</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/photoshop/">photoshop</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://zhuuu.com.cn/" target="_blank" rel="noopener">云服务器</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>
