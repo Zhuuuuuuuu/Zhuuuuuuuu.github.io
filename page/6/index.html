@@ -75,6 +75,301 @@
     
     
     
+    <article id="post-Netty/Netty-13-TCP粘包和拆包" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/08/Netty/Netty-13-TCP%E7%B2%98%E5%8C%85%E5%92%8C%E6%8B%86%E5%8C%85/"
+    >Netty-13-TCP粘包和拆包</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/08/Netty/Netty-13-TCP%E7%B2%98%E5%8C%85%E5%92%8C%E6%8B%86%E5%8C%85/" class="article-date">
+  <time datetime="2020-11-08T02:05:24.000Z" itemprop="datePublished">2020-11-08</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-13-TCP粘包和拆包"><a href="#Netty-13-TCP粘包和拆包" class="headerlink" title="Netty-13-TCP粘包和拆包"></a>Netty-13-TCP粘包和拆包</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>TCP是面向连接的，面向流的，提供高可靠性服务。</li>
+<li>收发两端（<strong>客户端和服务器端）</strong>都要有一一成对的socket，因此，发送端为了将多个发给接收端的包，更有效的发给对方，<strong>使用了优化方法（Nagle算法</strong>），将多次<strong>间隔较小且数据量小</strong>的数据，合并成一个大的数据块，然后进行封包。</li>
+<li>这样做虽然提高了效率，但是<strong>接收端就难于分辨出完整的数据包</strong>了，因为<strong>面向流的通信是无消息保护边界</strong>的</li>
+</ul>
+<p><strong>通常的解决方案</strong></p>
+<ol>
+<li><p><strong>发送端</strong>每发送一次消息，就需要在消息的内容之前<strong>携带消息的长度</strong></p>
+</li>
+<li><p>这样，<strong>接收方</strong>每次先接受消息的长度，再<strong>根据长度去读取消息剩余的元素</strong></p>
+</li>
+<li><p>如果 <code>socket</code> 中还有没有读取的内容，也只能放在下一次读取事件中读取</p>
+</li>
+</ol>
+      
+      <a class="article-more-link" href="/2020/11/08/Netty/Netty-13-TCP%E7%B2%98%E5%8C%85%E5%92%8C%E6%8B%86%E5%8C%85/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TCP/" rel="tag">TCP</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-127-单词接龙" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/05/Leetcode/Leetcode-127-%E5%8D%95%E8%AF%8D%E6%8E%A5%E9%BE%99/"
+    >Leetcode-127-单词接龙</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/05/Leetcode/Leetcode-127-%E5%8D%95%E8%AF%8D%E6%8E%A5%E9%BE%99/" class="article-date">
+  <time datetime="2020-11-05T07:22:53.000Z" itemprop="datePublished">2020-11-05</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-127-单词接龙"><a href="#Leecode-127-单词接龙" class="headerlink" title="Leecode-127-单词接龙"></a>Leecode-127-<a href="https://leetcode-cn.com/problems/word-ladder/" target="_blank" rel="noopener">单词接龙</a></h1><h2 id="思路：BFS-双向BFS"><a href="#思路：BFS-双向BFS" class="headerlink" title="思路：BFS/双向BFS"></a>思路：BFS/双向BFS</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">给定两个单词（beginWord 和 endWord）和一个字典，找到从 beginWord 到 endWord 的最短转换序列的长度。转换需遵循如下规则：</span><br><span class="line"></span><br><span class="line">每次转换只能改变一个字母。</span><br><span class="line">转换过程中的中间单词必须是字典中的单词。</span><br><span class="line"></span><br><span class="line">说明:</span><br><span class="line"></span><br><span class="line">如果不存在这样的转换序列，返回 0。</span><br><span class="line">所有单词具有相同的长度。</span><br><span class="line">所有单词只由小写字母组成。</span><br><span class="line">字典中不存在重复的单词。</span><br><span class="line">你可以假设 beginWord 和 endWord 是非空的，且二者不相同。</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">示例 1:</span><br><span class="line"></span><br><span class="line">输入:</span><br><span class="line">beginWord &#x3D; &quot;hit&quot;,</span><br><span class="line">endWord &#x3D; &quot;cog&quot;,</span><br><span class="line">wordList &#x3D; [&quot;hot&quot;,&quot;dot&quot;,&quot;dog&quot;,&quot;lot&quot;,&quot;log&quot;,&quot;cog&quot;]</span><br><span class="line"></span><br><span class="line">输出: 5</span><br><span class="line"></span><br><span class="line">解释: 一个最短转换序列是 &quot;hit&quot; -&gt; &quot;hot&quot; -&gt; &quot;dot&quot; -&gt; &quot;dog&quot; -&gt; &quot;cog&quot;,</span><br><span class="line">     返回它的长度 5。</span><br><span class="line">     </span><br><span class="line">     </span><br><span class="line">示例 2:</span><br><span class="line"></span><br><span class="line">输入:</span><br><span class="line">beginWord &#x3D; &quot;hit&quot;</span><br><span class="line">endWord &#x3D; &quot;cog&quot;</span><br><span class="line">wordList &#x3D; [&quot;hot&quot;,&quot;dot&quot;,&quot;dog&quot;,&quot;lot&quot;,&quot;log&quot;]</span><br><span class="line"></span><br><span class="line">输出: 0</span><br><span class="line"></span><br><span class="line">解释: endWord &quot;cog&quot; 不在字典中，所以无法进行转换。</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/11/05/Leetcode/Leetcode-127-%E5%8D%95%E8%AF%8D%E6%8E%A5%E9%BE%99/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E5%90%91BFS/" rel="tag">双向BFS</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Netty/Netty-12-handler调用机制" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/05/Netty/Netty-12-handler%E8%B0%83%E7%94%A8%E6%9C%BA%E5%88%B6/"
+    >Netty-12-handler调用机制</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/05/Netty/Netty-12-handler%E8%B0%83%E7%94%A8%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2020-11-05T05:05:24.000Z" itemprop="datePublished">2020-11-05</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-12-handler调用机制"><a href="#Netty-12-handler调用机制" class="headerlink" title="Netty-12-handler调用机制"></a>Netty-12-handler调用机制</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>netty的组件设计：Netty的主要组件有<code>Channel、EventLoop、ChannelFuture、ChannelHandler、ChannelPipe</code>等</li>
+<li>我们先来复习一下<code>ChannelHandler</code>和<code>ChannelPipeline</code>的关系。示例图如下：我们可以将<code>pipeline</code>理解为一个双向链表，<code>ChannelHandlerContext</code>看作链表中的一个节点，<code>ChannelHandler</code>则为每个节点中保存的一个属性对象。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201022/123220946.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/11/05/Netty/Netty-12-handler%E8%B0%83%E7%94%A8%E6%9C%BA%E5%88%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/handler/" rel="tag">handler</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-057-插入区间" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/04/Leetcode/Leetcode-057-%E6%8F%92%E5%85%A5%E5%8C%BA%E9%97%B4/"
+    >Leetcode-057-插入区间</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/04/Leetcode/Leetcode-057-%E6%8F%92%E5%85%A5%E5%8C%BA%E9%97%B4/" class="article-date">
+  <time datetime="2020-11-04T03:52:53.000Z" itemprop="datePublished">2020-11-04</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leetcode-057-插入区间"><a href="#Leetcode-057-插入区间" class="headerlink" title="Leetcode-057-插入区间"></a>Leetcode-057-<a href="https://leetcode-cn.com/problems/insert-interval/" target="_blank" rel="noopener">插入区间</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给出一个<em>无重叠的 ，</em>按照区间起始端点排序的区间列表。</p>
+<p>在列表中插入一个新的区间，你需要确保列表中的区间仍然有序且不重叠（如果有必要的话，可以合并区间）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：intervals &#x3D; [[1,3],[6,9]], newInterval &#x3D; [2,5]</span><br><span class="line">输出：[[1,5],[6,9]]</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：intervals &#x3D; [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval &#x3D; [4,8]</span><br><span class="line">输出：[[1,2],[3,10],[12,16]]</span><br><span class="line">解释：这是因为新的区间 [4,8] 与 [3,5],[6,7],[8,10] 重叠。</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/11/04/Leetcode/Leetcode-057-%E6%8F%92%E5%85%A5%E5%8C%BA%E9%97%B4/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Linux/操作系统-24-IO核心子系统" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -503,293 +798,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/操作系统-23-IO管理" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-23-IO%E7%AE%A1%E7%90%86/"
-    >操作系统-23-IO管理</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-23-IO%E7%AE%A1%E7%90%86/" class="article-date">
-  <time datetime="2020-11-01T03:00:53.000Z" itemprop="datePublished">2020-11-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="操作系统-23-IO管理"><a href="#操作系统-23-IO管理" class="headerlink" title="操作系统-23-IO管理"></a>操作系统-23-IO管理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>首先了解一下什么是IO 设备</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201101/112638277.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-23-IO%E7%AE%A1%E7%90%86/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IO/" rel="tag">IO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/操作系统-22-磁盘调度算法" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-22-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/"
-    >操作系统-22-磁盘调度算法</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-22-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/" class="article-date">
-  <time datetime="2020-11-01T02:00:53.000Z" itemprop="datePublished">2020-11-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="操作系统-22-磁盘调度算法"><a href="#操作系统-22-磁盘调度算法" class="headerlink" title="操作系统-22-磁盘调度算法"></a>操作系统-22-磁盘调度算法</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201101/111815980.png" alt="mark"></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/114232317.jpg" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/11/01/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-22-%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/" rel="tag">磁盘管理</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-NetworkCoding/WebSocket理解" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/01/NetworkCoding/WebSocket%E7%90%86%E8%A7%A3/"
-    >WebSocket理解</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/11/01/NetworkCoding/WebSocket%E7%90%86%E8%A7%A3/" class="article-date">
-  <time datetime="2020-11-01T01:02:24.000Z" itemprop="datePublished">2020-11-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="WebSocket理解"><a href="#WebSocket理解" class="headerlink" title="WebSocket理解"></a>WebSocket理解</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li><strong>WebSocket是HTML5出的东西（协议），也就是说HTTP协议没有变化，或者说没关系，但HTTP是不支持持久连接的（长连接，循环连接的不算）</strong></li>
-<li>首先HTTP有<code>1.1</code>和<code>1.0</code>之说，也就是所谓的<code>keep-alive</code>，把多个HTTP请求合并为一个，但是<strong><code>Websocket</code>其实是一个新协议，跟HTTP协议基本没有关系</strong>，只是为了兼容现有浏览器的握手规范而已，也就是说它是HTTP协议上的一种补充可以通过这样一张图理解</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201101/093305644.png" alt="mark"></p>
-<p>有交集，但是并不是全部。</p>
-<ul>
-<li>另外Html5是指的一系列新的API，或者说新规范，新技术。Http协议本身只有1.0和1.1，而且跟Html本身没有直接关系。</li>
-<li>通俗来说，你可以用HTTP<strong>协议</strong>传输非Html<strong>数据</strong>，就是这样=。=</li>
-<li>再简单来说，<strong>层级不一样</strong>。</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/11/01/NetworkCoding/WebSocket%E7%90%86%E8%A7%A3/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WebSocket/" rel="tag">WebSocket</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/操作系统-21-磁盘管理" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/10/31/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-21-%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"
-    >操作系统-21-磁盘管理</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/10/31/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-21-%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/" class="article-date">
-  <time datetime="2020-10-31T02:00:53.000Z" itemprop="datePublished">2020-10-31</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="操作系统-21-磁盘管理"><a href="#操作系统-21-磁盘管理" class="headerlink" title="操作系统-21-磁盘管理"></a>操作系统-21-磁盘管理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201101/111136067.png" alt="mark"></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/144348215.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2020/10/31/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-21-%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/" rel="tag">磁盘管理</a></li></ul>
 
 
     </footer>
