@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">677字</span>
+            <span class="post-count">1.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">2分钟</span>
+            <span class="post-count">5分钟</span>
         </span>
     </span>
 </div>
@@ -129,6 +129,68 @@
 </ul>
 <h3 id="2-2-聚簇索引"><a href="#2-2-聚簇索引" class="headerlink" title="2.2 聚簇索引"></a>2.2 聚簇索引</h3><ul>
 <li>InnoDB的数据文件本身就是索引文件，<strong>B+Tree的叶子节点上的data就是数据本身</strong>，key为主键，这是聚簇索引。聚簇索引，叶子节点上的data是主键(所以聚簇索引的key，不能过长)。</li>
+</ul>
+<h2 id="3-另外一种分类"><a href="#3-另外一种分类" class="headerlink" title="3. 另外一种分类"></a>3. 另外一种分类</h2><ol>
+<li><strong>索引的作用</strong></li>
+</ol>
+<ul>
+<li>提高查询的速度</li>
+<li>确保数据的唯一性</li>
+<li>可以加速表和表之间的连接，实现表与表之间的参照完整性</li>
+<li>使用分组和排序子句进行数据检索时，可以显著减少分组和排序的时间</li>
+<li>全文检索字段进行搜索优化</li>
+</ul>
+<p>分类：</p>
+<ul>
+<li>主键索引（Primary Key）</li>
+<li>唯一索引（Unique）</li>
+<li>常规索引（Index）</li>
+<li>全文索引（FullText）</li>
+</ul>
+<h3 id="3-1-主键索引"><a href="#3-1-主键索引" class="headerlink" title="3.1 主键索引"></a>3.1 主键索引</h3><p>作用：避免同一个表中某数据列中的值重复</p>
+<p>特点：</p>
+<ul>
+<li><p>最常见的索引类型</p>
+</li>
+<li><p>确保数据记录的唯一性</p>
+</li>
+<li><p>确定特定数据记录在数据库中的位置</p>
+</li>
+</ul>
+<h3 id="3-2-唯一索引"><a href="#3-2-唯一索引" class="headerlink" title="3.2 唯一索引"></a>3.2 唯一索引</h3><p>作用：避免同一个表中某数据列中的值重复</p>
+<p>与主键索引的区别：</p>
+<ul>
+<li>主键索引只能有一个</li>
+<li>唯一索引可能有多个</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200226221533.png" alt=""></p>
+<h3 id="3-3-常规索引"><a href="#3-3-常规索引" class="headerlink" title="3.3 常规索引"></a>3.3 常规索引</h3><p>作用：快速定位特定数据</p>
+<p>注意：</p>
+<ul>
+<li>index 和 key关键字都可以设置为常规索引</li>
+<li>应加载查询找条件的字段</li>
+<li>不宜添加太多常规索引，影像数据的插入，删除和修改操作</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200226221647.png" alt=""></p>
+<h3 id="3-4-全文索引"><a href="#3-4-全文索引" class="headerlink" title="3.4 全文索引"></a>3.4 全文索引</h3><p>作用：快速定位特定数据</p>
+<p>注意：</p>
+<ul>
+<li>只能用于CHAR , VARCHAR , TEXT数据列类型</li>
+<li>适合大型数据集</li>
+</ul>
+<h2 id="4-创建和删除索引"><a href="#4-创建和删除索引" class="headerlink" title="4. 创建和删除索引"></a>4. 创建和删除索引</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line">#方法一：创建表时</span><br><span class="line">    　　CREATE TABLE 表名 (</span><br><span class="line">                字段名1  数据类型 [完整性约束条件…],</span><br><span class="line">                字段名2  数据类型 [完整性约束条件…],</span><br><span class="line">                [UNIQUE | FULLTEXT | SPATIAL ]   INDEX | KEY</span><br><span class="line">                [索引名]  (字段名[(长度)]  [ASC |DESC]) </span><br><span class="line">                );</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#方法二：CREATE在已存在的表上创建索引</span><br><span class="line">        CREATE  [UNIQUE | FULLTEXT | SPATIAL ]  INDEX  索引名 </span><br><span class="line">                     ON 表名 (字段名[(长度)]  [ASC |DESC]) ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#方法三：ALTER TABLE在已存在的表上创建索引</span><br><span class="line">        ALTER TABLE 表名 ADD  [UNIQUE | FULLTEXT | SPATIAL ] INDEX</span><br><span class="line">                             索引名 (字段名[(长度)]  [ASC |DESC]) ;</span><br><span class="line">                             </span><br><span class="line">                             </span><br><span class="line">#删除索引：DROP INDEX 索引名 ON 表名字;</span><br><span class="line">#删除主键索引: ALTER TABLE 表名 DROP PRIMARY KEY;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#显示索引信息: SHOW INDEX FROM student;</span><br><span class="line">*&#x2F;</span><br><span class="line"></span><br><span class="line">&#x2F;*增加全文索引*&#x2F;</span><br><span class="line">ALTER TABLE &#96;school&#96;.&#96;student&#96; ADD FULLTEXT INDEX &#96;studentname&#96; (&#96;StudentName&#96;); </span><br><span class="line"></span><br><span class="line">&#x2F;*EXPLAIN : 分析SQL语句执行性能*&#x2F;</span><br><span class="line">EXPLAIN SELECT * FROM student WHERE studentno&#x3D;&#39;1000&#39;;</span><br><span class="line"></span><br><span class="line">&#x2F;*使用全文索引*&#x2F;</span><br><span class="line">EXPLAIN SELECT *FROM student WHERE MATCH(studentname) AGAINST(&#39;love&#39;);</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#不同的存储引擎支持的索引类型也不一样</span><br><span class="line">InnoDB 支持事务，支持行级别锁定，支持 B-tree、Full-text 等索引，不支持 Hash 索引；</span><br><span class="line">MyISAM 不支持事务，支持表级别锁定，支持 B-tree、Full-text 等索引，不支持 Hash 索引；</span><br><span class="line">Memory 不支持事务，支持表级别锁定，支持 B-tree、Hash 等索引，不支持 Full-text 索引；</span><br><span class="line">NDB 支持事务，支持行级别锁定，支持 Hash 索引，不支持 B-tree、Full-text 等索引；</span><br><span class="line">Archive 不支持事务，支持表级别锁定，不支持 B-tree、Hash、Full-text 等索引；</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-索引的原则"><a href="#5-索引的原则" class="headerlink" title="5. 索引的原则"></a>5. 索引的原则</h2><ul>
+<li>索引不是越多越好</li>
+<li>不要对经常变动的数据加索引</li>
+<li>小数据量的表不建议加索引</li>
+<li>索引一般应该加载查找条件的字段上</li>
 </ul>
 
       
@@ -215,19 +277,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2019/02/24/Mysql/Mysql-%E5%A4%87%E4%BB%BD/" class="article-nav-link">
+      <a href="/2019/02/25/Mysql/%E6%95%B0%E6%8D%AE%E5%BA%93-%E4%B8%89%E5%A4%A7%E8%8C%83%E5%BC%8F/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Mysql-备份
+            数据库的三大范式
           
         </div>
       </a>
     
     
-      <a href="/2019/02/21/Mysql/Mysql-%E8%A7%86%E5%9B%BE/" class="article-nav-link">
+      <a href="/2019/02/19/Mysql/Mysql-06-%E4%BA%8B%E5%8A%A1/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Mysql-视图</div>
+        <div class="article-nav-title">Mysql-06-事务</div>
       </a>
     
   </nav>
