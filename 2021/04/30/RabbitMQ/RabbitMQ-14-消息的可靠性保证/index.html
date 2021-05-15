@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    RabbitMQ-14-消息的可靠性保证 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-RabbitMQ/RabbitMQ-14-消息的可靠性保证" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  RabbitMQ-14-消息的可靠性保证
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/30/RabbitMQ/RabbitMQ-14-%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E8%AF%81/" class="article-date">
+  <time datetime="2021-04-30T02:02:24.000Z" itemprop="datePublished">2021-04-30</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.2k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">14分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="RabbitMQ-14-消息的可靠性保证"><a href="#RabbitMQ-14-消息的可靠性保证" class="headerlink" title="RabbitMQ-14-消息的可靠性保证"></a>RabbitMQ-14-消息的可靠性保证</h2><h3 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h3><ul>
+<li><p>RabbitMQ如何确保消息可靠？很多时候，笔者的回答都是：说来话长的事情何来长话短说。的确，要确保消息可靠不只是单单几句就能够叙述明白的，包括Kafka也是如此。</p>
+</li>
+<li><p>可靠并不是一个绝对的概念，曾经有人也留言说过类似全部磁盘损毁也会导致消息丢失，笔者戏答：还有机房被炸了也会导致消息丢失。</p>
+</li>
+<li><p>可靠性是一个相对的概念，在条件合理的范围内系统所能确保的多少个9的可靠性。一切尽可能的趋于完美而无法企及于完美。</p>
+</li>
+<li><p>我们可以尽可能的确保RabbitMQ的消息可靠。在详细论述RabbitMQ的消息可靠性之前，我们先来回顾下消息在RabbitMQ中的经由之路。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210430-094238362.png" alt="mark"></p>
+<p>如图所示，从AMQP协议层面上来说：</p>
+<ul>
+<li><p>消息先从生产者<code>Producer</code> 出发到达交换器 <code>Exchange</code></p>
+</li>
+<li><p>交换器<code>Exchange</code> 根据路由规则将消息转发到对应的<code>Queue</code> 上</p>
+</li>
+<li><p>消息在队列<code>Queue</code> 上进行存储</p>
+</li>
+<li><p>消费者Consumer订阅队列Queue并进行消费。</p>
+</li>
+</ul>
+<p>接下来 ： 我们对于消息可靠性的分析也从这四个阶段来一一探讨。</p>
+<a id="more"></a>
+
+
+
+<h3 id="2-生产者到交换机"><a href="#2-生产者到交换机" class="headerlink" title="2. 生产者到交换机"></a>2. 生产者到交换机</h3><ul>
+<li><p>消息从生产者发出到达交换器<code>Exchange</code>，在这个过程中可以发生各种情况，生产者客户端发送出去之后可以发生网络丢包、网络故障等造成消息丢失。一般情况下如果不采取措施，生产者无法感知消息是否已经正确无误的发送到交换器中。</p>
+</li>
+<li><p>如果消息在传输到<code>Exchange</code>的过程中发生失败而可以让生产者感知的话，生产者可以进行进一步的处理动作，比如重新投递相关消息以确保消息的可靠性。</p>
+</li>
+<li><p>为此AMQP协议在建立之初就考虑到这种情况而提供了事务机制。</p>
+<ul>
+<li>RabbitMQ客户端中与事务机制相关的方法有三个：<code>channel.txSelect、channel.txCommit以及channel.txRollback。</code></li>
+<li><code>channel.txSelect</code>用于将当前的信道设置成事务模式，<code>channel.txCommit</code>用于提交事务，而<code>channel.txRollback</code>用于事务回滚。</li>
+<li>在通过<code>channel.txSelect</code>方法开启事务之后，我们便可以发布消息给<code>RabbitMQ</code>了，如果事务提交成功，则消息一定到达了<code>RabbitMQ</code>中，如果在事务提交执行之前由于<code>RabbitMQ</code>异常崩溃或者其他原因抛出异常，这个时候我们便可以将其捕获，进而通过执行<code>channel.txRollback</code>方法来实现事务回滚。</li>
+<li><strong>注意这里的RabbitMQ中的事务机制与大多数数据库中的事务概念并不相同，需要注意区分。</strong></li>
+</ul>
+</li>
+<li><p>事务确实能够解决消息发送方和<code>RabbitMQ</code>之间消息确认的问题，只有消息成功被<code>RabbitMQ</code>接收，事务才能提交成功，否则我们便可在捕获异常之后进行事务回滚，与此同时可以进行消息重发。</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>但是使用事务机制的话会“吸干”RabbitMQ的性能，那么有没有更好的方法既能保证消息发送方确认消息已经正确送达，又能基本上不带来性能上的损失呢？</strong><ul>
+<li>从AMQP协议层面来看并没有更好的办法，但是RabbitMQ提供了一个改进方案，即<strong>发送方确认机制（publisher confirm）。</strong></li>
+<li>生产者将信道设置成<code>confirm</code>（确认）模式，一旦信道进入<code>confirm</code>模式，所有在该信道上面发布的消息都会被指派一个唯一的<code>ID</code>（从1开始），一旦消息被投递到所有匹配的队列之后，<code>RabbitMQ</code>就会发送一个确认<code>（Basic.Ack）</code>给生产者（包含消息的唯一<code>ID</code>）,这就使得生产者知晓消息已经正确到达了目的地了。</li>
+<li><code>RabbitMQ</code>回传给生产者的确认消息中的<code>deliveryTag</code>包含了确认消息的序号，此外RabbitMQ也可以设置channel.basicAck方法中的<strong>multiple参数</strong>，表示到这个序号之前的所有消息都已经得到了处理。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210430-103912395.png" alt="mark"></p>
+<p><strong>对比小结：</strong></p>
+<ul>
+<li><strong>事务机制在一条消息发送之后会使发送端阻塞</strong>，以等待RabbitMQ的回应，之后才能继续发送下一条消息。<ul>
+<li>相比之下，<strong>发送方确认机制最大的好处在于它是异步的</strong>，一旦发布一条消息，生产者应用程序就可以在等信道返回确认的同时继续发送下一条消息，当消息最终得到确认之后，生产者应用便可以通过回调方法来处理该确认消息</li>
+<li>如果<code>RabbitMQ</code>因为自身内部错误导致消息丢失，就会发送一条<code>nack（Basic.Nack</code>）命令，生产者应用程序同样可以在回调方法中处理该<code>nack</code>命令。</li>
+<li>生产者通过调用<code>channel.confirmSelect</code>方法（即<code>Confirm.Select</code>命令）将信道设置为<code>confirm</code>模式，之后<code>RabbitMQ</code>会返回<code>Confirm.Select-Ok</code>命令表示同意生产者将当前信道设置为<code>confirm</code>模式。所有被发送的后续消息都被ack或者nack一次，不会出现一条消息即被ack又被nack的情况。并且RabbitMQ也并没有对消息被confirm的快慢做任何保证。</li>
+</ul>
+</li>
+<li>事务机制和<code>publisher confirm</code>机制两者是互斥的，不能共存。<ul>
+<li>如果企图将已开启事务模式的信道再设置为<code>publisher confirm</code>模式，RabbitMQ会报错：<code>{amqp_error, precondition_failed, “cannot switch from tx to confirm mode”, ‘confirm.select’}</code></li>
+<li>或者如果企图将已开启<code>publisher confirm</code>模式的信道在设置为事务模式的话，RabbitMQ也会报错：<code>{amqp_error, precondition_failed, “cannot switch from confirm to tx mode”, ‘tx.select’ }。</code></li>
+</ul>
+</li>
+<li>事务机制和<code>publisher confirm</code>机制确保的是消息能够正确的发送至<code>RabbitMQ</code>，这里的“发送至RabbitMQ”的含义是指消息被正确的发往至<code>RabbitMQ</code>的交换器，<strong>如果此交换器没有匹配的队列的话，那么消息也将会丢失。</strong><ul>
+<li>所以在使用这两种机制的时候要确保所涉及的交换器能够有匹配的队列。<strong>更进一步的讲，发送方要配合<code>mandatory</code>参数或者备份交换器一起使用来提高消息传输的可靠性。</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="3-交换机"><a href="#3-交换机" class="headerlink" title="3. 交换机"></a>3. 交换机</h3><ul>
+<li><code>mandatory</code>和<code>immediate</code>是<code>channel.basicPublish</code>方法中的两个参数，它们都有当消息传递过程中不可达目的地时将消息返回给生产者的功能。</li>
+<li>而RabbitMQ提供的备份交换器<code>（Alternate Exchange）</code>可以将未能被交换器路由的消息（没有绑定队列或者没有匹配的绑定）存储起来，而不用返回给客户端。<ul>
+<li>RabbitMQ 3.0版本开始去掉了对于immediate参数的支持，对此RabbitMQ官方解释是：immediate参数会影响镜像队列的性能，增加代码复杂性，建议采用TTL和DLX的方法替代。所以<strong>本文只简单介绍mandatory和备份交换器。</strong></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><code>mandatory</code> 参数</li>
+</ol>
+<ul>
+<li><p>当<code>mandatory</code>参数设为<code>true</code>时，交换器无法根据自身的类型和路由键找到一个符合条件的队列的话，那么<code>RabbitMQ</code>会调用<code>Basic.Return</code>命令将消息返回给生产者。</p>
+</li>
+<li><p>当<code>mandatory</code>参数设置为<code>false</code>时，出现上述情形的话，消息直接被丢弃。 </p>
+</li>
+<li><p><strong>那么生产者如何获取到没有被正确路由到合适队列的消息呢？</strong>这时候可以通过调用<code>channel.addReturnListener</code>来添加<code>ReturnListener</code>监听器实现。使用<code>mandatory</code>参数的关键代码如下所示：</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">channel.basicPublish(EXCHANGE_NAME, <span class="string">""</span>, <span class="keyword">true</span>, MessageProperties.PERSISTENT_TEXT_PLAIN, <span class="string">"mandatory test"</span>.getBytes());</span><br><span class="line">channel.addReturnListener(<span class="keyword">new</span> ReturnListener() &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleReturn</span><span class="params">(<span class="keyword">int</span> replyCode, String replyText, String exchange, String routingKey, AMQP</span></span></span><br><span class="line"><span class="function"><span class="params">            .BasicProperties basicProperties, <span class="keyword">byte</span>[] body)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String message = <span class="keyword">new</span> String(body);</span><br><span class="line">        System.out.println(<span class="string">"Basic.Return返回的结果是："</span> + message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">上面代码中生产者没有成功的将消息路由到队列，此时RabbitMQ会通过Basic.Return返回“mandatory test”这条消息，之后生产者客户端通过ReturnListener监听到了这个事件，上面代码的最后输出应该是“Basic.Return返回的结果是：mandatory test”。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>生产者可以通过ReturnListener中返回的消息来重新投递或者其它方案来提高消息的可靠性。</li>
+</ul>
+<ol start="2">
+<li><strong>备份交换机</strong></li>
+</ol>
+<ul>
+<li>备份交换器，英文名称<code>Alternate Exchange</code>，简称AE，或者更直白的可以称之为“备胎交换器”。</li>
+<li>生产者在发送消息的时候如果不设置mandatory参数，那么消息在未被路由的情况下将会丢失，如果设置了mandatory参数，那么需要添加ReturnListener的编程逻辑，生产者的代码将变得复杂化。</li>
+<li><strong>如果你不想复杂化生产者的编程逻辑，又不想消息丢失</strong>，那么可以使用备份交换器，这样可以将未被路由的消息存储在RabbitMQ中，再在需要的时候去处理这些消息。<ul>
+<li>可以通过在声明交换器（调用<code>channel.exchangeDeclare</code>方法）的时候添加<code>alternate-exchange</code>参数来实现，也可以通过策略的方式实现。如果两者同时使用的话，前者的优先级更高，会覆盖掉<code>Policy</code>的设置。</li>
+</ul>
+</li>
+</ul>
+<p><strong>举个例子</strong></p>
+<ul>
+<li>参考下图，如果此时我们发送一条消息到<code>normalExchange</code>上<ul>
+<li>当路由键等于<code>“normalKey”</code>的时候，消息能正确路由到<code>normalQueue</code>这个队列中。</li>
+<li>如果路由键设为其他值，比如<code>“errorKey”</code>，即消息不能被正确的路由到与<code>normalExchange</code>绑定的任何队列上，此时就会发送给myAe, 进而发送到<code>unroutedQueue</code>这个队列。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210430-105341541.png" alt="mark"></p>
+<ul>
+<li><strong>备份交换器其实和普通的交换器没有太大的区别，为了方便使用，建议设置为fanout类型</strong><ul>
+<li>如若读者想设置为direct或者topic的类型也没有什么不妥。<strong>需要注意的是消息被重新发送到备份交换器时的路由键和从生产者发出的路由键是一样的。</strong></li>
+<li>备份交换器的实质就是原有交换器的一个“备胎”，所有无法正确路由的消息都发往这个备份交换器中，可以为所有的交换器设置同一个AE，不过这里需要提前确保的是AE已经正确的绑定了队列</li>
+<li>最好类型也是<code>fanout</code>的。如果备份交换器和<code>mandatory</code>参数一起使用，那么<code>mandatory</code>参数无效。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-消息存入队列后"><a href="#4-消息存入队列后" class="headerlink" title="4. 消息存入队列后"></a>4. 消息存入队列后</h3><ul>
+<li>mandatory或者AE可以让消息在路由到队列之前得到极大的可靠性保障，但是消息存入队列之后的可靠性又如何保证？</li>
+</ul>
+<ol>
+<li><strong>首先是持久化。持久化可以提高队列的可靠性，以防在异常情况（重启、关闭、宕机等）下的数据丢失。</strong><ul>
+<li><strong>队列的持久化</strong>是通过在声明队列时将durable参数置为true实现的，如果队列不设置持久化，那么在RabbitMQ服务重启之后，相关队列的元数据将会丢失，此时数据也会丢失。</li>
+<li>正所谓“皮之不存，毛将焉附”，队列都没有了，消息又能存在哪里呢？</li>
+<li>队列的持久化能保证其本身的元数据不会因异常情况而丢失，但是并不能保证内部所存储的消息不会丢失。</li>
+<li>要确保<strong>消息不会丢失，需要将其设置为持久化</strong>。通过将消息的投递模式（BasicProperties中的deliveryMode属性）设置为2即可实现消息的持久化。</li>
+</ul>
+</li>
+</ol>
+<p><strong>设置了队列和消息的持久化，当RabbitMQ服务重启之后，消息依旧存在</strong>。单单只设置队列持久化，重启之后消息会丢失；单单只设置消息的持久化，重启之后队列消失，既而消息也丢失。单单设置消息持久化而不设置队列的持久化显得毫无意义。</p>
+<hr>
+<ul>
+<li>在持久化的消息正确存入RabbitMQ之后，还需要有一段时间（虽然很短，但是不可忽视）才能存入磁盘之中。</li>
+<li><strong>RabbitMQ并不会为每条消息都做同步存盘（调用内核的fsync6方法）的处理</strong>，可能仅仅保存到操作系统缓存之中而不是物理磁盘之中。</li>
+<li>如果在这段时间内RabbitMQ服务节点发生了宕机、重启等异常情况，消息保存还没来得及落盘，那么这些消息将会丢失。</li>
+</ul>
+<ol start="2">
+<li><strong>如果在前面步骤中采用了事务机制或者publisher confirm机制的话</strong>，服务端的返回是在消息落盘之后执行的，这样可以进一步的提高了消息的可靠性。<ul>
+<li>但是即便如此也无法避免单机故障且无法修复（比如磁盘损毁）而引起的消息丢失，<strong>这里就需要引入镜像队列。</strong></li>
+<li><strong>镜像队列相当于配置了副本</strong>，绝大多数分布式的东西都有多副本的概念来确保HA。</li>
+<li>在镜像队列中，如果主节点（master）在此特殊时间内挂掉，可以自动切换到从节点（slave），这样有效的保证了高可用性，除非整个集群都挂掉。</li>
+</ul>
+</li>
+</ol>
+<p>虽然这样也不能完全的保证RabbitMQ消息不丢失（比如机房被炸。。。），但是配置了镜像队列要比没有配置镜像队列的可靠性要高很多，<strong>在实际生产环境中的关键业务队列一般都会设置镜像队列。</strong></p>
+<h3 id="5-消费者"><a href="#5-消费者" class="headerlink" title="5. 消费者"></a>5. 消费者</h3><ul>
+<li>进一步的从消费者的角度来说，如果在消费者接收到相关消息之后，还没来得及处理就宕机了，这样也算数据丢失。</li>
+<li>为了保证消息从队列可靠地达到消费者，RabbitMQ提供了<strong>消息确认机制</strong>（<code>message acknowledgement</code>）。<ul>
+<li>消费者在订阅队列时，可以指定<code>autoAck</code>参数，<strong>当autoAck等于false时</strong>，RabbitMQ会等待消费者显式地回复确认信号后才从内存（或者磁盘）中移去消息（实质上是先打上删除标记，之后再删除）。</li>
+<li><strong>当autoAck等于true时</strong>，RabbitMQ会自动把发送出去的消息置为确认，然后从内存（或者磁盘）中删除，而不管消费者是否真正的消费到了这些消息。</li>
+</ul>
+</li>
+</ul>
+<p><strong>采用消息确认机制后，只要设置autoAck参数为false，消费者就有足够的时间处理消息（任务），不用担心处理消息过程中消费者进程挂掉后消息丢失的问题，因为RabbitMQ会一直等待持有消息直到消费者显式调用Basic.Ack命令为止。</strong></p>
+<hr>
+<ul>
+<li><p><strong>当autoAck参数置为false，对于RabbitMQ服务端而言，队列中的消息分成了两个部分:</strong></p>
+<ul>
+<li>一部分是等待投递给消费者的消息；一部分是已经投递给消费者，但是还没有收到消费者确认信号的消息。</li>
+<li>如果RabbitMQ一直没有收到消费者的确认信号，并且消费此消息的消费者已经断开连接，则RabbitMQ会安排该消息重新进入队列，等待投递给下一个消费者，当然也有可能还是原来的那个消费者。</li>
+<li><strong>RabbitMQ不会为未确认的消息设置过期时间</strong>，它判断此消息是否需要重新投递给消费者的唯一依据是消费该消息的<strong>消费者连接是否已经断开</strong>，这么设计的原因是RabbitMQ允许消费者消费一条消息的时间可以很久很久。</li>
+</ul>
+</li>
+<li><p><strong>如果消息消费失败，也可以调用Basic.Reject或者Basic.Nack来拒绝当前消息而不是确认</strong></p>
+<ul>
+<li>如果只是简单的拒绝那么消息会丢失，需要将相应的requeue参数设置为true，那么RabbitMQ会重新将这条消息存入队列，以便可以发送给下一个订阅的消费者。</li>
+<li>如果requeue参数设置为false的话，RabbitMQ立即会把消息从队列中移除，而不会把它发送给新的消费者。</li>
+</ul>
+</li>
+<li><p><strong>还有一种情况需要考虑：<code>requeue</code> 的消息是存入队列头部的，即可以快速的又被发送给消费</strong>，如果此时消费者又不能正确的消费而又requeue的话就会进入一个无尽的循环之中</p>
+<ul>
+<li>对于这种情况，笔者的建议是在出现无法正确消费的消息时<strong>不要采用requeue的方式来确保消息可靠性，而是重新投递到新的队列中</strong></li>
+<li>比如设定的死信队列中，以此可以避免前面所说的死循环而又可以确保相应的消息不丢失。对于死信队列中的消息可以用另外的方式来消费分析，以便找出问题的根本。</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考博客 ：</strong> </p>
+<p><a href="https://blog.csdn.net/u013256816/article/details/79147591" target="_blank" rel="noopener">https://blog.csdn.net/u013256816/article/details/79147591</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/04/30/RabbitMQ/RabbitMQ-14-%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E8%AF%81/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2021/04/30/Leetcode/Leetcode-137-%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E6%95%B0%E5%AD%97II/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Leetcode-137-只出现一次的数字II
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/04/29/Compute_Organization/%E8%AE%A1%E7%BB%84-07-%E5%AD%98%E5%82%A8%E5%99%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">计组-07-存储器</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2021
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">Mysql</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/photoshop/">photoshop</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

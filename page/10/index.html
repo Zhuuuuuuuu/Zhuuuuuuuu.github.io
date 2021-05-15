@@ -75,7 +75,7 @@
     
     
     
-    <article id="post-Netty/Netty-03-零拷贝" class="article article-type-post" itemscope
+    <article id="post-Linux/操作系统-20-文件的存储空间管理" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -83,8 +83,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/16/Netty/Netty-03-%E9%9B%B6%E6%8B%B7%E8%B4%9D/"
-    >Netty-03-零拷贝</a
+  <a class="article-title" href="/2020/10/30/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-20-%E6%96%87%E4%BB%B6%E7%9A%84%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86/"
+    >操作系统-20-文件的存储空间管理</a
   >
 </h2>
   
@@ -94,8 +94,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/16/Netty/Netty-03-%E9%9B%B6%E6%8B%B7%E8%B4%9D/" class="article-date">
-  <time datetime="2020-10-16T03:05:24.000Z" itemprop="datePublished">2020-10-16</time>
+      <a href="/2020/10/30/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-20-%E6%96%87%E4%BB%B6%E7%9A%84%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86/" class="article-date">
+  <time datetime="2020-10-30T02:00:53.000Z" itemprop="datePublished">2020-10-30</time>
 </a>
       
       
@@ -113,25 +113,14 @@
       
 
       
-      <h1 id="Netty-03-零拷贝"><a href="#Netty-03-零拷贝" class="headerlink" title="Netty-03-零拷贝"></a>Netty-03-零拷贝</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在Java程序中，常用的零拷贝有 mmap（内存映射）和 sendFile。</p>
-<p>零拷贝不仅仅带来更少的数据复制，还能减少线程的上下文切换，减少CPU缓存伪共享以及无CPU校验和计算。</p>
-<h2 id="1-传统的IO读写"><a href="#1-传统的IO读写" class="headerlink" title="1. 传统的IO读写"></a>1. 传统的IO读写</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">File file = <span class="keyword">new</span> File(<span class="string">"test.txt"</span>);</span><br><span class="line">RandomAccessFile raf = <span class="keyword">new</span> RandomAccessFile(file, <span class="string">"rw"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">byte</span>[] arr = <span class="keyword">new</span> <span class="keyword">byte</span>[(<span class="keyword">int</span>) file.length()];</span><br><span class="line">raf.read(arr);</span><br><span class="line"></span><br><span class="line">Socket socket = <span class="keyword">new</span> ServerSocket(<span class="number">8080</span>).accept();</span><br><span class="line">socket.getOutputStream().write(arr);</span><br></pre></td></tr></table></figure>
-
-
-
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201019/092714165.png" alt="mark"></p>
+      <h1 id="操作系统-20-文件的存储空间管理"><a href="#操作系统-20-文件的存储空间管理" class="headerlink" title="操作系统-20-文件的存储空间管理"></a>操作系统-20-文件的存储空间管理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>操作系统对磁盘进行管理</strong></p>
 <ul>
-<li><strong>三次内核态用户态切换</strong></li>
-<li><strong>四次拷贝</strong><ul>
-<li>DMA</li>
-<li>kernel buffer - &gt; user buffer</li>
-<li>user buffer -&gt; socket buffer</li>
-<li>DMA</li>
+<li>对<strong>非空闲磁盘</strong>的管理（文件的分配方式）</li>
+<li>对<strong>空闲磁盘</strong>的管理（文件的存储空间）</li>
 </ul>
-</li>
-</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/100452907.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/10/16/Netty/Netty-03-%E9%9B%B6%E6%8B%B7%E8%B4%9D/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/10/30/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-20-%E6%96%87%E4%BB%B6%E7%9A%84%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -142,7 +131,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9B%B6%E6%8B%B7%E8%B4%9D/" rel="tag">零拷贝</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" rel="tag">文件管理</a></li></ul>
 
 
     </footer>
@@ -159,7 +148,7 @@
 
 </article>
     
-    <article id="post-Linux/操作系统-11-经典进程同步互斥问题" class="article article-type-post" itemscope
+    <article id="post-Linux/操作系统-19-文件的物理结构" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -167,8 +156,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/16/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-11-%E7%BB%8F%E5%85%B8%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5%E9%97%AE%E9%A2%98/"
-    >操作系统-11-经典进程同步互斥问题</a
+  <a class="article-title" href="/2020/10/30/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-19-%E6%96%87%E4%BB%B6%E7%9A%84%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84/"
+    >操作系统-19-文件的物理结构</a
   >
 </h2>
   
@@ -178,8 +167,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/16/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-11-%E7%BB%8F%E5%85%B8%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5%E9%97%AE%E9%A2%98/" class="article-date">
-  <time datetime="2020-10-16T00:00:53.000Z" itemprop="datePublished">2020-10-16</time>
+      <a href="/2020/10/30/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-19-%E6%96%87%E4%BB%B6%E7%9A%84%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84/" class="article-date">
+  <time datetime="2020-10-30T00:00:53.000Z" itemprop="datePublished">2020-10-30</time>
 </a>
       
       
@@ -197,17 +186,9 @@
       
 
       
-      <h1 id="操作系统-11-经典进程同步互斥问题"><a href="#操作系统-11-经典进程同步互斥问题" class="headerlink" title="操作系统-11-经典进程同步互斥问题"></a>操作系统-11-经典进程同步互斥问题</h1><h2 id="1-消费者-生产者问题"><a href="#1-消费者-生产者问题" class="headerlink" title="1. 消费者-生产者问题"></a>1. 消费者-生产者问题</h2><p><strong>1. 问题描述</strong></p>
-<ul>
-<li>系统中有<code>一组生产者进程</code>和<code>一组消费者进程</code>，生产者进程每次<code>生产一个</code>产品放入缓冲区，消费者进程每次从缓冲区中<code>取出一个</code>产品并使用。(注: 这里的“产品”理解为某种数据)</li>
-<li>生产者、消费者<code>共享</code>一个初始为空、大小为n的<code>缓冲区</code>。</li>
-<li>只有缓冲区<code>没满</code>时，<code>生产者</code>才能把产品<code>放入</code>缓冲区，否则必须等待。</li>
-<li>只有缓冲区<code>不空</code>时，<code>消费者</code>才能从中<code>取出</code>产品，否则必须等待。</li>
-<li>缓冲区是临界资源，各进程必须<code>互斥</code>地访问。</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201009/091536548.png" alt="mark"></p>
+      <h1 id="操作系统-19-文件的物理结构"><a href="#操作系统-19-文件的物理结构" class="headerlink" title="操作系统-19-文件的物理结构"></a>操作系统-19-文件的物理结构</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201030/085837475.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/10/16/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-11-%E7%BB%8F%E5%85%B8%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5%E9%97%AE%E9%A2%98/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/10/30/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-19-%E6%96%87%E4%BB%B6%E7%9A%84%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -218,7 +199,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/" rel="tag">进程互斥</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="tag">进程同步</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" rel="tag">文件管理</a></li></ul>
 
 
     </footer>
@@ -235,7 +216,7 @@
 
 </article>
     
-    <article id="post-Leetcode/Leetcode-530-二叉搜索树的最小绝对值" class="article article-type-post" itemscope
+    <article id="post-Leetcode/Leetcode-129-求根到叶子节点数字之和" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -243,8 +224,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/12/Leetcode/Leetcode-530-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E7%BB%9D%E5%AF%B9%E5%80%BC/"
-    >Leetcode-530-二叉搜索树的最小绝对值</a
+  <a class="article-title" href="/2020/10/29/Leetcode/Leetcode-129-%E6%B1%82%E6%A0%B9%E5%88%B0%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E6%95%B0%E5%AD%97%E4%B9%8B%E5%92%8C/"
+    >Leetcode-129-求根到叶子节点数字之和</a
   >
 </h2>
   
@@ -254,8 +235,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/12/Leetcode/Leetcode-530-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E7%BB%9D%E5%AF%B9%E5%80%BC/" class="article-date">
-  <time datetime="2020-10-12T04:52:53.000Z" itemprop="datePublished">2020-10-12</time>
+      <a href="/2020/10/29/Leetcode/Leetcode-129-%E6%B1%82%E6%A0%B9%E5%88%B0%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E6%95%B0%E5%AD%97%E4%B9%8B%E5%92%8C/" class="article-date">
+  <time datetime="2020-10-29T07:22:53.000Z" itemprop="datePublished">2020-10-29</time>
 </a>
       
       
@@ -273,16 +254,13 @@
       
 
       
-      <h1 id="Leetcode-530-二叉搜索树的最小绝对差"><a href="#Leetcode-530-二叉搜索树的最小绝对差" class="headerlink" title="Leetcode-530-二叉搜索树的最小绝对差"></a>Leetcode-530-<a href="https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/" target="_blank" rel="noopener">二叉搜索树的最小绝对差</a></h1><p><strong>题目描述：</strong></p>
-<p>给你一棵所有节点为非负值的二叉搜索树，请你计算树中任意两节点的差的绝对值的最小值。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">示例：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line"></span><br><span class="line">   <span class="number">1</span></span><br><span class="line">    \</span><br><span class="line">     <span class="number">3</span></span><br><span class="line">    /</span><br><span class="line">   <span class="number">2</span></span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line"><span class="number">1</span></span><br><span class="line"></span><br><span class="line">解释：</span><br><span class="line">最小绝对差为 <span class="number">1</span>，其中 <span class="number">2</span> 和 <span class="number">1</span> 的差的绝对值为 <span class="number">1</span>（或者 <span class="number">2</span> 和 <span class="number">3</span>）。</span><br></pre></td></tr></table></figure>
-
-<p><strong>提示：</strong></p>
-<ul>
-<li>树中至少有 2 个节点。</li>
-</ul>
+      <h1 id="Leetcode-129-求根到叶子节点数字之和"><a href="#Leetcode-129-求根到叶子节点数字之和" class="headerlink" title="Leetcode-129-求根到叶子节点数字之和"></a><a href="https://leetcode-cn.com/problems/valid-palindrome/" target="_blank" rel="noopener">Leetcode-129-求根到叶子节点数字之和</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个二叉树，它的每个结点都存放一个 0-9 的数字，每条从根到叶子节点的路径都代表一个数字。</p>
+<p>例如，从根到叶子节点路径 1-&gt;2-&gt;3 代表数字 123。</p>
+<p>计算从根到叶子节点生成的所有数字之和。</p>
+<p>说明: 叶子节点是指没有子节点的节点。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">输入: [1,2,3]</span><br><span class="line">    1</span><br><span class="line">   &#x2F; \</span><br><span class="line">  2   3</span><br><span class="line">输出: 25</span><br><span class="line">解释:</span><br><span class="line">从根到叶子节点路径 1-&gt;2 代表数字 12.</span><br><span class="line">从根到叶子节点路径 1-&gt;3 代表数字 13.</span><br><span class="line">因此，数字总和 &#x3D; 12 + 13 &#x3D; 25.</span><br><span class="line"></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">链接：https:&#x2F;&#x2F;leetcode-cn.com&#x2F;problems&#x2F;sum-root-to-leaf-numbers</span><br><span class="line">著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</span><br><span class="line"></span><br><span class="line">输入: [4,9,0,5,1]</span><br><span class="line">    4</span><br><span class="line">   &#x2F; \</span><br><span class="line">  9   0</span><br><span class="line"> &#x2F; \</span><br><span class="line">5   1</span><br><span class="line">输出: 1026</span><br><span class="line">解释:</span><br><span class="line">从根到叶子节点路径 4-&gt;9-&gt;5 代表数字 495.</span><br><span class="line">从根到叶子节点路径 4-&gt;9-&gt;1 代表数字 491.</span><br><span class="line">从根到叶子节点路径 4-&gt;0 代表数字 40.</span><br><span class="line">因此，数字总和 &#x3D; 495 + 491 + 40 &#x3D; 1026.</span><br><span class="line"></span><br><span class="line">来源：力扣（LeetCode）</span><br><span class="line">链接：https:&#x2F;&#x2F;leetcode-cn.com&#x2F;problems&#x2F;sum-root-to-leaf-numbers</span><br><span class="line">著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</span><br></pre></td></tr></table></figure>
       
-      <a class="article-more-link" href="/2020/10/12/Leetcode/Leetcode-530-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E5%B0%8F%E7%BB%9D%E5%AF%B9%E5%80%BC/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/10/29/Leetcode/Leetcode-129-%E6%B1%82%E6%A0%B9%E5%88%B0%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E6%95%B0%E5%AD%97%E4%B9%8B%E5%92%8C/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -310,7 +288,7 @@
 
 </article>
     
-    <article id="post-LeetcodeExplore/背包问题-合集" class="article article-type-post" itemscope
+    <article id="post-Netty/Netty-06-核心组件" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -318,8 +296,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/12/LeetcodeExplore/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-%E5%90%88%E9%9B%86/"
-    >背包问题-合集</a
+  <a class="article-title" href="/2020/10/28/Netty/Netty-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6/"
+    >Netty-06-核心组件</a
   >
 </h2>
   
@@ -329,8 +307,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/12/LeetcodeExplore/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-%E5%90%88%E9%9B%86/" class="article-date">
-  <time datetime="2020-10-12T02:52:53.000Z" itemprop="datePublished">2020-10-12</time>
+      <a href="/2020/10/28/Netty/Netty-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6/" class="article-date">
+  <time datetime="2020-10-28T10:05:24.000Z" itemprop="datePublished">2020-10-28</time>
 </a>
       
       
@@ -348,242 +326,132 @@
       
 
       
-      <h1 id="背包问题-合集"><a href="#背包问题-合集" class="headerlink" title="背包问题-合集"></a>背包问题-合集</h1>
-      
-      <a class="article-more-link" href="/2020/10/12/LeetcodeExplore/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98-%E5%90%88%E9%9B%86/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98/" rel="tag">背包问题</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-303-区域和检索" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/10/09/Leetcode/Leetcode-303-%E5%8C%BA%E5%9F%9F%E5%92%8C%E6%A3%80%E7%B4%A2/"
-    >Leetcode-303-区域和检索</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/10/09/Leetcode/Leetcode-303-%E5%8C%BA%E5%9F%9F%E5%92%8C%E6%A3%80%E7%B4%A2/" class="article-date">
-  <time datetime="2020-10-09T01:52:53.000Z" itemprop="datePublished">2020-10-09</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leetcode-303-区域和检索-数组不可变"><a href="#Leetcode-303-区域和检索-数组不可变" class="headerlink" title="Leetcode-303-区域和检索 - 数组不可变"></a>Leetcode-303-<a href="https://leetcode-cn.com/problems/range-sum-query-immutable/" target="_blank" rel="noopener">区域和检索 - 数组不可变</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个整数数组  nums，求出数组从索引 i 到 j  (i ≤ j) 范围内元素的总和，包含 i,  j 两点。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">示例：</span><br><span class="line"></span><br><span class="line">给定 nums &#x3D; [-2, 0, 3, -5, 2, -1]，求和函数为 sumRange()</span><br><span class="line"></span><br><span class="line">sumRange(0, 2) -&gt; 1</span><br><span class="line">sumRange(2, 5) -&gt; -1</span><br><span class="line">sumRange(0, 5) -&gt; -3</span><br></pre></td></tr></table></figure>
-
-<p>说明:</p>
-<p>你可以假设数组不可变。<br>会多次调用 sumRange 方法。</p>
-      
-      <a class="article-more-link" href="/2020/10/09/Leetcode/Leetcode-303-%E5%8C%BA%E5%9F%9F%E5%92%8C%E6%A3%80%E7%B4%A2/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-java8new/java8-新特性-lambda" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/10/08/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda/"
-    >java8-新特性-lambda</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/10/08/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda/" class="article-date">
-  <time datetime="2020-10-08T14:30:53.000Z" itemprop="datePublished">2020-10-08</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="java8-新特性-lambda"><a href="#java8-新特性-lambda" class="headerlink" title="java8-新特性-lambda"></a>java8-新特性-lambda</h1><h2 id="前言（从一个案例来引入优化）"><a href="#前言（从一个案例来引入优化）" class="headerlink" title="前言（从一个案例来引入优化）"></a>前言（从一个案例来引入优化）</h2><ol>
-<li><strong>创建员工类</strong></li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">double</span> salary;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Employee</span><span class="params">(String name, <span class="keyword">int</span> age, <span class="keyword">double</span> salary)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">        <span class="keyword">this</span>.salary = salary;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getSalary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> salary;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSalary</span><span class="params">(<span class="keyword">double</span> salary)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.salary = salary;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2020/10/08/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">lambda表达式</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-1038-把二叉搜索树转换为累加树" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/10/08/Leetcode/Leetcode-1038-%E6%8A%8A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91/"
-    >Leetcode-1038-把二叉搜索树转换为累加树</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/10/08/Leetcode/Leetcode-1038-%E6%8A%8A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91/" class="article-date">
-  <time datetime="2020-10-08T07:52:53.000Z" itemprop="datePublished">2020-10-08</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Leetcode-1038-把二叉搜索树转换为累加树"><a href="#Leetcode-1038-把二叉搜索树转换为累加树" class="headerlink" title="Leetcode-1038-把二叉搜索树转换为累加树"></a>Leetcode-1038-<a href="https://leetcode-cn.com/problems/binary-search-tree-to-greater-sum-tree/" target="_blank" rel="noopener">把二叉搜索树转换为累加树</a></h1><h2 id="思路：反向中序遍历"><a href="#思路：反向中序遍历" class="headerlink" title="思路：反向中序遍历"></a>思路：反向中序遍历</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li>给出二叉搜索树的根节点，该树的节点值各不相同，请你将其转换成累加树（Greater Sum Tree），使得每个节点的<code>node</code> 的新值等于原书中大于等于<code>node.val</code> 的值之和。</li>
+      <h1 id="Netty-06-核心组件"><a href="#Netty-06-核心组件" class="headerlink" title="Netty-06-核心组件"></a>Netty-06-核心组件</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><strong>本文注重讲解Netty的核心组成</strong></li>
 </ul>
-<p>提醒一下，二叉搜索树满足下列约束条件：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201024/085701217.png" alt="mark"></p>
+<h2 id="1-Bootstrap、ServerBootstrap"><a href="#1-Bootstrap、ServerBootstrap" class="headerlink" title="1. Bootstrap、ServerBootstrap"></a>1. Bootstrap、ServerBootstrap</h2><ul>
+<li><code>Bootstrap</code> 意思是引导，一个 <code>Netty</code> 应用通常由一个 <code>Bootstrap</code> 开始，主要作用是配置整个 <code>Netty</code> 程序，串联各个组件，<code>Netty</code> 中 <code>Bootstrap</code> 类是客户端程序的启动引导类，<code>ServerBootstrap</code> 是服务端启动引导类</li>
+</ul>
+<p><strong>常见方法：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法名称</th>
+<th>方法介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>public ServerBootstrap group(EventLoopGroup parentGroup, EventLoopGroup childGroup)</code></td>
+<td>该方法用于服务器端，用来设置两个EventLoop</td>
+</tr>
+<tr>
+<td><code>public B group(EventLoopGroup group)</code></td>
+<td>该方法用于客户端，用来设置一个EventLoop</td>
+</tr>
+<tr>
+<td><code>public B channel(Class&lt;? extends C&gt; channelClass)</code></td>
+<td>该方法用来设置一个服务器端的通道实现</td>
+</tr>
+<tr>
+<td><code>public &lt;T&gt; B option(ChannelOption&lt;T&gt; option, T value)</code></td>
+<td>用来给 ServerChannel 添加配置</td>
+</tr>
+<tr>
+<td><code>public &lt;T&gt; ServerBootstrap childOption(ChannelOption&lt;T&gt; childOption, T value)</code></td>
+<td>用来给接收到的通道添加配置</td>
+</tr>
+<tr>
+<td><code>public ServerBootstrap childHandler(ChannelHandler childHandler)</code></td>
+<td>该方法用来设置业务处理类（自定义的 handler）</td>
+</tr>
+<tr>
+<td><code>public ChannelFuture bind(int inetPort)</code></td>
+<td>该方法用于服务器端，用来设置占用的端口号</td>
+</tr>
+<tr>
+<td><code>public ChannelFuture connect(String inetHost, int inetPort)</code></td>
+<td>该方法用于客户端，用来连接服务器</td>
+</tr>
+</tbody></table>
+      
+      <a class="article-more-link" href="/2020/10/28/Netty/Netty-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Netty/Netty-07-群聊系统实现" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/10/28/Netty/Netty-07-%E7%BE%A4%E8%81%8A%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/"
+    >Netty-07-群聊系统实现</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/10/28/Netty/Netty-07-%E7%BE%A4%E8%81%8A%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time datetime="2020-10-28T10:05:24.000Z" itemprop="datePublished">2020-10-28</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-07-群聊系统实现"><a href="#Netty-07-群聊系统实现" class="headerlink" title="Netty-07-群聊系统实现"></a>Netty-07-群聊系统实现</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>实例要求</strong></p>
 <ul>
-<li>节点的左子树仅包含键 <strong>小于</strong> 节点键的节点。</li>
-<li>节点的右子树仅包含键 <strong>大于</strong> 节点键的节点。</li>
-<li>左右子树也必须是二叉搜索树。</li>
+<li>编写一个Netty 群聊系统，实现客户端和服务端之间的数据简单通信（非阻塞）</li>
+<li>实现多人群聊</li>
+<li>服务器端： 可以检测用户上线，离线，并实现消息的转发</li>
+<li>客户端：通过channel 可以无阻塞发送消息给其他用户，同时可以接受其他用户发送来的消息（由）服务器转发得到</li>
+<li>目的 ： 进一步理解Netty 非阻塞网络编程机制</li>
 </ul>
-<p><strong>示例 1：</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201029/085842282.png" alt="mark"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：root &#x3D; [0,null,1]</span><br><span class="line">输出：[1,null,1]</span><br><span class="line"></span><br><span class="line">示例 3：</span><br><span class="line"></span><br><span class="line">输入：root &#x3D; [1,0,2]</span><br><span class="line">输出：[3,3,2]</span><br><span class="line"></span><br><span class="line">示例 4：</span><br><span class="line"></span><br><span class="line">输入：root &#x3D; [3,2,4,1]</span><br><span class="line">输出：[7,9,4,10]</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="方法-反向中序遍历"><a href="#方法-反向中序遍历" class="headerlink" title="方法 : 反向中序遍历"></a>方法 : 反向中序遍历</h2><ul>
-<li><strong>关于二叉搜索树的问题，第一个想到的就是中序遍历</strong>，这是二叉搜索树的一个非常重要的性质</li>
-<li><strong>二叉搜索树的中序遍历是一个递增的有序序列</strong></li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201029/090116634.png" alt="mark"></p>
-<p>观察<strong>累加前中序遍历</strong>和<strong>累加后中序遍历</strong>，我们会发现，其实后者就是前者的一个从后的累加结果。</p>
-<p>那么问题就迎刃而解了，我们秩序反向中序遍历即可，并且把每次的节点值进行累加，就能得到最终的累加树。并且保证了这样只会访问每个节点一次。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val, TreeNode left, TreeNode right) &#123;</span></span><br><span class="line"><span class="comment"> *         this.val = val;</span></span><br><span class="line"><span class="comment"> *         this.left = left;</span></span><br><span class="line"><span class="comment"> *         this.right = right;</span></span><br><span class="line"><span class="comment"> *     &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">bstToGst</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root != <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="comment">// 1. 如果是叶子节点的话</span></span><br><span class="line">            <span class="comment">// 进行反向的中序遍历</span></span><br><span class="line">            bstToGst(root.right); <span class="comment">// 递归右子树</span></span><br><span class="line">            sum = sum + root.val; <span class="comment">// 累加</span></span><br><span class="line">            root.val = sum; <span class="comment">// 更新节点的值</span></span><br><span class="line">            bstToGst(root.left); <span class="comment">// 递归左子树</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
+      
+      <a class="article-more-link" href="/2020/10/28/Netty/Netty-07-%E7%BE%A4%E8%81%8A%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/">阅读更多...</a>
+      
       
       <!-- reward -->
       
@@ -593,7 +461,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86/" rel="tag">中序遍历</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
 
 
     </footer>
@@ -610,7 +478,7 @@
 
 </article>
     
-    <article id="post-Linux/操作系统-10-进程同步和互斥" class="article article-type-post" itemscope
+    <article id="post-Linux/操作系统-18-文件基础" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -618,8 +486,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/08/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-10-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E5%92%8C%E4%BA%92%E6%96%A5/"
-    >操作系统-10-进程同步和互斥</a
+  <a class="article-title" href="/2020/10/24/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-18-%E6%96%87%E4%BB%B6%E5%9F%BA%E7%A1%80/"
+    >操作系统-18-文件基础</a
   >
 </h2>
   
@@ -629,8 +497,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/08/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-10-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E5%92%8C%E4%BA%92%E6%96%A5/" class="article-date">
-  <time datetime="2020-10-08T06:00:53.000Z" itemprop="datePublished">2020-10-08</time>
+      <a href="/2020/10/24/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-18-%E6%96%87%E4%BB%B6%E5%9F%BA%E7%A1%80/" class="article-date">
+  <time datetime="2020-10-24T02:00:53.000Z" itemprop="datePublished">2020-10-24</time>
 </a>
       
       
@@ -648,9 +516,9 @@
       
 
       
-      <h1 id="操作系统-10-进程同步和互斥"><a href="#操作系统-10-进程同步和互斥" class="headerlink" title="操作系统-10-进程同步和互斥"></a>操作系统-10-进程同步和互斥</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201008/135327192.png" alt="mark"></p>
+      <h1 id="操作系统-18-文件基础"><a href="#操作系统-18-文件基础" class="headerlink" title="操作系统-18-文件基础"></a>操作系统-18-文件基础</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201024/092059126.png" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/10/08/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-10-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E5%92%8C%E4%BA%92%E6%96%A5/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/10/24/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-18-%E6%96%87%E4%BB%B6%E5%9F%BA%E7%A1%80/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -661,7 +529,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5/" rel="tag">进程互斥</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="tag">进程同步</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" rel="tag">文件管理</a></li></ul>
 
 
     </footer>
@@ -678,7 +546,7 @@
 
 </article>
     
-    <article id="post-LeetcodeExplore/partition-合集" class="article article-type-post" itemscope
+    <article id="post-Netty/Netty-05-异步模型" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -686,8 +554,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/07/LeetcodeExplore/partition-%E5%90%88%E9%9B%86/"
-    >partition-合集</a
+  <a class="article-title" href="/2020/10/24/Netty/Netty-05-%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B/"
+    >Netty-05-异步模型</a
   >
 </h2>
   
@@ -697,8 +565,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/07/LeetcodeExplore/partition-%E5%90%88%E9%9B%86/" class="article-date">
-  <time datetime="2020-10-07T02:52:53.000Z" itemprop="datePublished">2020-10-07</time>
+      <a href="/2020/10/24/Netty/Netty-05-%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time datetime="2020-10-24T00:05:24.000Z" itemprop="datePublished">2020-10-24</time>
 </a>
       
       
@@ -716,17 +584,17 @@
       
 
       
-      <h1 id="partition-合集"><a href="#partition-合集" class="headerlink" title="partition-合集"></a>partition-合集</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201007/101823939.png" alt="mark"></p>
-<h2 id="1-什么是-partition-？"><a href="#1-什么是-partition-？" class="headerlink" title="1. 什么是 partition ？"></a>1. 什么是 partition ？</h2><p>我们在学习 快速排序 的时候知道，可以选择一个标定元素（称为 pivot ，一般而言随机选择），然后通过一次扫描，把数组分成三个部分：</p>
-<ul>
-<li>第 1 部分严格小于 pivot 元素的值；</li>
-<li>第 2 部分恰好等于 pivot 元素的值；</li>
-<li>第 3 部分严格大于 pivot 元素的值。</li>
-<li>第 2 部分元素就是排好序以后它们应该在的位置，接下来只需要递归处理第 1 部分和第 3 部分的元素。</li>
+      <h1 id="Netty-05-异步模型"><a href="#Netty-05-异步模型" class="headerlink" title="Netty-05-异步模型"></a>Netty-05-异步模型</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>本文注重讲解Netty的<strong>异步模型</strong> 和 <strong>任务的队列</strong></li>
 </ul>
-<p>经过一次扫描把整个数组分成 3 个部分，正好符合当前问题的场景。写对这道题的方法是：把循环不变量的定义作为注释写出来，然后再编码。</p>
+<h2 id="1-任务队列"><a href="#1-任务队列" class="headerlink" title="1. 任务队列"></a>1. 任务队列</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201024/085701217.png" alt="mark"></p>
+<ul>
+<li>任务队列由<code>NioEventLoop</code> 维护并且不断执行，当我们收到请求之后，在当前的 <code>channel</code> 中对应的 <code>pipeline</code>中的各个 <code>Hanlder</code>进行业务的处理和请求的过滤。</li>
+<li>当某些业务需要消费大量事件的时候，我们可以将这些任务提交到由 <code>NioEventLoop</code> 维护的 <code>taskQueue</code> 或者 <code>ScheduleTaskQueue</code>中， 让当前的 NioEventLoop 线程在空闲的时候去执行这些任务。</li>
+<li><strong>下面将介绍提交任务的三种方式:</strong></li>
+</ul>
       
-      <a class="article-more-link" href="/2020/10/07/LeetcodeExplore/partition-%E5%90%88%E9%9B%86/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/10/24/Netty/Netty-05-%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -737,7 +605,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/partition/" rel="tag">partition</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BE%AA%E7%8E%AF%E4%B8%8D%E5%8F%98%E9%87%8F/" rel="tag">循环不变量</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
 
 
     </footer>
@@ -754,7 +622,7 @@
 
 </article>
     
-    <article id="post-Linux/操作系统-09-进程调度算法" class="article article-type-post" itemscope
+    <article id="post-Linux/Linux-10-内存页面置换算法" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -762,8 +630,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2020/10/06/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-09-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/"
-    >操作系统-09-进程调度算法</a
+  <a class="article-title" href="/2020/10/22/Linux/Linux-10-%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"
+    >Linux-10-内存页面置换算法</a
   >
 </h2>
   
@@ -773,8 +641,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/10/06/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-09-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/" class="article-date">
-  <time datetime="2020-10-06T07:22:53.000Z" itemprop="datePublished">2020-10-06</time>
+      <a href="/2020/10/22/Linux/Linux-10-%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-date">
+  <time datetime="2020-10-22T03:22:53.000Z" itemprop="datePublished">2020-10-22</time>
 </a>
       
       
@@ -792,25 +660,9 @@
       
 
       
-      <h1 id="Linux-09-进程调度算法"><a href="#Linux-09-进程调度算法" class="headerlink" title="Linux-09-进程调度算法"></a>Linux-09-进程调度算法</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/114232317.jpg" alt="mark"></p>
-<ul>
-<li>进程调度算法也称 CPU 调度算法，毕竟进程是由 CPU 调度的。</li>
-<li>当 CPU 空闲时，操作系统就选择内存中的某个「就绪状态」的进程，并给其分配 CPU。</li>
-</ul>
-<p>什么时候会发生 CPU 调度呢？通常有以下情况：</p>
-<ol>
-<li>当进程从运行状态转到等待状态；</li>
-<li>当进程从运行状态转到就绪状态；</li>
-<li>当进程从等待状态转到就绪状态；</li>
-<li>当进程从运行状态转到终止状态；</li>
-</ol>
-<p>其中发生在 1 和 4 两种情况下的调度称为「非抢占式调度」，2 和 3 两种情况下发生的调度称为「抢占式调度」。</p>
-<ul>
-<li><strong>非抢占式</strong>的意思就是，当进程正在运行时，它就会一直运行，直到该进程完成或发生某个事件而被阻塞时，才会把 CPU 让给其他进程。</li>
-<li>而<strong>抢占式调度</strong>，顾名思义就是进程正在运行的时，可以被打断，使其把 CPU 让给其他进程。那抢占的原则一般有三种，分别是时间片原则、优先权原则、短作业优先原则。</li>
-</ul>
+      <h1 id="Linux-10-内存页面置换算法"><a href="#Linux-10-内存页面置换算法" class="headerlink" title="Linux-10-内存页面置换算法"></a>Linux-10-内存页面置换算法</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200926/114232317.jpg" alt="mark"></p>
       
-      <a class="article-more-link" href="/2020/10/06/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-09-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">阅读更多...</a>
+      <a class="article-more-link" href="/2020/10/22/Linux/Linux-10-%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -821,7 +673,156 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" rel="tag">进程调度</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2/" rel="tag">内存页面置换</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Netty/Netty-04-线程模型" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/10/19/Netty/Netty-04-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/"
+    >Netty-04-线程模型</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/10/19/Netty/Netty-04-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/" class="article-date">
+  <time datetime="2020-10-19T03:05:24.000Z" itemprop="datePublished">2020-10-19</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Netty-04-线程模型"><a href="#Netty-04-线程模型" class="headerlink" title="Netty-04-线程模型"></a>Netty-04-线程模型</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="原生NIO存在的问题"><a href="#原生NIO存在的问题" class="headerlink" title="原生NIO存在的问题"></a>原生NIO存在的问题</h3><ul>
+<li>NIO 的类库和 API 繁杂，使用麻烦：需要熟练掌握 <code>Selector</code>、<code>ServerSocketChannel</code>、<code>SocketChannel</code>、<code>ByteBuffer</code> 等。</li>
+<li>需要具备其他的额外技能：要熟悉 <code>Java</code> 多线程编程，因为 <code>NIO</code> 编程涉及到 <code>Reactor</code> 模式，你必须对多线程和网络编程非常熟悉，才能编写出高质量的 NIO 程序。</li>
+<li>开发工作量和难度都非常大：例如客户端面临<strong>断连重连</strong>、<strong>网络闪断</strong>、<strong>半包读写</strong>、<strong>失败缓存</strong>、<strong>网络拥塞和异常流的处理</strong>等等。</li>
+<li>JDK NIO 的 Bug : 例如臭名昭著的 <code>Epoll Bug</code>，它会导致 <code>Selector</code> 空轮询，最终导致 <code>CPU</code> 100%。直到 JDK 1.7 版本该问题仍旧存在，没有被根本解决。</li>
+</ul>
+<h3 id="Netty优点"><a href="#Netty优点" class="headerlink" title="Netty优点"></a>Netty优点</h3><ul>
+<li><strong><code>Netty</code>对<code>JDK</code>自带的<code>NIO</code>的<code>API</code>进行了封装，解决了上述问题。</strong><ul>
+<li>设计优雅：适用于各种传输类型的统一 <code>API</code> 阻塞和非阻塞 <code>Socket</code>；基于灵活且可扩展的事件模型，可以清晰地分离关注点；高度可定制的线程模型 - 单线程，一个或多个线程池.</li>
+<li>安全：完整的 <code>SSL/TLS</code> 和 <code>StartTLS</code> 支持</li>
+<li>高性能、吞吐量更高：延迟更低；减少资源消耗；最小化不必要的内存复制。</li>
+</ul>
+</li>
+</ul>
+      
+      <a class="article-more-link" href="/2020/10/19/Netty/Netty-04-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NIO/" rel="tag">NIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Netty/" rel="tag">Netty</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Linux/操作系统-15-内存的分配和回收" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/10/19/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-15-%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E9%85%8D%E5%92%8C%E5%9B%9E%E6%94%B6/"
+    >操作系统-15-内存的分配和回收</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/10/19/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-15-%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E9%85%8D%E5%92%8C%E5%9B%9E%E6%94%B6/" class="article-date">
+  <time datetime="2020-10-19T03:00:53.000Z" itemprop="datePublished">2020-10-19</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="操作系统-15-内存的分配和回收"><a href="#操作系统-15-内存的分配和回收" class="headerlink" title="操作系统-15-内存的分配和回收"></a>操作系统-15-内存的分配和回收</h1><h2 id="1-连续分配管理方式"><a href="#1-连续分配管理方式" class="headerlink" title="1. 连续分配管理方式"></a>1. 连续分配管理方式</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201019/111935038.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2020/10/19/Linux/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-15-%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E9%85%8D%E5%92%8C%E5%9B%9E%E6%94%B6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" rel="tag">内存管理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
 
 
     </footer>
@@ -844,7 +845,7 @@
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/9/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/52/">52</a><a class="extend next" rel="next" href="/page/11/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/9/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/53/">53</a><a class="extend next" rel="next" href="/page/11/">下一页</a>
   </nav>
   
 </section>

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    RabbitMQ-13-分布式事务 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-RabbitMQ/RabbitMQ-13-分布式事务" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  RabbitMQ-13-分布式事务
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/11/RabbitMQ/RabbitMQ-13-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="article-date">
+  <time datetime="2021-04-11T10:02:24.000Z" itemprop="datePublished">2021-04-11</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">5.5k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">20分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="RabbitMQ-13-分布式事务"><a href="#RabbitMQ-13-分布式事务" class="headerlink" title="RabbitMQ-13-分布式事务"></a>RabbitMQ-13-分布式事务</h2><h3 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h3><ul>
+<li><p>分布式事务指事务的操作位于不同的节点上，需要保证事务的<code>AICD</code> 特性。</p>
+</li>
+<li><p>例如在下单场景下，库存和订单如果不在同一个节点上，就涉及分布式事务。</p>
+</li>
+<li><p>在分布式系统中，要实现分布式事务，无外乎那几种解决方案。</p>
+</li>
+</ul>
+<a id="more"></a>
+
+<h3 id="2-生产者确认机制"><a href="#2-生产者确认机制" class="headerlink" title="2. 生产者确认机制"></a>2. 生产者确认机制</h3><ul>
+<li>在使用<code>RabbitMQ</code>的时候，可以通过消息持久化操作来解决因为服务器的异常奔溃导致的消息丢失，除此之外我们还会遇到一个问题，当消息的发布者在将消息发送出去之后，消息到底有没有正确到达<code>broker</code>代理服务器呢？<ul>
+<li>如果不进行特殊配置的话，默认情况下发布操作是不会返回任何信息给生产者的，也就是默认情况下我们的生产者是不知道消息有没有正确到达<code>broker</code>的，如果在消息到达<code>broker</code>之前已经丢失的话，持久化操作也解决不了这个问题，因为消息根本就没到达代理服务器</li>
+</ul>
+</li>
+</ul>
+<p><strong>RabbitMQ为我们提供了两种方式：</strong></p>
+<ol>
+<li>通过AMQP<strong>事务机制</strong>实现，这也是AMQP协议层面提供的解决方案；</li>
+<li>通过<strong>将channel设置成confirm模式来实现；</strong></li>
+</ol>
+<h4 id="2-1-事务机制"><a href="#2-1-事务机制" class="headerlink" title="2.1 事务机制"></a>2.1 事务机制</h4><ul>
+<li>这里首先探讨下<code>RabbitMQ</code>事务机制。<ul>
+<li><code>RabbitMQ</code>中与事务机制有关的方法有三个：<code>txSelect(), txCommit()以及txRollback(),</code> <code>txSelect</code>用于将当前<code>channel</code>设置成<code>transaction</code>模式，<code>txCommit</code>用于提交事务，txRollback用于回滚事务</li>
+<li>在通过<code>txSelect</code>开启事务之后，我们便可以发布消息给<code>broker</code>代理服务器了</li>
+<li>如果<code>txCommit</code>提交成功了，则消息一定到达了broker了，如果在<code>txCommit</code>执行之前<code>broker</code>异常崩溃或者由于其他原因抛出异常，这个时候我们便可以捕获异常通过<code>txRollback</code>回滚事务了。</li>
+</ul>
+</li>
+</ul>
+<p><strong>关键代码展示</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">channel.txSelect();</span><br><span class="line">channel.basicPublish(ConfirmConfig.exchangeName, ConfirmConfig.routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, ConfirmConfig.msg_10B.getBytes());</span><br><span class="line">channel.txCommit();</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">通过wirkshark抓包（ip.addr&#x3D;&#x3D;xxx.xxx.xxx.xxx &amp;&amp; amqp），可以看到：</span><br><span class="line">（注意这里的Tx.Commit与Tx.Commit-Ok之间的时间间隔294ms，由此可见事务还是很耗时的。）</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-105719190.png" alt="mark"></p>
+<ul>
+<li>我们先来看看没有事务的通信过程是什么样的：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-105815820.png" alt="mark"></p>
+<p><strong>可以看到带事务的多了四个步骤：</strong></p>
+<ul>
+<li>client发送<code>Tx.Select</code></li>
+<li>broker发送<code>Tx.Select-Ok(之后publish)</code></li>
+<li>client发送<code>Tx.Commit</code></li>
+<li>broker发送<code>Tx.Commit-Ok</code></li>
+</ul>
+<ul>
+<li>下面我们来看下<strong>事务回滚</strong>是什么样子的。关键代码如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    channel.txSelect();</span><br><span class="line">    channel.basicPublish(exchange, routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, msg.getBytes());</span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">1</span> / <span class="number">0</span>;</span><br><span class="line">    channel.txCommit();</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">    channel.txRollback();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-110143319.png" alt="mark"></p>
+<p>代码中先是发送了消息至<code>broker</code>中但是这时候发生了异常，之后在捕获异常的过程中进行事务回滚。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li><p>事务确实能够解决<code>producer</code>与<code>broker</code>之间消息确认的问题，只有消息成功被<code>broker</code>接受，事务提交才能成功，否则我们便可以在捕获异常进行事务回滚操作同时进行消息重发</p>
+</li>
+<li><p>但是使用事务机制的话会降低RabbitMQ的性能，<strong>那么有没有更好的方法既能保障producer知道消息已经正确送到，又能基本上不带来性能上的损失呢？</strong></p>
+<ul>
+<li><strong>从AMQP协议的层面看是没有更好的方法，但是RabbitMQ提供了一个更好的方案，即将channel信道设置成confirm模式。</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="2-2-Confirm-机制"><a href="#2-2-Confirm-机制" class="headerlink" title="2.2 Confirm 机制"></a>2.2 Confirm 机制</h4><ul>
+<li>上面我们介绍了RabbitMQ可能会遇到的一个问题，即生成者不知道消息是否真正到达broker，随后通过AMQP协议层面为我们提供了事务机制解决了这个问题，但是采用事务机制实现会降低RabbitMQ的消息吞吐量，那么有没有更加高效的解决方式呢？答案是采用Confirm模式。</li>
+<li><strong>实现原理</strong><ul>
+<li>生产者将信道设置成<code>confirm</code>模式，一旦信道进入<code>confirm</code>模式，所有在该信道上面发布的消息都会被指派一个唯一的<code>ID</code>(从1开始)，一旦消息被投递到所有匹配的队列之后，<code>broker</code>就会发送一个确认给生产者（包含消息的唯一<code>ID</code>）,这就使得生产者知道消息已经正确到达目的队列了</li>
+<li>如果消息和队列是可持久化的，那么确认消息会将消息写入磁盘之后发出，<strong>broker回传给生产者的确认消息中deliver-tag域包含了确认消息的序列号</strong>，此外broker也可以设置basic.ack的<code>multiple</code>域，表示到这个序列号之前的所有消息都已经得到了处理。</li>
+<li><strong>confirm模式最大的好处在于他是异步的</strong>，一旦发布一条消息，生产者应用程序就可以在等信道返回确认的同时继续发送下一条消息，当消息最终得到确认之后，生产者应用便可以通过回调方法来处理该确认消息</li>
+<li><strong>如果RabbitMQ因为自身内部错误导致消息丢失，就会发送一条nack消息</strong>，生产者应用程序同样可以在回调方法中处理该nack消息。</li>
+<li>在<code>channel</code>被设置成<code>confirm</code>模式之后，所有被 <code>publish</code>的后续消息都将被<code>confirm</code>（即 ack） 或者被nack一次。</li>
+<li>但是没有对消息被 confirm 的快慢做任何保证，并且同一条消息不会既被 confirm又被nack 。</li>
+</ul>
+</li>
+</ul>
+<p><strong>开启confirm 模式的方式</strong></p>
+<ul>
+<li><strong>生产者通过调用channel的confirmSelect方法将channel设置为confirm模式，如果没有设置no-wait标志的话，broker会返回confirm.select-ok表示同意发送者将当前channel信道设置为confirm模式</strong></li>
+<li>(从目前RabbitMQ最新版本3.6来看，如果调用了channel.confirmSelect方法，默认情况下是直接将no-wait设置成false的，也就是默认情况下broker是必须回传confirm.select-ok的)。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-111340430.png" alt="mark"></p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>已经在<code>transaction</code>事务模式的channel是不能再设置成<code>confirm</code>模式的，<strong>即这两种模式是不能共存的。</strong></li>
+<li>事务机制和<code>publisher confirm</code> 机制作用都是确保消息能够正确的发送到<code>rabbitMQ</code></li>
+</ul>
+<h4 id="2-3-Confirm-编程"><a href="#2-3-Confirm-编程" class="headerlink" title="2.3 Confirm 编程"></a>2.3 Confirm 编程</h4><ul>
+<li>对于固定消息体大小和线程数，<strong>如果消息持久化，生产者confirm(或者采用事务机制)，消费者ack那么对性能有很大的影响.</strong></li>
+<li>消息持久化的优化没有太好方法，用更好的物理存储（SAS, SSD, RAID卡）总会带来改善。</li>
+<li>生产者confirm这一环节的优化则主要在于客户端程序的优化之上。归纳起来，客户端实现生产者confirm有三种编程方式：<ul>
+<li><strong>普通confirm模式：</strong>每发送一条消息后，调用waitForConfirms()方法，等待服务器端confirm。实际上是一种串行confirm了。</li>
+<li><strong>批量confirm模式</strong>：每发送一批消息后，调用waitForConfirms()方法，等待服务器端confirm。</li>
+<li><strong>异步confirm模式：</strong>提供一个回调方法，服务端confirm了一条或者多条消息后Client端会回调这个方法。</li>
+</ul>
+</li>
+</ul>
+<p><strong>从编程实现的复杂度上来看：</strong></p>
+<p><strong>第一种：普通confirm 机制</strong></p>
+<ul>
+<li>普通confirm模式最简单，publish一条消息后，等待服务器端confirm,如果服务端返回false或者超时时间内未返回，客户端进行消息重传。</li>
+</ul>
+<p>关键代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">channel.basicPublish(ConfirmConfig.exchangeName, ConfirmConfig.routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, ConfirmConfig.msg_10B.getBytes());</span><br><span class="line"><span class="keyword">if</span>(!channel.waitForConfirms())&#123;</span><br><span class="line">	System.out.println(<span class="string">"send message failed."</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>wirkShark抓包可以看到如下：</p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-113556012.png" alt="mark"></p>
+<p>(注意这里的Publish与Ack的时间间隔：305ms 4ms 4ms 15ms 5ms… )</p>
+<p><strong>第二种：批量 confirm模式</strong></p>
+<ul>
+<li>批量<code>confirm</code>模式稍微复杂一点，<strong>客户端程序需要定期（每隔多少秒）或者定量（达到多少条）</strong>或者两则结合起来<code>publish</code>消息，然后等待服务器端<code>confirm</code>, 相比普通<code>confirm</code>模式，批量极大提升<code>confirm</code>效率</li>
+<li>是问题在于一旦出现<code>confirm</code>返回<code>false</code>或者超时的情况时，客户端需要将这一批次的消息全部重发，这会带来明显的重复消息数量，并且，当消息经常丢失时，批量<code>confirm</code>性能应该是不升反降的。</li>
+</ul>
+<p>关键代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">channel.confirmSelect();</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;batchCount;i++)&#123;</span><br><span class="line">	channel.basicPublish(ConfirmConfig.exchangeName, ConfirmConfig.routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, ConfirmConfig.msg_10B.getBytes());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(!channel.waitForConfirms())&#123;</span><br><span class="line">	System.out.println(<span class="string">"send message failed."</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>第三种：异步 Confirm机制</strong></p>
+<ul>
+<li>异步<code>confirm</code>模式的编程实现最复杂，<strong>Channel对象提供的ConfirmListener()回调方法只包含deliveryTag</strong>（当前<code>Channel</code>发出的消息序号）<ul>
+<li><strong>我们需要自己为每一个Channel维护一个<code>unconfirm</code>的消息序号集合，每<code>publish</code>一条数据，集合中元素加1，每回调一次<code>handleAck</code>方法，<code>unconfirm</code>集合删掉相应的一条（<code>multiple=false</code>）或多条（<code>multiple=true</code>）记录</strong></li>
+<li>从程序运行效率上看，这个<code>unconfirm</code>集合最好采用有序集合<code>SortedSet</code>存储结构。实际上，SDK中的<code>waitForConfirms()</code>方法也是通过<code>SortedSet</code>维护消息序号的。</li>
+</ul>
+</li>
+</ul>
+<p>关键代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">SortedSet&lt;Long&gt; confirmSet = Collections.synchronizedSortedSet(<span class="keyword">new</span> TreeSet&lt;Long&gt;());</span><br><span class="line">channel.confirmSelect();</span><br><span class="line">       channel.addConfirmListener(<span class="keyword">new</span> ConfirmListener() &#123;</span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleAck</span><span class="params">(<span class="keyword">long</span> deliveryTag, <span class="keyword">boolean</span> multiple)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">               <span class="keyword">if</span> (multiple) &#123;</span><br><span class="line">                   confirmSet.headSet(deliveryTag + <span class="number">1</span>).clear();</span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                   confirmSet.remove(deliveryTag);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleNack</span><span class="params">(<span class="keyword">long</span> deliveryTag, <span class="keyword">boolean</span> multiple)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">           	System.out.println(<span class="string">"Nack, SeqNo: "</span> + deliveryTag + <span class="string">", multiple: "</span> + multiple);</span><br><span class="line">               <span class="keyword">if</span> (multiple) &#123;</span><br><span class="line">                   confirmSet.headSet(deliveryTag + <span class="number">1</span>).clear();</span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                   confirmSet.remove(deliveryTag);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br><span class="line"></span><br><span class="line">       <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">           <span class="keyword">long</span> nextSeqNo = channel.getNextPublishSeqNo();</span><br><span class="line">           channel.basicPublish(ConfirmConfig.exchangeName, ConfirmConfig.routingKey, MessageProperties.PERSISTENT_TEXT_PLAIN, ConfirmConfig.msg_10B.getBytes());</span><br><span class="line">           confirmSet.add(nextSeqNo);</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>SDK</code>中<code>waitForConfirms</code>方法实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Set of currently unconfirmed messages (i.e. messages that have</span></span><br><span class="line"><span class="comment"> *  not been ack'd or nack'd by the server yet. */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> SortedSet&lt;Long&gt; unconfirmedSet =</span><br><span class="line">        Collections.synchronizedSortedSet(<span class="keyword">new</span> TreeSet&lt;Long&gt;());</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">waitForConfirms</span><span class="params">(<span class="keyword">long</span> timeout)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, TimeoutException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (nextPublishSeqNo == <span class="number">0L</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Confirms not selected"</span>);</span><br><span class="line">    <span class="keyword">long</span> startTime = System.currentTimeMillis();</span><br><span class="line">    <span class="keyword">synchronized</span> (unconfirmedSet) &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (getCloseReason() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> Utility.fixStackTrace(getCloseReason());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (unconfirmedSet.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">boolean</span> aux = onlyAcksReceived;</span><br><span class="line">                onlyAcksReceived = <span class="keyword">true</span>;</span><br><span class="line">                <span class="keyword">return</span> aux;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (timeout == <span class="number">0L</span>) &#123;</span><br><span class="line">                unconfirmedSet.wait();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">long</span> elapsed = System.currentTimeMillis() - startTime;</span><br><span class="line">                <span class="keyword">if</span> (timeout &gt; elapsed) &#123;</span><br><span class="line">                    unconfirmedSet.wait(timeout - elapsed);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> TimeoutException();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>性能测试</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">参数</span><br><span class="line">Client端机器和RabbitMQ机器配置：CPU:24核，2600MHZ, 64G内存，1TB硬盘。</span><br><span class="line">Client端发送消息体大小10B，线程数为1即单线程，消息都持久化处理（deliveryMode:2）。</span><br><span class="line">分别采用事务模式、普通confirm模式，批量confirm模式和异步confirm模式进行producer实验，比对各个模式下的发送性能。</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-150253989.png" alt="mark"></p>
+<p>发送平均速率：</p>
+<ul>
+<li>事务模式（tx）：1637.484</li>
+<li>普通confirm模式(common)：1936.032</li>
+<li>批量confirm模式(batch)：10432.45</li>
+<li>异步confirm模式(async)：10542.06</li>
+</ul>
+<p><strong>小结：</strong></p>
+<ul>
+<li>可以看到事务模式性能是最差的，普通<code>confirm</code>模式性能比事务模式稍微好点，但是和批量<code>confirm</code>模式还有异步<code>confirm</code>模式相比，还是小巫见大巫。</li>
+<li>批量<code>confirm</code>模式的问题在于<code>confirm</code>之后返回<code>false</code>之后进行重发这样会使性能降低，异步<code>confirm</code>模式(async)编程模型较为复杂，至于采用哪种方式，那是仁者见仁智者见智了。</li>
+</ul>
+<h3 id="3-消费端的消息确认"><a href="#3-消费端的消息确认" class="headerlink" title="3. 消费端的消息确认"></a>3. 消费端的消息确认</h3><ul>
+<li><p>为了保证消息从队列可靠地到达消费者，RabbitMQ提供消息确认机制(<code>message acknowledgment</code>)。</p>
+</li>
+<li><p>消费者在声明队列时，可以指定noAck参数，当<code>noAck=false</code>时，RabbitMQ会等待消费者显式发回ack信号后才从内存(和磁盘，如果是持久化消息的话)中移去消息。</p>
+<ul>
+<li>否则，RabbitMQ会在队列中消息被消费后立即删除它。</li>
+</ul>
+</li>
+<li><p>采用消息确认机制后，只要令<code>noAck=false</code>，消费者就有足够的时间处理消息(任务)，不用担心处理消息过程中消费者进程挂掉后消息丢失的问题，因为<code>RabbitMQ</code>会一直持有消息直到消费者显式调用<code>basicAck</code>为止。</p>
+</li>
+</ul>
+<hr>
+<ul>
+<li>当<code>noAck=false</code>时，对于RabbitMQ服务器端而言，队列中的消息分成了两部分：一部分是等待投递给消费者的消息；<strong>一部分是已经投递给消费者，但是还没有收到消费者ack信号的消息。</strong><ul>
+<li>如果<strong>服务器端一直没有收到消费者的ack信号</strong>，并且消费此消息的消费者已经断开连接，则服务器端会安排该消息重新进入队列，等待投递给下一个消费者（也可能还是原来的那个消费者）。</li>
+<li>RabbitMQ不会为未ack的消息设置超时时间，它判断此消息是否需要<strong>重新投递给消费者的唯一依据是消费该消息的消费者连接是否已经断开。这么设计的原因是RabbitMQ允许消费者消费一条消息的时间可以很久很久。</strong></li>
+</ul>
+</li>
+<li><code>RabbitMQ</code>管理平台界面上可以看到当前队列中<code>Ready状态和Unacknowledged</code>状态的消息数<ul>
+<li>分别对应上文中的等待投递给消费者的消息数和已经投递给消费者但是未收到ack信号的消息数</li>
+<li>也可以通过命令行来查看上述信息：</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-151011828.png" alt="mark"></p>
+<p><strong>代码示例（关闭自动消息确认，进行手动ack）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">   QueueingConsumer consumer = <span class="keyword">new</span> QueueingConsumer(channel);</span><br><span class="line">   channel.basicConsume(ConfirmConfig.queueName, <span class="keyword">false</span>, consumer);</span><br><span class="line">   </span><br><span class="line">   <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span><br><span class="line">       QueueingConsumer.Delivery delivery = consumer.nextDelivery();</span><br><span class="line">       String msg = <span class="keyword">new</span> String(delivery.getBody());</span><br><span class="line"><span class="comment">// do something with msg. </span></span><br><span class="line">       channel.basicAck(delivery.getEnvelope().getDeliveryTag(), <span class="keyword">false</span>);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">broker将在下面的情况中对消息进行confirm：</span><br><span class="line"></span><br><span class="line">1. broker发现当前消息无法被路由到指定的queues中（如果设置了mandatory属性，则broker会发送basic.return）</span><br><span class="line">2. 非持久属性的消息到达了其所应该到达的所有queue中（和镜像queue中）</span><br><span class="line">3. 持久消息到达了其所应该到达的所有queue中（和镜像中），并被持久化到了磁盘（fsync）</span><br><span class="line">4. 持久消息从其所在的所有queue中被consume了（如果必要则会被ack）</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">basicRecover：是路由不成功的消息可以使用recovery重新发送到队列中。</span><br><span class="line">basicReject：是接收端告诉服务器这个消息我拒绝接收,不处理,可以设置是否放回到队列中还是丢掉，而且只能一次拒绝一个消息,官网中有明确说明不能批量拒绝消息，为解决批量拒绝消息才有了basicNack。</span><br><span class="line">basicNack：可以一次拒绝N条消息，客户端可以设置basicNack方法的multiple参数为true，服务器会拒绝指定了delivery_tag的所有未确认的消息(tag是一个64位的long值，最大值是9223372036854775807)。</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-分布式事务解决方案"><a href="#4-分布式事务解决方案" class="headerlink" title="4. 分布式事务解决方案"></a>4. 分布式事务解决方案</h3><h4 id="4-1-2PC"><a href="#4-1-2PC" class="headerlink" title="4.1 2PC"></a>4.1 2PC</h4><ul>
+<li><p>两段式提交(2PC) 需要数据库产商的支持，java组件有atomikos等</p>
+</li>
+<li><p>两阶段提交（Two-phase Commit，2PC），通过引入协调者（Coordinator）来协调参与者的行为，并最终决定这些参与者是否要真正执行事务。</p>
+</li>
+</ul>
+<ol>
+<li><strong>准备阶段</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-215343359.png" alt="mark"></p>
+<ol start="2">
+<li>提交阶段</li>
+</ol>
+<ul>
+<li>如果事务在每个参与者上都执行成功，事务协调者发送通知让参与者提交事务；否则，协调者发送通知让参与者回滚事务。</li>
+<li>需要注意的是，在准备阶段，参与者执行了事务，但是还未提交。只有在提交阶段接收到协调者发来的通知后，才进行提交或者回滚。</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-220518513.png" alt="mark"></p>
+<p><strong>存在的问题</strong></p>
+<ul>
+<li><p>2.1 同步阻塞 所有事务参与者在等待其它参与者响应的时候都处于同步阻塞状态，无法进行其它操作。</p>
+</li>
+<li><p>2.2 单点问题 协调者在 2PC 中起到非常大的作用，发生故障将会造成很大影响。特别是在阶段二发生故障，所有参与者会一直等待状态，无法完成其它操作。</p>
+</li>
+<li><p>2.3 数据不一致 在阶段二，如果协调者只发送了部分 Commit 消息，此时网络发生异常，那么只有部分参与者接收到 Commit 消息，也就是说只有部分参与者提交了事务，使得系统数据不一致。</p>
+</li>
+<li><p>2.4 太过保守 任意一个节点失败就会导致整个事务失败，没有完善的容错机制。</p>
+</li>
+</ul>
+<h4 id="4-2-TCC"><a href="#4-2-TCC" class="headerlink" title="4.2 TCC"></a>4.2 TCC</h4><ul>
+<li><code>TCC</code> 其实就是采用的补偿机制，其核心思想是：针对每个操作，都要注册一个与其对应的确认和补偿（撤销）操作。它分为三个阶段：<ul>
+<li><code>Try</code> 阶段主要是对业务系统做检测及资源预留</li>
+<li><code>Confirm</code>阶段主要是对业务系统做确认提交，Try阶段执行成功并开始执行<code>Confirm</code>阶段时，默认 - - - <code>Confirm</code>阶段是不会出错的。即：只要Try成功，Confirm一定成功。</li>
+<li>Cancel 阶段主要是在业务执行错误，需要回滚的状态下执行的业务取消，预留资源释放。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">举个例子，假入 Bob 要向 Smith 转账，思路大概是： 我们有一个本地方法，里面依次调用</span><br><span class="line">1：首先在 Try 阶段，要先调用远程接口把 Smith 和 Bob 的钱给冻结起来。</span><br><span class="line">2：在 Confirm 阶段，执行远程调用的转账的操作，转账成功进行解冻。</span><br><span class="line">3：如果第2步执行成功，那么转账成功，如果第二步执行失败，则调用远程冻结接口对应的解冻方法 (Cancel)。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优点： 跟2PC比起来，实现以及流程相对简单了一些，但数据的一致性比2PC也要差一些</li>
+<li>缺点： 缺点还是比较明显的，在2,3步中都有可能失败。TCC属于应用层的一种补偿方式，所以需要程序员在实现的时候多写很多补偿的代码，在一些场景中，一些业务流程可能用TCC不太好定义及处理。</li>
+</ul>
+<h4 id="4-3-本地消息表"><a href="#4-3-本地消息表" class="headerlink" title="4.3 本地消息表"></a>4.3 本地消息表</h4><ul>
+<li><p>（异步确保）比如：支付宝、微信支付主动查询支付状态，对账单的形式</p>
+</li>
+<li><p><strong>本地消息表与业务数据表处于同一个数据库中</strong>，这样就能利用本地事务来保证在对这两个表的操作满足事务特性，<strong>并且使用了消息队列来保证最终一致性。</strong></p>
+<ul>
+<li>在分布式事务操作的一方完成写业务数据的操作之后向本地消息表发送一个消息，本地事务能保证这个消息一定会被写入本地消息表中。</li>
+<li>之后将本地消息表中的消息转发到 Kafka 等消息队列中，如果转发成功则将消息从本地消息表中删除，否则继续重新转发。</li>
+<li>在分布式事务操作的另一方从消息队列中读取一个消息，并执行消息中的操作。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-221109158.png" alt="mark"></p>
+<ul>
+<li>优点： 一种非常经典的实现，避免了分布式事务，实现了最终一致性。</li>
+<li>缺点： 消息表会耦合到业务系统中，如果没有封装好的解决方案，会有很多杂活需要处理。</li>
+</ul>
+<h4 id="4-4-MQ事务"><a href="#4-4-MQ事务" class="headerlink" title="4.4 MQ事务"></a>4.4 MQ事务</h4><ul>
+<li>有一些第三方的MQ是支持事务消息的，比如<code>RocketMQ</code>，他们支持事务消息的方式也是类似于采用的二阶段提交，但是市面上一些主流的MQ都是不支持事务消息的，比如 Kafka 不支持。</li>
+<li>以阿里的 <code>RocketMQ</code>中间件为例，其思路大致为：<ul>
+<li>第一阶段<code>Prepared</code>消息，会拿到消息的地址。 第二阶段执行本地事务，第三阶段通过第一阶段拿到的地址去访问消息，并修改状态。</li>
+<li>也就是说在业务方法内要向消息队列提交两次请求，一次发送消息和一次确认消息。<ul>
+<li>如果确认消息发送失败了.<code>RocketMQ</code>会定期扫描消息集群中的事务消息，这时候发现了Prepared消息，它会向消息发送者确认</li>
+<li>所以生产方需要实现一个check接口，<code>RocketMQ</code>会根据发送端设置的策略来决定是回滚还是继续发送确认消息。这样就保证了消息发送与本地事务同时成功或同时失败。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-221710984.png" alt="mark"></p>
+<p><strong>优缺点分析</strong></p>
+<ul>
+<li>优点： 实现了最终一致性，不需要依赖本地数据库事务。</li>
+<li>缺点： 实现难度大，主流MQ不支持，RocketMQ事务消息部分代码也未开源。</li>
+</ul>
+<h3 id="5-rabbitMQ-实现可靠生产与消费"><a href="#5-rabbitMQ-实现可靠生产与消费" class="headerlink" title="5. rabbitMQ 实现可靠生产与消费"></a>5. rabbitMQ 实现可靠生产与消费</h3><ol>
+<li><strong>可靠生产</strong></li>
+</ol>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-224418881.png" alt="mark"></p>
+<ul>
+<li>所谓的MQ可靠生产：就是利用<strong>消息冗余</strong>的方式（增加一个status的状态）<ul>
+<li>如果成功：修改状态</li>
+<li>如果失败：定时器重新执行</li>
+<li><strong>本质利用的是消息队列的ack应答机制</strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-223012091.png" alt="mark"></p>
+<ol start="2">
+<li><strong>可靠消费</strong></li>
+</ol>
+<ul>
+<li>需要注意的是：消费者在消费过程中出现异常，rabbitMQ会一直进行不停的重试（即代码进入死循环）</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-224513979.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-225012520.png" alt="mark"></p>
+<ul>
+<li><strong>解决方案</strong><ul>
+<li>控制重发的次数 + 死信队列</li>
+<li>用<code>try catch</code> 和 手动<code>ack</code> <ul>
+<li>注意这里无法再设置重发次数，如果设置了重发，那么还是会进入死循环</li>
+<li>这里<code>try catch</code> 和 手动<code>ack</code> 会造成消息的丢失</li>
+<li>解决方法是方案三：用<code>try catch</code>和 手动<code>ack</code> + 死信队列</li>
+</ul>
+</li>
+<li>用<code>try catch</code>和 手动<code>ack</code> + 死信队列</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>注意事项<ul>
+<li>要考虑数据的<strong>幂等性</strong>：若死信消费者和普通消费者同时保存订单，那么就不满足幂等性了<ul>
+<li>如下订单的方式：可以使用<strong>订单id作为一个唯一主键来保证幂等性</strong></li>
+<li><strong>分布式锁来解决这个问题</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-小结"><a href="#6-小结" class="headerlink" title="6. 小结"></a>6. 小结</h3><ul>
+<li>通过本文我们总结并对比了几种分布式分解方案的优缺点，分布式事务本身是一个技术难题，是没有一种完美的方案应对所有场景的，具体还是要根据业务场景去抉择吧。</li>
+<li>阿里<code>RocketMQ</code>去实现的分布式事务，现在也有除了很多分布式事务的协调器，比如<code>LCN</code>等，大家可以多去尝试。</li>
+</ul>
+<p><strong>基于MQ的优点</strong></p>
+<p>1、通用性强<br>2、拓展方便<br>3、耦合度低，方案也比较成熟</p>
+<p><strong>基于MQ分布式事务的缺点</strong></p>
+<p>1、基于消息中间件，只适合异步场景<br>2、消息会延迟处理，需要业务上能够容忍</p>
+<p><strong>建议</strong></p>
+<p>1、尽量去避免分布式事务<br>2、尽量将非核心业务做成异步</p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/04/11/RabbitMQ/RabbitMQ-13-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2021/04/17/Leetcode/Leetcode-220-%E5%AD%98%E5%9C%A8%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0III/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Leetcode-220-存在重复元素III
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/04/10/RabbitMQ/RabbitMQ-12-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">RabbitMQ-12-集群搭建</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2021
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">Mysql</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/MyBatis/">MyBatis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringMVC/">SpringMVC</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">Spring</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/photoshop/">photoshop</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

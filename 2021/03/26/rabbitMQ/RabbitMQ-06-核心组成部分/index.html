@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-rabbitMQ/RabbitMQ-06-核心组成部分" class="article article-type-post" itemscope
+  <article id="post-RabbitMQ/RabbitMQ-06-核心组成部分" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -53,7 +53,7 @@
 
     
     <div class="article-meta">
-      <a href="/2021/03/26/rabbitMQ/RabbitMQ-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86/" class="article-date">
+      <a href="/2021/03/26/RabbitMQ/RabbitMQ-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86/" class="article-date">
   <time datetime="2021-03-26T08:02:24.000Z" itemprop="datePublished">2021-03-26</time>
 </a>
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.3k字</span>
+            <span class="post-count">3k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">4分钟</span>
+            <span class="post-count">11分钟</span>
         </span>
     </span>
 </div>
@@ -161,7 +161,7 @@
 <li><p><strong>持久化的队列并不会使得路由到它的消息也具有持久性</strong>。倘若消息代理挂掉了，重新启动，那么在重启的过程中持久化队列会被重新声明，无论怎样，只有经过持久化的消息才能被重新恢复。</p>
 </li>
 </ul>
-<h2 id="4-消费者"><a href="#4-消费者" class="headerlink" title="4. 消费者"></a>4. 消费者</h2><ul>
+<h2 id="4-消费者"><a href="#4-消费者" class="headerlink" title="4. 消费者"></a>4. 消费者</h2><h3 id="4-1-消费模式"><a href="#4-1-消费模式" class="headerlink" title="4.1  消费模式"></a>4.1  消费模式</h3><ul>
 <li><p>消息如果只是存储在队列里是没有任何用处的。被应用消费掉，消息的价值才能够体现。在 AMQP 0-9-1 模型中，有两种途径可以达到此目的：</p>
 <ul>
 <li>将消息投递给应用 <strong>(“push API”)</strong></li>
@@ -172,6 +172,99 @@
 </li>
 <li><p><strong>每个消费者（订阅者）都有一个叫做消费者标签的标识符</strong>。它可以被用来退订消息。消费者标签实际上是一个字符串。</p>
 </li>
+</ul>
+<hr>
+<ul>
+<li>消息中间件有很多种，进程也会拿几个来对比对比，其中一种对比项就是消费模式。</li>
+<li><strong>消息的消费模式分Push、Pull两种，或者两者兼具。</strong></li>
+<li><strong>RabbitMQ的消费模式就是兼具Push和Pull。</strong></li>
+</ul>
+<h4 id="4-1-1-push-模式"><a href="#4-1-1-push-模式" class="headerlink" title="4.1.1 push 模式"></a>4.1.1 push 模式</h4><ul>
+<li>发送端向broker端发送数据，数据内容为：<code>RabbitMQ Demo Test, Send Messages 0；RabbitMQ Demo Test, Send Messages 1；RabbitMQ Demo Test, Send Messages 2</code>，依次类推……</li>
+</ul>
+<p>下面是消费端的示例代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Connection connection = factory.newConnection();</span><br><span class="line">Channel channel = connection.createChannel();</span><br><span class="line">QueueingConsumer consumer = <span class="keyword">new</span> QueueingConsumer(channel);</span><br><span class="line">channel.basicQos(<span class="number">1</span>);</span><br><span class="line">channel.basicConsume(QUEUE_NAME, <span class="keyword">false</span>, <span class="string">"consumer_zzh"</span>,consumer);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">    QueueingConsumer.Delivery delivery = consumer.nextDelivery();</span><br><span class="line">    String message = <span class="keyword">new</span> String(delivery.getBody());</span><br><span class="line">    System.out.println(<span class="string">" [X] Received '"</span> + message + <span class="string">"'"</span>);</span><br><span class="line">    channel.basicAck(delivery.getEnvelope().getDeliveryTag(),<span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line">channel.close();</span><br><span class="line">connection.close();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 运行输出：RabbitMQ Demo Test, Send Messages 0</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过<code>wirkshark</code>工具来查看上面示例代码的整个AMQP的过程（图1）：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-152428837.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">上图可以对照实例代码来看，</span><br><span class="line">比如图中：Basic.Qos和Basic.Qos-Ok就是示例代码中的：channel.basicQos(1);</span><br><span class="line">再比如图中的Basic.Ack就是示例代码中的channel.basicAck(delivery.getEnvelope().getDeliveryTag(),false);</span><br><span class="line">对于上图中的带蓝色背影的那行（即No.545，展开如下图，broker to client）</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-152554232.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">可以看到&#96;Delivery-Tag &#x3D; 1&#96;, 消息内容：“RabbitMQ Demo Test, Send Messages 0”。</span><br><span class="line">展开No.546，即Basic.Ack这行：</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-152717935.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">可以看到client to broker的Ack:delievery-tag&#x3D;1,和上面的符合。</span><br><span class="line">仔细的朋友可以看到No.548同样是broker向client发送了一条数据，通过展开数据可知：</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-152853666.png" alt="mark"></p>
+<ul>
+<li><p>其内包含的数据正好是下一条的消息——“RabbitMQ Demo Test, Send Messages 1”。但是在运行实例的时候是没有打印出来的，<strong>可以看图1，是broker端主动向client端发送的数据，client端没有请求。</strong></p>
+</li>
+<li><p><strong>在broker端发送第一条数据，即”RabbitMQ Demo Test, Send Messages 0”之后发送Ack，之后关闭Channel,到真正关闭完channel之间，broker端还是会发送(push)数据给Client, 此时Client不会在Ack此条数据了。</strong></p>
+</li>
+<li><p><strong>那么这样这条消息会不会丢失呢？答案是否定的，你可以再运行下consumer程序，就能消费到这条消息，rabbitmq对设置autoAck=false之后没有被Ack的消息是不会清除掉的。</strong></p>
+</li>
+</ul>
+<p><strong>注意：</strong></p>
+<ul>
+<li>实际上如果不设置<code>channel.basicQos(1),</code>那么broker端会一次推送多条数据<br>RabbitMQ的每一数据帧（Frame）都是以0xCE结尾。</li>
+</ul>
+<h4 id="4-1-2-pull-模式"><a href="#4-1-2-pull-模式" class="headerlink" title="4.1.2 pull 模式"></a>4.1.2 pull 模式</h4><ul>
+<li>同样采用wirkshark工具来观察pull模式的AMQP过程，pull模式主要是通过<code>channel,basicGet</code>方法来获取消息，示例代码如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GetResponse response = channel.basicGet(QUEUE_NAME, <span class="keyword">false</span>);</span><br><span class="line">System.out.println(<span class="keyword">new</span> String(response.getBody()));</span><br><span class="line">channel.basicAck(response.getEnvelope().getDeliveryTag(),<span class="keyword">false</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>wireshark</code>抓包结果：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210411-153157619.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">可以观察No.122, No.123, No.124，这些对于上面的示例代码。</span><br><span class="line">首先是client端发送Get请求，然后broker响应请求回传消息，最后client端发送Ack. </span><br><span class="line"></span><br><span class="line">可以看到有别于push模式，broker端不会在client端没有请求的情况下来回传消息。</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="4-2-消息分发"><a href="#4-2-消息分发" class="headerlink" title="4.2 消息分发"></a>4.2 消息分发</h3><ul>
+<li>当<code>rabbitMQ</code>有多个消费者的时候，队列收到的消息以<strong>轮询的方式</strong>分发给消费者（默认情况下）</li>
+<li>如果有n个消费者，那么<code>rabbitMQ</code> 会把第m 条消息发给第<code>m % n</code>（取余数的方式）个消费者<ul>
+<li><code>rabbitMQ</code>不管消息是否消费并已经（<code>Basic.Ack</code>）了消息</li>
+<li>此时，如果当前的消费者任务繁重，而其他消费者由于性能较好很快处理完了自己的消息，那么就会造成整体吞吐量的下降<ul>
+<li>解决的方案：<code>channel.basicQos</code> 方法限制信道上消费者所能保持最大的未确认消息的数量（即消费的最大能力，类似于TCP的滑动窗口）</li>
+<li>但是此方法对拉模式的消费方式无效</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-3-消息的顺序性"><a href="#4-3-消息的顺序性" class="headerlink" title="4.3 消息的顺序性"></a>4.3 消息的顺序性</h3><ul>
+<li><strong>目前很多资料显示 rabbitMQ  能够保证消息的顺序性，这是不正确的，或者说这个观点有很大的局限性</strong><ul>
+<li>在不使用任何 rabbitMQ 的高级特性，也没有消息丢失，网络故障之类的情况发生的，并且只有一个消费者的情况下，最好也只有一个消费者的情况下可以保障消息的顺序性（即生产者发送的消息分别为 <code>msg1 msg2 msg3</code>, 那么消费者必然也是按照 <code>msg1 msg2 msg3</code> 的顺序进行消费的）</li>
+</ul>
+</li>
+<li><strong>那么现在有哪些情况下消息的顺序性会被打破呢？</strong><ul>
+<li>如果生产者使用了事务机制，在发送消息的时候遇到异常进行了回滚，那么需要重新补偿发送的这条消息，如果补偿发送实在另外一个线程实现的，那么消息在生产者这个源头就错序了。同样的，使用 <code>publisher confirm</code>时，在发生超时，中断，又或者是收到<code>Basic.Nack</code>命令的时候，那么同样需要进行补偿发送，结果会和事务机制一样发生错序。（这种情况下，我们可以认为rabbitMQ 消息的顺序性保障是从存入队列之后开始的，而不是从发送的时候就开始了）</li>
+<li>如果生产者设置了消息的不同超时时间，并且也设置了死信队列，整体来说这样就相当于是一个延迟队列，那么消费者在消费这个队列的时候，消息消费的顺序必然不会和生产者发送的消息顺序一致</li>
+<li>另外一种情况，如果消息设置了优先级，那么消费者消费到的顺序也必然不是一致的。</li>
+<li>还有一种情况，如果消息以轮询的方式发送给消费者，而消费者拒绝消息从而消息重新入队的话，那么消息的消费顺序也是不一致的。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-4-弃用-QueueingConsumer"><a href="#4-4-弃用-QueueingConsumer" class="headerlink" title="4.4 弃用 QueueingConsumer"></a>4.4 弃用 QueueingConsumer</h3><ul>
+<li><code>QueueingConsumer 在 rabbitMQ 3.x</code>版本用的如火如荼，但是在4.x 版本标记位 <code>@Deprecated</code>, 那么这个类一定有很大的缺陷</li>
+<li><code>QueueingConsumer</code> 有几大缺陷<ul>
+<li>首当其冲的就是内存溢出的假死问题，由于某些原因，队列中堆积了太多的消息，那么JVM就会爆出<code>java.lang.OutOfMemoryERROR</code><ul>
+<li>这个问题可以通过<code>channel.basicQos</code>方法进行有效的解决<ul>
+<li>原因是：<code>QueueingConsumer</code>内部使用的是<code>LinkedBlockingQueue</code> 来存储消息，而<code>basicQos</code>限制了队列的大小</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>同步递归调用<code>QueueingConsumer</code>会产生死锁</li>
+<li><code>QueueingConsumer</code>会拖累同一个connection 下的所有信道性能</li>
+</ul>
+</li>
+<li><strong>为了避免不必要的麻烦，建议全部继承<code>DefaultConsumer</code></strong></li>
 </ul>
 
       
@@ -240,7 +333,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/03/26/rabbitMQ/RabbitMQ-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/03/26/RabbitMQ/RabbitMQ-06-%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -258,7 +351,7 @@
   
   <nav class="article-nav">
     
-      <a href="/2021/03/27/Compute_Organization/%E8%AE%A1%E7%BB%84-04-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%A1%A8%E7%A4%BA/" class="article-nav-link">
+      <a href="/2021/03/27/Compute_Organization/%E8%AE%A1%E7%BB%84-04-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%A1%A8%E7%A4%BA(%E5%AE%9A%E7%82%B9%E6%95%B0)/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           

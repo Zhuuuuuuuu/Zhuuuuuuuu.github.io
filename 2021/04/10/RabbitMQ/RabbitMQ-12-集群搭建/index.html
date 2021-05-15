@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    RabbitMQ-08-SpringBoot整合使用 |  朱酱酱的学习博客
+    RabbitMQ-12-集群搭建 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-rabbitMQ/RabbitMQ-08-SpringBoot整合使用" class="article article-type-post" itemscope
+  <article id="post-RabbitMQ/RabbitMQ-12-集群搭建" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  RabbitMQ-08-SpringBoot整合使用
+  RabbitMQ-12-集群搭建
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2021/04/01/rabbitMQ/RabbitMQ-08-SpringBoot%E6%95%B4%E5%90%88%E4%BD%BF%E7%94%A8/" class="article-date">
-  <time datetime="2021-04-01T06:02:24.000Z" itemprop="datePublished">2021-04-01</time>
+      <a href="/2021/04/10/RabbitMQ/RabbitMQ-12-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" class="article-date">
+  <time datetime="2021-04-10T08:02:24.000Z" itemprop="datePublished">2021-04-10</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">765字</span>
+            <span class="post-count">1.3k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -99,50 +99,99 @@
       
 
       
-      <h2 id="RabbitMQ-08-SpringBoot整合使用"><a href="#RabbitMQ-08-SpringBoot整合使用" class="headerlink" title="RabbitMQ-08-SpringBoot整合使用"></a>RabbitMQ-08-SpringBoot整合使用</h2><h2 id="1-使用场景概述"><a href="#1-使用场景概述" class="headerlink" title="1. 使用场景概述"></a>1. 使用场景概述</h2><ul>
-<li><strong>rabbitMQ的作用 ： 解耦 削峰 异步</strong></li>
+      <h2 id="RabbitMQ-12-集群搭建"><a href="#RabbitMQ-12-集群搭建" class="headerlink" title="RabbitMQ-12-集群搭建"></a>RabbitMQ-12-集群搭建</h2><h3 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h3><ul>
+<li><code>RabbitMQ</code>这款消息队列中间件产品本身是基于Erlang编写，Erlang语言天生具备分布式特性（通过同步Erlang集群各节点的magic cookie来实现）。因此，<code>RabbitMQ天然支持Clustering</code>。这使得RabbitMQ本身不需要像ActiveMQ、Kafka那样通过ZooKeeper分别来实现HA方案和保存集群的元数据。</li>
+<li>集群是保证可靠性的一种方式，同时可以通过水平扩展以达到增加消息吞吐量能力的目的。</li>
+<li>在<strong>实际使用过程中多采取多机多实例部署方式</strong>，为了便于同学们练习搭建，有时候你不得不在一台机器上去搭建一个rabbitmq集群，<strong>本章主要针对单机多实例这种方式来进行开展。</strong></li>
 </ul>
-<h3 id="1-1-同步异步的问题（串行）"><a href="#1-1-同步异步的问题（串行）" class="headerlink" title="1.1 同步异步的问题（串行）"></a>1.1 同步异步的问题（串行）</h3><ul>
-<li>串行方式：将订单信息写入数据库成功后，发送注册邮件，再发送注册短信。以上三个任务全部完成后，返回给客户端</li>
+<p><strong>注意：</strong></p>
+<ul>
+<li>主要参考官方文档：<a href="https://www.rabbitmq.com/clustering.html" target="_blank" rel="noopener">https://www.rabbitmq.com/clustering.html</a></li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210401-140556054.png" alt="mark"></p>
-<p><strong>代码示例</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">makeOrder</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 1 :保存订单 </span></span><br><span class="line">    orderService.saveOrder();</span><br><span class="line">    <span class="comment">// 2： 发送短信服务</span></span><br><span class="line">    messageService.sendSMS(<span class="string">"order"</span>);<span class="comment">//1-2 s</span></span><br><span class="line">    <span class="comment">// 3： 发送email服务</span></span><br><span class="line">    emailService.sendEmail(<span class="string">"order"</span>);<span class="comment">//1-2 s</span></span><br><span class="line">    <span class="comment">// 4： 发送APP服务</span></span><br><span class="line">    appService.sendApp(<span class="string">"order"</span>);    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
 <a id="more"></a>
 
 
 
-<h3 id="1-2-并行方式-异步线程池"><a href="#1-2-并行方式-异步线程池" class="headerlink" title="1.2 并行方式 异步线程池"></a>1.2 并行方式 异步线程池</h3><ul>
-<li>并行方式：将订单信息写入数据库成功后，发送注册邮件的同时，发送注册短信。以上三个任务完成后，返回给客户端。与串行的差别是，并行的方式可以提高处理的时间</li>
+<h3 id="2-单机多实例搭建演示"><a href="#2-单机多实例搭建演示" class="headerlink" title="2. 单机多实例搭建演示"></a>2. 单机多实例搭建演示</h3><h4 id="2-1-前提准备"><a href="#2-1-前提准备" class="headerlink" title="2.1 前提准备"></a>2.1 前提准备</h4><ul>
+<li>配置的前提是你的rabbitmq可以运行起来，比如<code>”ps aux|grep rabbitmq”</code>你能看到相关进程，又比如运行<code>“rabbitmqctl status”</code>你可以看到类似如下信息，而不报错：</li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210401-140723072.png" alt="mark"></p>
-<p><strong>代码示例</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">makeOrder</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 1 :保存订单 </span></span><br><span class="line">    orderService.saveOrder();</span><br><span class="line">   <span class="comment">// 相关发送</span></span><br><span class="line">   relationMessage();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">relationMessage</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 异步</span></span><br><span class="line">     theadpool.submit(<span class="keyword">new</span> Callable&lt;Object&gt;&#123;</span><br><span class="line">         <span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span></span>&#123;</span><br><span class="line">             <span class="comment">// 2： 发送短信服务  </span></span><br><span class="line">             messageService.sendSMS(<span class="string">"order"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;)</span><br><span class="line">    <span class="comment">// 异步</span></span><br><span class="line">     theadpool.submit(<span class="keyword">new</span> Callable&lt;Object&gt;&#123;</span><br><span class="line">         <span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span></span>&#123;</span><br><span class="line">              <span class="comment">// 3： 发送email服务</span></span><br><span class="line">            emailService.sendEmail(<span class="string">"order"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;)</span><br><span class="line">      <span class="comment">// 异步</span></span><br><span class="line">     theadpool.submit(<span class="keyword">new</span> Callable&lt;Object&gt;&#123;</span><br><span class="line">         <span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span></span>&#123;</span><br><span class="line">             <span class="comment">// 4： 发送短信服务</span></span><br><span class="line">             appService.sendApp(<span class="string">"order"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;)</span><br><span class="line">      <span class="comment">// 异步</span></span><br><span class="line">         theadpool.submit(<span class="keyword">new</span> Callable&lt;Object&gt;&#123;</span><br><span class="line">         <span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span></span>&#123;</span><br><span class="line">             <span class="comment">// 4： 发送短信服务</span></span><br><span class="line">             appService.sendApp(<span class="string">"order"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps aux|grep rabbitmq</span><br><span class="line">systemctl status rabbitmq-server</span><br></pre></td></tr></table></figure>
 
-<p><strong>存在问题：</strong><br>1：耦合度高<br>2：需要自己写线程池自己维护成本太高<br>3：出现了消息可能会丢失，需要你自己做消息补偿<br>4：如何保证消息的可靠性你自己写<br>5：如果服务器承载不了，你需要自己去写高可用</p>
-<h3 id="1-3-异步消息队列模式"><a href="#1-3-异步消息队列模式" class="headerlink" title="1.3 异步消息队列模式"></a>1.3 异步消息队列模式</h3><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210401-140820922.png" alt="mark"></p>
-<p><strong>好处</strong><br>1：完全解耦，用MQ建立桥接<br>2：有独立的线程池和运行模型<br>3：出现了消息可能会丢失，MQ有持久化功能<br>4：如何保证消息的可靠性，死信队列和消息转移的等<br>5：如果服务器承载不了，你需要自己去写高可用，HA镜像模型高可用。<br>按照以上约定，用户的响应时间相当于是订单信息写入数据库的时间，也就是50毫秒。注册邮件，发送短信写入消息队列后，直接返回，因此写入消息队列的速度很快，基本可以忽略，因此用户的响应时间可能是50毫秒。因此架构改变后，系统的吞吐量提高到每秒20 QPS。比串行提高了3倍，比并行提高了两倍</p>
-<p><strong>代码示例</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">makeOrder</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 1 :保存订单 </span></span><br><span class="line">    orderService.saveOrder();   </span><br><span class="line">    rabbitTemplate.convertSend(<span class="string">"ex"</span>,<span class="string">"2"</span>,<span class="string">"消息内容"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-201101022.png" alt="mark"></p>
 <ul>
-<li><strong>之后若进行服务的扩展（高内聚 低耦合的特点）</strong></li>
+<li>注意：确保RabbitMQ可以运行的，确保完成之后，把单机版的RabbitMQ服务停止，后台看不到RabbitMQ的进程为止</li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210401-141007724.png" alt="mark"></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210401-141032549.png" alt="mark"></p>
-<ul>
-<li>还有以下场景的使用</li>
+<h4 id="2-2-单机多实例搭建"><a href="#2-2-单机多实例搭建" class="headerlink" title="2.2 单机多实例搭建"></a>2.2 单机多实例搭建</h4><ul>
+<li><strong>场景：</strong>假设有两个rabbitmq节点，分别为rabbit-1, rabbit-2，rabbit-1作为主节点，rabbit-2作为从节点。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">04、分布式事务的可靠消费和可靠生产</span><br><span class="line">05、索引、缓存、静态化处理的数据同步</span><br><span class="line">06、流量监控</span><br><span class="line">07、日志监控（ELK）</span><br><span class="line">08、下单、订单分发、抢票</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">启动命令：RABBITMQ_NODE_PORT=5672 RABBITMQ_NODENAME=rabbit-1 rabbitmq-server -detached</span><br><span class="line">结束命令：rabbitmqctl -n rabbit-1 stop</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="2-SpringBoot-fanout-模式"><a href="#2-SpringBoot-fanout-模式" class="headerlink" title="2. SpringBoot - fanout 模式"></a>2. SpringBoot - fanout 模式</h2><h2 id="3-SpringBoot-Direct-模式"><a href="#3-SpringBoot-Direct-模式" class="headerlink" title="3. SpringBoot - Direct 模式"></a>3. SpringBoot - Direct 模式</h2><h2 id="4-SpringBoot-Topic-模式"><a href="#4-SpringBoot-Topic-模式" class="headerlink" title="4. SpringBoot - Topic 模式"></a>4. SpringBoot - Topic 模式</h2>
+<ol>
+<li><strong>启动第一个节点</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; sudo RABBITMQ_NODE_PORT=5672 RABBITMQ_NODENAME=rabbit-1 rabbitmq-server start &amp;</span><br><span class="line">...............省略...................</span><br><span class="line">  <span class="comment">##########  Logs: /var/log/rabbitmq/rabbit-1.log</span></span><br><span class="line">  <span class="comment">######  ##        /var/log/rabbitmq/rabbit-1-sasl.log</span></span><br><span class="line">  <span class="comment">##########</span></span><br><span class="line">              Starting broker...</span><br><span class="line"> completed with 7 plugins.</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li><strong>启动第二个节点</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">注意：web管理插件端口占用,所以还要指定其web插件占用的端口号</span><br><span class="line">RABBITMQ_SERVER_START_ARGS=”-rabbitmq_management listener [&#123;port,15673&#125;]”</span><br><span class="line"></span><br><span class="line">sudo RABBITMQ_NODE_PORT=5673 RABBITMQ_SERVER_START_ARGS=<span class="string">"-rabbitmq_management listener [&#123;port,15673&#125;]"</span> RABBITMQ_NODENAME=rabbit-2 rabbitmq-server start &amp;</span><br><span class="line">..............省略..................</span><br><span class="line">  <span class="comment">##########  Logs: /var/log/rabbitmq/rabbit-2.log</span></span><br><span class="line">  <span class="comment">######  ##        /var/log/rabbitmq/rabbit-2-sasl.log</span></span><br><span class="line">  <span class="comment">##########</span></span><br><span class="line">              Starting broker...</span><br><span class="line"> completed with 7 plugins.</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li><strong>检查是否启动成功</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rabbitmq  2022  2.7  0.4 5349380 77020 ?       Sl   11:03   0:06 /usr/lib/erlang/erts-9.2/bin/beam.smp -W w -A 128 -P 1048576 -t 5000000 -stbt db -zdbbl 128000 -K <span class="literal">true</span> -B i -- -root /usr/lib/erlang -progname erl -- -home /var/lib/rabbitmq -- -pa /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.15/ebin -noshell -noinput -s rabbit boot -sname rabbit-1 -boot start_sasl -kernel inet_default_connect_options [&#123;nodelay,<span class="literal">true</span>&#125;] -rabbit tcp_listeners [&#123;<span class="string">"auto"</span>,5672&#125;] -sasl errlog_type error -sasl sasl_error_logger <span class="literal">false</span> -rabbit error_logger &#123;file,<span class="string">"/var/log/rabbitmq/rabbit-1.log"</span>&#125; -rabbit sasl_error_logger &#123;file,<span class="string">"/var/log/rabbitmq/rabbit-1-sasl.log"</span>&#125; -rabbit enabled_plugins_file <span class="string">"/etc/rabbitmq/enabled_plugins"</span> -rabbit plugins_dir <span class="string">"/usr/lib/rabbitmq/plugins:/usr/lib/rabbitmq/lib/rabbitmq_server-3.6.15/plugins"</span> -rabbit plugins_expand_dir <span class="string">"/var/lib/rabbitmq/mnesia/rabbit-1-plugins-expand"</span> -os_mon start_cpu_sup <span class="literal">false</span> -os_mon start_disksup <span class="literal">false</span> -os_mon start_memsup <span class="literal">false</span> -mnesia dir <span class="string">"/var/lib/rabbitmq/mnesia/rabbit-1"</span> -kernel inet_dist_listen_min 25672 -kernel inet_dist_listen_max 25672 start</span><br><span class="line">rabbitmq  2402  4.2  0.4 5352196 77196 ?       Sl   11:05   0:05 /usr/lib/erlang/erts-9.2/bin/beam.smp -W w -A 128 -P 1048576 -t 5000000 -stbt db -zdbbl 128000 -K <span class="literal">true</span> -B i -- -root /usr/lib/erlang -progname erl -- -home /var/lib/rabbitmq -- -pa /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.15/ebin -noshell -noinput -s rabbit boot -sname rabbit-2 -boot start_sasl -kernel inet_default_connect_options [&#123;nodelay,<span class="literal">true</span>&#125;] -rabbit tcp_listeners [&#123;<span class="string">"auto"</span>,5673&#125;] -sasl errlog_type error -sasl sasl_error_logger <span class="literal">false</span> -rabbit error_logger &#123;file,<span class="string">"/var/log/rabbitmq/rabbit-2.log"</span>&#125; -rabbit sasl_error_logger &#123;file,<span class="string">"/var/log/rabbitmq/rabbit-2-sasl.log"</span>&#125; -rabbit enabled_plugins_file <span class="string">"/etc/rabbitmq/enabled_plugins"</span> -rabbit plugins_dir <span class="string">"/usr/lib/rabbitmq/plugins:/usr/lib/rabbitmq/lib/rabbitmq_server-3.6.15/plugins"</span> -rabbit plugins_expand_dir <span class="string">"/var/lib/rabbitmq/mnesia/rabbit-2-plugins-expand"</span> -os_mon start_cpu_sup <span class="literal">false</span> -os_mon start_disksup <span class="literal">false</span> -os_mon start_memsup <span class="literal">false</span> -mnesia dir <span class="string">"/var/lib/rabbitmq/mnesia/rabbit-2"</span> -rabbitmq_management listener [&#123;port,15673&#125;] -kernel inet_dist_listen_min 25673 -kernel inet_dist_listen_max 25673 start</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="3">
+<li><strong>rabbit-1作为主节点</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#停止应用</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-1 stop_app</span><br><span class="line"><span class="comment">#目的是清除节点上的历史数据（如果不清除，无法将节点加入到集群）</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-1 reset</span><br><span class="line"><span class="comment">#启动应用</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-1 start_app</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="4">
+<li><strong>rabbit-2作为从节点</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 停止应用</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-2 stop_app</span><br><span class="line"><span class="comment"># 目的是清除节点上的历史数据（如果不清除，无法将节点加入到集群）</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-2 reset</span><br><span class="line"><span class="comment"># 将rabbit2节点加入到rabbit1（主节点）集群当中【Server-node服务器的主机名】</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-2 join_cluster rabbit-1@<span class="string">'Server-node'</span></span><br><span class="line"><span class="comment"># 启动应用</span></span><br><span class="line">&gt; sudo rabbitmqctl -n rabbit-2 start_app</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="5">
+<li><strong>查看集群的状态</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; sudo rabbitmqctl cluster_status -n rabbit-1</span><br><span class="line">//集群有两个节点：rabbit-1@Server-node、rabbit-2@Server-node</span><br><span class="line">[&#123;nodes,[&#123;disc,[<span class="string">'rabbit-1@Server-node'</span>,<span class="string">'rabbit-2@Server-node'</span>]&#125;]&#125;,</span><br><span class="line"> &#123;running_nodes,[<span class="string">'rabbit-2@Server-node'</span>,<span class="string">'rabbit-1@Server-node'</span>]&#125;,</span><br><span class="line"> &#123;cluster_name,&lt;&lt;<span class="string">"rabbit-1@Server-node.localdomain"</span>&gt;&gt;&#125;,</span><br><span class="line"> &#123;partitions,[]&#125;,</span><br><span class="line"> &#123;alarms,[&#123;<span class="string">'rabbit-2@Server-node'</span>,[]&#125;,&#123;<span class="string">'rabbit-1@Server-node'</span>,[]&#125;]&#125;]</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-3-启动Web-监控"><a href="#2-3-启动Web-监控" class="headerlink" title="2.3 启动Web 监控"></a>2.3 启动Web 监控</h4><ul>
+<li>注意在访问的时候：web结面的管理需要给15672 node-1 和15673的node-2 设置用户名和密码。如下:</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl -n rabbit-1 add_user admin admin</span><br><span class="line">rabbitmqctl -n rabbit-1 set_user_tags admin administrator</span><br><span class="line">rabbitmqctl -n rabbit-1 set_permissions -p / admin <span class="string">".*"</span> <span class="string">".*"</span> <span class="string">".*"</span></span><br><span class="line">rabbitmqctl -n rabbit-2 add_user admin admin</span><br><span class="line">rabbitmqctl -n rabbit-2 set_user_tags admin administrator</span><br><span class="line">rabbitmqctl -n rabbit-2 set_permissions -p / admin <span class="string">".*"</span> <span class="string">".*"</span> <span class="string">".*"</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210410-201712378.png" alt="mark"></p>
+<h4 id="2-4-多机部署的注意事项"><a href="#2-4-多机部署的注意事项" class="headerlink" title="2.4 多机部署的注意事项"></a>2.4 多机部署的注意事项</h4><ul>
+<li><p>如果采用多机部署方式，需读取其中一个节点的cookie, 并复制到其他节点（节点之间通过cookie确定相互是否可通信）。</p>
+</li>
+<li><p>cookie存放在<code>/var/lib/rabbitmq/.erlang.cookie</code></p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">例如：主机名分别为rabbit-1、rabbit-2</span><br><span class="line">1、逐个启动各节点</span><br><span class="line">2、配置各节点的hosts文件( vim &#x2F;etc&#x2F;hosts)</span><br><span class="line">​ ip1：rabbit-1</span><br><span class="line">​ ip2：rabbit-2</span><br><span class="line">其它步骤雷同单机部署方式</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>参考博客 ：</strong> <a href="https://honeypps.com/mq/rabbitmq-multiple-instances-in-one-machine/" target="_blank" rel="noopener">https://honeypps.com/mq/rabbitmq-multiple-instances-in-one-machine/</a></p>
+
       
       <!-- reward -->
       
@@ -209,7 +258,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/04/01/rabbitMQ/RabbitMQ-08-SpringBoot%E6%95%B4%E5%90%88%E4%BD%BF%E7%94%A8/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/04/10/RabbitMQ/RabbitMQ-12-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -227,19 +276,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2021/04/02/Leetcode/Leetcode-%E9%9D%A2%E8%AF%95%E9%A2%9817.21-%E7%9B%B4%E6%96%B9%E5%9B%BE%E7%9A%84%E6%B0%B4%E9%87%8F/" class="article-nav-link">
+      <a href="/2021/04/11/RabbitMQ/RabbitMQ-13-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Leetcode-面试题17.21-直方图的水量
+            RabbitMQ-13-分布式事务
           
         </div>
       </a>
     
     
-      <a href="/2021/03/31/Leetcode/Leetcode-1006-%E7%AC%A8%E9%98%B6%E4%B9%98/" class="article-nav-link">
+      <a href="/2021/04/09/RabbitMQ/RabbitMQ-11-%E5%AD%98%E5%82%A8%E6%9C%BA%E5%88%B6/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Leetcode-1006-笨阶乘</div>
+        <div class="article-nav-title">RabbitMQ-11-存储机制</div>
       </a>
     
   </nav>

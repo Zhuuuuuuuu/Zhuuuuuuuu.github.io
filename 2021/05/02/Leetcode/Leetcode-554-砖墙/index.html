@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    RabbitMQ-05-AMQP协议 |  朱酱酱的学习博客
+    Leetcode-554-砖墙 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -36,7 +36,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-rabbitMQ/RabbitMQ-05-AMQP协议" class="article article-type-post" itemscope
+  <article id="post-Leetcode/Leetcode-554-砖墙" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  RabbitMQ-05-AMQP协议
+  Leetcode-554-砖墙
 </h1>
   
 
@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2021/03/24/rabbitMQ/RabbitMQ-05-AMQP%E5%8D%8F%E8%AE%AE/" class="article-date">
-  <time datetime="2021-03-24T07:02:24.000Z" itemprop="datePublished">2021-03-24</time>
+      <a href="/2021/05/02/Leetcode/Leetcode-554-%E7%A0%96%E5%A2%99/" class="article-date">
+  <time datetime="2021-05-02T03:02:24.000Z" itemprop="datePublished">2021-05-02</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1k字</span>
+            <span class="post-count">766字</span>
         </span>
     </span>
 
@@ -99,44 +99,56 @@
       
 
       
-      <h2 id="RabbitMQ-05-AMQP协议"><a href="#RabbitMQ-05-AMQP协议" class="headerlink" title="RabbitMQ-05-AMQP协议"></a>RabbitMQ-05-AMQP协议</h2><h2 id="1-概要"><a href="#1-概要" class="headerlink" title="1. 概要"></a>1. 概要</h2><ul>
-<li>AMQP全称：<code>Advanced Message Queuing Protocol</code>(高级消息队列协议)。</li>
-<li><strong>是应用层协议的一个开发标准，为面向消息的中间件设计。</strong></li>
+      <h2 id="Leetcode-554-砖墙"><a href="#Leetcode-554-砖墙" class="headerlink" title="Leetcode-554-砖墙"></a>Leetcode-554-<a href="https://leetcode-cn.com/problems/brick-wall/" target="_blank" rel="noopener">砖墙</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li>你的面前有一堵矩形的、由 n 行砖块组成的砖墙。这些砖块高度相同（也就是一个单位高）但是宽度不同。每一行砖块的宽度之和相等。</li>
+<li><strong>你现在要画一条 自顶向下 的、穿过 最少 砖块的垂线。</strong>如果你画的线只是从砖块的边缘经过，就不算穿过这块砖。你不能沿着墙的两个垂直边缘之一画线，这样显然是没有穿过一块砖的。</li>
+<li>给你一个二维数组 wall ，该数组包含这堵墙的相关信息。其中，<code>wall[i]</code>是一个代表从左至右每块砖的宽度的数组。你需要找出怎样画才能使这条线 穿过的砖块数量最少 ，并且返回 穿过的砖块数量 。</li>
 </ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210324-162118081.png" alt="mark"></p>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210514-084009075.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：wall &#x3D; [[1,2,2,1],[3,1,2],[1,3,2],[2,4],[3,1,2],[1,3,1,1]]</span><br><span class="line">输出：2</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：wall &#x3D; [[1],[1],[1]]</span><br><span class="line">输出：3</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
 <ul>
-<li><strong>工作过程：</strong><ul>
-<li>发布者（Publisher）发布消息（Message），经由交换机（Exchange）。</li>
-<li>交换机根据<strong>路由规则</strong>将收到的消息分发给与该交换机绑定的队列（Queue）。</li>
-<li>最后 AMQP 代理会将消息投递给订阅了此队列的消费者，或者消费者按照需求自行获取。</li>
+<li><p><strong>提示：</strong></p>
+<ul>
+<li><p><code>n == wall.length</code></p>
+</li>
+<li><p>``1 &lt;= n &lt;= 10^4`</p>
+</li>
+<li><p><code>1 &lt;= wall[i].length &lt;= 10^4</code></p>
+</li>
+<li><p><code>1 &lt;= sum(wall[i].length) &lt;= 2 * 10^4</code></p>
+</li>
+<li><p><code>对于每一行 i ，sum(wall[i]) 是相同的1 &lt;= wall[i][j] &lt;= 2^31 - 1</code></p>
+</li>
 </ul>
 </li>
 </ul>
-<a id="more"></a>
-
-
-
-<h2 id="2-详细解释"><a href="#2-详细解释" class="headerlink" title="2. 详细解释"></a>2. 详细解释</h2><ul>
-<li>发布者、交换机、队列、消费者都可以有多个。同时因为 AMQP 是一个网络协议，所以这个过程中的发布者，消费者，消息代理 可以分别存在于不同的设备上。</li>
-<li>发布者发布消息时可以给消息指定各种消息属性（Message Meta-data）。有些属性有可能会被消息代理（Brokers）使用，然而其他的属性则是完全不透明的，它们只能被接收消息的应用所使用。</li>
-<li>从安全角度考虑，网络是不可靠的，又或是消费者在处理消息的过程中意外挂掉，这样没有处理成功的消息就会丢失。基于此原因，AMQP 模块包含了一个消息确认（Message Acknowledgements）机制：当一个消息从队列中投递给消费者后，不会立即从队列中删除，直到它收到来自消费者的确认回执（Acknowledgement）后，才完全从队列中删除。</li>
-<li>在某些情况下，例如当一个消息无法被成功路由时（无法从交换机分发到队列），消息或许会被返回给发布者并被丢弃。或者，如果消息代理执行了延期操作，消息会被放入一个所谓的死信队列中。此时，消息发布者可以选择某些参数来处理这些特殊情况。</li>
-</ul>
-<h2 id="3-AMQP-生产者流转过程"><a href="#3-AMQP-生产者流转过程" class="headerlink" title="3. AMQP 生产者流转过程"></a>3. AMQP 生产者流转过程</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210324-163035448.png" alt="mark"></p>
+<h2 id="算法思路：哈希表"><a href="#算法思路：哈希表" class="headerlink" title="算法思路：哈希表"></a>算法思路：哈希表</h2><p><strong>思路</strong></p>
 <ul>
-<li>当客户端与<code>Broker</code>建立链接的时候，会调用<code>factory.newConnection()</code> 方法，这个方法会进一步封装成<code>Protocol Header 0-9-1</code>的报文头发送给<code>Broker</code>，以此通知<code>Broker</code>本次交互采用的是<code>AMQP 0-9-1</code>协议，紧接着<code>Broker</code>返回<code>Connection.Start</code> 来建立链接，在链接的过程中涉及的交互命令如图上过程1所示</li>
-<li>当客户端调用<code>Connection.createChannel()</code>时候准备开启信道，其中包含的<code>Channel.Open</code> 发送给<code>Broker</code>，等待确认<code>Channel.Open-ok</code> </li>
-<li>当客户端发送消息的时候，需要调用<code>Basic.Publish</code> ，注意这个命令和前面设计的命令有所不同，这个命令还包含了<code>Content Header</code> 和 <code>Content Body</code>, <code>Content Header</code>里面包含的是消息体的属性，例如投递模式和优先级等等，而<code>Content Body</code>包含了消息体的本身</li>
-<li>当客户端断开资源的时候，如图过程4所示。</li>
+<li><p><strong>题目要求穿过的砖块数量最少，等效于通过的间隙最多</strong></p>
+</li>
+<li><p><strong>可以使用「哈希表」记录每个间隙的出现次数，最终统计所有行中哪些间隙出现得最多，使用「总行数」减去「间隙出现的最多次数」即是答案。</strong></p>
+</li>
 </ul>
-<h2 id="4-AMQP-消费者流转过程"><a href="#4-AMQP-消费者流转过程" class="headerlink" title="4. AMQP 消费者流转过程"></a>4. AMQP 消费者流转过程</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210324-163757877.png" alt="mark"></p>
+<p><strong>实现：</strong></p>
 <ul>
-<li>当客户端与<code>Broker</code>建立链接的时候，会调用<code>factory.newConnection()</code> 方法，这个方法会进一步封装成<code>Protocol Header 0-9-1</code>的报文头发送给<code>Broker</code>，以此通知<code>Broker</code>本次交互采用的是<code>AMQP 0-9-1</code>协议，紧接着<code>Broker</code>返回<code>Connection.Start</code> 来建立链接，在链接的过程中涉及的交互命令如图上过程1所示</li>
-<li>当客户端调用<code>Connection.createChannel()</code>时候准备开启信道，其中包含的<code>Channel.Open</code> 发送给<code>Broker</code>，等待确认<code>Channel.Open-ok</code> </li>
-<li><strong>上面都和生产者一样</strong></li>
-<li>在真正消费之前，消费者客户端需要向<code>Broker</code>发送<code>Basic.Consume</code>命令（channel.BasicConsume 方法）将Channel 设置为接收的模式，之后<code>Broker</code>向消费者客户端推送消息（即<code>Basic.Deliver</code> 命令），有意思的是这个<code>Basic.Deliver</code> 命令一样会携带<code>Content Header</code> 和 <code>Content Body</code></li>
-<li>消费者接收到消息并且真正确实消费之后，向<code>Broker</code> 发送确认，即<code>Basic.Ack</code>命令</li>
-<li>在消费者停止消费之后，主动关闭链接，这点和生产者一样</li>
+<li>如何记录间隙呢？直接使用行前缀记录即可。</li>
+<li>就用示例数据来举 🌰 ：</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210514-084009075.png" alt="mark"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">第 1 行的间隙有 [1,3,5]</span><br><span class="line">第 2 行的间隙有 [3,4]</span><br><span class="line">第 3 行的间隙有 [1,4]</span><br><span class="line">第 4 行的间隙有 [2]</span><br><span class="line">第 5 行的间隙有 [3,4]</span><br><span class="line">第 6 行的间隙有 [1,4,5]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>对间隙计数完成后，遍历「哈希表」找出出现次数最多间隙 <code>4</code>，根据同一个间隙编号只会在单行内被统计一次，用总行数减去出现次数，即得到「最少穿过的砖块数」。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">leastBricks</span><span class="params">(List&lt;List&lt;Integer&gt;&gt; wall)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 哈希表统计所有的砖块间隙</span></span><br><span class="line">        <span class="keyword">int</span> n = wall.size();</span><br><span class="line">        Map&lt;Integer,Integer&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; n;i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> sum = <span class="number">0</span>;                                    <span class="comment">// 每次统计用来清0</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> brick_width:wall.get(i))&#123;</span><br><span class="line">                sum += brick_width;                         <span class="comment">// 统计每行的砖块间隔位置</span></span><br><span class="line">                map.put(sum, map.getOrDefault(sum, <span class="number">0</span>) + <span class="number">1</span>); <span class="comment">// 间隔出现的次数放入哈希表中</span></span><br><span class="line">            &#125;</span><br><span class="line">            map.remove(sum);                                <span class="comment">// 不能从两边穿过，需要 remove 掉最后一个</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 比较最小通过的砖块数量</span></span><br><span class="line">        <span class="keyword">int</span> ans = n;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> u : map.keySet()) &#123;</span><br><span class="line">            <span class="keyword">int</span> cnt = map.get(u);                           <span class="comment">// 拿到砖块的间隔数</span></span><br><span class="line">            ans = Math.min(ans, n - cnt);                   <span class="comment">// 最少的穿越：最多的间隔出现</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：记所有砖块数量为 <code>n</code>，所有砖块都会被扫描。复杂度为 O<em>(</em>n)</li>
+<li>空间复杂度：O<em>(</em>n)</li>
 </ul>
 
       
@@ -205,14 +217,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/03/24/rabbitMQ/RabbitMQ-05-AMQP%E5%8D%8F%E8%AE%AE/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/05/02/Leetcode/Leetcode-554-%E7%A0%96%E5%A2%99/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/" rel="tag">哈希表</a></li></ul>
 
 
     </footer>
@@ -223,19 +235,19 @@
   
   <nav class="article-nav">
     
-      <a href="/2021/03/25/Leetcode/Leetcode-083-%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0I/" class="article-nav-link">
+      <a href="/2021/05/06/Leetcode/Leetcode-1720-%E8%A7%A3%E7%A0%81%E5%BC%82%E6%88%96%E5%90%8E%E7%9A%84%E6%95%B0%E7%BB%84/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Leetcode--083-删除排序链表中的重复元素I
+            Leetcode-1720-解码异或后的数组
           
         </div>
       </a>
     
     
-      <a href="/2021/03/24/rabbitMQ/RabbitMQ-04-Simple%E6%A8%A1%E5%BC%8F/" class="article-nav-link">
+      <a href="/2021/04/30/Leetcode/Leetcode-137-%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E6%95%B0%E5%AD%97II/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">RabbitMQ-04-Simple模式</div>
+        <div class="article-nav-title">Leetcode-137-只出现一次的数字II</div>
       </a>
     
   </nav>
