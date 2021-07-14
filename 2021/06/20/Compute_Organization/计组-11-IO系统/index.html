@@ -53,8 +53,8 @@
 
     
     <div class="article-meta">
-      <a href="/2021/06/26/Compute_Organization/%E8%AE%A1%E7%BB%84-11-IO%E7%B3%BB%E7%BB%9F/" class="article-date">
-  <time datetime="2021-06-26T03:02:24.000Z" itemprop="datePublished">2021-06-26</time>
+      <a href="/2021/06/20/Compute_Organization/%E8%AE%A1%E7%BB%84-11-IO%E7%B3%BB%E7%BB%9F/" class="article-date">
+  <time datetime="2021-06-20T03:02:24.000Z" itemprop="datePublished">2021-06-20</time>
 </a>
       
       
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">13字</span>
+            <span class="post-count">988字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">3分钟</span>
         </span>
     </span>
 </div>
@@ -99,7 +99,245 @@
       
 
       
-      <h2 id="计算机组成原理-11-IO系统"><a href="#计算机组成原理-11-IO系统" class="headerlink" title="计算机组成原理-11-IO系统"></a>计算机组成原理-11-IO系统</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2>
+      <h2 id="计算机组成原理-11-IO系统"><a href="#计算机组成原理-11-IO系统" class="headerlink" title="计算机组成原理-11-IO系统"></a>计算机组成原理-11-IO系统</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><strong>本章总览</strong></li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/110745945.png" alt="mark" style="zoom:80%;" />
+
+<ul>
+<li><p>I/O方式需要注意的是：中断方式的各种原理和特点，处理过程，中断屏蔽，DMA方式和传输过程</p>
+</li>
+<li><p>I/O系统的演变过程如下图所示：</p>
+</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/111139742.png" alt="mark" style="zoom: 67%;" />
+
+
+
+<a id="more"></a>
+
+
+
+<h2 id="1-I-O系统的基本组成"><a href="#1-I-O系统的基本组成" class="headerlink" title="1. I/O系统的基本组成"></a>1. I/O系统的基本组成</h2><ul>
+<li>一般来说I/O指令由 I/O硬件和I/O软件组成</li>
+</ul>
+<ol>
+<li><strong>I/O 软件</strong><ul>
+<li>I/O命令</li>
+<li>I/O的命令编码</li>
+</ul>
+</li>
+</ol>
+<ol start="2">
+<li><strong>I/O 硬件</strong></li>
+</ol>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/111550097.png" alt="mark" style="zoom:50%;" />
+
+
+
+<h2 id="2-I-O-方式"><a href="#2-I-O-方式" class="headerlink" title="2. I/O 方式"></a>2. I/O 方式</h2><ul>
+<li><strong>I/O方式总览如下</strong></li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/111825416.png" alt="mark" style="zoom:67%;" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="3-外部设备"><a href="#3-外部设备" class="headerlink" title="3. 外部设备"></a>3. 外部设备</h2><ul>
+<li>外部设备主要包括<ul>
+<li>输入设备：如键盘鼠标</li>
+<li>输出设备：显示器和打印机</li>
+<li>外存设备：CPU缓存，光盘和磁盘</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-1-输入设备"><a href="#3-1-输入设备" class="headerlink" title="3.1 输入设备"></a>3.1 输入设备</h3><p><strong>键盘和鼠标的基本原理</strong></p>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/112127884.png" alt="mark" style="zoom: 67%;" />
+
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/112157000.png" alt="mark" style="zoom:67%;" />
+
+
+
+<h3 id="3-2-输出设备"><a href="#3-2-输出设备" class="headerlink" title="3.2 输出设备"></a>3.2 输出设备</h3><ul>
+<li><strong>以显示器基本原理为例</strong></li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/112326470.png" alt="mark" style="zoom:67%;" />
+
+
+
+<ul>
+<li><strong>显示器的 VRAM 的计算</strong><ul>
+<li><code>VRAM</code>容量 = 分辨率 * 灰度级位数</li>
+<li><code>VRAM</code> 带宽 = 分辨率* 灰度级位数* 帧数</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-3-外存储器"><a href="#3-3-外存储器" class="headerlink" title="3.3 外存储器"></a>3.3 外存储器</h3><h4 id="3-3-1-磁盘原理"><a href="#3-3-1-磁盘原理" class="headerlink" title="3.3.1 磁盘原理"></a>3.3.1 磁盘原理</h4><ul>
+<li>计算机使用的外存储器叫做辅助存储器，目前主要使用是磁表面存储器</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/112632401.png" alt="mark" style="zoom:67%;" />
+
+
+
+<p><strong>1. 磁盘设备的组成</strong></p>
+<ul>
+<li><strong>存储区域</strong><ul>
+<li>磁头数</li>
+<li>柱面数</li>
+<li>扇区数</li>
+</ul>
+</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/112956785.png" alt="mark" style="zoom:67%;" />
+
+<ul>
+<li><strong>磁盘存储器的组成</strong><ul>
+<li>磁盘驱动器：磁头组件和盘片组件</li>
+<li>磁盘控制器：磁盘存储器的接口</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 磁盘存储器的性能指标</strong></p>
+<ul>
+<li>磁盘容量分为：格式化和非格式化容量</li>
+<li>磁盘记录密度：道密度，位密度，面密度</li>
+<li>磁盘寻道时间：寻道时间+旋转延迟时间+传输时间</li>
+<li>数据传输率：单位时间内向主机传输的数据字节数<ul>
+<li><code>D = r N</code></li>
+<li>D是数据传输率，r是磁盘转速，N是每条磁盘容量</li>
+</ul>
+</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/113154540.png" alt="mark" style="zoom:67%;" />
+
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/113351585.png" alt="mark" style="zoom: 67%;" />
+
+<ol start="3">
+<li><strong>磁盘地址</strong></li>
+</ol>
+<ul>
+<li>驱动器号：哪一个磁头</li>
+<li>柱面号：柱面的地址</li>
+<li>盘面：盘面的地址</li>
+<li>扇区：扇区号</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/113602322.png" alt="mark" style="zoom:67%;" />
+
+
+
+<p><strong>注意</strong>：</p>
+<ul>
+<li>磁盘的读写是串行的，不能同时读写</li>
+<li>每个操作对应于一个控制字，第一步是取控制字，第二部是执行控制字</li>
+</ul>
+<h4 id="3-3-2-磁盘阵列-RAID"><a href="#3-3-2-磁盘阵列-RAID" class="headerlink" title="3.3.2 磁盘阵列 RAID"></a>3.3.2 磁盘阵列 RAID</h4><ul>
+<li><strong>RAID（廉价冗余磁盘阵列）：将多个独立的物理磁盘组成一个独立的逻辑磁盘</strong></li>
+<li><strong>数据可以在多个物理盘上交叉存储，并行访问</strong></li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/113944019.png" alt="mark" style="zoom:67%;" />
+
+
+
+<ul>
+<li>对应于<code>RAID</code>有以下几种方案<ul>
+<li><code>RAID0 :</code>  无冗余和无校验的这列</li>
+<li><code>RAID1：</code> 镜像的磁盘阵列</li>
+<li><code>RAID2：</code>海明码校验的磁盘阵列</li>
+<li><code>RAID3：</code>位交叉奇偶校验码磁盘阵列</li>
+<li><code>RAID4：</code>块交叉奇偶校验码磁盘阵列</li>
+<li><code>RAID5：</code>无独立校验的奇偶校验码磁盘阵列</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-3-3-光盘"><a href="#3-3-3-光盘" class="headerlink" title="3.3.3 光盘"></a>3.3.3 光盘</h4><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/114209515.png" alt="mark" style="zoom:67%;" />
+
+
+
+<h4 id="3-3-4-固态硬盘"><a href="#3-3-4-固态硬盘" class="headerlink" title="3.3.4 固态硬盘"></a>3.3.4 固态硬盘</h4><ul>
+<li>采用的是Flash 闪存的硬盘</li>
+<li>本质上是只读存储器</li>
+</ul>
+<h2 id="4-I-O-接口"><a href="#4-I-O-接口" class="headerlink" title="4. I/O 接口"></a>4. I/O 接口</h2><ul>
+<li>I/O 接口是主机和外设之间的交接界面，并且有如下功能<ul>
+<li>设备选址功能 ： 设备选择电路</li>
+<li>传送命令的功能 ：命令寄存器和命令译码器</li>
+<li>传送数据的功能 ： 数据缓冲寄存器DBR</li>
+<li>反馈I/O 设备的工作状态 : 设备状态标记</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-1-基本结构"><a href="#4-1-基本结构" class="headerlink" title="4.1 基本结构"></a>4.1 基本结构</h3><ul>
+<li><strong>基本结构图如下：</strong></li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/114922042.png" alt="mark" style="zoom:67%;" />
+
+
+
+<ul>
+<li><strong>接口和端口</strong><ul>
+<li>端口是I/O接口中直接可以被访问的寄存器<ul>
+<li>端口：数据端口，控制端口，状态端口</li>
+</ul>
+</li>
+<li>接口是由端口和控制逻辑组成的</li>
+<li>端口是由地址来进行访问的</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>端口的编址方式</strong><ul>
+<li>统一编址：主存和设备统一编址（共用一套地址线）<ul>
+<li>命令通用一套指令</li>
+</ul>
+</li>
+<li>独立编址：I/O和存储器地址是分开的<ul>
+<li>命令是不同的指令集</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/135752993.png" alt="mark" style="zoom:67%;" />
+
+
+
+<h3 id="4-2-接口类型"><a href="#4-2-接口类型" class="headerlink" title="4.2 接口类型"></a>4.2 接口类型</h3><p><strong>按传送方式分类</strong></p>
+<ul>
+<li>并行和串行</li>
+</ul>
+<p><strong>按控制方式分类</strong></p>
+<ul>
+<li>程序查询</li>
+<li>中断接口</li>
+<li>DMA接口</li>
+</ul>
+<p><strong>按功能的灵活性</strong></p>
+<ul>
+<li>可编程接口   ：通道处理器</li>
+<li>不可编程接口</li>
+</ul>
+<h3 id="4-3-本章小结"><a href="#4-3-本章小结" class="headerlink" title="4.3 本章小结"></a>4.3 本章小结</h3><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210714/135957637.png" alt="mark" style="zoom:67%;" />
+
+
+
+
+
+
+
+
       
       <!-- reward -->
       
@@ -166,7 +404,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/06/26/Compute_Organization/%E8%AE%A1%E7%BB%84-11-IO%E7%B3%BB%E7%BB%9F/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/06/20/Compute_Organization/%E8%AE%A1%E7%BB%84-11-IO%E7%B3%BB%E7%BB%9F/" alt="微信分享二维码">
     </div>
 </div>
 
