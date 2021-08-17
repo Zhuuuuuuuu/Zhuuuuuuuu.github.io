@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    SpringMVC-1.5-运行原理 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-SpringMVC/SpringMVC-1.5-运行原理" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  SpringMVC-1.5-运行原理
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2019/11/01/SpringMVC/SpringMVC-1.5-%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-11-01T07:02:24.000Z" itemprop="datePublished">2019-11-01</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.9k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="SpringMVC-1-5-运行原理"><a href="#SpringMVC-1-5-运行原理" class="headerlink" title="SpringMVC-1.5-运行原理"></a>SpringMVC-1.5-运行原理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>首先，来看一下 SpringMVC 的整个请求流程，如下图：</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-07-095224.jpg" alt=""></p>
+<p><code>SpringMVC</code> 整体流程步骤解析：</p>
+<p>1，用户去单击了某个请求路径，发起了一个 request 请求，这个请求会被<code>DispatcherServlet</code> 前端控制器处理。</p>
+<p>2，前端控制器<code>DispatcherServlet</code> 去请求处理器映射器 <code>HandlerMapping</code> 去查找<code>Handler</code>，可以依据注解或者<code>XML</code>配置去查找。</p>
+<p>3，处理器映射器<code>HandlerMapping</code> 根据配置找到相应的 <code>Handler</code>，返回给前端控制器 <code>DispatcherServlet</code>，这个<code>Handler</code> 可能包含 <code>N</code>个<code>Interceptor</code>拦截器。</p>
+<p>4，前端控制器 <code>DispatcherServlet</code>请求处理器适配器<code>HandlerAdapter</code> 去执行相应的 <code>Handler</code>，也就是 <code>Controller</code>。</p>
+<p>5，处理器适配器 <code>HandlerAdapter</code> 执行 <code>Handler</code>。</p>
+<p>6，<code>Handler</code>执行完毕后会返回给处理器适配器<code>HandlerAdapter</code>一个<code>ModelAndView</code>对象，<code>ModelAndView</code>是<code>SpringMVC</code>底层对象，包括 <code>Model</code>数据模型和 <code>View</code>视图信息。</p>
+<p>7，处理器适配器<code>HandlerAdapter</code>接收到<code>Handler</code>返回的 <code>ModelAndView</code> 后，将其返回给前端控制器 <code>DispatcherServlet</code>。</p>
+<p>8，前端控制器 <code>DispatcherServlet</code> 接收到 <code>ModelAndView</code> 后，会请求视图解析器 <code>ViewResolver</code> 对视图进行解析。</p>
+<p>9，视图解析器 <code>ViewResolver</code>根据<code>View</code>信息匹配到相应的视图结果，反馈给前端控制器 <code>DispatcherServlet</code>。</p>
+<p>10，前端控制器<code>DispatcherServlet</code>收到 <code>View</code> 具体视图后，进行视图渲染，将<code>Model</code>中的模型数据填充到<code>View</code>视图中的<code>request</code>域，生成最终的视图 <code>View</code>。</p>
+<p>11，前端控制器<code>DispatcherServlet</code>向用户返回请求结果。</p>
+<a id="more"></a>
+
+
+
+<h2 id="1-组件说明"><a href="#1-组件说明" class="headerlink" title="1. 组件说明"></a>1. 组件说明</h2><ul>
+<li><p>整个处理流程用到的组件有前端控制器 DispatcherServlet、处理器映射器 HandlerMapping、处理器适配器 HandlerAdapter、处理器 Handler、视图解析器 ViewResolver、视图 View。</p>
+</li>
+<li><p>前端控制器 <code>DispatcherServlet</code>：用来接收用户请求，反馈用户结果。相当于转发器或中央处理器，控制着整个流程的运行，对各个组件进行调度，降低组件之间的耦合性，并且有利于组件之间的扩展。</p>
+</li>
+<li><p>处理器映射器 <code>HandlerMapping</code>：作用是根据请求的<code>url</code> 路径，通过组件或者是 <code>xml</code>配置的方式，去寻找匹配的处理器<code>Handler</code>信息。</p>
+</li>
+<li><p>处理器适配器<code>HandlerAdapter</code>：作用是根据映射器找到的处理器 <code>Handler</code> 信息，按照特定的规则去执行相关的处理器<code>Handler</code>。(Controller中的方法)</p>
+</li>
+<li><p>处理器 <code>Hander</code>：作用是执行相关的请求处理逻辑，并返回相应的数据和视图信息，将其封装到 <code>ModelAndView</code>对象中。</p>
+</li>
+<li><p>视图解析器 <code>ViewResolver</code>：作用是进行解析操作，通过 <code>ModelAndView</code> 对象中的 <code>View</code>信息将逻辑视图名解析成真正的视图 <code>View</code>。</p>
+<ul>
+<li>视图 View：就是不同的 View 类型，例如 JSP。</li>
+</ul>
+</li>
+<li><p>开发过程中我们需要开发的是 Handler 处理器和 View 视图，但每一步都至关重要，在 SpringMVC 的整个工作流程中，了解它的每一步作用，更有利于日后的学习和理解。</p>
+</li>
+</ul>
+<h2 id="2-处理器映射器"><a href="#2-处理器映射器" class="headerlink" title="2. 处理器映射器"></a>2. 处理器映射器</h2><ul>
+<li>在 SpringMVC 中，处理器映射器有两种配置方式，一种是基于 XML 的资源配置，也就是常说的非注解方式。另外一种方式是基于 Annotation 注解方式的配置。</li>
+<li>注解是代码里的特殊标记，这些标记可以在程序编译、类加载和运行的时候被读取，然后去执行相应的处理。具体使用哪一种配置方式，要根据程序的具体情况而定。</li>
+</ul>
+<h3 id="2-1-非注解（不常用）"><a href="#2-1-非注解（不常用）" class="headerlink" title="2.1 非注解（不常用）"></a>2.1 非注解（不常用）</h3><p>1，非注解处理器类 <code>BeanNameUrlHandlerMapping</code>，这个类的映射规则是将 bean 的 name 作为 url 进行查找，需要在配置<code>Handler</code> 时指定<code>beanname</code>，其示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean class&#x3D;&quot;org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping&quot; &#x2F;&gt;</span><br><span class="line">&lt;bean name&#x3D;&quot;&#x2F;test.do&quot; class&#x3D;&quot;com.zhuuu.controller.TestController&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这时的 url 地址就会根据 bean 的 name 去查找，也就是示例中配置的 name 的值 test.do，且这个必须以 / 开头。</li>
+</ul>
+<p>2，非注解处理器类 <code>SimpleUrlHandlerMapping</code>，它可以通过内部参数去配置请求的 url 和 handler 之间的映射关系，其示例配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id&#x3D;&quot;urlMapping&quot; class&#x3D;&quot;org.springframework.web.servlet.handler.SimpleUrlHandlerMapping&quot;&gt;</span><br><span class="line">    &lt;property name&#x3D;&quot;interceptors&quot;&gt;</span><br><span class="line">        &lt;list&gt;</span><br><span class="line">            &lt;ref bean&#x3D;&quot;someCheckInterceptor1&quot;&#x2F;&gt;</span><br><span class="line">            &lt;ref bean&#x3D;&quot;someCheckInterceptor2&quot;&#x2F;&gt;</span><br><span class="line">        &lt;&#x2F;list&gt;</span><br><span class="line">    &lt;&#x2F;property&gt;</span><br><span class="line">    &lt;property name&#x3D;&quot;mapping&quot;&gt;</span><br><span class="line">        &lt;props&gt;</span><br><span class="line">            &lt;prop key&#x3D;&quot;user.action&quot;&gt;userController&lt;&#x2F;prop&gt;</span><br><span class="line">            &lt;prop key&#x3D;&quot;product.action&quot;&gt;productController&lt;&#x2F;prop&gt;</span><br><span class="line">            &lt;prop key&#x3D;&quot;other.action&quot;&gt;otherController&lt;&#x2F;prop&gt;</span><br><span class="line">        &lt;&#x2F;props&gt;            </span><br><span class="line">    &lt;&#x2F;property&gt;</span><br><span class="line">&lt;&#x2F;bean&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其中 property 属性可以配置 interceptors 拦截器，也可以配置 mapping（Handler 处理器和 url 的映射关系）。</li>
+</ul>
+<p>3，非注解处理器类<code>ControllerClassNameHandlerMapping</code>，它是将 Controller 控制器的名字作为映射的 url 地址，例如 TestController 控制器则映射的地址就为<code>/ test*</code>，如果是 test 控制器下的 test 方法，则 url 为 test/test.action，示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean class&#x3D;&quot;org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-2-注解（常用）"><a href="#2-2-注解（常用）" class="headerlink" title="2.2 注解（常用）"></a>2.2 注解（常用）</h3><ul>
+<li>注解处理方式不需要在 <code>xml</code> 中进行配置，只需要在指定的地方声明一些注解信息即可。<code>SpringMVC3.1</code> 版本之后默认的处理器映射器是 <code>RequestMappingHandlerMapping</code>，位于 <code>SpringMVC</code>的核心 jar 包 <code>org.springframework.web.servlet.mvc.method.annotation</code>中。</li>
+</ul>
+<p><strong>注解配置方式有两种</strong></p>
+<ul>
+<li>第一种是在 <code>springmvc.xml</code>中配置，声明相关的 <code>bean</code>和实现即可，示例代码如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean class&#x3D;&quot;org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping&quot;&#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第二种是使用 <code>&lt;mvc:annotation-driven/&gt;</code> 标签来配置，这个标签是一种简写方式，它会自动去注册处理器映射器，配置示例如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;mvc:annotation-driven&gt;&lt;&#x2F;mvc:annotation-driven&gt;</span><br></pre></td></tr></table></figure>
+
+<p>当使用了注解方式后，就不需要在 xml 配置中配置任何信息了，只需要在作为<code>Handler</code> 处理器的 Java 类中添加相应的注解即可，示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用Controller来标识它是一个控制器</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestControllerTest</span></span>&#123;</span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/testurl"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ModelAndView <span class="title">testurl</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">//逻辑代码</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在以上代码中 <code>@Controller</code>是注解信息，表示该类是一个控制器类，可以被注解的处理器适配器找到，而 <code>TestControllerTest</code> 类中的<code>testurl</code>方法上有一个 <code>@RequestMapping</code>注解信息，作用是指定一个<code>url</code>与该方法绑定。</p>
+</li>
+<li><p>这时为了让注解的处理器映射器能找到 <code>Handler</code>控制器，需要在 <code>springmvc.xml</code> 做下配置，方式有两种：</p>
+</li>
+</ul>
+<hr>
+<ol>
+<li>在<code>springmvc.xml</code>中声明 bean 信息，示例代码如下：</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"com.zhuuu.controller.TestController"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>第二种是扫描配置，对某一个包下的所有类进行扫描，找出所有使用 @Controller 注解的 Handler 控制器类，示例代码如下：</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.fageweiketang.controller"</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-3-小结"><a href="#2-3-小结" class="headerlink" title="2.3 小结"></a>2.3 小结</h3><ul>
+<li><code>SpringMVC</code> 中处理器映射器<code>HandlerMapping</code>根据配置找到相应的 <code>Handler</code>，返回给前端控制器 <code>DispatcherServlet</code>，这个 <code>Handler</code>可能包含 <code>N</code>个<code>Interceptor</code> 拦截器。</li>
+<li>其配置方式有两种，一个是非注解方式配置，也就是基于 <code>xml</code>配置文件。第二个就是注解配置，在类中做相应的注解即可。</li>
+</ul>
+<h2 id="3-处理器适配器"><a href="#3-处理器适配器" class="headerlink" title="3. 处理器适配器"></a>3. 处理器适配器</h2><ul>
+<li><p>处理器适配器 <code>HandlerAdapter</code>：作用是根据映射器找到的处理器<code>Handler</code> 信息，按照特定的规则去执行相关的处理器<code>Handler</code>。</p>
+</li>
+<li><p>其配置方式有两种，一种是基于<code>xml</code> 的资源配置，也就是非注解的配置方式。另外一种就是基于 <code>Annotation</code>注解的配置。其注解在代码中做上特殊标记，这些标记就可以编译、类加载、运行时被读取，然后去执行相应的处理。</p>
+</li>
+</ul>
+<h3 id="3-1-非注解处理器适配器（不用）"><a href="#3-1-非注解处理器适配器（不用）" class="headerlink" title="3.1 非注解处理器适配器（不用）"></a>3.1 非注解处理器适配器（不用）</h3><ul>
+<li>第一个是 SimpleControllerHandlerAdapter，翻译过来就是简单的控制器处理器适配器，它支持所有实现了 Controller 接口的 Handler 控制器，如果开发中编写了实现 Controller 接口的控制器，则 SimpleControllerHandlerAdapter 适配器就会去执行 Controller 的具体方法。其配置示例如下：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>第二个是<code>HttpRequestHandlerAdapter</code>，翻译过来就是<code>http</code> 请求处理器适配器，它要求编写的 <code>Handler</code>需要实现 <code>HttpRequestHandler</code> 接口。使用这种 <code>Handler</code> 的开发方式，方便开发者获取 <code>request</code>的相关 <code>http</code>请求信息，以及设置返回对象 <code>response</code> 的一些参数。其配置示例如下：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在之前的处理器映射器配置中添加这个 Handler 的 url 映射信息，其示例代码如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"urlMapping"</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mapping"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"/test1.action"</span>&gt;</span>testController1<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"/test2.action"</span>&gt;</span>testController2<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"testController1"</span> <span class="attr">class</span>=<span class="string">"com.fageweiketang.controller.TestController1"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"testController2"</span> <span class="attr">class</span>=<span class="string">"com.fageweiketang.controller.TestController2"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>处理器映射器就是根据<code>url</code>来查找<code>Handler</code>，处理器适配器就是按照它要求的规则去执行 <code>Handler</code>，但是一个 <code>Handler</code>类中只能编写一个方法，这个弊端就可以通过注解的方式来解决。</li>
+</ul>
+<h3 id="3-2-注解处理配适配器"><a href="#3-2-注解处理配适配器" class="headerlink" title="3.2 注解处理配适配器"></a>3.2 注解处理配适配器</h3><ul>
+<li>注解处理器适配器，只需要在指定的地方声明一些注解信息即可。在 spring3.1 之后，springmvc 新的基于注解的适配器默认是 RequestMappingHandlerAdapter，它位于 springmvc 核心 jar 包 org.springframework.web.servlet.mvc.method.annotation</li>
+</ul>
+<ol>
+<li>一种方式是在 springmvc.xml 中声明 bean 和实现方式即可，示例代码如下：</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mvc:annotation-driven</span>&gt;</span><span class="tag">&lt;/<span class="name">mvc:annotation-driven</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="2">
+<li>第二种方式是使用<code>&lt;mvc:annotation-driven/&gt;</code>标签来配置，它是一种简写模式，它会自动注册处理器适配器，配置方式如下：</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mvc:annotation-driven</span>&gt;</span><span class="tag">&lt;/<span class="name">mvc:annotation-driven</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当我们使用了其注解方式后，就无需在 xml 配置中配置其它任何信息了，而只需要在作为 Handler 处理器的 Java 类中去添加相应的注解即可，示例代码框架如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用Controller来标识它是一个控制器</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestControllerTest</span></span>&#123;</span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/testurl"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ModelAndView <span class="title">testurl</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">//逻辑代码</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在以上代码中 @Controller 是注解信息，表示该类是一个控制器类，可以被注解的处理器适配器找到，而 TestControllerTest 类中的 testurl 方法上有一个 @RequestMapping 注解信息，作用是指定一个 url 与该方法绑定。</li>
+</ul>
+<hr>
+<p>这时为了让注解的处理器映射器能找到 Handler 控制器，需要在 springmvc.xml 做下配置，方式有两种：</p>
+<p>1，在<code>springmvc.xml</code> 中声明 bean 信息，示例代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean class&#x3D;&quot;com.fageweiketang.controller.TestController&quot;&gt;&lt;&#x2F;bean&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>第二种是扫描配置，对某一个包下的所有类进行扫描，找出所有使用 @Controller 注解的 Handler 控制器类，示例代码如下：</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">"com.zhuuu.controller"</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-3-小结"><a href="#3-3-小结" class="headerlink" title="3.3 小结"></a>3.3 小结</h3><ul>
+<li><p>SpringMVC 中处理器映射器 HandlerMapping 根据配置找到相应的 Handler，返回给前端控制器 DispatcherServlet，前端控制器再传给处理器适配器让它进行处理，处理器适配器会去找到对应的 Handler 去处理，处理后则就会返回一个 ModleAndView 对象。</p>
+</li>
+<li><p>其配置方式有两种，一个是非注解方式配置，也就是基于 xml 配置文件。第二个就是注解配置，在类中做相应的注解即可。</p>
+</li>
+</ul>
+<h2 id="注意事项-：-和-的区别"><a href="#注意事项-：-和-的区别" class="headerlink" title="注意事项 ： / 和 /*的区别"></a>注意事项 ： / 和 /*的区别</h2><ol>
+<li><code>/</code>   ：只会匹配所有的请求，不会匹配页面（使用这个就行）</li>
+<li><code>/*</code>  :  不仅会匹配所有的请求，也会匹配jsp页面 </li>
+</ol>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2019/11/01/SpringMVC/SpringMVC-1.5-%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MVC/" rel="tag">MVC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringMVC/" rel="tag">SpringMVC</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2019/11/01/SpringMVC/SpringMVC-01-MVC%E6%9E%B6%E6%9E%84/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            SpringMVC-01-MVC架构
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/10/14/JavaBasement/Java-%E5%9F%BA%E7%A1%80-%E9%87%8D%E5%86%99%E5%92%8C%E9%87%8D%E8%BD%BD%E7%9A%84%E5%8C%BA%E5%88%AB/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java-基础-重写和重载的区别</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2021
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/">计算机基础理论</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">Mysql</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/IO">IO/Netty</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">SSM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/RabbitMQ/">中间件</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Linux/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

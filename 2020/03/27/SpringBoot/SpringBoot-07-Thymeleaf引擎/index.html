@@ -10,7 +10,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    SpringBoot-07-Thymeleaf引擎 |  朱酱酱的学习博客
+    SpringBoot-07-Thymeleaf模板引擎 |  朱酱酱的学习博客
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -44,7 +44,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  SpringBoot-07-Thymeleaf引擎
+  SpringBoot-07-Thymeleaf模板引擎
 </h1>
   
 
@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.6k字</span>
+            <span class="post-count">1.7k字</span>
         </span>
     </span>
 
@@ -99,64 +99,108 @@
       
 
       
-      <h1 id="SpringBoot-07-Thymeleaf引擎"><a href="#SpringBoot-07-Thymeleaf引擎" class="headerlink" title="SpringBoot-07-Thymeleaf引擎"></a>SpringBoot-07-Thymeleaf引擎</h1><h2 id="1-模板引擎"><a href="#1-模板引擎" class="headerlink" title="1. 模板引擎"></a>1. 模板引擎</h2><p>​    前端交给我们的页面，是html页面。如果是我们以前开发，我们需要把他们转成jsp页面，jsp好处就是当我们查出一些数据转发到JSP页面以后，我们可以用jsp轻松实现数据的显示，及交互等。</p>
-<p>​    jsp支持非常强大的功能，包括能写Java代码。但是我们现在的情况是，SpringBoot首先是以jar包的方式，不是war包，第二，我们用的是内嵌的Tomcat容器，它现在默认是不支持jsp的。</p>
-<p>​    那不支持jsp，如果直接用纯静态页面的方式，那给开发会带来非常大的麻烦，那怎么办呢？</p>
+      <h1 id="SpringBoot-07-Thymeleaf模板引擎"><a href="#SpringBoot-07-Thymeleaf模板引擎" class="headerlink" title="SpringBoot-07-Thymeleaf模板引擎"></a>SpringBoot-07-Thymeleaf模板引擎</h1><h2 id="1-模板引擎"><a href="#1-模板引擎" class="headerlink" title="1. 模板引擎"></a>1. 模板引擎</h2><ul>
+<li>前端交给我们的页面，是<code>html</code>页面。如果是以前开发，需要把他们转成jsp页面，<code>jsp</code>好处就是当我们查出一些数据转发到<code>JSP</code>页面以后，可以用<code>jsp</code>轻松实现数据的显示，及交互等。</li>
+<li><code>jsp</code>支持非常强大的功能，包括能写<code>Java</code>代码。<ul>
+<li>但是我们现在的情况是，<code>SpringBoot</code>首先是以<code>jar</code>包的方式，不是<code>war</code>包</li>
+<li>第二，我们用的是内嵌的<code>Tomcat</code>容器，它现在默认是不支持<code>jsp</code>的。</li>
+</ul>
+</li>
+<li>那不支持jsp，如果直接用纯静态页面的方式，那给开发会带来非常大的麻烦，那怎么办呢？</li>
+<li><strong>注意：一体式的开发才会用到thymeleaf</strong><ul>
+<li><strong>在前后端分离的项目中，其实还是用vue,react</strong></li>
+</ul>
+</li>
+</ul>
 <p>​    <strong>SpringBoot推荐你可以来使用模板引擎：</strong></p>
-<p>​    <a id="more"></a></p>
-<p>​    <strong>模板引擎，</strong>其实大家听到很多，其实jsp就是一个模板引擎，还有用的比较多的freemarker，包括SpringBoot给我们推荐的Thymeleaf，模板引擎有非常多，但再多的模板引擎，他们的思想都是一样的</p>
-<p>​    模板引擎的作用就是我们来写一个页面模板，比如其中有些值是动态的，就要写一些表达式。而这些值从哪里来，是从后台封装的一些数据，然后把这个模板和这个数据交给模板引擎，模板引擎按照我们的这个数据把这表达式解析，填充到指定的位置，然后把这个数据最终生成一个我们想要的内容给我们写进去，这就是我们的模板引擎。</p>
-<p>​    只不过呢，就是说不同模板引擎之间，他们可能这个语法有点不一样。</p>
-<h2 id="2-引入-Thymeleaf"><a href="#2-引入-Thymeleaf" class="headerlink" title="2. 引入 Thymeleaf"></a>2. 引入 Thymeleaf</h2><p>​    怎么引入呢，对于springboot来说，<strong>什么事情不都是一个start的事情嘛</strong>，我们去在项目中引入一下。给大家三个网址：</p>
-<p>Thymeleaf 官网：<a href="https://www.thymeleaf.org/" target="_blank" rel="noopener">https://www.thymeleaf.org/</a></p>
-<p>Thymeleaf 在Github 的主页：<a href="https://github.com/thymeleaf/thymeleaf" target="_blank" rel="noopener">https://github.com/thymeleaf/thymeleaf</a></p>
-<p>Spring官方文档：找到我们对应的版本</p>
-<p><a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter" target="_blank" rel="noopener">https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter</a> </p>
-<p>找到对应的pom依赖：可以适当点进源码看下本来的包！</p>
+<ul>
+<li><strong>模板引擎，</strong>其实大家听到很多，其实<code>jsp</code>就是一个模板引擎，还有用的比较多的<code>freemarker</code>，包括<code>SpringBoot</code>给我们推荐的<code>Thymeleaf</code>，模板引擎有非常多，但再多的模板引擎，他们的思想都是一样的</li>
+<li><strong>模板引擎的作用就是我们来写一个页面模板，比如其中有些值是动态的，就要写一些表达式。</strong><ul>
+<li>而这些值从哪里来，是从后台封装的一些数据，然后把这个模板和这个数据交给模板引擎，模板引擎按照我们的这个数据把这表达式解析，填充到指定的位置，然后把这个数据最终生成一个我们想要的内容给我们写进去，这就是我们的模板引擎。</li>
+</ul>
+</li>
+<li>只不过呢，就是说不同模板引擎之间，他们可能这个语法有点不一样。</li>
+</ul>
+<a id="more"></a>
+
+
+
+<h2 id="2-引入-Thymeleaf"><a href="#2-引入-Thymeleaf" class="headerlink" title="2. 引入 Thymeleaf"></a>2. 引入 Thymeleaf</h2><ul>
+<li><p>怎么引入呢，对于<code>springboot</code>来说，<strong>什么事情不都是一个start的事情嘛</strong>，</p>
+</li>
+<li><p>在项目中引入一下。给大家三个网址：</p>
+<ul>
+<li>Thymeleaf 官网：<a href="https://www.thymeleaf.org/" target="_blank" rel="noopener">https://www.thymeleaf.org/</a></li>
+<li>Thymeleaf 在Github 的主页：<a href="https://github.com/thymeleaf/thymeleaf" target="_blank" rel="noopener">https://github.com/thymeleaf/thymeleaf</a></li>
+<li>Spring官方文档：找到我们对应的版本<ul>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter" target="_blank" rel="noopener">https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter</a> </li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>找到对应的<code>pom</code>依赖：可以适当点进源码看下本来的包！</p>
+</li>
+</ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--thymeleaf--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-thymeleaf<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>Maven会自动下载对应的包</p>
+<ul>
+<li><code>Maven</code>会自动下载对应的包</li>
+</ul>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200328214105.png" alt=""></p>
-<h2 id="3-Thymeleaf-分析"><a href="#3-Thymeleaf-分析" class="headerlink" title="3. Thymeleaf 分析"></a>3. Thymeleaf 分析</h2><p>前面呢，我们已经引入了Thymeleaf，那这个要怎么使用呢？</p>
-<p>我们首先得按照SpringBoot的自动配置原理看一下我们这个Thymeleaf的自动配置规则，在按照那个规则，我们进行使用。</p>
+<h2 id="3-Thymeleaf-原理分析"><a href="#3-Thymeleaf-原理分析" class="headerlink" title="3. Thymeleaf 原理分析"></a>3. Thymeleaf 原理分析</h2><ul>
+<li><p>前面呢，已经引入了<code>Thymeleaf</code>，那这个要怎么使用呢？</p>
+</li>
+<li><p>首先得按照<code>SpringBoot</code>的自动配置原理看一下我们这个<code>Thymeleaf</code>的自动配置规则，在按照那个规则，我们进行使用。</p>
+</li>
+</ul>
 <p><strong>去找一下Thymeleaf的自动配置类：ThymeleafProperties</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties</span>(</span><br><span class="line">    prefix = <span class="string">"spring.thymeleaf"</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThymeleafProperties</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Charset DEFAULT_ENCODING;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_PREFIX = <span class="string">"classpath:/templates/"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_SUFFIX = <span class="string">".html"</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> checkTemplate = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> checkTemplateLocation = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">private</span> String prefix = <span class="string">"classpath:/templates/"</span>;</span><br><span class="line">    <span class="keyword">private</span> String suffix = <span class="string">".html"</span>;</span><br><span class="line">    <span class="keyword">private</span> String mode = <span class="string">"HTML"</span>;</span><br><span class="line">    <span class="keyword">private</span> Charset encoding;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties</span>(</span><br><span class="line">    prefix = <span class="string">"spring.thymeleaf"</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThymeleafProperties</span> </span>&#123;</span><br><span class="line">  	<span class="comment">// 前缀，后缀，视图编码</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Charset DEFAULT_ENCODING;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_PREFIX = <span class="string">"classpath:/templates/"</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_SUFFIX = <span class="string">".html"</span>;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> checkTemplate = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> checkTemplateLocation = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">private</span> String prefix = <span class="string">"classpath:/templates/"</span>;</span><br><span class="line">    <span class="keyword">private</span> String suffix = <span class="string">".html"</span>;</span><br><span class="line">    <span class="keyword">private</span> String mode = <span class="string">"HTML"</span>;</span><br><span class="line">    <span class="keyword">private</span> Charset encoding;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">可以看到其中的前缀和后缀！</span><br><span class="line">我们要做的只需要 把html页面放在类路径下的templates文件夹下，thymeleaf就可以帮我们自动渲染！</span><br></pre></td></tr></table></figure>
 
-<p>​    可以看到其中的前缀和后缀！</p>
-<p>​    我们要做的只需要<strong>把html页面放在类路径下的templates文件夹下，</strong>thymeleaf就可以帮我们自动渲染！</p>
-<p>​    <strong>使用thymeleaf什么都不需要配置，只需要将他放在指定的文件夹下即可！</strong></p>
-<h2 id="4-测试-Thymeleaf"><a href="#4-测试-Thymeleaf" class="headerlink" title="4. 测试 Thymeleaf"></a>4. 测试 Thymeleaf</h2><ol>
-<li>编写一个TestController</li>
+<ul>
+<li><strong>使用thymeleaf什么都不需要配置，只需要将他放在指定的文件夹下即可！</strong></li>
+<li>注意：⚠️<ul>
+<li>如果是<code>Springboot 2.1.x</code>的，导入的<code>Thymeleaf</code>是 2.x版本</li>
+<li>这可能会导致错误的发生</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-Thymeleaf-简单使用"><a href="#4-Thymeleaf-简单使用" class="headerlink" title="4. Thymeleaf 简单使用"></a>4. Thymeleaf 简单使用</h2><ol>
+<li>编写一个<code>TestController</code></li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/t1"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">test1</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//classpath:/templates/test.html</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"test"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 视图跳转的拼接</span></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/t1"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">test1</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//classpath:/templates/test.html</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"test"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>编写一个test.html页面放在templates目录下：</li>
+<li>编写一个<code>test.html</code>页面放在<code>templates</code>目录下：</li>
 </ol>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>测试页面<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <ol start="3">
 <li>启动项目请求测试</li>
 </ol>
-<h2 id="5-Thymeleaf-语法"><a href="#5-Thymeleaf-语法" class="headerlink" title="5. Thymeleaf 语法"></a>5. Thymeleaf 语法</h2><p>要学习语法，还是参考官网文档最为准确，我们找到对应的版本看一下；</p>
-<p>Thymeleaf 官网：<a href="https://www.thymeleaf.org/" target="_blank" rel="noopener">https://www.thymeleaf.org/</a></p>
-<p><strong>我们做个最简单的练习 ：我们需要查出一些数据，在页面中展示</strong></p>
+<h2 id="5-Thymeleaf-语法"><a href="#5-Thymeleaf-语法" class="headerlink" title="5. Thymeleaf 语法"></a>5. Thymeleaf 语法</h2><ul>
+<li><p>要学习语法，还是参考官网文档最为准确，我们找到对应的版本看一下；</p>
+</li>
+<li><p><code>Thymeleaf</code>官网：<a href="https://www.thymeleaf.org/" target="_blank" rel="noopener">https://www.thymeleaf.org/</a></p>
+</li>
+</ul>
+<p><strong>做个最简单的练习 ：我们需要查出一些数据，在页面中展示</strong></p>
 <ol>
-<li>在controller中增加数据传输</li>
+<li>在<code>controller</code>中增加数据传输</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//结论：只要需要使用thymeleaf,只需要导入对应的依赖就可以了</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"test"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">test</span><span class="params">(Model model)</span></span>&#123;</span><br><span class="line">    model.addAttribute(<span class="string">"msg"</span>,<span class="string">"&lt;h1&gt;helloSpringBoot&lt;/h1&gt;"</span>);</span><br><span class="line">    model.addAttribute(<span class="string">"users"</span>, Arrays.asList(<span class="string">"zhuuu"</span>,<span class="string">"朱酱酱"</span>));</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"test"</span>;</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
-<li>要使用thymeleaf，需要在html文件中导入命名空间的约束，方便提示。可以去官方文档中看一下命名空间拿来过来：</li>
+<li>要使用<code>thymeleaf</code>，需要在<code>html</code>文件中导入命名空间的约束，方便提示。可以去官方文档中看一下命名空间拿来过来：</li>
 </ol>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xmlns:th="http://www.thymeleaf.org"</span><br></pre></td></tr></table></figure>
 
 <ol start="3">
-<li>编写前端页面</li>
+<li>编写前端页面<code>(.html)</code></li>
 </ol>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span> <span class="attr">xmlns:th</span>=<span class="string">"http://www.thymeleaf.org"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--所有的html元素都可以被thymeleaf接管 th:元素名--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">th:text</span>=<span class="string">"$&#123;msg&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">th:utext</span>=<span class="string">"$&#123;msg&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">hr</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">h3</span> <span class="attr">th:each</span>=<span class="string">"user:$&#123;users&#125;"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;user&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span> <span class="attr">xmlns:th</span>=<span class="string">"http://www.thymeleaf.org"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--所有的html元素都可以被thymeleaf接管 th:元素名--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">th:text</span>=<span class="string">"$&#123;msg&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span>      // 这个没有被专义</span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">th:utext</span>=<span class="string">"$&#123;msg&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span>			// 下面被转义了</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">hr</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">h3</span> <span class="attr">th:each</span>=<span class="string">"user:$&#123;users&#125;"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;user&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200328214849.png" alt=""></p>
+<hr>
 <p><strong>OK，入门搞定，来认真研习一下Thymeleaf的使用语法！</strong></p>
 <p><strong>1、可以使用任意的 th:attr 来替换Html中原生属性的值！</strong></p>
 <p><strong>2、能写哪些表达式呢？</strong></p>

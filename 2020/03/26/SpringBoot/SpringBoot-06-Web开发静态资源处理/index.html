@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.4k字</span>
+            <span class="post-count">1.5k字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">5分钟</span>
+            <span class="post-count">6分钟</span>
         </span>
     </span>
 </div>
@@ -100,64 +100,121 @@
 
       
       <h1 id="SpringBoot-06-Web开发静态资源处理"><a href="#SpringBoot-06-Web开发静态资源处理" class="headerlink" title="SpringBoot-06-Web开发静态资源处理"></a>SpringBoot-06-Web开发静态资源处理</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><strong>使用SpringBoot的步骤：</strong></p>
-<p>1、创建一个SpringBoot应用，选择我们需要的模块，SpringBoot就会默认将我们的需要的模块自动配置好</p>
+<p>1、创建一个<code>SpringBoot</code>应用，选择我们需要的模块，<code>SpringBoot</code>就会默认将我们的需要的模块自动配置好</p>
 <p>2、手动在配置文件中配置部分配置项目就可以运行起来了</p>
 <p>3、专注编写业务代码，不需要考虑以前那样一大堆的配置了。</p>
-<p>要熟悉掌握开发，之前学习的自动配置的原理一定要搞明白！</p>
-<p>比如SpringBoot到底帮我们配置了什么？我们能不能修改？我们能修改哪些配置？我们能不能扩展？</p>
+<p><strong>要熟悉掌握开发，之前学习的自动配置的原理一定要搞明白！</strong></p>
 <ul>
-<li>向容器中自动配置组件 ：*** Autoconfiguration</li>
-<li>自动配置类，封装配置文件的内容：***Properties</li>
+<li><p>比如<code>SpringBoot</code>到底帮我们配置了什么？我们能不能修改？我们能修改哪些配置？我们能不能扩展？</p>
+</li>
+<li><p>向容器中自动配置组件 ：<code>xxxAutoconfiguration</code></p>
+</li>
+<li><p>自动配置类，封装配置文件的内容：<code>xxxProperties</code></p>
+</li>
 </ul>
-<p>没事就找找类，看看自动装配原理！</p>
+<p>提醒：</p>
+<ul>
+<li>没事就找找类，看看源码，理解自动装配原理！</li>
+</ul>
 <a id="more"></a>
 
 
 
-<h2 id="2-静态资源处理"><a href="#2-静态资源处理" class="headerlink" title="2. 静态资源处理"></a>2. 静态资源处理</h2><p><strong>首先，我们搭建一个普通的SpringBoot项目，回顾一下HelloWorld程序！</strong></p>
-<p>写请求非常简单，那我们要引入我们前端资源，我们项目中有许多的静态资源，比如css，js等文件，这个SpringBoot怎么处理呢？</p>
-<p>如果我们是一个web应用，我们的main下会有一个webapp，我们以前都是将所有的页面导在这里面的，对吧！但是我们现在的pom呢，打包方式是为jar的方式，那么这种方式SpringBoot能不能来给我们写页面呢？当然是可以的，但是SpringBoot对于静态资源放置的位置，是有规定的！</p>
+<h2 id="2-静态资源导入"><a href="#2-静态资源导入" class="headerlink" title="2. 静态资源导入"></a>2. 静态资源导入</h2><ul>
+<li><p><strong>首先，我们搭建一个普通的SpringBoot项目，回顾一下HelloWorld程序！</strong></p>
+</li>
+<li><p>写请求非常简单，那如果要引入我们前端资源</p>
+<ul>
+<li>项目中有许多的静态资源，比如<code>css，js</code>等文件，这个<code>SpringBoot</code>怎么处理呢？</li>
+</ul>
+</li>
+<li><p><strong>疑问分析</strong></p>
+<ul>
+<li>如果是一个<code>web</code>应用，我们的<code>main</code>下会有一个<code>webapp</code>，我们以前都是将所有的页面导在这里面的，对吧！(<code>war</code>包)</li>
+<li>但是我们现在的<code>pom</code>呢，打包方式是为jar的方式，那么这种方式<code>SpringBoot</code>能不能来给我们写页面呢？当然是可以的，但是<code>SpringBoot</code>对于静态资源放置的位置，是有规定的！</li>
+</ul>
+</li>
+</ul>
 <p><strong>先来聊聊这个静态资源映射规则：</strong></p>
-<p>SpringBoot中，SpringMVC的web配置都在WebMvcAutoConfiguration这个配置类里面</p>
-<p>看看 WebMvcAutoConfigurationAdapter 中有很多配置方法；</p>
-<p><strong>有一个方法：addResourceHandlers 添加资源处理</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addResourceHandlers</span><span class="params">(ResourceHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="keyword">this</span>.resourceProperties.isAddMappings()) &#123;</span><br><span class="line">              <span class="comment">//禁用默认资源</span></span><br><span class="line">		logger.debug(<span class="string">"Default resource handling disabled"</span>);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">          <span class="comment">//缓存控制</span></span><br><span class="line">	Duration cachePeriod = <span class="keyword">this</span>.resourceProperties.getCache().getPeriod();</span><br><span class="line">	CacheControl cacheControl = <span class="keyword">this</span>.resourceProperties.getCache().getCachecontrol().toHttpCacheControl();</span><br><span class="line">          <span class="comment">//方式一：webjars配置</span></span><br><span class="line">	<span class="keyword">if</span> (!registry.hasMappingForPattern(<span class="string">"/webjars/**"</span>)) &#123;</span><br><span class="line">		customizeResourceHandlerRegistration(registry.addResourceHandler(<span class="string">"/webjars/**"</span>)</span><br><span class="line">				.addResourceLocations(<span class="string">"classpath:/META-INF/resources/webjars/"</span>)</span><br><span class="line">				.setCachePeriod(getSeconds(cachePeriod)).setCacheControl(cacheControl));</span><br><span class="line">	&#125;</span><br><span class="line">          </span><br><span class="line">          <span class="comment">//方式二：静态资源配置</span></span><br><span class="line">	String staticPathPattern = <span class="keyword">this</span>.mvcProperties.getStaticPathPattern();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!registry.hasMappingForPattern(staticPathPattern)) &#123;</span><br><span class="line">		customizeResourceHandlerRegistration(registry.addResourceHandler(staticPathPattern)</span><br><span class="line">				.addResourceLocations(getResourceLocations(<span class="keyword">this</span>.resourceProperties.getStaticLocations()))</span><br><span class="line">				.setCachePeriod(getSeconds(cachePeriod)).setCacheControl(cacheControl));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>SpringBoot</code>中，<code>SpringMVC</code>的web配置都在<code>WebMvcAutoConfiguration</code>这个配置类里面</li>
+<li>看看 <code>WebMvcAutoConfigurationAdapter</code> 中有很多配置方法；</li>
+<li><strong>有一个方法：addResourceHandlers 添加资源处理</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addResourceHandlers</span><span class="params">(ResourceHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="keyword">this</span>.resourceProperties.isAddMappings()) &#123;</span><br><span class="line">      <span class="comment">// 1. 如果有自定义配置，那么默认配置就失效</span></span><br><span class="line">		logger.debug(<span class="string">"Default resource handling disabled"</span>);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">      <span class="comment">// 2. 缓存控制</span></span><br><span class="line">	Duration cachePeriod = <span class="keyword">this</span>.resourceProperties.getCache().getPeriod();</span><br><span class="line">	CacheControl cacheControl = <span class="keyword">this</span>.resourceProperties.getCache().getCachecontrol().toHttpCacheControl();</span><br><span class="line">          <span class="comment">//2.1 方式一：webjars方式配置</span></span><br><span class="line">	<span class="keyword">if</span> (!registry.hasMappingForPattern(<span class="string">"/webjars/**"</span>)) &#123;</span><br><span class="line">		customizeResourceHandlerRegistration(registry.addResourceHandler(<span class="string">"/webjars/**"</span>)</span><br><span class="line">				.addResourceLocations(<span class="string">"classpath:/META-INF/resources/webjars/"</span>)</span><br><span class="line">				.setCachePeriod(getSeconds(cachePeriod)).setCacheControl(cacheControl));</span><br><span class="line">	&#125;</span><br><span class="line">          </span><br><span class="line">          <span class="comment">//2.2 方式二：静态资源配置</span></span><br><span class="line">	String staticPathPattern = <span class="keyword">this</span>.mvcProperties.getStaticPathPattern();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!registry.hasMappingForPattern(staticPathPattern)) &#123;</span><br><span class="line">		customizeResourceHandlerRegistration(registry.addResourceHandler(staticPathPattern)</span><br><span class="line">				.addResourceLocations(getResourceLocations(<span class="keyword">this</span>.resourceProperties.getStaticLocations()))</span><br><span class="line">				.setCachePeriod(getSeconds(cachePeriod)).setCacheControl(cacheControl));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>读一下源代码：比如所有的 /webjars/** ， 都需要去 classpath:/META-INF/resources/webjars/ 找对应的资源；</p>
-<h3 id="2-1-webjars"><a href="#2-1-webjars" class="headerlink" title="2.1 webjars"></a>2.1 webjars</h3><p>Webjars本质就是以jar包的方式引入我们的静态资源 ， 我们以前要导入一个静态资源文件，直接导入即可。</p>
-<p>使用SpringBoot需要使用Webjars，我们可以去搜索一下：</p>
-<p>网站：<a href="https://www.webjars.org" target="_blank" rel="noopener">https://www.webjars.org</a> </p>
-<p>要使用jQuery，我们只要要引入jQuery对应版本的pom依赖即可！</p>
+<ul>
+<li>读一下源代码：比如所有的 <code>/webjars/**</code>， 都需要去 <code>classpath:/META-INF/resources/webjars/</code> 找对应的资源；</li>
+</ul>
+<h3 id="2-1-方式一-：-webjars"><a href="#2-1-方式一-：-webjars" class="headerlink" title="2.1 方式一 ： webjars"></a>2.1 方式一 ： webjars</h3><ul>
+<li><p><code>Webjars</code>本质就是以<code>jar</code>包的方式引入我们的静态资源 ， 我们以前要导入一个静态资源文件，直接导入即可。</p>
+</li>
+<li><p>使用<code>SpringBoot</code>需要使用<code>Webjars</code>，我们可以去搜索一下：</p>
+<ul>
+<li>网站：<a href="https://www.webjars.org" target="_blank" rel="noopener">https://www.webjars.org</a> </li>
+<li>要使用jQuery，我们只要要引入jQuery对应版本的pom依赖即可！</li>
+</ul>
+</li>
+</ul>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.webjars<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jquery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>导入完毕，查看webjars目录结构，并访问Jquery.js文件！</p>
+<ul>
+<li>导入完毕，查看webjars目录结构，并访问Jquery.js文件！</li>
+</ul>
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200328212518.png" alt=""></p>
-<h3 id="2-2-静态资源映射规则"><a href="#2-2-静态资源映射规则" class="headerlink" title="2.2 静态资源映射规则"></a>2.2 静态资源映射规则</h3><p>那我们项目中要是使用自己的静态资源该怎么导入呢？我们看下一行代码；</p>
-<p>我们去找staticPathPattern发现第二种映射规则 ：/** , 访问当前的项目任意资源，它会去找 resourceProperties 这个类，我们可以点进去看一下分析：</p>
+<h3 id="2-2-方式二-：-静态资源映射（重要）"><a href="#2-2-方式二-：-静态资源映射（重要）" class="headerlink" title="2.2 方式二 ： 静态资源映射（重要）"></a>2.2 方式二 ： 静态资源映射（重要）</h3><ul>
+<li>那项目中要是使用自己的静态资源该怎么导入呢？我们看下一行代码；<ul>
+<li>去找<code>staticPathPattern</code>发现第二种映射规则 ：<code>/**</code></li>
+<li>访问当前的项目任意资源，它会去找 <code>resourceProperties</code> 这个类，可以点进去看一下分析：</li>
+</ul>
+</li>
+</ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 进入方法</span></span><br><span class="line"><span class="keyword">public</span> String[] getStaticLocations() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.staticLocations;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 找到对应的值</span></span><br><span class="line"><span class="keyword">private</span> String[] staticLocations = CLASSPATH_RESOURCE_LOCATIONS;</span><br><span class="line"><span class="comment">// 找到路径</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] CLASSPATH_RESOURCE_LOCATIONS = &#123; </span><br><span class="line">    <span class="string">"classpath:/META-INF/resources/"</span>,</span><br><span class="line">  <span class="string">"classpath:/resources/"</span>, </span><br><span class="line">    <span class="string">"classpath:/static/"</span>, </span><br><span class="line">    <span class="string">"classpath:/public/"</span> </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-<p>ResourceProperties 可以设置和我们静态资源有关的参数；这里面指向了它会去寻找资源的文件夹，即上面数组的内容。</p>
-<p>所以得出结论，以下四个目录存放的静态资源是我们可以识别到的</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"classpath:/META-INF/resources/"</span></span><br><span class="line"><span class="string">"classpath:/resources/"</span></span><br><span class="line"><span class="string">"classpath:/static/"</span></span><br><span class="line"><span class="string">"classpath:/public/"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><code>ResourceProperties</code> 可以设置和我们静态资源有关的参数；这里面指向了它会去寻找资源的文件夹，即上面数组的内容。</p>
+</li>
+<li><p>所以得出结论，以下四个目录存放的静态资源是我们可以识别到的</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// classpath = src/main or src/resources</span></span><br><span class="line">优先级如下：</span><br><span class="line"><span class="string">"classpath:/META-INF/resources/"</span></span><br><span class="line"><span class="string">"classpath:/resources/"</span></span><br><span class="line"><span class="string">"classpath:/static/"</span></span><br><span class="line"><span class="string">"classpath:/public/"</span></span><br></pre></td></tr></table></figure>
 
-<p>我们可以在resources根目录下新建对应的文件夹，都可以存放我们的静态文件；</p>
-<p>比如我们访问 <a href="http://localhost:8080/1.js" target="_blank" rel="noopener">http://localhost:8080/1.js</a> , 他就会去这些文件夹中寻找对应的静态资源文件；</p>
-<h3 id="2-3-自定义静态资源路径"><a href="#2-3-自定义静态资源路径" class="headerlink" title="2.3 自定义静态资源路径"></a>2.3 自定义静态资源路径</h3><p>我们也可以自己通过配置文件来指定一下，哪些文件夹是需要我们放静态资源文件的，在application.properties中配置；</p>
+<ul>
+<li>可以在<code>resources</code>根目录下新建对应的文件夹，都可以存放我们的静态文件；</li>
+<li>比如我们访问 <a href="http://localhost:8080/1.js" target="_blank" rel="noopener">http://localhost:8080/1.js</a> <ul>
+<li>他就会去这些文件夹中寻找对应的静态资源文件；</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-3-方式三：-自定义静态资源路径"><a href="#2-3-方式三：-自定义静态资源路径" class="headerlink" title="2.3 方式三： 自定义静态资源路径"></a>2.3 方式三： 自定义静态资源路径</h3><ul>
+<li>我们也可以自己通过配置文件来指定一下，哪些文件夹是需要我们放静态资源文件的，在<code>application.properties</code>中配置；</li>
+<li>注意：开发日常不要使用</li>
+</ul>
 <figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.resources.static-locations</span>=<span class="string">classpath:/coding/,classpath:/zhuuu/</span></span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="3-首页处理"><a href="#3-首页处理" class="headerlink" title="3. 首页处理"></a>3. 首页处理</h2><p>静态资源文件夹说完后，继续向下看源码！可以看到一个欢迎页的映射，就是首页！</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WelcomePageHandlerMapping <span class="title">welcomePageHandlerMapping</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    ApplicationContext applicationContext, </span></span></span><br><span class="line"><span class="function"><span class="params">    FormattingConversionService mvcConversionService, </span></span></span><br><span class="line"><span class="function"><span class="params">    ResourceUrlProvider mvcResourceUrlProvider)</span> </span>&#123;</span><br><span class="line">    WelcomePageHandlerMapping welcomePageHandlerMapping = <span class="keyword">new</span> WelcomePageHandlerMapping(</span><br><span class="line">        <span class="keyword">new</span> TemplateAvailabilityProviders(applicationContext), </span><br><span class="line">        applicationContext, getWelcomePage(),</span><br><span class="line">        <span class="keyword">this</span>.mvcProperties.getStaticPathPattern());</span><br><span class="line">    welcomePageHandlerMapping.setInterceptors(getInterceptors(mvcConversionService, mvcResourceUrlProvider));</span><br><span class="line">    <span class="keyword">return</span> welcomePageHandlerMapping;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-首页定制"><a href="#3-首页定制" class="headerlink" title="3. 首页定制"></a>3. 首页定制</h2><ul>
+<li>静态资源文件夹说完后，继续向下看源码！可以看到一个欢迎页的映射，就是首页！</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 处理页面地址映射</span></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WelcomePageHandlerMapping <span class="title">welcomePageHandlerMapping</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    ApplicationContext applicationContext, </span></span></span><br><span class="line"><span class="function"><span class="params">    FormattingConversionService mvcConversionService, </span></span></span><br><span class="line"><span class="function"><span class="params">    ResourceUrlProvider mvcResourceUrlProvider)</span> </span>&#123;</span><br><span class="line">    WelcomePageHandlerMapping welcomePageHandlerMapping = <span class="keyword">new</span> WelcomePageHandlerMapping(</span><br><span class="line">        <span class="keyword">new</span> TemplateAvailabilityProviders(applicationContext), </span><br><span class="line">        applicationContext, getWelcomePage(),</span><br><span class="line">        <span class="keyword">this</span>.mvcProperties.getStaticPathPattern());</span><br><span class="line">    welcomePageHandlerMapping.setInterceptors(getInterceptors(mvcConversionService, mvcResourceUrlProvider));</span><br><span class="line">    <span class="keyword">return</span> welcomePageHandlerMapping;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Optional&lt;Resource&gt; <span class="title">getWelcomePage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String[] locations = getResourceLocations(<span class="keyword">this</span>.resourceProperties.getStaticLocations());</span><br><span class="line">    <span class="comment">// ::是java8 中新引入的运算符</span></span><br><span class="line">    <span class="comment">// Class::function的时候function是属于Class的，应该是静态方法。</span></span><br><span class="line">    <span class="comment">// this::function的funtion是属于这个对象的。</span></span><br><span class="line">    <span class="comment">// 简而言之，就是一种语法糖而已，是一种简写</span></span><br><span class="line">    <span class="keyword">return</span> Arrays.stream(locations).map(<span class="keyword">this</span>::getIndexHtml).filter(<span class="keyword">this</span>::isReadable).findFirst();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 欢迎页就是一个location下的的 index.html 而已</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Resource <span class="title">getIndexHtml</span><span class="params">(String location)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.resourceLoader.getResource(location + <span class="string">"index.html"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 2. 从resourceProperties获取资源路径</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Optional&lt;Resource&gt; <span class="title">getWelcomePage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String[] locations = getResourceLocations(<span class="keyword">this</span>.resourceProperties.getStaticLocations());</span><br><span class="line">    <span class="comment">// ::是java8 中新引入的运算符</span></span><br><span class="line">    <span class="comment">// Class::function的时候function是属于Class的，应该是静态方法。</span></span><br><span class="line">    <span class="comment">// this::function的funtion是属于这个对象的。</span></span><br><span class="line">    <span class="comment">// 简而言之，就是一种语法糖而已，是一种简写</span></span><br><span class="line">    <span class="keyword">return</span> Arrays.stream(locations).map(<span class="keyword">this</span>::getIndexHtml).filter(<span class="keyword">this</span>::isReadable).findFirst();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 3. 欢迎页就是一个location下的的 index.html 而已</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Resource <span class="title">getIndexHtml</span><span class="params">(String location)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.resourceLoader.getResource(location + <span class="string">"index.html"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>欢迎页，<strong>静态资源文件夹下的所有 index.html 页面；被 / 映射</strong>。</p>
-<p>比如我访问  <a href="http://localhost:8080/" target="_blank" rel="noopener">http://localhost:8080/</a> ，就会找静态资源文件夹下的 index.html</p>
-<p>新建一个 index.html ，在我们上面的3个目录中任意一个；然后访问测试  <a href="http://localhost:8080/" target="_blank" rel="noopener">http://localhost:8080/</a>  看结果！</p>
-<h2 id="4-网页的图标"><a href="#4-网页的图标" class="headerlink" title="4. 网页的图标"></a>4. 网页的图标</h2><p>与其他静态资源一样，Spring Boot在配置的静态内容位置中查找 <strong>favicon.ico。</strong>如果存在这样的文件，它将自动用作应用程序的favicon。</p>
+<ul>
+<li><p>欢迎页，<strong>静态资源文件夹下的所有 index.html 页面；被 / 映射</strong>。</p>
+</li>
+<li><p>比如我访问  <a href="http://localhost:8080/" target="_blank" rel="noopener">http://localhost:8080/</a> ，就会找静态资源文件夹下的 <code>index.html</code></p>
+</li>
+<li><p>新建一个<code>index.html</code>，在我们上面的3个目录中任意一个；然后访问测试  <a href="http://localhost:8080/" target="_blank" rel="noopener">http://localhost:8080/</a>  看结果！</p>
+</li>
+</ul>
+<h2 id="4-网页的图标"><a href="#4-网页的图标" class="headerlink" title="4. 网页的图标"></a>4. 网页的图标</h2><ul>
+<li>与其他静态资源一样，Spring Boot在配置的静态内容位置中查找 <strong>favicon.ico。</strong>如果存在这样的文件，它将自动用作应用程序的favicon。</li>
+</ul>
+<p><strong>步骤如下：</strong></p>
 <ol>
-<li>关闭SpringBoot默认的图标</li>
+<li>关闭<code>SpringBoot</code>默认的图标</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#关闭默认图标</span><br><span class="line">spring.mvc.favicon.enabled=<span class="keyword">false</span></span><br></pre></td></tr></table></figure>
 
@@ -165,6 +222,13 @@
 <li>自定义放一个图标在静态资源目录下</li>
 <li>清除浏览器缓存，刷新网页，发现图标变成自己的了！</li>
 </ol>
+<h2 id="5-关于-Templates目录"><a href="#5-关于-Templates目录" class="headerlink" title="5. 关于 Templates目录"></a>5. 关于 Templates目录</h2><ul>
+<li>注意<ul>
+<li>Templates目录下的东西只能通过controller进行访问</li>
+<li>相当于是以前的web-info下的目录</li>
+</ul>
+</li>
+</ul>
 
       
       <!-- reward -->
@@ -254,7 +318,7 @@
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            SpringBoot-07-Thymeleaf引擎
+            SpringBoot-07-Thymeleaf模板引擎
           
         </div>
       </a>

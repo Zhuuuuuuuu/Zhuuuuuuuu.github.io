@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+   
+  <meta name="keywords" content="Java Python" />
+   
+  <meta name="description" content="From Zero to Hero" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    开发笔记-02-cola4.0 |  朱酱酱的学习博客
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="朱酱酱的学习博客" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-deploy_learn/开发笔记-02-cola4.0" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  开发笔记-02-cola4.0
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/08/02/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-02-cola4.0/" class="article-date">
+  <time datetime="2021-08-02T11:38:38.000Z" itemprop="datePublished">2021-08-02</time>
+</a>
+      
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.6k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="开发笔记-02-cola4-0"><a href="#开发笔记-02-cola4-0" class="headerlink" title="开发笔记-02-cola4.0"></a>开发笔记-02-cola4.0</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><code>COLA</code>的主要目的是为应用架构提供一套简单的可以复制、可以理解、可以落地、可以控制复杂性的”指导和约束”。</li>
+<li>同样，好的应用架构，也遵循一些共同模式，都提倡以业务为核心，解耦外部依赖，分离业务复杂度和技术复杂度。</li>
+<li>应用架构的本质，就是要从繁杂的业务系统中提炼出共性，找到解决业务问题的最佳共同模式，为开发人员提供统一的认知，治理混乱。帮助应用系统“从混乱到有序”</li>
+<li><strong>COLA架构就是为此而生，其核心职责就是定义良好的应用结构，提供最佳实践</strong>。</li>
+</ul>
+<p><strong>开源项目地址 ：</strong> <a href="https://github.com/alibaba/COLA" target="_blank" rel="noopener">https://github.com/alibaba/COLA</a></p>
+<h2 id="1-Cola-分层架构"><a href="#1-Cola-分层架构" class="headerlink" title="1. Cola 分层架构"></a>1. Cola 分层架构</h2><ul>
+<li>所有的复杂系统都会呈现出层级结构，应用系统处理复杂业务逻辑也应该是分层的，下层对上层屏蔽处理细节，每一层各司其职，分离关注点。</li>
+<li>对于一个典型的业务应用系统来说，COLA会做如下层次定义，每一层都有明确的职责定义</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-02-102957.jpg" alt=""></p>
+<a id="more"></a>
+
+<ul>
+<li><p>适配层（<code>Adapter Layer</code>）：负责对前端展示（<code>web，wireless，wap</code>）的路由和适配，对于传统<code>B/S</code>系统而言，<code>adapter</code>就相当于<code>MVC中的controller</code>；</p>
+</li>
+<li><p>应用层（<code>Application Layer</code>）：主要负责获取输入，组装上下文，参数校验，调用领域层做业务处理，如果需要的话，发送消息通知等。层次是开放的，应用层也可以绕过领域层，直接访问基础实施层；</p>
+</li>
+<li><p>领域层（<code>Domain Layer</code>）：主要是封装了核心业务逻辑，并通过领域服务（<code>Domain Service</code>）和领域对象（<code>Domain Entity</code>）的方法对App层提供<strong>业务实体和业务逻辑计算</strong>。</p>
+<ul>
+<li><strong>领域是应用的核心，不依赖任何其他层次；</strong></li>
+</ul>
+</li>
+<li><p>基础实施层（<code>Infrastructure Layer</code>）：主要负责技术细节问题的处理，<strong>比如数据库的<code>CRUD</code>、搜索引擎、文件系统、分布式服务的<code>RPC</code>等</strong>。此外，领域防腐的重任也落在这里，外部依赖需要通过<code>gateway</code>的转义处理，才能被上面的<code>App</code>层和<code>Domain</code>层使用。</p>
+</li>
+</ul>
+<h2 id="2-Cola-包结构"><a href="#2-Cola-包结构" class="headerlink" title="2. Cola 包结构"></a>2. Cola 包结构</h2><ul>
+<li>分层是属于大粒度的职责划分，太粗，有必要往下再<code>down</code>一层，细化到包结构的粒度，才能更好的指导我们的工作。</li>
+<li>还是拿一堆玩具举例子，分层类似于拿来了一个架子，分包类似于在每一层架子上又放置了多个收纳盒。所谓的内聚，就是把功能类似的玩具放在一个盒子里，这样可以让应用结构清晰，极大的降低系统的认知成本和维护成本。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-02-104658.jpg" alt=""></p>
+<ul>
+<li>那么，对于一个后端应用来说，应该需要哪些收纳盒呢？<ul>
+<li>基本上每一次COLA的迭代都会涉及到包结构的调整，迭代到现在，才算基本稳定下来。 </li>
+</ul>
+</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-02-104801.jpg" alt=""></p>
+<ul>
+<li><strong>各个包结构的简要功能描述，如下表所示：</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>包名</th>
+<th>功能</th>
+<th>必选</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Adapter层</td>
+<td>web</td>
+<td>处理页面请求的Controller</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Adapter层</td>
+<td>wireless</td>
+<td>处理无线端的适配</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Adapter层</td>
+<td>wap</td>
+<td>处理wap端的适配</td>
+<td>否</td>
+</tr>
+<tr>
+<td>App层</td>
+<td>executor</td>
+<td>处理request，包括command和query</td>
+<td>是</td>
+</tr>
+<tr>
+<td>App层</td>
+<td>consumer</td>
+<td>处理外部message</td>
+<td>否</td>
+</tr>
+<tr>
+<td>App层</td>
+<td>scheduler</td>
+<td>处理定时任务</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Domain层</td>
+<td>model</td>
+<td>领域模型</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Domain层</td>
+<td>ability</td>
+<td>领域能力，包括DomainService</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Domain层</td>
+<td>gateway</td>
+<td>领域网关，解耦利器</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Infra层</td>
+<td>gatewayimpl</td>
+<td>网关实现</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Infra层</td>
+<td>mapper</td>
+<td>ibatis数据库映射</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Infra层</td>
+<td>config</td>
+<td>配置信息</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Client SDK</td>
+<td>api</td>
+<td>服务对外透出的API</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Client SDK</td>
+<td>dto</td>
+<td>服务对外的DTO</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<ul>
+<li>为什么<code>Domain</code>的<code>model</code>是可选的？因为<code>COLA</code>是应用架构，不是<code>DDD</code>架构。</li>
+<li>在工作中，领域模型要怎么设计，<strong>原则是 ：无有必要勿增实体</strong>。</li>
+<li>领域模型对设计能力要求很高，没把握用好，一个错误的抽象还不如不抽象，宁可不要用，也不要滥用，不要为了<code>DDD</code>而<code>DDD</code>。<ul>
+<li>模型虽然可选，但<code>DDD</code>的思想是一定要去学习和贯彻的，特别是统一语言、边界上下文、防腐层的思想，值得深入学习，仔细体会。实际上，<code>COLA</code>里面的很多设计思想都来自于DDD。其中就包括<strong>领域包的设计</strong>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>为了兼顾领域维度的内聚性，有必要对包结构进行一下微调，即顶层包结构应该是按照领域划分，让领域内聚。<ul>
+<li>综合考虑功能和领域两个维度包结构定义。按照领域和功能两个维度分包策略，最后呈现出来的，是如下图所示的顶层包节点是领域名称，领域之下，再按功能划分包结构。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-02-124844.jpg" alt=""></p>
+<ul>
+<li>例如，在刚刚上线的一个云店铺（<code>cloudstore</code>）项目中，按照COLA的分包策略,在每一个<code>module</code>下面首先按照领域做一个顶层划分，然后在领域内，再按照功能进行分包。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-02-125207.jpg" alt=""></p>
+<h2 id="3-Cola-解耦思想"><a href="#3-Cola-解耦思想" class="headerlink" title="3. Cola 解耦思想"></a>3. Cola 解耦思想</h2><ul>
+<li><strong>“高内聚，低耦合”</strong> 这句话，工作的越久，就越会觉得其有道理。</li>
+<li><strong>所谓耦合就是联系的紧密程度，只要有依赖就会有耦合，不管是进程内的依赖，还是跨进程的RPC依赖，都会产生耦合</strong>。<ul>
+<li>依赖不可消除，同样，耦合也不可避免。我们所能做的不是消除耦合，而是把耦合降低到可以接受的程度。在软件设计中，有大量的设计模式，设计原则都是为了解耦这一目的。</li>
+</ul>
+</li>
+<li>在<code>DDD</code>中有一个很棒的解耦设计思想——防腐层<code>（Anti-Corruption）</code><ul>
+<li>简单说，就是应用不要直接依赖外域的信息，要把外域的信息转换成自己领域上下文（<code>Context</code>）的实体再去使用，从而实现本域和外部依赖的解耦。</li>
+<li>在<code>COLA</code>中，把防腐层这个概念进行了泛化，将数据库、搜索引擎等数据存储都列为外部依赖的范畴。<strong>利用依赖倒置，统一使用gateway来实现业务领域和外部依赖的解耦</strong>。</li>
+<li>DDD 带来最大的改变是让我们得以从“数据驱动”转向”领域驱动“，让我们知道领域是应用的核心，其他都是技术的细节，随时可以被替换。</li>
+</ul>
+</li>
+<li>其实现方式如下图所示，主要是在<code>Domain</code>层定义<code>Gateway</code>接口，然后在<code>Infrastructure</code>提供<code>Gateway</code>接口的实现。</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-02-132355.jpg" alt=""></p>
+<p><strong>举个例子：</strong></p>
+<ul>
+<li><p>假如有一个电商系统，对于下单这个操作，它需要联动订单服务、商品服务、库存服务、营销服务等多个系统才能完成。</p>
+<ul>
+<li>那么在订单域，该如何获取商品和库存信息呢？最直接的方式，无外乎就是<code>RPC</code>调用商品和库存服务，拿到<code>DTO</code>直接使用就完了。</li>
+<li>然而，商品域吐出的是一个大而全的<code>DTO</code>（可能包含几十个字段），而在下单这个阶段，订单所需要的可能只是其中几个字段而已。</li>
+<li>更合适的做法，应该是在订单域中，使用<code>gateway</code>对商品域和库存域的依赖进行解耦。</li>
+</ul>
+</li>
+<li><p>这样做有两个好处，一个是降低了对外域信息依赖的耦合；另一个是通过上下文映射<code>（Context mapping）</code>，确保本领域边界上下文（<code>Bounded context）</code>下领域知识的完整性，实现了统一语言<code>（Ubiquitous language）</code>。</p>
+</li>
+</ul>
+<img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-03-065013.jpg" style="zoom:67%;" />
+
+
+
+<h2 id="4-Cola-组件"><a href="#4-Cola-组件" class="headerlink" title="4. Cola 组件"></a>4. Cola 组件</h2><ul>
+<li><p>以上就是COLA架构的核心内容了。然而这么多<code>module</code>，这么多package，如果要手动去创建的话，是非常繁琐和费时的。为了能够快速创建满足COLA架构的应用，阿里有两个现成的<code>cola Maven</code>工程</p>
+<ul>
+<li>一个是用来创建纯后端服务的<code>archetype</code>：<code>cola-archetype-service</code></li>
+<li>一个是用来创建adapter和后端服务一体的web应用<code>archetype：cola-archetype-web</code></li>
+</ul>
+</li>
+<li><p>另外，也可以使用阿里云的<a href="https://start.aliyun.com/bootstrap.html" target="_blank" rel="noopener">应用生成器</a>去生成一个COLA应用，只是那边的版本没有同步更新，可能会老旧一点。</p>
+</li>
+</ul>
+<img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-03-065456.png" style="zoom:67%;" />
+
+
+
+<hr>
+<ul>
+<li>COLA除了架构之外，还提供了一些框架级别的功能，比如拦截器功能，扩展点功能等。<ul>
+<li><strong>可以单纯的使用COLA架构，而不使用任何COLA组件提供的功能也是完全没问题的</strong>。</li>
+</ul>
+</li>
+<li>为了方便管理，以及更清晰的把架构和框架区分开来。<ul>
+<li>在此次COLA 4.0的升级中，功能组件全部收拢到了<code>cola-components</code>下面。</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>组件名称</th>
+<th>功能</th>
+<th>版本</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>cola-component-dto</td>
+<td>定义了DTO格式，包括分页</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td>cola-component-exception</td>
+<td>定义了异常格式， 主要有BizException和SysException</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td>cola-component-statemachine</td>
+<td>状态机组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td>cola-component-domain-starter</td>
+<td>Spring托管的领域实体组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td>cola-component-catchlog-starter</td>
+<td>异常处理和日志组件</td>
+<td>1.0.0</td>
+<td>exception ,dto组件</td>
+</tr>
+<tr>
+<td>cola-component-extension-starter</td>
+<td>扩展点组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td>cola-component-test-container</td>
+<td>测试容器组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<h2 id="5-如何使用-cola"><a href="#5-如何使用-cola" class="headerlink" title="5. 如何使用 cola"></a>5. 如何使用 cola</h2><ol>
+<li><strong>安装 cola archetype</strong></li>
+</ol>
+<ul>
+<li>下载<code>cola-archetypes</code>下的源码到本地，然后本地运行<code>mvn install</code>安装。</li>
+</ul>
+<ol start="2">
+<li><strong>安装 cola components</strong></li>
+</ol>
+<ul>
+<li>下载<code>cola-components</code>下的源码到本地，然后本地运行<code>mvn install</code>安装。</li>
+</ul>
+<p><strong>3. 创建应用</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn archetype:generate -DgroupId&#x3D;com.alibaba.demo -DartifactId&#x3D;demoWeb -Dversion&#x3D;1.0.0-SNAPSHOT -Dpackage&#x3D;com.alibaba.demo -DarchetypeArtifactId&#x3D;cola-framework-archetype-web -DarchetypeGroupId&#x3D;com.alibaba.cola -DarchetypeVersion&#x3D;4.0.0</span><br></pre></td></tr></table></figure>
+
+<p><strong>4.运行应用</strong></p>
+<ul>
+<li>首先在<code>demoWeb</code>目录下运行<code>mvn install</code>（如果不想运行测试，可以加上<code>-DskipTests</code>参数）。然后进入start目录，执行<code>mvn spring-boot:run</code></li>
+<li>运行成功的话，可以看到<code>SpringBoot</code>启动成功的界面。</li>
+</ul>
+<p><strong>项目结构：</strong></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-03-064537.jpg" alt=""></p>
+<p><strong>5.生成的应用中，已经实现了一个简单的Rest请求，可以在浏览器中输入</strong> </p>
+<ul>
+<li><a href="http://localhost:8080/helloworld" target="_blank" rel="noopener">http://localhost:8080/helloworld</a> 进行测试。</li>
+</ul>
+<p><strong>附录：</strong></p>
+<ul>
+<li>COLA 开源地址： <a href="https://github.com/alibaba/COLA" target="_blank" rel="noopener">https://github.com/alibaba/COLA</a></li>
+</ul>
+<h2 id="6-Cola-4-0"><a href="#6-Cola-4-0" class="headerlink" title="6. Cola 4.0"></a>6. Cola 4.0</h2><ul>
+<li><code>COLA</code>会被分成<code>COLA</code>架构和<code>COLA</code>组件两个部分：<ul>
+<li>COLA架构：关注应用架构的定义和构建，提升应用质量。</li>
+<li>COLA组件：提供应用开发所需要的可复用组件，提升研发效率。</li>
+</ul>
+</li>
+</ul>
+<img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-03-024332.jpg" style="zoom:67%;" />
+
+
+
+<p>参考博客： <a href="https://blog.csdn.net/significantfrank/article/details/110934799" target="_blank" rel="noopener">https://blog.csdn.net/significantfrank/article/details/110934799</a></p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://zhuuu.work/2021/08/02/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-02-cola4.0/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cola/" rel="tag">cola</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/" rel="tag">开发笔记</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-04-%E9%AB%98%E5%B9%B6%E5%8F%91%E6%85%A2%E6%9F%A5%E8%AF%A2/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            开发笔记-04-高并发慢查询
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/08/02/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-01-sdk_api/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">开发笔记-01-sdk/api</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        notify: false,
+        verify: '',
+        app_id: '',
+        app_key: '',
+        path: window.location.pathname,
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.5.0/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'db188ed8c86dc4b0dbf3',
+    clientSecret: 'a58f92160e5a9efd726b7d533000a0737f3e3f3e',
+    repo: 'Blog-comments',
+    owner: 'Zhuuuuuuuu',
+    admin: ['Zhuuuuuuuu'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2019-2021
+        Zhuuu
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+    <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+      <aside class="sidebar">
+        <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="朱酱酱的学习博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2020/about">关于我</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/">计算机基础理论</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Leetcode/">Leetcode</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">JDK源码</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/JVM/">JVM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Mysql/">Mysql</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Redis/">Redis</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/IO">IO/Netty</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Spring/">SSM</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/SpringBoot/">SpringBoot</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/RabbitMQ/">中间件</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E8%AE%BE%E8%AE%A1%E8%80%85%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/Linux/">Linux</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="http://smartzhuuu.lofter.com/" target="_blank" rel="noopener">摄影</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+      </aside>
+      <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+      
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['昨夜西风凋碧树。独上高楼，望尽天涯路','衣带渐宽终不悔，为伊消得人憔悴。','众里寻他千百度。蓦然回首，那人却在，灯火阑珊处。'],
+    startDelay: 0,
+    typeSpeed: 200,
+    loop: true,
+    backSpeed: 100,
+    showCursor: true
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+  </div>
+</body>
+
+</html>

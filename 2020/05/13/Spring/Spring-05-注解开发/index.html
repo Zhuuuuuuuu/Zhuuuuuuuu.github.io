@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">2.8k字</span>
+            <span class="post-count">2.9k字</span>
         </span>
     </span>
 
@@ -100,7 +100,9 @@
 
       
       <h1 id="Spring-05-注解开发"><a href="#Spring-05-注解开发" class="headerlink" title="Spring-05-注解开发"></a>Spring-05-注解开发</h1><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200508/203155619.png" alt="mark"></p>
-<h2 id="1-注解快速使用-注入注解"><a href="#1-注解快速使用-注入注解" class="headerlink" title="1. 注解快速使用(注入注解)"></a>1. 注解快速使用(注入注解)</h2><p><strong>官网文档 ：</strong> <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-annotation-config" target="_blank" rel="noopener">https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-annotation-config</a></p>
+<h2 id="1-Autowired-被注入的属性"><a href="#1-Autowired-被注入的属性" class="headerlink" title="1. Autowired(被注入的属性)"></a>1. Autowired(被注入的属性)</h2><ul>
+<li><strong>官网文档 ：</strong> <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-annotation-config" target="_blank" rel="noopener">https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-annotation-config</a></li>
+</ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201117/091524312.png" alt="mark"></p>
 <p><strong>说明：</strong></p>
 <ul>
@@ -149,7 +151,8 @@
 <ul>
 <li><code>@Autowired</code>是按类型自动转配的，不支持<code>id</code>匹配。</li>
 <li>需要导入 <code>spring-aop</code>的包！</li>
-<li>使用<code>@Autowired</code> 我们可以不用编写 set 方法了，前提是你这个自动装配的 <code>bean</code> 已经在 IOC 容器中注册过了并且符合<code>byname</code> 名称的要求。</li>
+<li><strong>使用<code>@Autowired</code> 我们可以不用编写 set 方法了，前提是你这个自动装配的 <code>bean</code> 已经在 IOC 容器中注册过了并且符合<code>byname</code> 名称的要求。</strong></li>
+<li><code>Autowired</code> 修饰的字段是属于被注入的对象，前提必须需要注入的bean已经在ioc容器中存在（重要的话再说一次！！！）</li>
 </ul>
 <p><strong>案例快速使用</strong></p>
 <ol>
@@ -261,8 +264,18 @@
 </ul>
 </li>
 </ul>
-<h2 id="前序（正式使用注解开发）"><a href="#前序（正式使用注解开发）" class="headerlink" title="前序（正式使用注解开发）"></a>前序（正式使用注解开发）</h2><ul>
-<li>在<code>spring4</code>之后，想要使用注解形式，必须得要引入<code>aop</code>的包</li>
+<h2 id="正式使用注解开发"><a href="#正式使用注解开发" class="headerlink" title="正式使用注解开发"></a>正式使用注解开发</h2><h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h2><ul>
+<li><p><strong>平时开发时，并不会把东西写入xml中，多数的情况下是使用注解开发</strong></p>
+</li>
+<li><p><strong>注解开发关注的方面</strong></p>
+<ul>
+<li>bean的注入(<code>@Bean,@Component,@Service...</code>)</li>
+<li>属性的注入 (<code>@Value,@Autowired</code>）</li>
+<li>xml的省略写法<code>（@Configuration</code>）</li>
+</ul>
+</li>
+<li><p>在<code>spring4</code>之后，想要使用注解形式，必须得要引入<code>aop</code>的包</p>
+</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200517/201802462.png" alt="mark"></p>
 <ul>
@@ -344,6 +357,7 @@
 </ul>
 <h2 id="4-自动装配Bean-Autowired"><a href="#4-自动装配Bean-Autowired" class="headerlink" title="4. 自动装配Bean(@Autowired)"></a>4. 自动装配Bean(@Autowired)</h2><ul>
 <li><strong>见上</strong></li>
+<li>前提是你这个注入的属性在ioc容器中已经存在</li>
 </ul>
 <h2 id="5-作用域（-Scope）"><a href="#5-作用域（-Scope）" class="headerlink" title="5. 作用域（@Scope）"></a>5. 作用域（@Scope）</h2><p><strong>@scope</strong></p>
 <ul>
@@ -354,12 +368,11 @@
 
 
 
-
-
 <h2 id="6-小结"><a href="#6-小结" class="headerlink" title="6. 小结"></a>6. 小结</h2><p><strong>XML与注解比较</strong></p>
 <ul>
 <li><strong><code>XML</code>可以适用任何场景 ，结构清晰，维护方便</strong></li>
-<li><strong>注解不是自己提供的类使用不了，开发简单方便</strong></li>
+<li><strong>注解不是自己提供的类使用不了，开发简单方便，但是有局限性</strong></li>
+<li><code>SpringBoot</code> 目前项目多用注解去做</li>
 </ul>
 <p><strong>最佳配合</strong></p>
 <ul>
@@ -383,8 +396,7 @@
 <li><code>JavaConfig</code> 原来是 <code>Spring</code> 的一个子项目，它通过 Java 类的方式提供<code>Bean</code> 的定义信息，在 <code>Spring4</code>的版本，<code>JavaConfig</code>已正式成为<code>Spring4</code> 的核心功能 。</li>
 </ul>
 <p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20201122/145200470.png" alt="mark"></p>
-<p><strong>注意：</strong></p>
-<p><strong>这个作用就可以完全避免配置applicationContext.xml</strong></p>
+<p><strong>注意：这个作用就可以完全避免配置applicationContext.xml</strong></p>
 <ol>
 <li><strong>编写一个实体类<code>User</code>(本质就是一个Bean)</strong></li>
 </ol>
@@ -402,7 +414,7 @@
 <ol start="3">
 <li><strong>测试</strong></li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.config.MyConfig;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.AnnotationConfigApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mytest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 这里完全使用了配置类去做</span></span><br><span class="line">        <span class="comment">// 我们通过AnnotationConfig上下文来获取容器</span></span><br><span class="line"></span><br><span class="line">        AnnotationConfigApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(MyConfig<span class="class">.<span class="keyword">class</span>)</span>;;</span><br><span class="line"></span><br><span class="line">        User user = (User) context.getBean(<span class="string">"getUser"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方法名就是Bean的名字</span></span><br><span class="line">        System.out.println(user.getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.zhuuu.config.MyConfig;</span><br><span class="line"><span class="keyword">import</span> com.zhuuu.pojo.User;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.AnnotationConfigApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mytest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 这里完全使用了配置类去做</span></span><br><span class="line">        <span class="comment">// 我们通过AnnotationConfig上下文来获取容器</span></span><br><span class="line">        AnnotationConfigApplicationContext context = <span class="keyword">new</span> AnnotationConfigApplicationContext(MyConfig<span class="class">.<span class="keyword">class</span>)</span>;;</span><br><span class="line"></span><br><span class="line">        User user = (User) context.getBean(<span class="string">"getUser"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方法名就是Bean的名字</span></span><br><span class="line">        System.out.println(user.getName());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -426,7 +438,16 @@
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="comment">//导入合并其他配置类，类似于配置文件中的 inculde 标签</span></span><br><span class="line"><span class="meta">@Import</span>(MyConfig2<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">MyConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册一个bean（就相当于之前xml中写的一个bean）</span></span><br><span class="line">    <span class="comment">// 方法名：对应id</span></span><br><span class="line">    <span class="comment">// 返回值：相当于bean标签中的class属性</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getUser</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>关于这种Java类的配置方式，我们在之后的SpringBoot 和 SpringCloud中还会大量看到，我们需要知道这些注解的作用即可！</p>
+<ul>
+<li><p><code>@Configuration</code></p>
+<ul>
+<li>方法名 ： <code>bean id = xxx</code></li>
+<li>返回值： <code>class = xxx</code></li>
+</ul>
+</li>
+<li><p>关于这种<code>Java</code>类的配置方式，我们在之后的<code>SpringBoot</code>和 <code>SpringCloud</code>中还会大量看到，我们需要知道这些注解的作用即可！</p>
+</li>
+</ul>
 
       
       <!-- reward -->

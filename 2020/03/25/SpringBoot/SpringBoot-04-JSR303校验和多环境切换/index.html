@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">950字</span>
+            <span class="post-count">1k字</span>
         </span>
     </span>
 
@@ -99,39 +99,74 @@
       
 
       
-      <h1 id="SpringBoot-04-JSR303校验和多环境切换"><a href="#SpringBoot-04-JSR303校验和多环境切换" class="headerlink" title="SpringBoot-04-JSR303校验和多环境切换"></a>SpringBoot-04-JSR303校验和多环境切换</h1><h2 id="1-JSR303校验"><a href="#1-JSR303校验" class="headerlink" title="1. JSR303校验"></a>1. JSR303校验</h2><h3 id="1-1-简单使用"><a href="#1-1-简单使用" class="headerlink" title="1.1 简单使用"></a>1.1 简单使用</h3><p>​    Springboot中可以用<strong>@validated来校验数据</strong>，如果数据异常则会统一抛出异常，方便异常中心统一处理。我们这里来写个注解让我们的name只能支持Email格式；</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="meta">@Validated</span>  <span class="comment">//数据校验</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Email</span>(message=<span class="string">"邮箱格式错误"</span>) <span class="comment">//name必须是邮箱格式</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      <h1 id="SpringBoot-04-JSR-303校验和多环境切换"><a href="#SpringBoot-04-JSR-303校验和多环境切换" class="headerlink" title="SpringBoot-04-JSR 303校验和多环境切换"></a>SpringBoot-04-JSR 303校验和多环境切换</h1><h2 id="1-JSR-303校验"><a href="#1-JSR-303校验" class="headerlink" title="1. JSR-303校验"></a>1. JSR-303校验</h2><h3 id="1-1-简单使用"><a href="#1-1-简单使用" class="headerlink" title="1.1 简单使用"></a>1.1 简单使用</h3><ul>
+<li><code>Springboot中</code>可以用<strong>@validated来校验数据</strong>，如果数据异常则会统一抛出异常，方便异常中心统一处理。</li>
+<li>这里来写个注解让我们的<code>name</code>只能支持<code>Email</code>格式；</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span> <span class="comment">//注册bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="meta">@Validated</span>  <span class="comment">//数据校验</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Email</span>(message=<span class="string">"邮箱格式错误"</span>) <span class="comment">//name必须是邮箱格式</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200326101553.png" alt=""></p>
 <p><strong>使用数据校验，可以保证数据的正确性；</strong> </p>
 <a id="more"></a>
 
-<h3 id="1-2-常见参数"><a href="#1-2-常见参数" class="headerlink" title="1.2 常见参数"></a>1.2 常见参数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NotNull</span>(message=<span class="string">"名字不能为空"</span>)</span><br><span class="line"><span class="keyword">private</span> String userName;</span><br><span class="line"><span class="meta">@Max</span>(value=<span class="number">120</span>,message=<span class="string">"年龄最大不能查过120"</span>)</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"><span class="meta">@Email</span>(message=<span class="string">"邮箱格式错误"</span>)</span><br><span class="line"><span class="keyword">private</span> String email;</span><br><span class="line"></span><br><span class="line">空检查</span><br><span class="line"><span class="meta">@Null</span>       验证对象是否为<span class="keyword">null</span></span><br><span class="line"><span class="meta">@NotNull</span>    验证对象是否不为<span class="keyword">null</span>, 无法查检长度为<span class="number">0</span>的字符串</span><br><span class="line"><span class="meta">@NotBlank</span>   检查约束字符串是不是Null还有被Trim的长度是否大于<span class="number">0</span>,只对字符串,且会去掉前后空格.</span><br><span class="line"><span class="meta">@NotEmpty</span>   检查约束元素是否为NULL或者是EMPTY.</span><br><span class="line">    </span><br><span class="line">Booelan检查</span><br><span class="line"><span class="meta">@AssertTrue</span>     验证 Boolean 对象是否为 <span class="keyword">true</span>  </span><br><span class="line"><span class="meta">@AssertFalse</span>    验证 Boolean 对象是否为 <span class="keyword">false</span>  </span><br><span class="line">    </span><br><span class="line">长度检查</span><br><span class="line"><span class="meta">@Size</span>(min=, max=) 验证对象（Array,Collection,Map,String）长度是否在给定的范围之内  </span><br><span class="line"><span class="meta">@Length</span>(min=, max=) string is between min and max included.</span><br><span class="line"></span><br><span class="line">日期检查</span><br><span class="line"><span class="meta">@Past</span>       验证 Date 和 Calendar 对象是否在当前时间之前  </span><br><span class="line"><span class="meta">@Future</span>     验证 Date 和 Calendar 对象是否在当前时间之后  </span><br><span class="line"><span class="meta">@Pattern</span>    验证 String 对象是否符合正则表达式的规则</span><br><span class="line"></span><br><span class="line">.......等等</span><br><span class="line">除此以外，我们还可以自定义一些数据校验规则</span><br></pre></td></tr></table></figure>
 
-<h2 id="2-多环境切换"><a href="#2-多环境切换" class="headerlink" title="2. 多环境切换"></a>2. 多环境切换</h2><p>​    profile是Spring对不同环境提供不同配置功能的支持，可以通过激活不同的环境版本，实现快速切换环境；</p>
-<h3 id="2-1-多配置文件"><a href="#2-1-多配置文件" class="headerlink" title="2.1 多配置文件"></a>2.1 多配置文件</h3><p>在主配置文件编写的时候，文件名可以是 application-{profile}.properties/yml , 用来指定多个环境版本；</p>
+
+<h3 id="1-2-常见校验模式"><a href="#1-2-常见校验模式" class="headerlink" title="1.2 常见校验模式"></a>1.2 常见校验模式</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NotNull</span>(message=<span class="string">"名字不能为空"</span>)</span><br><span class="line"><span class="keyword">private</span> String userName;</span><br><span class="line"><span class="meta">@Max</span>(value=<span class="number">120</span>,message=<span class="string">"年龄最大不能查过120"</span>)</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"><span class="meta">@Email</span>(message=<span class="string">"邮箱格式错误"</span>)</span><br><span class="line"><span class="keyword">private</span> String email;</span><br><span class="line"></span><br><span class="line">空检查</span><br><span class="line"><span class="meta">@Null</span>       验证对象是否为<span class="keyword">null</span></span><br><span class="line"><span class="meta">@NotNull</span>    验证对象是否不为<span class="keyword">null</span>, 无法查检长度为<span class="number">0</span>的字符串</span><br><span class="line"><span class="meta">@NotBlank</span>   检查约束字符串是不是Null还有被Trim的长度是否大于<span class="number">0</span>,只对字符串,且会去掉前后空格.</span><br><span class="line"><span class="meta">@NotEmpty</span>   检查约束元素是否为NULL或者是EMPTY.</span><br><span class="line">    </span><br><span class="line">Booelan检查</span><br><span class="line"><span class="meta">@AssertTrue</span>     验证 Boolean 对象是否为 <span class="keyword">true</span>  </span><br><span class="line"><span class="meta">@AssertFalse</span>    验证 Boolean 对象是否为 <span class="keyword">false</span>  </span><br><span class="line">    </span><br><span class="line">长度检查</span><br><span class="line"><span class="meta">@Size</span>(min=, max=) 验证对象（Array,Collection,Map,String）长度是否在给定的范围之内  </span><br><span class="line"><span class="meta">@Length</span>(min=, max=) string is between min and max included.</span><br><span class="line"></span><br><span class="line">日期检查</span><br><span class="line"><span class="meta">@Past</span>       验证 Date 和 Calendar 对象是否在当前时间之前  </span><br><span class="line"><span class="meta">@Future</span>     验证 Date 和 Calendar 对象是否在当前时间之后  </span><br><span class="line"><span class="meta">@Pattern</span>    验证 String 对象是否符合正则表达式的规则</span><br><span class="line"></span><br><span class="line">.......等等</span><br><span class="line">除此以外，我们还可以自定义一些数据校验规则</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-多环境切换"><a href="#2-多环境切换" class="headerlink" title="2. 多环境切换"></a>2. 多环境切换</h2><ul>
+<li><code>profile</code>是<code>Spring</code>对不同环境提供不同配置功能的支持，可以通过激活不同的环境版本，实现快速切换环境；</li>
+</ul>
+<h3 id="2-1-多配置文件"><a href="#2-1-多配置文件" class="headerlink" title="2.1 多配置文件"></a>2.1 多配置文件</h3><ul>
+<li>在主配置文件编写的时候，文件名可以是 <code>application-{profile}.properties/yml</code>, 用来指定多个环境版本；</li>
+</ul>
 <p><strong>例如：</strong></p>
-<p>application-test.properties 代表测试环境配置</p>
-<p>application-dev.properties 代表开发环境配置</p>
-<p>但是Springboot并不会直接启动这些配置文件，它<strong>默认使用application.properties主配置文件</strong>；</p>
-<p>我们需要通过一个配置来选择需要激活的环境：</p>
+<ul>
+<li><p><code>application-test.properties</code>代表测试环境配置</p>
+</li>
+<li><p><code>application-dev.properties</code> 代表开发环境配置</p>
+</li>
+<li><p>但是<code>Springboot</code>并不会直接启动这些配置文件，它<strong>默认使用application.properties主配置文件</strong>；</p>
+</li>
+</ul>
+<p><strong>我们需要通过一个配置来选择需要激活的环境：</strong></p>
 <figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#比如在配置文件中指定使用dev环境，我们可以通过设置不同的端口号进行测试；</span></span><br><span class="line"><span class="comment">#我们启动SpringBoot，就可以看到已经切换到dev下的配置了；</span></span><br><span class="line"><span class="meta">spring.profiles.active</span>=<span class="string">dev</span></span><br></pre></td></tr></table></figure>
 
 
 
-<p><strong>yaml多文档块</strong></p>
-<p>和properties配置文件中一样，但是使用yml去实现不需要创建多个配置文件，更加方便了 !</p>
+<ul>
+<li><strong>yaml多文档块</strong>（同样的可以用来切换配置文件）<ul>
+<li>和<code>properties</code>配置文件中一样，但是使用yml去实现不需要创建多个配置文件，更加方便了 !</li>
+<li>本质不需要配置多个配置文件</li>
+</ul>
+</li>
+</ul>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line"><span class="comment">#选择要激活那个环境块</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">prod</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8083</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span> <span class="string">dev</span> <span class="comment">#配置环境的名称</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8084</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span> <span class="string">prod</span>  <span class="comment">#配置环境的名称</span></span><br></pre></td></tr></table></figure>
 
-<p><strong>注意：如果yml和properties同时都配置了端口，并且没有激活其他环境 ， 默认会使用properties配置文件的！</strong></p>
-<h3 id="2-2-配置文件加载位置"><a href="#2-2-配置文件加载位置" class="headerlink" title="2.2 配置文件加载位置"></a>2.2 配置文件加载位置</h3><p>外部加载配置文件的方式十分多，我们选择最常用的即可，在开发的资源文件中进行配置！</p>
-<p>springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文件：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">优先级1：项目路径下的config文件夹配置文件</span><br><span class="line">优先级2：项目路径下配置文件</span><br><span class="line">优先级3：资源路径下的config文件夹配置文件</span><br><span class="line">优先级4：资源路径下配置文件</span><br></pre></td></tr></table></figure>
 
-<p>优先级由高到底，高优先级的配置会覆盖低优先级的配置；</p>
-<p><strong>SpringBoot会从这四个位置全部加载主配置文件；互补配置；</strong></p>
-<h2 id="3-扩展"><a href="#3-扩展" class="headerlink" title="3. 扩展"></a>3. 扩展</h2><p>指定位置加载配置文件</p>
-<p>我们还可以通过<strong>spring.config.location</strong>来改变默认的配置文件位置</p>
+
+<ul>
+<li><strong>注意：如果yml和properties同时都配置了端口，并且没有激活其他环境 ， 默认会使用properties配置文件的！</strong></li>
+</ul>
+<h3 id="2-2-配置文件的优先级"><a href="#2-2-配置文件的优先级" class="headerlink" title="2.2 配置文件的优先级"></a>2.2 配置文件的优先级</h3><ul>
+<li>外部加载配置文件的方式十分多，我们选择最常用的即可，在开发的资源文件中进行配置！</li>
+<li><code>springboot</code>启动会扫描以下位置的<code>application.properties</code>或者<code>application.yml</code>文件作为Spring boot的默认配置文件：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">优先级1：项目路径下的config文件夹配置文件   # 项目的最外面一层</span><br><span class="line">优先级2：项目路径下配置文件</span><br><span class="line">优先级3：资源路径下的config文件夹配置文件   # 类路径：src&#x2F;java or src&#x2F;resources</span><br><span class="line">优先级4：资源路径下配置文件</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>优先级由高到底，高优先级的配置会覆盖低优先级的配置；</p>
+</li>
+<li><p><strong>SpringBoot会从这四个位置全部加载主配置文件；互补配置；</strong></p>
+</li>
+</ul>
+<h2 id="3-指定使用配置文件位置"><a href="#3-指定使用配置文件位置" class="headerlink" title="3. 指定使用配置文件位置"></a>3. 指定使用配置文件位置</h2><ul>
+<li><p>指定位置加载配置文件</p>
+</li>
+<li><p>可以通过<strong>spring.config.location</strong>来改变默认的配置文件位置</p>
+</li>
+</ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar spring-boot-config.jar --spring.config.location&#x3D;E:&#x2F;application.properties</span><br></pre></td></tr></table></figure>
 
 
