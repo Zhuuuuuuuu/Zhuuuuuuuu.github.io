@@ -75,6 +75,666 @@
     
     
     
+    <article id="post-RabbitMQ/RabbitMQ-14-消息的可靠性保证" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/30/RabbitMQ/RabbitMQ-14-%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E8%AF%81/"
+    >RabbitMQ-14-消息的可靠性保证</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/30/RabbitMQ/RabbitMQ-14-%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E8%AF%81/" class="article-date">
+  <time datetime="2021-04-30T02:02:24.000Z" itemprop="datePublished">2021-04-30</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="RabbitMQ-14-消息的可靠性保证"><a href="#RabbitMQ-14-消息的可靠性保证" class="headerlink" title="RabbitMQ-14-消息的可靠性保证"></a>RabbitMQ-14-消息的可靠性保证</h2><h3 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h3><ul>
+<li><p>RabbitMQ如何确保消息可靠？很多时候，笔者的回答都是：说来话长的事情何来长话短说。的确，要确保消息可靠不只是单单几句就能够叙述明白的，包括Kafka也是如此。</p>
+</li>
+<li><p>可靠并不是一个绝对的概念，曾经有人也留言说过类似全部磁盘损毁也会导致消息丢失，笔者戏答：还有机房被炸了也会导致消息丢失。</p>
+</li>
+<li><p>可靠性是一个相对的概念，在条件合理的范围内系统所能确保的多少个9的可靠性。一切尽可能的趋于完美而无法企及于完美。</p>
+</li>
+<li><p>我们可以尽可能的确保RabbitMQ的消息可靠。在详细论述RabbitMQ的消息可靠性之前，我们先来回顾下消息在RabbitMQ中的经由之路。</p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210430-094238362.png" alt="mark"></p>
+<p>如图所示，从AMQP协议层面上来说：</p>
+<ul>
+<li><p>消息先从生产者<code>Producer</code> 出发到达交换器 <code>Exchange</code></p>
+</li>
+<li><p>交换器<code>Exchange</code> 根据路由规则将消息转发到对应的<code>Queue</code> 上</p>
+</li>
+<li><p>消息在队列<code>Queue</code> 上进行存储</p>
+</li>
+<li><p>消费者Consumer订阅队列Queue并进行消费。</p>
+</li>
+</ul>
+<p>接下来 ： 我们对于消息可靠性的分析也从这四个阶段来一一探讨。</p>
+      
+      <a class="article-more-link" href="/2021/04/30/RabbitMQ/RabbitMQ-14-%E6%B6%88%E6%81%AF%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E8%AF%81/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Compute_Organization/计组-07-存储器" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/29/Compute_Organization/%E8%AE%A1%E7%BB%84-07-%E5%AD%98%E5%82%A8%E5%99%A8/"
+    >计组-07-存储器</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/29/Compute_Organization/%E8%AE%A1%E7%BB%84-07-%E5%AD%98%E5%82%A8%E5%99%A8/" class="article-date">
+  <time datetime="2021-04-29T03:02:24.000Z" itemprop="datePublished">2021-04-29</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="计算机组成原理-07-存储器"><a href="#计算机组成原理-07-存储器" class="headerlink" title="计算机组成原理-07-存储器"></a>计算机组成原理-07-存储器</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210429-224820865.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2021/04/29/Compute_Organization/%E8%AE%A1%E7%BB%84-07-%E5%AD%98%E5%82%A8%E5%99%A8/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/" rel="tag">计算机基础理论</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" rel="tag">计算机组成原理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Compute_Organization/计组-06-算数逻辑单元ALU" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/27/Compute_Organization/%E8%AE%A1%E7%BB%84-06-%E7%AE%97%E6%95%B0%E9%80%BB%E8%BE%91%E5%8D%95%E5%85%83ALU/"
+    >计组-06-算数逻辑单元ALU</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/27/Compute_Organization/%E8%AE%A1%E7%BB%84-06-%E7%AE%97%E6%95%B0%E9%80%BB%E8%BE%91%E5%8D%95%E5%85%83ALU/" class="article-date">
+  <time datetime="2021-04-27T03:02:24.000Z" itemprop="datePublished">2021-04-27</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="计算机组成原理-06-算数逻辑单元ALU"><a href="#计算机组成原理-06-算数逻辑单元ALU" class="headerlink" title="计算机组成原理-06-算数逻辑单元ALU"></a>计算机组成原理-06-算数逻辑单元ALU</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210428-102318501.png" alt="mark"></p>
+<ul>
+<li><p>回顾 ALU (<code>Arithmetic and Logic Unit</code>)</p>
+<ul>
+<li><strong>功能</strong><ul>
+<li>算数运算：加减乘除</li>
+<li>逻辑运算：与或非 异或</li>
+<li>辅助功能：移位 求补</li>
+</ul>
+</li>
+<li><strong>逻辑结构</strong>如下所示</li>
+</ul>
+<img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210428-104120309.png" alt="mark" style="zoom:50%;" />
+
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210428-104639469.png" alt="mark"></p>
+<ul>
+<li><strong>本节概览</strong></li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210429-202659398.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2021/04/27/Compute_Organization/%E8%AE%A1%E7%BB%84-06-%E7%AE%97%E6%95%B0%E9%80%BB%E8%BE%91%E5%8D%95%E5%85%83ALU/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/" rel="tag">计算机基础理论</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" rel="tag">计算机组成原理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-091-编码方案" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/21/Leetcode/Leetcode-091-%E7%BC%96%E7%A0%81%E6%96%B9%E6%A1%88/"
+    >Leetcode-091-编码方案</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/21/Leetcode/Leetcode-091-%E7%BC%96%E7%A0%81%E6%96%B9%E6%A1%88/" class="article-date">
+  <time datetime="2021-04-21T03:02:24.000Z" itemprop="datePublished">2021-04-21</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="Leetcode-091-解码方法"><a href="#Leetcode-091-解码方法" class="headerlink" title="Leetcode-091-解码方法"></a>Leetcode-091-<a href="https://leetcode-cn.com/problems/decode-ways/" target="_blank" rel="noopener">解码方法</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li>一条包含字母 <code>A-Z</code> 的消息通过以下映射进行了 <strong>编码</strong> ：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#39;A&#39; -&gt; 1</span><br><span class="line">&#39;B&#39; -&gt; 2</span><br><span class="line">...</span><br><span class="line">&#39;Z&#39; -&gt; 26</span><br></pre></td></tr></table></figure>
+
+
+
+<p>要 <strong>解码</strong> 已编码的消息，所有数字必须基于上述映射的方法，反向映射回字母（可能有多种方法）。例如，<code>&quot;11106&quot;</code> 可以映射为：</p>
+<ul>
+<li><code>&quot;AAJF&quot;</code> ，将消息分组为 <code>(1 1 10 6)</code></li>
+<li><code>&quot;KJF&quot;</code> ，将消息分组为 <code>(11 10 6)</code></li>
+</ul>
+<p><strong>说明:</strong></p>
+<ul>
+<li><strong>注意，消息不能分组为  (1 11 06) ，因为 “06” 不能映射为 “F” ，这是由于 “6” 和 “06” 在映射中并不等价。</strong></li>
+<li>给你一个只含数字的 非空 字符串 s ，请计算并返回 解码 方法的 总数 。</li>
+<li>题目数据保证答案肯定是一个 32 位 的整数。</li>
+</ul>
+      
+      <a class="article-more-link" href="/2021/04/21/Leetcode/Leetcode-091-%E7%BC%96%E7%A0%81%E6%96%B9%E6%A1%88/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Compute_Organization/计组-05-数据的表示(浮点数)" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/20/Compute_Organization/%E8%AE%A1%E7%BB%84-05-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%A1%A8%E7%A4%BA(%E6%B5%AE%E7%82%B9%E6%95%B0)/"
+    >计组-05-数据的表示(浮点数)</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/20/Compute_Organization/%E8%AE%A1%E7%BB%84-05-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%A1%A8%E7%A4%BA(%E6%B5%AE%E7%82%B9%E6%95%B0)/" class="article-date">
+  <time datetime="2021-04-20T03:02:24.000Z" itemprop="datePublished">2021-04-20</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="计组-05-数据的表示-浮点数"><a href="#计组-05-数据的表示-浮点数" class="headerlink" title="计组-05-数据的表示(浮点数)"></a>计组-05-数据的表示(浮点数)</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210421-151330497.png" alt="mark"></p>
+<ul>
+<li><p><strong>定点数的局限性</strong></p>
+<ul>
+<li>在位数有限的情况下，无法增加数的表示范围</li>
+</ul>
+</li>
+<li><p><strong>浮点数</strong></p>
+<ul>
+<li>在位数有限的情况下，既扩大了数的表示范围，又保持了数的有效精度</li>
+</ul>
+</li>
+<li><p><strong>本章节基本要点</strong></p>
+</li>
+</ul>
+<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210421-152244855.png" alt="mark"></p>
+<h2 id="1-浮点数的表示形式"><a href="#1-浮点数的表示形式" class="headerlink" title="1. 浮点数的表示形式"></a>1. 浮点数的表示形式</h2><p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210421-151907866.png" alt="mark"></p>
+      
+      <a class="article-more-link" href="/2021/04/20/Compute_Organization/%E8%AE%A1%E7%BB%84-05-%E6%95%B0%E6%8D%AE%E7%9A%84%E8%A1%A8%E7%A4%BA(%E6%B5%AE%E7%82%B9%E6%95%B0)/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/" rel="tag">计算机基础理论</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" rel="tag">计算机组成原理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-027-移除元素" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/19/Leetcode/Leetcode-027-%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0/"
+    >Leetcode-027-移除元素</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/19/Leetcode/Leetcode-027-%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0/" class="article-date">
+  <time datetime="2021-04-19T03:02:24.000Z" itemprop="datePublished">2021-04-19</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="Leetcode-027-移除元素"><a href="#Leetcode-027-移除元素" class="headerlink" title="Leetcode-027-移除元素"></a>Leetcode-027-移除元素</h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li>给你一个数组 <code>nums</code> 和一个值 <code>val</code>，你需要 <strong><a href="https://baike.baidu.com/item/原地算法" target="_blank" rel="noopener">原地</a></strong> 移除所有数值等于 <code>val</code> 的元素，并返回移除后数组的新长度。</li>
+<li>不要使用额外的数组空间，你必须在 <strong><a href="https://baike.baidu.com/item/原地算法" target="_blank" rel="noopener">原地 </a>修改输入数组</strong> 并在使用 O(1) 额外空间的条件下完成。</li>
+<li>元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。</li>
+</ul>
+<p><strong>说明:</strong></p>
+<p>为什么返回数值是整数，但输出的答案是数组呢?</p>
+<p>请注意，输入数组是以<strong>「引用」</strong>方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。</p>
+<p>你可以想象内部操作如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; nums 是以“引用”方式传递的。也就是说，不对实参做任何拷贝</span><br><span class="line">int len &#x3D; removeDuplicates(nums);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 在函数里修改输入数组对于调用者是可见的。</span><br><span class="line">&#x2F;&#x2F; 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。</span><br><span class="line">for (int i &#x3D; 0; i &lt; len; i++) &#123;</span><br><span class="line">    print(nums[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line">输入：nums &#x3D; [3,2,2,3], val &#x3D; 3</span><br><span class="line">输出：2, nums &#x3D; [2,2]</span><br><span class="line">解释：函数应该返回新的长度 2, 并且 nums 中的前两个元素均为 2。你不需要考虑数组中超出新长度后面的元素。例如，函数返回的新长度为 2 ，而 nums &#x3D; [2,2,3,3] 或 nums &#x3D; [2,2,0,0]，也会被视作正确答案。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [0,1,2,2,3,0,4,2], val &#x3D; 2</span><br><span class="line">输出：5, nums &#x3D; [0,1,4,0,3]</span><br><span class="line">解释：函数应该返回新的长度 5, 并且 nums 中的前五个元素为 0, 1, 3, 0, 4。注意这五个元素可为任意顺序。你不需要考虑数组中超出新长度后面的元素。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="方法一-：-双指针"><a href="#方法一-：-双指针" class="headerlink" title="方法一 ： 双指针"></a>方法一 ： 双指针</h2><ul>
+<li>由于题目要求删除数组中等于<code>val</code> 的元素，因此输出数组的长度一定小于等于输入数组的长度，可以把输出的数组直接写在输入数组上。可以使用双指针：右指针<code>fast</code> 指向当前将要处理的元素，左指针<code>slow</code>指向下一个将要赋值的位置。<ul>
+<li>如果右指针指向的元素不等于val，它一定是输出数组的一个元素，我们就将右指针指向的元素复制到左指针位置，然后将左右指针同时右移；</li>
+<li>如果右指针指向的元素等于 val，它不能在输出数组里，此时左指针不动，右指针右移一位。</li>
+</ul>
+</li>
+<li>整个过程保持不变的性质是：区间<code>[0,slow)</code> 中的元素都不等于 val。当左右指针遍历完输入数组以后，<code>slow</code>的值就是输出数组的长度。</li>
+<li>这样的算法在最坏情况下（输入数组中没有元素等于 <em>val</em>），左右指针各遍历了数组一次。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">removeElement</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 变量初始化及特判</span></span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">int</span> slow = <span class="number">0</span>;                                   <span class="comment">// 慢指针</span></span><br><span class="line">        <span class="keyword">int</span> fast = <span class="number">0</span>;                                   <span class="comment">// 快指针</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 处理逻辑</span></span><br><span class="line">        <span class="keyword">while</span>(fast &lt; n)&#123;</span><br><span class="line">            <span class="keyword">if</span>(val != nums[fast])&#123;                      <span class="comment">// 这种情况说明该快指针指向的元素需要被保留</span></span><br><span class="line">                nums[slow] = nums[fast];</span><br><span class="line">                slow++;</span><br><span class="line">            &#125;</span><br><span class="line">            fast++;                                     <span class="comment">// 说明元素需要删除的，跳过该元素</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 3. 返回处理后的末尾元素</span></span><br><span class="line">        <span class="keyword">return</span> slow;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：O(n) ，遍历一遍数组</li>
+<li>空间复杂度：O(1) ， 原地修改</li>
+</ul>
+
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-220-存在重复元素III" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/17/Leetcode/Leetcode-220-%E5%AD%98%E5%9C%A8%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0III/"
+    >Leetcode-220-存在重复元素III</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/17/Leetcode/Leetcode-220-%E5%AD%98%E5%9C%A8%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0III/" class="article-date">
+  <time datetime="2021-04-17T01:02:24.000Z" itemprop="datePublished">2021-04-17</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="Leetcode-220-存在重复元素-III"><a href="#Leetcode-220-存在重复元素-III" class="headerlink" title="Leetcode-220-存在重复元素 III"></a>Leetcode-220-<a href="https://leetcode-cn.com/problems/contains-duplicate-iii/" target="_blank" rel="noopener">存在重复元素 III</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li>给你一个整数数组 nums 和两个整数 k 和 t 。请你判断是否存在两个下标 i 和 j，使得 <code>abs(nums[i] - nums[j]) &lt;= t</code>，同时又满足 <code>abs(i - j) &lt;= k</code> 。</li>
+<li>如果存在则返回<code>true</code>，不存在返回<code>false。</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [1,2,3,1], k &#x3D; 3, t &#x3D; 0</span><br><span class="line">输出：true</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [1,0,1,1], k &#x3D; 1, t &#x3D; 2</span><br><span class="line">输出：true</span><br><span class="line"></span><br><span class="line">示例 3：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [1,5,9,1,5,9], k &#x3D; 2, t &#x3D; 3</span><br><span class="line">输出：false</span><br><span class="line"></span><br><span class="line">提示：</span><br><span class="line"></span><br><span class="line">0 &lt;&#x3D; nums.length &lt;&#x3D; 2 * 10^4</span><br><span class="line">-2^31 &lt;&#x3D; nums[i] &lt;&#x3D; 2^31 - 1</span><br><span class="line">0 &lt;&#x3D; k &lt;&#x3D; 10^4</span><br><span class="line">0 &lt;&#x3D; t &lt;&#x3D; 2^31 - 1</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2021/04/17/Leetcode/Leetcode-220-%E5%AD%98%E5%9C%A8%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0III/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-RabbitMQ/RabbitMQ-13-分布式事务" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/11/RabbitMQ/RabbitMQ-13-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"
+    >RabbitMQ-13-分布式事务</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/04/11/RabbitMQ/RabbitMQ-13-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" class="article-date">
+  <time datetime="2021-04-11T10:02:24.000Z" itemprop="datePublished">2021-04-11</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="RabbitMQ-13-分布式事务"><a href="#RabbitMQ-13-分布式事务" class="headerlink" title="RabbitMQ-13-分布式事务"></a>RabbitMQ-13-分布式事务</h2><h3 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h3><ul>
+<li><p>分布式事务指事务的操作位于不同的节点上，需要保证事务的<code>AICD</code> 特性。</p>
+</li>
+<li><p>例如在下单场景下，库存和订单如果不在同一个节点上，就涉及分布式事务。</p>
+</li>
+<li><p>在分布式系统中，要实现分布式事务，无外乎那几种解决方案。</p>
+</li>
+</ul>
+      
+      <a class="article-more-link" href="/2021/04/11/RabbitMQ/RabbitMQ-13-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-RabbitMQ/RabbitMQ-12-集群搭建" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -226,719 +886,13 @@
 
 </article>
     
-    <article id="post-Leetcode/Leetcode-LCP002-分式化简" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/09/Leetcode/Leetcode-LCP002-%E5%88%86%E5%BC%8F%E5%8C%96%E7%AE%80/"
-    >Leetcode-LCP002-分式化简</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/09/Leetcode/Leetcode-LCP002-%E5%88%86%E5%BC%8F%E5%8C%96%E7%AE%80/" class="article-date">
-  <time datetime="2021-04-09T03:02:24.000Z" itemprop="datePublished">2021-04-09</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="Leetcode-LCP002-分式化简"><a href="#Leetcode-LCP002-分式化简" class="headerlink" title="Leetcode-LCP002-分式化简"></a>Leetcode-LCP002-<a href="https://leetcode-cn.com/problems/deep-dark-fraction/" target="_blank" rel="noopener">分式化简</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li>有一个同学在学习分式。他需要将一个连分数化成最简分数，你能帮助他吗？</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210409-093002540.png" alt="mark"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">连分数是形如上图的分式。在本题中，所有系数都是大于等于0的整数。</span><br><span class="line"></span><br><span class="line">输入的cont代表连分数的系数（cont[0]代表上图的a0，以此类推）。返回一个长度为2的数组[n, m]，使得连分数的值等于n &#x2F; m，且n, m最大公约数为1。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：cont &#x3D; [3, 2, 0, 2]</span><br><span class="line">输出：[13, 4]</span><br><span class="line">解释：原连分数等价于3 + (1 &#x2F; (2 + (1 &#x2F; (0 + 1 &#x2F; 2))))。注意[26, 8], [-13, -4]都不是正确答案。</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：cont &#x3D; [0, 0, 3]</span><br><span class="line">输出：[3, 1]</span><br><span class="line">解释：如果答案是整数，令分母为1即可。</span><br></pre></td></tr></table></figure>
-
-
-
-<ul>
-<li><p><strong>提示：</strong></p>
-<ul>
-<li><p><code>cont[i] &gt;=</code>0<br><code>1 &lt;= cont的长度 &lt;= 10</code><br><code>cont最后一个元素不等于0</code></p>
-</li>
-<li><p>答案的n, m的取值都能被32位int整型存下（即不超过2 ^ 31 - 1）。</p>
-</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2021/04/09/Leetcode/Leetcode-LCP002-%E5%88%86%E5%BC%8F%E5%8C%96%E7%AE%80/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-RabbitMQ/RabbitMQ-10-死信队列" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/07/RabbitMQ/RabbitMQ-10-%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/"
-    >RabbitMQ-10-死信队列</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/07/RabbitMQ/RabbitMQ-10-%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/" class="article-date">
-  <time datetime="2021-04-07T08:02:24.000Z" itemprop="datePublished">2021-04-07</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="RabbitMQ-10-死信队列"><a href="#RabbitMQ-10-死信队列" class="headerlink" title="RabbitMQ-10-死信队列"></a>RabbitMQ-10-死信队列</h2><h3 id="1-死信产生的原因"><a href="#1-死信产生的原因" class="headerlink" title="1. 死信产生的原因"></a>1. 死信产生的原因</h3><ul>
-<li><p><code>DLX</code>，全称为<code>Dead-Letter-Exchange</code> , 可以称之为死信交换机，也有人称之为死信邮箱。</p>
-</li>
-<li><p>当消息在一个队列中变成死信(<code>dead message</code>)之后，<strong>它能被重新发送到另一个交换机中，这个交换机就是DLX ，绑定DLX的队列就称之为死信队列。</strong></p>
-</li>
-<li><p><strong>消息变成死信，可能是由于以下的原因：</strong></p>
-<ul>
-<li><strong>消息被拒绝</strong></li>
-<li><strong>消息过期</strong></li>
-<li><strong>队列达到最大长度</strong></li>
-</ul>
-</li>
-<li><p><strong>DLX也是一个正常的交换机，和一般的交换机没有区别</strong>，它能在任何的队列上被指定，实际上就是设置某一个队列的属性。</p>
-<ul>
-<li><strong>当这个队列中存在死信时，Rabbitmq就会自动地将这个消息重新发布到设置的DLX上去，进而被路由到另一个队列，即死信队列。</strong></li>
-<li>要想使用死信队列，只需要在定义队列的时候设置队列参数 <code>x-dead-letter-exchange</code> 指定交换机即可。</li>
-</ul>
-</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210407-160554479.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2021/04/07/RabbitMQ/RabbitMQ-10-%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-RabbitMQ/RabbitMQ-09-过期时间TTL" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/07/RabbitMQ/RabbitMQ-09-%E8%BF%87%E6%9C%9F%E6%97%B6%E9%97%B4TTL/"
-    >RabbitMQ-09-过期时间TTL</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/07/RabbitMQ/RabbitMQ-09-%E8%BF%87%E6%9C%9F%E6%97%B6%E9%97%B4TTL/" class="article-date">
-  <time datetime="2021-04-07T06:02:24.000Z" itemprop="datePublished">2021-04-07</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="RabbitMQ-09-过期时间TTL"><a href="#RabbitMQ-09-过期时间TTL" class="headerlink" title="RabbitMQ-09-过期时间TTL"></a>RabbitMQ-09-过期时间TTL</h2><h3 id="1-TTL的概念"><a href="#1-TTL的概念" class="headerlink" title="1. TTL的概念"></a>1. TTL的概念</h3><ul>
-<li><p>过期时间<code>TTL</code>表示可以对消息设置预期的时间，在这个时间内都可以被消费者接收获取；过了之后消息将自动被删除。</p>
-</li>
-<li><p>RabbitMQ可以对<strong>消息和队列</strong>设置TTL。目前有两种方法可以设置。</p>
-<ul>
-<li><strong>第一种方法是通过队列属性设置</strong>，队列中所有消息都有相同的过期时间。</li>
-<li><strong>第二种方法是对消息进行单独设置</strong>，每条消息TTL可以不同。</li>
-</ul>
-</li>
-<li><p>如果上述两种方法同时使用，则消息的过期时间以两者之间TTL较小的那个数值为准。</p>
-</li>
-<li><p>消息在队列的生存时间一旦超过设置的TTL值，就称为dead message被投递到死信队列， 消费者将无法再收到该消息。</p>
-</li>
-</ul>
-<p><strong>TTL的标识</strong></p>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210407-154021368.png" alt="mark"></p>
-      
-      <a class="article-more-link" href="/2021/04/07/RabbitMQ/RabbitMQ-09-%E8%BF%87%E6%9C%9F%E6%97%B6%E9%97%B4TTL/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-080-删除有序数组中的重复项II" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/06/Leetcode/Leetcode-080-%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9II/"
-    >Leetcode-080-删除有序数组中的重复项II</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/06/Leetcode/Leetcode-080-%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9II/" class="article-date">
-  <time datetime="2021-04-06T04:02:24.000Z" itemprop="datePublished">2021-04-06</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="Leetcode-080-删除有序数组中的重复项-II"><a href="#Leetcode-080-删除有序数组中的重复项-II" class="headerlink" title="Leetcode-080- 删除有序数组中的重复项 II"></a>Leetcode-080-<a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array-ii/" target="_blank" rel="noopener"> 删除有序数组中的重复项 II</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li>给你一个有序数组 <code>nums</code> ，请你<strong><a href="http://baike.baidu.com/item/原地算法" target="_blank" rel="noopener"> 原地</a></strong> 删除重复出现的元素，使每个元素 <strong>最多出现两次</strong> ，返回删除后数组的新长度。</li>
-<li>不要使用额外的数组空间，你必须在 <strong><a href="https://baike.baidu.com/item/原地算法" target="_blank" rel="noopener">原地 </a>修改输入数组</strong> 并在使用 O(1) 额外空间的条件下完成。</li>
-</ul>
-<p><strong>说明:</strong></p>
-<p>为什么返回数值是整数，但输出的答案是数组呢?</p>
-<p>请注意，输入数组是以<strong>「引用」</strong>方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。</p>
-<p>你可以想象内部操作如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; nums 是以“引用”方式传递的。也就是说，不对实参做任何拷贝</span><br><span class="line">int len &#x3D; removeDuplicates(nums);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 在函数里修改输入数组对于调用者是可见的。</span><br><span class="line">&#x2F;&#x2F; 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。</span><br><span class="line">for (int i &#x3D; 0; i &lt; len; i++) &#123;</span><br><span class="line">    print(nums[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [1,1,1,2,2,3]</span><br><span class="line">输出：5, nums &#x3D; [1,1,2,2,3]</span><br><span class="line">解释：函数应返回新长度 length &#x3D; 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3 。 不需要考虑数组中超出新长度后面的元素。</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [0,0,1,1,1,1,2,3,3]</span><br><span class="line">输出：7, nums &#x3D; [0,0,1,1,2,3,3]</span><br><span class="line">解释：函数应返回新长度 length &#x3D; 7, 并且原数组的前五个元素被修改为 0, 0, 1, 1, 2, 3, 3 。 不需要考虑数组中超出新长度后面的元素。</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="方法一-：-双指针"><a href="#方法一-：-双指针" class="headerlink" title="方法一 ： 双指针"></a>方法一 ： 双指针</h2><ul>
-<li><p>因为给定数组是有序的，所以相同元素必然连续。我们可以使用双指针解决本题，<strong>遍历数组检查每一个元素是否应该被保留，如果应该被保留，就将其移动到指定位置。</strong></p>
-</li>
-<li><p>具体地，我们定义两个指针slow 和 fast 分别为慢指针和快指针，其中<strong>慢指针表示处理出的数组的长度，快指针表示已经检查过的数组的长度</strong></p>
-<ul>
-<li><code>nums[fast]</code> : 为第一个待检查的元素</li>
-<li><em>nums</em>[<em>slow</em>−1] 为上一个应该被保留的元素所移动到的指定位置。</li>
-</ul>
-</li>
-<li><p>本题要求相同元素最多出现两次而非一次，所以我们需要检查上上个应该被保留的元素 <code>nums[slow−2]</code>是否和当前待检查元素<code>nums[fast]</code> 相同。</p>
-<ul>
-<li>若<code>nums[slow - 2] == nums[fast]</code> 则当前元素不应该被保留</li>
-<li>当前<code>nums[slow−2]=nums[slow−1]=nums[fast]</code></li>
-</ul>
-</li>
-</ul>
-<p>  <strong>最后slow即为数组的长度</strong></p>
-<p>  <strong>特别地，</strong></p>
-<p>  数组的前两个数必然可以被保留，因此对于长度不超过 2 的数组，我们无需进行任何处理，</p>
-<p>  对于长度超过 2 的数组，我们直接将双指针的初始值设为 2 即可。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">removeDuplicates</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 特判及初始化 : 长度小于等于二直接满足条件</span></span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        <span class="keyword">if</span>(len &lt;= <span class="number">2</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> len;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 双指针逻辑 : 从下标为2开始检查</span></span><br><span class="line">        <span class="keyword">int</span> fast = <span class="number">2</span>;                               <span class="comment">// fast代表待检查的元素</span></span><br><span class="line">        <span class="keyword">int</span> slow = <span class="number">2</span>;                               <span class="comment">// slow代表已经检查完的长度</span></span><br><span class="line">        <span class="keyword">while</span>(fast &lt; len)&#123;</span><br><span class="line">            <span class="keyword">if</span>(nums[slow - <span class="number">2</span>] != nums[fast])&#123;        <span class="comment">// 说明中间产生了重复元素</span></span><br><span class="line">                slow++;</span><br><span class="line">                nums[slow] = nums[fast];</span><br><span class="line">            &#125;</span><br><span class="line">            fast++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 返回值</span></span><br><span class="line">        <span class="keyword">return</span> slow + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>复杂度分析</strong></p>
-<ul>
-<li>时间复杂度：O(n) ，遍历一遍数组</li>
-<li>空间复杂度：O(1) ， 原地修改</li>
-</ul>
-
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-026-删除有序数组中的重复元素" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/06/Leetcode/Leetcode-026-%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/"
-    >Leetcode-026-删除有序数组中的重复元素</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/06/Leetcode/Leetcode-026-%E5%88%A0%E9%99%A4%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0/" class="article-date">
-  <time datetime="2021-04-06T03:02:24.000Z" itemprop="datePublished">2021-04-06</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="Leetcode-026-删除有序数组中的重复项"><a href="#Leetcode-026-删除有序数组中的重复项" class="headerlink" title="Leetcode-026-删除有序数组中的重复项"></a>Leetcode-026-<a href="https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="noopener">删除有序数组中的重复项</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li>给你一个有序数组 <code>nums</code> ，请你<strong><a href="http://baike.baidu.com/item/原地算法" target="_blank" rel="noopener"> 原地</a></strong> 删除重复出现的元素，使每个元素 <strong>只出现一次</strong> ，返回删除后数组的新长度。</li>
-<li>不要使用额外的数组空间，你必须在 <strong><a href="https://baike.baidu.com/item/原地算法" target="_blank" rel="noopener">原地 </a>修改输入数组</strong> 并在使用 O(1) 额外空间的条件下完成。</li>
-</ul>
-<p><strong>说明:</strong></p>
-<p>为什么返回数值是整数，但输出的答案是数组呢?</p>
-<p>请注意，输入数组是以<strong>「引用」</strong>方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。</p>
-<p>你可以想象内部操作如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; nums 是以“引用”方式传递的。也就是说，不对实参做任何拷贝</span><br><span class="line">int len &#x3D; removeDuplicates(nums);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 在函数里修改输入数组对于调用者是可见的。</span><br><span class="line">&#x2F;&#x2F; 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。</span><br><span class="line">for (int i &#x3D; 0; i &lt; len; i++) &#123;</span><br><span class="line">    print(nums[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [1,1,2]</span><br><span class="line">输出：2, nums &#x3D; [1,2]</span><br><span class="line">解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。</span><br><span class="line"></span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：nums &#x3D; [0,0,1,1,1,2,2,3,3,4]</span><br><span class="line">输出：5, nums &#x3D; [0,1,2,3,4]</span><br><span class="line">解释：函数应该返回新的长度 5 ， 并且原数组 nums 的前五个元素被修改为 0, 1, 2, 3, 4 。不需要考虑数组中超出新长度后面的元素。</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="方法一-：-双指针"><a href="#方法一-：-双指针" class="headerlink" title="方法一 ： 双指针"></a>方法一 ： 双指针</h2><ul>
-<li>数组完成排序后，我们可以放置两个指针 i 和 j，其中 i 是慢指针，而 j 是快指针。只要 <code>nums[i] == nums[j]</code>，我们就增加 j 以跳过重复项。<ul>
-<li>其中慢指针表示处理出的数组的长度，快指针表示已经检查过的数组的长度</li>
-</ul>
-</li>
-<li>当我们遇到<code>nums[i] != nums[j]</code> 时，跳过重复项的运行已经结束，<ul>
-<li>将 <code>i++</code> 并且将 <code>nums[i] = nums[j]</code></li>
-<li>作用：为了覆盖重复的元素</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">removeDuplicates</span><span class="params">(<span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 初始化及特判</span></span><br><span class="line">        <span class="keyword">int</span> len = nums.length;</span><br><span class="line">        <span class="keyword">if</span>(len &lt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;                                  <span class="comment">// i慢指针</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 双指针逻辑</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>;j &lt; len;j++)&#123;                 <span class="comment">// j快指针</span></span><br><span class="line">            <span class="comment">// 2.1 如果nums[j] != nums[i]</span></span><br><span class="line">            <span class="keyword">if</span>(nums[j] != nums[i])&#123;</span><br><span class="line">                i++;</span><br><span class="line">                nums[i] = nums[j];                  <span class="comment">// i++ 并将重复元素直接覆盖 </span></span><br><span class="line">            &#125;                                       <span class="comment">// 否则如果 nums[j] == nums[i] 直接外层for循环跳到下一个j</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 返回慢指针长度</span></span><br><span class="line">        <span class="keyword">return</span> i + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>复杂度分析</strong></p>
-<ul>
-<li>时间复杂度：O(n) ，遍历一遍数组</li>
-<li>空间复杂度：O(1) ， 原地修改</li>
-</ul>
-
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-783-二叉搜索树节点最小距离" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/06/Leetcode/Leetcode-783-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%8A%82%E7%82%B9%E6%9C%80%E5%B0%8F%E8%B7%9D%E7%A6%BB/"
-    >Leetcode-783-二叉搜索树节点最小距离</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/06/Leetcode/Leetcode-783-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%8A%82%E7%82%B9%E6%9C%80%E5%B0%8F%E8%B7%9D%E7%A6%BB/" class="article-date">
-  <time datetime="2021-04-06T03:02:24.000Z" itemprop="datePublished">2021-04-06</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="Leetcode-783-二叉搜索树节点最小距离"><a href="#Leetcode-783-二叉搜索树节点最小距离" class="headerlink" title="Leetcode-783-二叉搜索树节点最小距离"></a>Leetcode-783-<a href="https://leetcode-cn.com/problems/minimum-distance-between-bst-nodes/" target="_blank" rel="noopener">二叉搜索树节点最小距离</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li>给你一个二叉搜索树的根节点 <code>root</code> ，返回 <strong>树中任意两不同节点值之间的最小差值</strong> 。</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210416-090527376.png" alt="mark"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：root &#x3D; [4,2,6,1,3]</span><br><span class="line">输出：1</span><br></pre></td></tr></table></figure>
-
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210416-090547189.png" alt="mark"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：root &#x3D; [1,0,48,null,null,12,49]</span><br><span class="line">输出：1</span><br></pre></td></tr></table></figure>
-
-<p><strong>提示：</strong></p>
-<ul>
-<li>树中节点数目在范围 <code>[2, 100]</code> 内</li>
-<li><code>0 &lt;= Node.val &lt;= 105</code></li>
-<li>差值是一个正数，其数值等于两值之差的绝对值</li>
-</ul>
-      
-      <a class="article-more-link" href="/2021/04/06/Leetcode/Leetcode-783-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%8A%82%E7%82%B9%E6%9C%80%E5%B0%8F%E8%B7%9D%E7%A6%BB/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-RabbitMQ/RabbitMQ-08-SpringBoot整合使用" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/05/RabbitMQ/RabbitMQ-08-SpringBoot%E6%95%B4%E5%90%88%E4%BD%BF%E7%94%A8/"
-    >RabbitMQ-08-SpringBoot整合使用</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/05/RabbitMQ/RabbitMQ-08-SpringBoot%E6%95%B4%E5%90%88%E4%BD%BF%E7%94%A8/" class="article-date">
-  <time datetime="2021-04-05T06:02:24.000Z" itemprop="datePublished">2021-04-05</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="RabbitMQ-08-SpringBoot整合使用"><a href="#RabbitMQ-08-SpringBoot整合使用" class="headerlink" title="RabbitMQ-08-SpringBoot整合使用"></a>RabbitMQ-08-SpringBoot整合使用</h2><h2 id="1-使用场景概述"><a href="#1-使用场景概述" class="headerlink" title="1. 使用场景概述"></a>1. 使用场景概述</h2><ul>
-<li><strong>rabbitMQ的作用 ： 解耦 削峰 异步</strong></li>
-</ul>
-<h3 id="1-1-同步异步的问题（串行）"><a href="#1-1-同步异步的问题（串行）" class="headerlink" title="1.1 同步异步的问题（串行）"></a>1.1 同步异步的问题（串行）</h3><ul>
-<li>串行方式：将订单信息写入数据库成功后，发送注册邮件，再发送注册短信。以上三个任务全部完成后，返回给客户端</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20210401-140556054.png" alt="mark"></p>
-<p><strong>代码示例</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">makeOrder</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 1 :保存订单 </span></span><br><span class="line">    orderService.saveOrder();</span><br><span class="line">    <span class="comment">// 2： 发送短信服务</span></span><br><span class="line">    messageService.sendSMS(<span class="string">"order"</span>);<span class="comment">//1-2 s</span></span><br><span class="line">    <span class="comment">// 3： 发送email服务</span></span><br><span class="line">    emailService.sendEmail(<span class="string">"order"</span>);<span class="comment">//1-2 s</span></span><br><span class="line">    <span class="comment">// 4： 发送APP服务</span></span><br><span class="line">    appService.sendApp(<span class="string">"order"</span>);    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2021/04/05/RabbitMQ/RabbitMQ-08-SpringBoot%E6%95%B4%E5%90%88%E4%BD%BF%E7%94%A8/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Leetcode/Leetcode-1143-最长公共子序列" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/03/Leetcode/Leetcode-1143-%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97/"
-    >Leetcode-1143-最长公共子序列</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/04/03/Leetcode/Leetcode-1143-%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97/" class="article-date">
-  <time datetime="2021-04-03T03:02:24.000Z" itemprop="datePublished">2021-04-03</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="Leetcode-1143-最长公共子序列"><a href="#Leetcode-1143-最长公共子序列" class="headerlink" title="Leetcode-1143-最长公共子序列"></a>Leetcode-1143-<a href="https://leetcode-cn.com/problems/longest-common-subsequence/" target="_blank" rel="noopener">最长公共子序列</a></h2><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
-<li>给定两个字符串 <code>text1</code> 和 <code>text2</code>，返回这两个字符串的最长 <strong>公共子序列</strong> 的长度。如果不存在 <strong>公共子序列</strong> ，返回 <code>0</code> 。</li>
-<li>一个字符串的 <strong>子序列</strong> 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。<ul>
-<li>例如，<code>&quot;ace&quot;</code> 是 <code>&quot;abcde&quot;</code> 的子序列，但 <code>&quot;aec&quot;</code> 不是 <code>&quot;abcde&quot;</code> 的子序列。</li>
-<li>两个字符串的 <strong>公共子序列</strong> 是这两个字符串所共同拥有的子序列。</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">示例 1：</span><br><span class="line"></span><br><span class="line">输入：text1 &#x3D; &quot;abcde&quot;, text2 &#x3D; &quot;ace&quot; </span><br><span class="line">输出：3  </span><br><span class="line"></span><br><span class="line">解释：最长公共子序列是 &quot;ace&quot; ，它的长度为 3 。</span><br><span class="line">示例 2：</span><br><span class="line"></span><br><span class="line">输入：text1 &#x3D; &quot;abc&quot;, text2 &#x3D; &quot;abc&quot;</span><br><span class="line">输出：3</span><br><span class="line">解释：最长公共子序列是 &quot;abc&quot; ，它的长度为 3 。</span><br><span class="line"></span><br><span class="line">示例 3：</span><br><span class="line"></span><br><span class="line">输入：text1 &#x3D; &quot;abc&quot;, text2 &#x3D; &quot;def&quot;</span><br><span class="line">输出：0</span><br><span class="line">解释：两个字符串没有公共子序列，返回 0 。</span><br></pre></td></tr></table></figure>
-
-
-
-<ul>
-<li><strong>提示：</strong><ul>
-<li><code>1 &lt;= text1.length, text2.length &lt;= 1000</code></li>
-<li><code>text1</code> 和 <code>text2</code> 仅由小写英文字符组成。</li>
-</ul>
-</li>
-</ul>
-      
-      <a class="article-more-link" href="/2021/04/03/Leetcode/Leetcode-1143-%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/55/">55</a><a class="extend next" rel="next" href="/page/6/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/56/">56</a><a class="extend next" rel="next" href="/page/6/">下一页</a>
   </nav>
   
 </section>

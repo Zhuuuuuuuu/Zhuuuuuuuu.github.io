@@ -64,7 +64,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">106字</span>
+            <span class="post-count">644字</span>
         </span>
     </span>
 
@@ -73,7 +73,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">2分钟</span>
         </span>
     </span>
 </div>
@@ -99,17 +99,59 @@
       
 
       
-      <h1 id="java8-新特性-lambda"><a href="#java8-新特性-lambda" class="headerlink" title="java8-新特性-lambda"></a>java8-新特性-lambda</h1><h2 id="前言（从一个案例来引入优化）"><a href="#前言（从一个案例来引入优化）" class="headerlink" title="前言（从一个案例来引入优化）"></a>前言（从一个案例来引入优化）</h2><ol>
-<li><strong>创建员工类</strong></li>
+      <h1 id="java8-新特性-lambda"><a href="#java8-新特性-lambda" class="headerlink" title="java8-新特性-lambda"></a>java8-新特性-lambda</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li><p>理解 ： 可以把Lambda表达式理解为简洁的表示可传递的匿名函数的一种方式：</p>
+<ul>
+<li>它没有名称，但它有参数列表，函数主体，返回类型，可能还有一个可以抛出的异常列表。</li>
+</ul>
+</li>
+<li><p>java中，引入了一个新的操作符<code>“-&gt;”</code>，该操作符在很多资料中，称为箭头操作符，或者lambda操作符；箭头操作符将lambda分成了两个部分：</p>
+<ol>
+<li>左侧：lambda表达式的参数列表</li>
+<li>右侧：lambda表达式中所需要执行的功能，即lambda函数体</li>
+<li>lambda表达式语法格式；</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">double</span> salary;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Employee</span><span class="params">(String name, <span class="keyword">int</span> age, <span class="keyword">double</span> salary)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">        <span class="keyword">this</span>.salary = salary;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getSalary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> salary;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSalary</span><span class="params">(<span class="keyword">double</span> salary)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.salary = salary;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
+</li>
+<li><p>函数式接口定义：接口中只有一个抽象方法的接口，称为函数式接口；</p>
+<ul>
+<li>可以使用<code>@FunctionalInterface</code>注解修饰，对该接口做检查；如果接口里，有多个抽象方法，使用该注解，会有语法错误</li>
+</ul>
+</li>
+</ul>
 <a id="more"></a>
 
 
 
+<h2 id="1-无参数"><a href="#1-无参数" class="headerlink" title="1. 无参数"></a>1. 无参数</h2><ul>
+<li><strong>无参数，无返回值的用法 ：() -&gt; System.out.println(“hello lambda”);</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		Runnable r = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">			<span class="meta">@Override</span></span><br><span class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">				System.out.println(<span class="string">"hello runnable"</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">		r.run();</span><br><span class="line">		Runnable r1 = () -&gt; System.out.println(<span class="string">"hello lambda"</span>);</span><br><span class="line">		r1.run();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-有一个参数，无返回值"><a href="#2-有一个参数，无返回值" class="headerlink" title="2. 有一个参数，无返回值"></a>2. 有一个参数，无返回值</h2><ul>
+<li>有一个参数，无返回值的用法：<code>(x) -&gt; System.out.println(x);</code>或者<code>x -&gt; System.out.println(x);</code>一个参数，可以省略参数的小括号</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test2</span><span class="params">()</span></span>&#123;</span><br><span class="line">		Consumer&lt;String&gt; con = (x) -&gt; System.out.println(x);</span><br><span class="line">		con.accept(<span class="string">"有一个参数，无返回值的用法（Consumer函数式接口）"</span>);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-有两个参数，有返回值"><a href="#3-有两个参数，有返回值" class="headerlink" title="3. 有两个参数，有返回值"></a>3. 有两个参数，有返回值</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		BinaryOperator&lt;Integer&gt; binary = (x, y) -&gt; x + y;</span><br><span class="line">		System.out.println(binary.apply(<span class="number">1</span>, <span class="number">2</span>));<span class="comment">// 3</span></span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-小结使用"><a href="#4-小结使用" class="headerlink" title="4. 小结使用"></a>4. 小结使用</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 无返回值lambda函数体中用法</span></span><br><span class="line">		Runnable r1 = () -&gt; &#123;</span><br><span class="line">			System.out.println(<span class="string">"hello lambda1"</span>);</span><br><span class="line">			System.out.println(<span class="string">"hello lambda2"</span>);</span><br><span class="line">			System.out.println(<span class="string">"hello lambda3"</span>);</span><br><span class="line">		&#125;;</span><br><span class="line">		r1.run();</span><br><span class="line"> </span><br><span class="line">		<span class="comment">// 有返回值lambda函数体中用法</span></span><br><span class="line">		BinaryOperator&lt;Integer&gt; binary = (x, y) -&gt; &#123;</span><br><span class="line">			<span class="keyword">int</span> a = x * <span class="number">2</span>;</span><br><span class="line">			<span class="keyword">int</span> b = y + <span class="number">2</span>;</span><br><span class="line">			<span class="keyword">return</span> a + b;</span><br><span class="line">		&#125;;</span><br><span class="line">		System.out.println(binary.apply(<span class="number">1</span>, <span class="number">2</span>));<span class="comment">// 6</span></span><br><span class="line"> </span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以看到，多行的，只需要用大括号{}把语句包含起来就可以了；</li>
+<li>有返回值和无返回值的，只有一个return的区别；</li>
+<li>只有一条语句的，大括号和return都可以不用写；</li>
+</ul>
+<h2 id="5-参数类型"><a href="#5-参数类型" class="headerlink" title="5. 参数类型"></a>5. 参数类型</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test5</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		BinaryOperator&lt;Integer&gt; binary = (Integer x, Integer y) -&gt; x + y;</span><br><span class="line">		System.out.println(binary.apply(<span class="number">1</span>, <span class="number">2</span>));<span class="comment">// 3</span></span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以看到，在lambda中的参数列表，可以不用写参数的类型，跟java7中 new ArrayList&lt;&gt;(); 不需要指定泛型类型，这样的&lt;&gt;棱形操作符一样，根据上下文做类型的推断</li>
+</ul>
 
       
       <!-- reward -->

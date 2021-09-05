@@ -75,6 +75,601 @@
     
     
     
+    <article id="post-Leetcode/Leetcode-007-整数反转" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/03/Leetcode/Leetcode-007-%E6%95%B4%E6%95%B0%E5%8F%8D%E8%BD%AC/"
+    >Leetcode-007-整数反转</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/03/Leetcode/Leetcode-007-%E6%95%B4%E6%95%B0%E5%8F%8D%E8%BD%AC/" class="article-date">
+  <time datetime="2020-04-03T11:52:53.000Z" itemprop="datePublished">2020-04-03</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leetcode-007-整数反转"><a href="#Leetcode-007-整数反转" class="headerlink" title="Leetcode-007- 整数反转"></a>Leetcode-007- <a href="https://leetcode-cn.com/problems/reverse-integer/" target="_blank" rel="noopener">整数反转</a></h1><p>给出一个 32 位的有符号整数，你需要将这个整数中每位上的数字进行反转。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">示例 1:</span><br><span class="line"></span><br><span class="line">输入: 123</span><br><span class="line">输出: 321</span><br><span class="line"> 示例 2:</span><br><span class="line"></span><br><span class="line">输入: -123</span><br><span class="line">输出: -321</span><br><span class="line">示例 3:</span><br><span class="line"></span><br><span class="line">输入: 120</span><br><span class="line">输出: 21</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>注意:</strong></p>
+<p><strong>假设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 [−231,  231 − 1]。请根据这个假设，如果反转后整数溢出那么就返回 0。</strong></p>
+<p><strong>思路：进位反转</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">reverse</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 反转后的结果</span></span><br><span class="line">    <span class="keyword">int</span> ans = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (x != <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">// 拿到每一个个位</span></span><br><span class="line">        <span class="keyword">int</span> pop = x % <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 溢出处理</span></span><br><span class="line">        <span class="comment">// ans * 10 + pop &gt; Integer.MAXVAlUE</span></span><br><span class="line">        <span class="comment">// ans * 10 + pop &lt; Integer.MINVALUE</span></span><br><span class="line">        <span class="keyword">if</span> ((ans &gt; Integer.MAX_VALUE/<span class="number">10</span>)</span><br><span class="line">                || (ans == Integer.MAX_VALUE/<span class="number">10</span>) &amp;&amp; pop &gt; <span class="number">7</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ((ans &lt; Integer.MIN_VALUE/<span class="number">10</span>)</span><br><span class="line">                || (ans == Integer.MIN_VALUE/<span class="number">10</span>) &amp;&amp; pop &lt; -<span class="number">8</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ans = ans * <span class="number">10</span> + pop;</span><br><span class="line">        x /= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-008-字符串转数字(atoi)" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/03/Leetcode/Leetcode-008-%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%BD%AC%E6%95%B0%E5%AD%97(atoi)/"
+    >Leetcode-008-字符串转数字(atoi)</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/03/Leetcode/Leetcode-008-%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%BD%AC%E6%95%B0%E5%AD%97(atoi)/" class="article-date">
+  <time datetime="2020-04-03T11:52:53.000Z" itemprop="datePublished">2020-04-03</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-008-String-to-Integer-atoi"><a href="#Leecode-008-String-to-Integer-atoi" class="headerlink" title="Leecode-008 String to Integer (atoi)"></a>Leecode-008 <a href="https://leetcode-cn.com/problems/string-to-integer-atoi/" target="_blank" rel="noopener">String to Integer (atoi)</a></h1><h2 id="思路：一次遍历"><a href="#思路：一次遍历" class="headerlink" title="思路：一次遍历"></a>思路：一次遍历</h2><p><strong>题目描述：</strong></p>
+<p><strong>Example 1:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;42&quot;</span><br><span class="line">Output: 42</span><br></pre></td></tr></table></figure>
+
+<p><strong>Example 2:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;   -42&quot;</span><br><span class="line">Output: -42</span><br></pre></td></tr></table></figure>
+
+<p><strong>Example 3:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;4193 with words&quot;</span><br><span class="line">Output: 4193</span><br></pre></td></tr></table></figure>
+
+<p><strong>Example 4:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;words and 987&quot;</span><br><span class="line">Output: 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>Example 5:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;-91283472332&quot;</span><br><span class="line">Output: -2147483648</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/04/03/Leetcode/Leetcode-008-%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%BD%AC%E6%95%B0%E5%AD%97(atoi)/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-SpringBoot/SpringBoot-16-swagger" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/02/SpringBoot/SpringBoot-16-swagger/"
+    >SpringBoot-16-Swagger</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/02/SpringBoot/SpringBoot-16-swagger/" class="article-date">
+  <time datetime="2020-04-02T08:02:24.000Z" itemprop="datePublished">2020-04-02</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="SpringBoot-16-Swagger"><a href="#SpringBoot-16-Swagger" class="headerlink" title="SpringBoot-16-Swagger"></a>SpringBoot-16-Swagger</h1><h2 id="1-Swagger-简介"><a href="#1-Swagger-简介" class="headerlink" title="1. Swagger 简介"></a>1. Swagger 简介</h2><ul>
+<li>官方网站：<a href="https://swagger.io/" target="_blank" rel="noopener">https://swagger.io/</a></li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200405092826.png" alt=""></p>
+      
+      <a class="article-more-link" href="/2020/04/02/SpringBoot/SpringBoot-16-swagger/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-SpringBoot/SpringBoot-15-shiro" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/02/SpringBoot/SpringBoot-15-shiro/"
+    >SpringBoot-15-Shiro</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/02/SpringBoot/SpringBoot-15-shiro/" class="article-date">
+  <time datetime="2020-04-02T04:02:24.000Z" itemprop="datePublished">2020-04-02</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="SpringBoot-15-Shiro"><a href="#SpringBoot-15-Shiro" class="headerlink" title="SpringBoot-15-Shiro"></a>SpringBoot-15-Shiro</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><h3 id="1-1-什么是Shiro"><a href="#1-1-什么是Shiro" class="headerlink" title="1.1 什么是Shiro?"></a>1.1 什么是Shiro?</h3><ul>
+<li>Apache Shiro是一个Java安全（权限）框架。</li>
+<li>Shiro可以非常容易的开发出足够好的应用，其不仅可以在JavaSE环境，也可以在JavaEE中使用</li>
+<li>Shiro可以完成，认证，授权，加密，会话管理,Web集成，缓存等。</li>
+<li>下载地址：<a href="http://shiro.apache.org/" target="_blank" rel="noopener">http://shiro.apache.org/</a></li>
+</ul>
+<h3 id="1-2-功能简介"><a href="#1-2-功能简介" class="headerlink" title="1.2 功能简介"></a>1.2 功能简介</h3><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200402193051.png" alt=""></p>
+      
+      <a class="article-more-link" href="/2020/04/02/SpringBoot/SpringBoot-15-shiro/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-jdk_SourceCode/JDK1.8-04-Arrays" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/02/jdk_SourceCode/JDK1.8-04-Arrays/"
+    >JDK1.8源码-04-java.util.Arrays</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/02/jdk_SourceCode/JDK1.8-04-Arrays/" class="article-date">
+  <time datetime="2020-04-02T02:52:53.000Z" itemprop="datePublished">2020-04-02</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JDK1-8源码-04-java-util-Arrays"><a href="#JDK1-8源码-04-java-util-Arrays" class="headerlink" title="JDK1.8源码-04-java.util.Arrays"></a>JDK1.8源码-04-java.util.Arrays</h1><p>java.util.Arrays 类是 JDK 提供的一个工具类，用来处理数组的各种方法，而且每个方法基本都是静态方法，能直接通过类名Arrays调用。</p>
+      
+      <a class="article-more-link" href="/2020/04/02/jdk_SourceCode/JDK1.8-04-Arrays/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">JDK源码分析</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-020-有效括号" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/"
+    >Leetcode-020</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/" class="article-date">
+  <time datetime="2020-04-01T07:52:53.000Z" itemprop="datePublished">2020-04-01</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-020-Valid-Parentheses"><a href="#Leecode-020-Valid-Parentheses" class="headerlink" title="Leecode-020 Valid Parentheses"></a>Leecode-020 <a href="https://leetcode-cn.com/problems/valid-parentheses/" target="_blank" rel="noopener">Valid Parentheses</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a>思路：辅助栈</h2><p><strong>题目描述</strong></p>
+<ul>
+<li><p>如果有一个‘(’对应就有一个‘）’</p>
+</li>
+<li><p>如果有一个‘{’对应就有一个‘}’</p>
+</li>
+<li><p>如果有一个‘[’对应就有一个‘]’</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Example 1:</span><br><span class="line"></span><br><span class="line">Input: &quot;()&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: &quot;()[]&#123;&#125;&quot;</span><br><span class="line">Output: true</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: &quot;(]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: &quot;([)]&quot;</span><br><span class="line">Output: false</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line">Input: &quot;&#123;[]&#125;&quot;</span><br><span class="line">Output: true</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/04/01/Leetcode/Leetcode-020-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/Leetcode-1111-有效括号的嵌套深度" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/"
+    >Leetcode-1111-有效括号的长度</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/" class="article-date">
+  <time datetime="2020-04-01T07:52:53.000Z" itemprop="datePublished">2020-04-01</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings"><a href="#Leecode-1111-Maximum-Nesting-Depth-of-Two-Valid-Parentheses-Strings" class="headerlink" title="Leecode-1111 Maximum Nesting Depth of Two Valid Parentheses Strings"></a>Leecode-1111 <a href="https://leetcode-cn.com/problems/maximum-nesting-depth-of-two-valid-parentheses-strings/" target="_blank" rel="noopener">Maximum Nesting Depth of Two Valid Parentheses Strings</a></h1><h2 id="思路：辅助栈"><a href="#思路：辅助栈" class="headerlink" title="思路：辅助栈"></a><strong>思路：辅助栈</strong></h2><p><strong>题目描述</strong></p>
+<p>有效括号的意思：一句话概括就是每个左括号都可以找到右括号与之配置。</p>
+<p>题面中的 depth 其实就是栈的最大深度。“你需要从中选出任意一组有效括号字符串 A 和 B，使 max(depth(A), depth(B)) 的可能取值最小”。这句话的意思就是想要A字符串和B字符串的depth尽可能的接近。（<strong>原因：每个左括号都有一个对应的深度，这个左括号要么是A的，要么是B的。所以只需要按照奇数偶数分配给A和B就行了）</strong></p>
+<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a><strong>复杂度分析</strong></h2><p>时间复杂度很明显是 O(n)的，空间复杂度也是 O(n)（如果算返回的变量的话）。</p>
+      
+      <a class="article-more-link" href="/2020/04/01/Leetcode/Leetcode-1111-%E6%9C%89%E6%95%88%E6%8B%AC%E5%8F%B7%E7%9A%84%E5%B5%8C%E5%A5%97%E6%B7%B1%E5%BA%A6/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%98%A5%E6%8B%9B%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/" rel="tag">春招每日一题</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-jdk_SourceCode/JDK1.8-01-Object" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/04/01/jdk_SourceCode/JDK1.8-01-Object/"
+    >JDK1.8源码-01-java.lang.Object</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/01/jdk_SourceCode/JDK1.8-01-Object/" class="article-date">
+  <time datetime="2020-04-01T07:52:53.000Z" itemprop="datePublished">2020-04-01</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="JDK1-8源码-01-java-lang-Object"><a href="#JDK1-8源码-01-java-lang-Object" class="headerlink" title="JDK1.8源码-01-java.lang.Object"></a>JDK1.8源码-01-java.lang.Object</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><strong>首先介绍JDK所有类的基类–java.lang.Object。</strong></p>
+<ul>
+<li><p>Object类属于java.lang包，此包下的所有类在使用的时候无需手动导入，系统会在程序编译期间自动导入。</p>
+</li>
+<li><p>Object 类是所有类的基类，当一个类没有直接继承某个类时，默认继承Object类，也就是说任何类都直接或间接继承此类</p>
+</li>
+<li><p>Object 类中能访问的方法在所有类中都可以调用</p>
+</li>
+</ul>
+<p>下面我们会分别介绍Object 类中的所有方法。</p>
+      
+      <a class="article-more-link" href="/2020/04/01/jdk_SourceCode/JDK1.8-01-Object/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">JDK源码分析</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-personal_server/服务器-宝塔搭建环境" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -230,658 +825,13 @@
 
 </article>
     
-    <article id="post-SpringBoot/SpringBoot-13-整合MyBatis" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/04/01/SpringBoot/SpringBoot-13-%E6%95%B4%E5%90%88MyBatis/"
-    >SpringBoot-13-整合MyBatis</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/04/01/SpringBoot/SpringBoot-13-%E6%95%B4%E5%90%88MyBatis/" class="article-date">
-  <time datetime="2020-04-01T04:02:24.000Z" itemprop="datePublished">2020-04-01</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringBoot-13-整合MyBatis"><a href="#SpringBoot-13-整合MyBatis" class="headerlink" title="SpringBoot-13-整合MyBatis"></a>SpringBoot-13-整合MyBatis</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ul>
-<li><p>官方文档：<a href="http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/" target="_blank" rel="noopener">http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/</a></p>
-</li>
-<li><p><code>Maven</code>仓库地址：<a href="https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter/2.1.1" target="_blank" rel="noopener">https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter/2.1.1</a></p>
-</li>
-<li><p><strong>底层使用：当然还是JDBC</strong></p>
-</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200402095324.png" alt=""></p>
-      
-      <a class="article-more-link" href="/2020/04/01/SpringBoot/SpringBoot-13-%E6%95%B4%E5%90%88MyBatis/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-SpringBoot/SpringBoot-12-整合Druid" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/31/SpringBoot/SpringBoot-12-%E6%95%B4%E5%90%88Druid/"
-    >SpringBoot-12-整合Druid</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/31/SpringBoot/SpringBoot-12-%E6%95%B4%E5%90%88Druid/" class="article-date">
-  <time datetime="2020-03-31T10:02:24.000Z" itemprop="datePublished">2020-03-31</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringBoot-12-整合Druid"><a href="#SpringBoot-12-整合Druid" class="headerlink" title="SpringBoot-12-整合Druid"></a>SpringBoot-12-整合Druid</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ul>
-<li><code>Java</code>程序很大一部分要操作数据库，为了提高操作数据库时候的性能，又不得不适用数据库连接池。</li>
-<li><code>Druid</code>是阿里巴巴开源平台上的一个数据库连接池的实现，结合了<code>C3P0，DBPC</code>等优秀DB池的特点，同时又加入了日志监控的功能。</li>
-<li><code>Druid</code>已经在阿里巴巴部署了超过<code>600</code>个应用，经过一年多生产环境大规模部署的严苛考验。</li>
-<li><code>Spring Boot 2.0</code> 以上默认使用 <code>Hikari</code>数据源，可以说<code>Hikari</code> 与<code>Driud</code>都是当前<code>Java Web</code> 上最优秀的数据源，我们来重点介绍 <code>Spring Boot</code> 如何集成<code>Druid</code> 数据源，如何实现数据库监控。</li>
-</ul>
-<p><strong>注意：</strong></p>
-<ul>
-<li><strong>之前我们的JDBC 整合 使用的是Hikari数据源</strong><ul>
-<li><strong>现在是JDBC 整合了 Druid的数据源</strong></li>
-</ul>
-</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-09-132948.png" alt=""></p>
-<ul>
-<li><code>Github</code>地址：<a href="https://github.com/alibaba/druid/" target="_blank" rel="noopener">https://github.com/alibaba/druid/</a></li>
-<li><code>Druid</code> : 这个数据源最好的东西，就是有sql的后台监控日志，图形版本的 </li>
-</ul>
-<img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-09-132546.png" style="zoom:67%;" />
-      
-      <a class="article-more-link" href="/2020/03/31/SpringBoot/SpringBoot-12-%E6%95%B4%E5%90%88Druid/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-SpringBoot/SpringBoot-11-整合JDBC" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/30/SpringBoot/SpringBoot-11-%E6%95%B4%E5%90%88JDBC/"
-    >SpringBoot-11-整合JDBC</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/30/SpringBoot/SpringBoot-11-%E6%95%B4%E5%90%88JDBC/" class="article-date">
-  <time datetime="2020-03-30T10:02:24.000Z" itemprop="datePublished">2020-03-30</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringBoot-11-整合JDBC"><a href="#SpringBoot-11-整合JDBC" class="headerlink" title="SpringBoot-11-整合JDBC"></a>SpringBoot-11-整合JDBC</h1><h2 id="1-Spring-Data"><a href="#1-Spring-Data" class="headerlink" title="1. Spring-Data"></a>1. Spring-Data</h2><ul>
-<li><p>对于数据层的访问，无论是<code>SQL</code>（关系型数据库）还是<code>NOSQL</code>(非关系型数据库)，<code>SpringBoot</code>底层都是采用<code>Spring Data</code>的方式进行统一处理。</p>
-</li>
-<li><p><code>Spring Boot</code> 底层都是采用<code>Spring Data</code> 的方式进行统一处理各种数据库，<code>Spring Data</code>也是 Spring 中与<code>Spring Boot</code>、<code>Spring Cloud</code>等齐名的知名项目。</p>
-</li>
-<li><p><code>Sping Data</code> 官网：<a href="https://spring.io/projects/spring-data" target="_blank" rel="noopener">https://spring.io/projects/spring-data</a></p>
-</li>
-<li><p>数据库相关的启动器 ：可以参考官方文档：</p>
-</li>
-</ul>
-<p>​    <a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter" target="_blank" rel="noopener">https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter</a></p>
-      
-      <a class="article-more-link" href="/2020/03/30/SpringBoot/SpringBoot-11-%E6%95%B4%E5%90%88JDBC/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-SpringBoot/SpringBoot-09-页面国际化" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/"
-    >SpringBoot-09-页面国际化</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/" class="article-date">
-  <time datetime="2020-03-29T10:02:24.000Z" itemprop="datePublished">2020-03-29</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringBoot-09-页面国际化"><a href="#SpringBoot-09-页面国际化" class="headerlink" title="SpringBoot-09-页面国际化"></a>SpringBoot-09-页面国际化</h1><ul>
-<li>有的时候，我们的网站会去涉及中英文甚至多语言的切换，这时候就需要学习国际化了！</li>
-</ul>
-<h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h2><ul>
-<li>先在IDEA中统一设置<code>properties</code>的编码问题！</li>
-</ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200331085704.png" alt=""></p>
-<ul>
-<li>编写国际化配置文件，抽取页面需要显示的国际化页面消息。可以<strong>去登录页面查看一下，哪些内容我们需要编写国际化的配置！</strong></li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/03/29/SpringBoot/SpringBoot-09-%E9%A1%B5%E9%9D%A2%E5%9B%BD%E9%99%85%E5%8C%96/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-SpringBoot/SpringBoot-10-项目实战" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/"
-    >SpringBoot-10-项目实战</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" class="article-date">
-  <time datetime="2020-03-29T10:02:24.000Z" itemprop="datePublished">2020-03-29</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringBoot-10-项目实战"><a href="#SpringBoot-10-项目实战" class="headerlink" title="SpringBoot-10-项目实战"></a>SpringBoot-10-项目实战</h1><h2 id="1-项目简介"><a href="#1-项目简介" class="headerlink" title="1. 项目简介"></a>1. 项目简介</h2><ul>
-<li>该项目整合了CRUD实现员工管理案例，将MyBatis整合到原项目中，加入了数据库，添加了日期选项控件</li>
-</ul>
-<h4 id="环境要求"><a href="#环境要求" class="headerlink" title="环境要求"></a>环境要求</h4><ul>
-<li>IDEA</li>
-<li>MySQL</li>
-<li>Maven</li>
-<li>需要熟练掌握MySQL数据库，SpringBoot及MyBatis知识，简单的前端知识；</li>
-</ul>
-      
-      <a class="article-more-link" href="/2020/03/29/SpringBoot/SpringBoot-10-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-jdk_SourceCode/JDK1.8-03-String" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/29/jdk_SourceCode/JDK1.8-03-String/"
-    >JDK1.8源码-03-java.lang.String</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/29/jdk_SourceCode/JDK1.8-03-String/" class="article-date">
-  <time datetime="2020-03-29T02:52:53.000Z" itemprop="datePublished">2020-03-29</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="JDK1-8源码-03-java-lang-String"><a href="#JDK1-8源码-03-java-lang-String" class="headerlink" title="JDK1.8源码-03-java.lang.String"></a>JDK1.8源码-03-java.lang.String</h1><p>String 类也是java.lang 包下的一个类，算是日常编码中最常用的一个类了</p>
-      
-      <a class="article-more-link" href="/2020/03/29/jdk_SourceCode/JDK1.8-03-String/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JDK%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">JDK源码分析</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-SpringBoot/SpringBoot-08-整合SpringMVC" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/28/SpringBoot/SpringBoot-08-%E6%95%B4%E5%90%88SpringMVC/"
-    >SpringBoot-08-整合SpringMVC</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/28/SpringBoot/SpringBoot-08-%E6%95%B4%E5%90%88SpringMVC/" class="article-date">
-  <time datetime="2020-03-28T10:02:24.000Z" itemprop="datePublished">2020-03-28</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="SpringBoot-08-整合SpringMVC"><a href="#SpringBoot-08-整合SpringMVC" class="headerlink" title="SpringBoot-08-整合SpringMVC"></a>SpringBoot-08-整合SpringMVC</h1><h3 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h3><ul>
-<li><p>在进行项目编写前，还需要知道一个东西，就是<code>SpringBoot</code>对我们的<strong>SpringMVC还做了哪些配置，包括如何扩展，如何定制。</strong></p>
-</li>
-<li><p><strong>官方文档！</strong></p>
-<ul>
-<li>地址 ：<a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-auto-configuration" target="_blank" rel="noopener">https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-auto-configuration</a></li>
-</ul>
-</li>
-<li><p>以下分析最重要的一个类 ： <code>SpringMVC Auto-Configuration.java</code></p>
-</li>
-</ul>
-<p><strong>官方文档：</strong>对<code>springmvc AutoConfiguration</code>解释如下：</p>
-<p>Spring Boot provides auto-configuration for Spring MVC that works well with most applications.</p>
-<p>The auto-configuration adds the following features on top of Spring’s defaults:</p>
-<ul>
-<li>Inclusion of <code>ContentNegotiatingViewResolver</code> and <code>BeanNameViewResolver</code> beans.<ul>
-<li><strong>视图解析器</strong></li>
-</ul>
-</li>
-<li>Support for serving static resources, including support for WebJars (covered <a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-static-content" target="_blank" rel="noopener">later in this document</a>)).<ul>
-<li><strong>静态资源的映射</strong></li>
-</ul>
-</li>
-<li>Automatic registration of <code>Converter</code>, <code>GenericConverter</code>, and <code>Formatter</code> beans.<ul>
-<li>格式的转换，对象的自动合成</li>
-</ul>
-</li>
-<li>Support for <code>HttpMessageConverters</code> (covered <a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-message-converters" target="_blank" rel="noopener">later in this document</a>).<ul>
-<li>转换http的请求和响应</li>
-</ul>
-</li>
-<li>Automatic registration of <code>MessageCodesResolver</code> (covered <a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-message-codes" target="_blank" rel="noopener">later in this document</a>).</li>
-<li>Static <code>index.html</code> support.</li>
-<li>Custom <code>Favicon</code> support (covered <a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-favicon" target="_blank" rel="noopener">later in this document</a>).</li>
-<li>Automatic use of a <code>ConfigurableWebBindingInitializer</code> bean (covered <a href="https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-spring-mvc-web-binding-initializer" target="_blank" rel="noopener">later in this document</a>).<ul>
-<li>数据的初始化绑定</li>
-</ul>
-</li>
-</ul>
-<p><strong>总结：如果想要使用自己定制化的东西，我们只需要给容器中添加这个组件就好了！剩下的事情SpringBoot就会帮我们做了！</strong></p>
-<p><strong>文档分析</strong></p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># Spring MVC Auto-configuration</span></span><br><span class="line">// Spring Boot为Spring MVC提供了自动配置，它可以很好地与大多数应用程序一起工作</span><br><span class="line">Spring Boot provides auto-configuration for Spring MVC that works well with most applications.</span><br><span class="line">// 自动配置在Spring默认设置的基础上添加了以下功能：</span><br><span class="line">The auto-configuration adds the following features on top of Spring’s defaults:</span><br><span class="line">// 包含视图解析器</span><br><span class="line">Inclusion of ContentNegotiatingViewResolver and BeanNameViewResolver beans.</span><br><span class="line">// 支持静态资源文件夹的路径，以及webjars</span><br><span class="line">Support for serving static resources, including support for WebJars (covered later in this document)).</span><br><span class="line">// 自动注册了Converter：</span><br><span class="line">// 转换器：这就是网页提交数据到后台自动封装成为对象的东西，比如把“1”字符串自动转换成int类型</span><br><span class="line">// Formatter：【格式化器，比如页面给我们了一个2019-8-10，它会给我们自动格式化为Date对象】</span><br><span class="line">Automatic registration of Converter, GenericConverter, and Formatter beans.</span><br><span class="line">//SpringMVC用来转换Http请求和响应的，比如可以把一个User对象转换成JSON字符串</span><br><span class="line">Support for HttpMessageConverters (covered later in this document).</span><br><span class="line">// 定义错误代码生成规则的</span><br><span class="line">Automatic registration of MessageCodesResolver (covered later in this document).</span><br><span class="line">// 首页定制</span><br><span class="line">Static index.html support.</span><br><span class="line">//图标定制</span><br><span class="line">Custom Favicon support (covered later in this document).</span><br><span class="line">//初始化数据绑定器：帮我们把请求数据绑定到JavaBean中</span><br><span class="line">Automatic use of a ConfigurableWebBindingInitializer bean (covered later in this document).</span><br><span class="line"></span><br><span class="line">Spring MVC Auto-configuration</span><br><span class="line">// Spring Boot为Spring MVC提供了自动配置，它可以很好地与大多数应用程序一起工作。</span><br><span class="line">Spring Boot provides auto-configuration for Spring MVC that works well with most applications.</span><br><span class="line">// 自动配置在Spring默认设置的基础上添加了以下功能：</span><br><span class="line">The auto-configuration adds the following features on top of Spring’s defaults:</span><br><span class="line">// 包含视图解析器</span><br><span class="line">Inclusion of ContentNegotiatingViewResolver and BeanNameViewResolver beans.</span><br><span class="line">// 支持静态资源文件夹的路径，以及webjars</span><br><span class="line">Support for serving static resources, including support for WebJars </span><br><span class="line">// 自动注册了Converter：</span><br><span class="line">// 转换器，这就是我们网页提交数据到后台自动封装成为对象的东西，比如把"1"字符串自动转换为int类型</span><br><span class="line">// Formatter：【格式化器，比如页面给我们了一个2019-8-10，它会给我们自动格式化为Date对象】</span><br><span class="line">Automatic registration of Converter, GenericConverter, and Formatter beans.</span><br><span class="line">// HttpMessageConverters</span><br><span class="line">// SpringMVC用来转换Http请求和响应的的，比如我们要把一个User对象转换为JSON字符串，可以去看官网文档解释；</span><br><span class="line">Support for HttpMessageConverters (covered later in this document).</span><br><span class="line">// 定义错误代码生成规则的</span><br><span class="line">Automatic registration of MessageCodesResolver (covered later in this document).</span><br><span class="line">// 首页定制</span><br><span class="line">Static index.html support.</span><br><span class="line">// 图标定制</span><br><span class="line">Custom Favicon support (covered later in this document).</span><br><span class="line">// 初始化数据绑定器：帮我们把请求数据绑定到JavaBean中！</span><br><span class="line">Automatic use of a ConfigurableWebBindingInitializer bean (covered later in this document).</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line">如果您希望保留Spring Boot MVC功能，并且希望添加其他MVC配置（拦截器、格式化程序、视图控制器和其他功能），则可以添加自己</span><br><span class="line">的@configuration类，类型为webmvcconfiguer，但不添加@EnableWebMvc。</span><br><span class="line"></span><br><span class="line">如果希望提供</span><br><span class="line">RequestMappingHandlerMapping、RequestMappingHandlerAdapter或ExceptionHandlerExceptionResolver的自定义</span><br><span class="line">实例，则可以声明WebMVCregistrationAdapter实例来提供此类组件。</span><br><span class="line">*/</span><br><span class="line">If you want to keep those Spring Boot MVC customizations and make more MVC customizations (interceptors, formatters, view controllers, and other features), you can add your own @Configuration class of type WebMvcConfigurer but without @EnableWebMvc.</span><br><span class="line"></span><br><span class="line">If you want to provide custom instances of RequestMappingHandlerMapping, RequestMappingHandlerAdapter, or ExceptionHandlerExceptionResolver, and still keep the Spring Boot MVC customizations, you can declare a bean of type WebMvcRegistrations and use it to provide custom instances of those components.</span><br><span class="line"></span><br><span class="line">// 如果您想完全控制Spring MVC，可以添加自己的@Configuration，并用@EnableWebMvc进行注释。</span><br><span class="line">If you want to take complete control of Spring MVC, you can add your own @Configuration annotated with @EnableWebMvc, or alternatively add your own @Configuration-annotated DelegatingWebMvcConfiguration as described in the Javadoc of @EnableWebMvc.</span><br></pre></td></tr></table></figure>
-      
-      <a class="article-more-link" href="/2020/03/28/SpringBoot/SpringBoot-08-%E6%95%B4%E5%90%88SpringMVC/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringBoot/" rel="tag">SpringBoot</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Python/Python-02-函数" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/03/28/Python/Python-02-%E5%87%BD%E6%95%B0/"
-    >Python-02-函数</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/03/28/Python/Python-02-%E5%87%BD%E6%95%B0/" class="article-date">
-  <time datetime="2020-03-28T09:02:24.000Z" itemprop="datePublished">2020-03-28</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Python-02-函数"><a href="#Python-02-函数" class="headerlink" title="Python-02-函数"></a>Python-02-函数</h1><h2 id="1-数学中的函数"><a href="#1-数学中的函数" class="headerlink" title="1. 数学中的函数"></a>1. 数学中的函数</h2><p>我们知道圆的面积计算公式为：</p>
-<p>S = πr2</p>
-<p>当我们知道半径<code>r</code>的值时，就可以根据公式计算出面积。假设我们需要计算3个不同大小的圆的面积：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">r1 &#x3D; 12.34</span><br><span class="line">r2 &#x3D; 9.08</span><br><span class="line">r3 &#x3D; 73.1</span><br><span class="line">s1 &#x3D; 3.14 * r1 * r1</span><br><span class="line">s2 &#x3D; 3.14 * r2 * r2</span><br><span class="line">s3 &#x3D; 3.14 * r3 * r3</span><br></pre></td></tr></table></figure>
-
-<p>当代码出现有规律的重复的时候，你就需要当心了，每次写<code>3.14 * x * x</code>不仅很麻烦，而且，如果要把<code>3.14</code>改成<code>3.14159265359</code>的时候，得全部替换。</p>
-<p>有了函数，我们就不再每次写<code>s = 3.14 * x * x</code>，而是写成更有意义的函数调用<code>s = area_of_circle(x)</code>，而函数<code>area_of_circle</code>本身只需要写一次，就可以多次调用。</p>
-<p>基本上所有的高级语言都支持函数，Python也不例外。Python不但能非常灵活地定义函数，而且本身内置了很多有用的函数，可以直接调用。</p>
-      
-      <a class="article-more-link" href="/2020/03/28/Python/Python-02-%E5%87%BD%E6%95%B0/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/41/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/40/">40</a><a class="page-number" href="/page/41/">41</a><span class="page-number current">42</span><a class="page-number" href="/page/43/">43</a><a class="page-number" href="/page/44/">44</a><span class="space">&hellip;</span><a class="page-number" href="/page/55/">55</a><a class="extend next" rel="next" href="/page/43/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/41/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/40/">40</a><a class="page-number" href="/page/41/">41</a><span class="page-number current">42</span><a class="page-number" href="/page/43/">43</a><a class="page-number" href="/page/44/">44</a><span class="space">&hellip;</span><a class="page-number" href="/page/56/">56</a><a class="extend next" rel="next" href="/page/43/">下一页</a>
   </nav>
   
 </section>
