@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zhuuu.work/"/>
-  <updated>2022-01-22T04:30:37.471Z</updated>
+  <updated>2022-08-14T10:13:50.198Z</updated>
   <id>http://zhuuu.work/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>lambda表达式中变量的注意事项</title>
+    <link href="http://zhuuu.work/2022/05/15/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F/"/>
+    <id>http://zhuuu.work/2022/05/15/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F/</id>
+    <published>2022-05-15T09:02:24.000Z</published>
+    <updated>2022-08-14T10:13:50.198Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="lambda表达式中变量的注意事项"><a href="#lambda表达式中变量的注意事项" class="headerlink" title="lambda表达式中变量的注意事项"></a>lambda表达式中变量的注意事项</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>The restriction to effectively final variables prohibits access to dynamically-changing local variables, whose capture would likely introduce concurrency problems.</p><p>在Java的线程模型中，栈帧中的局部变量是线程私有的，永远不需要进行同步。假如说允许通过匿名内部类把栈帧中的变量地址泄漏出去(逃逸)，就会引发非常可怕的后果：一份“本来被Java线程模型规定永远是线程私有的数据”可能被并发访问！哪怕它不被并发访问，栈中变量的内存地址泄漏到栈帧之外这件事本身已经足够危险了，这是Java这种内存安全的语言绝对无法容忍的</p><p>这才是本质原因。</p><h2 id="举例描述"><a href="#举例描述" class="headerlink" title="举例描述"></a>举例描述</h2><ul><li>下面是比较长的答案。对于如下代码：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">例子1:</span><br><span class="line">public void doSomething() &#123;</span><br><span class="line"></span><br><span class="line">int value &#x3D; 0;</span><br><span class="line"></span><br><span class="line">IntStream.range(0, 10).forEach(i -&gt; value++ );</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">你会得到一个编译错误：Variable used in lambda expression should be final or effectively final。如果从头分析一下跟这个问题相关的知识，事情要从Java 8之前就存在的匿名内部类说起：</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">例子2:</span><br><span class="line">public void doSomething() &#123;</span><br><span class="line"></span><br><span class="line">int value &#x3D; 0;</span><br><span class="line"></span><br><span class="line">Executors.newSingleThreadExecutor().submit(new Runnable() &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void run() &#123;undefined</span><br><span class="line">value++;</span><br><span class="line">&#125;</span><br><span class="line">&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">同样，你会得到一个编译错误：Variable is accessed within inner class. Needs to be declared final.</span><br></pre></td></tr></table></figure></li></ul><ol><li>第一个问题，为什么存在这样的限制？<br>要回答这个问题，我们需要首先明白，匿名内部类外面的value和里面的value是同一个内存地址中的数据么？</li></ol><ul><li>很明显不是，因为我们都知道，局部变量存在于栈帧的局部变量表中，一旦方法结束，栈帧被销毁，这个变量(这份数据)就不再存在</li><li>但是匿名内部类中的value可能在栈帧销毁后继续存在(比如在这个例子中，匿名内部类被提交到了线程池中)。</li><li>所以，只有一个可能，在匿名内部类被创建的时候，被捕获的局部变量发生了复制。<ul><li>如果我们允许在匿名内部类中执行value++操作，带来的后果就是，匿名内部类中的value的拷贝被更新了，但是原先的value不会受到任何影响(因为它可能已经不存在了)——你看上去好像两个value是同一个地址，同一份数据，但是实际上发生了拷贝，和方法调用的值传递如出一辙。这是很可怕的一件事情，它会让你误以为，在匿名内部类中执行value++会改变原先的局部变量value</li></ul></li></ul><ol start="2"><li>这还不是最可怕的。最可怕的是，如果允许匿名内部类修改外面的局部变量，会颠覆掉整个Java线程模型！！！！！！</li></ol><p><code>The restriction to effectively final variables prohibits access to dynamically-changing local variables, whose capture would likely introduce concurrency problems.</code></p><ul><li>在Java的线程模型中，栈帧中的局部变量是线程私有的，永远不需要进行同步。但是，假如说我们通过匿名内部类把栈帧中的变量地址泄漏出去，就会引发非常可怕的后果：一份“本来被Java线程模型规定永远是线程私有的数据”可能被并发访问！！！</li></ul><h2 id="3-解决方法"><a href="#3-解决方法" class="headerlink" title="3. 解决方法"></a>3. 解决方法</h2><ol><li>因此，在Java 8之前，编译器会强迫你加上一个final关键字：</li></ol><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public void doSomething() &#123;</span><br><span class="line"></span><br><span class="line">final int value &#x3D; 0; &#x2F;&#x2F; 不声明final不给过编译，你给老子死了这条修改的心吧</span><br><span class="line"></span><br><span class="line">Executors.newSingleThreadExecutor().submit(new Runnable() &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line"></span><br><span class="line">public void run() &#123;</span><br><span class="line"></span><br><span class="line">System.out.println(value);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ol start="2"><li>第二个问题：那为什么Java 8之后我可以不写final了呢？</li></ol><ul><li><p>Java 8引入了lambda表达式，我们从此可以非常方便地编写大量的小代码块，但是在捕获外围的局部变量这件事上，lambda表达式和匿名内部类没有任何区别——被捕获的局部变量必须是final的。这就带来了一个问题，继续坚持把局部变量声明成final的话，烦也烦死了。 因此，JLS做出了一个妥协：</p></li><li><p>假如一个局部变量在整个生命周期中都没有被改变(指向)，那么它就是effectively final的——换句话说，不是final，胜似final。这样的局部变量也允许被lambda表达式或者匿名内部类所捕获，不过只能看不能摸——可以读取，但是不能修改。</p></li></ul><ol start="3"><li>下一个问题是，老子就是想在lambda表达式里面改外面的值！你咬我啊！</li></ol><ul><li>为什么转换成一个AtomicInteger就可以了呢？这跟线程安全没有半毛钱关系，纯粹是利用了这样一个技巧：AtomicInteger可以当作int的容器。因为它是在堆上被分配的，我们完全没有改变这个局部变量的指向(effectively final成立)，就达到了修改其中数据的目的。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;lambda表达式中变量的注意事项&quot;&gt;&lt;a href=&quot;#lambda表达式中变量的注意事项&quot; class=&quot;headerlink&quot; title=&quot;lambda表达式中变量的注意事项&quot;&gt;&lt;/a&gt;lambda表达式中变量的注意事项&lt;/h2&gt;&lt;h2 id=&quot;前言&quot;&gt;&lt;
+      
+    
+    </summary>
+    
+    
+    
+      <category term="Java基础" scheme="http://zhuuu.work/tags/Java%E5%9F%BA%E7%A1%80/"/>
+    
+      <category term="lambda表达式" scheme="http://zhuuu.work/tags/lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/"/>
+    
+      <category term="java8" scheme="http://zhuuu.work/tags/java8/"/>
+    
+  </entry>
   
   <entry>
     <title>Leetcode-203-移除链表元素</title>
@@ -161,6 +189,39 @@
   </entry>
   
   <entry>
+    <title>kafka-01-简介</title>
+    <link href="http://zhuuu.work/2021/10/13/kafka/kafka-01-%E7%AE%80%E4%BB%8B/"/>
+    <id>http://zhuuu.work/2021/10/13/kafka/kafka-01-%E7%AE%80%E4%BB%8B/</id>
+    <published>2021-10-13T09:02:24.000Z</published>
+    <updated>2022-08-14T12:08:43.925Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="kafka-01-简介"><a href="#kafka-01-简介" class="headerlink" title="kafka-01-简介"></a>kafka-01-简介</h1><h2 id="前言-why-learning"><a href="#前言-why-learning" class="headerlink" title="前言: why learning?"></a>前言: why learning?</h2><p><strong>官方文档</strong>：<a href="https://kafka.apache.org/" target="_blank" rel="noopener">https://kafka.apache.org/</a></p><p><strong>注意：</strong>⚠️：<strong>此篇废话较多</strong></p><ul><li>你可能会有这样的疑问，<strong>我为什么要学习 Kafka 呢</strong>？要回答这个问题，我们不妨从更大的视角来审视它，先聊聊我对这几年互联网技术发展的理解吧。</li><li>互联网蓬勃发展的这些年涌现出了很多令人眼花缭乱的新技术。当下互联网行业最火的技术当属 ABC 了，即所谓的 AI 人工智能、BigData 大数据和 Cloud 云计算云平台。我个人对区块链技术发展前景存疑，毕竟目前没有看到特别好的落地应用场景，也许在未来几年它会更令人刮目相看吧。</li><li>对于数据密集型应用来说，如何应对数据量激增、数据复杂度增加以及数据变化速率变快，是彰显大数据工程师、架构师功力的最有效表征。</li><li>Kafka 在帮助你应对这些问题方面能起到非常好的效果。就拿数据量激增来说，Kafka 能够有效隔离上下游业务，将上游突增的流量缓存起来，以平滑的方式传导到下游子系统中，避免了流量的不规则冲击。由此可见，如果你是一名大数据从业人员，熟练掌握 Kafka 是非常必要的一项技能。<ul><li>刚刚所举的例子仅仅是 Kafka 助力业务的一个场景罢了。事实上，Kafka 有着非常广阔的应用场景。不谦虚地说，目前 Apache Kafka 被认为是整个消息引擎领域的执牛耳者，仅凭这一点就值得我们好好学习一下它。</li><li>另外，从学习技术的角度而言，Kafka 也是很有亮点的。仅需要学习一套框架就能在实际业务系统中实现消息引擎应用、应用程序集成、分布式存储构建，甚至是流处理应用的开发与部署，听起来还是很超值的吧。</li></ul></li></ul><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-17-030034.jpg" alt=""></p><a id="more"></a><h2 id="1-学习方式建议"><a href="#1-学习方式建议" class="headerlink" title="1. 学习方式建议"></a>1. 学习方式建议</h2><ul><li>总之 Kafka 是个利器，值得一试！既然知道了为什么要学 Kafka，那我们就要行动起来，把它学透，而学透 Kafka 有什么路径吗？<ul><li>如果你是一名软件开发工程师的话，掌握 Kafka 的第一步就是要根据你掌握的编程语言去寻找对应的 Kafka 客户端。当前 Kafka 最重要的两大客户端是 Java 客户端和 libkafka 客户端，它们更新和维护的速度很快，非常适合你持续花时间投入。</li><li>一旦确定了要使用的客户端，马上去官网上学习一下代码示例，如果能够正确编译和运行这些样例，你就能轻松地驾驭客户端了。<ul><li>下一步你可以尝试修改样例代码尝试去理解并使用其他的 <code>API</code>，之后观测你修改的结果。如果这些都没有难倒你，你可以自己编写一个小型项目来验证下学习成果，然后就是改善和提升客户端的可靠性和性能了。到了这一步，你可以熟读一遍 <code>Kafka</code> 官网文档，确保你理解了那些可能影响可靠性和性能的参数。</li><li>最后是学习 <code>Kafka</code> 的高级功能，比如流处理应用开发。流处理 API 不仅能够生产和消费消息，还能执行高级的流式处理操作，比如时间窗口聚合、流处理连接等。</li></ul></li><li>如果你是系统管理员或运维工程师，那么相应的学习目标应该是学习搭建及管理<code>Kafka</code>线上环境。如何根据实际业务需求评估、搭建生产线上环境将是你主要的学习目标。另外对生产环境的监控也是重中之重的工作，<code>Kafka</code>提供了超多的 <code>JMX</code>监控指标，你可以选择任意你熟知的框架进行监控。有了监控数据，作为系统运维管理员的你，势必要观测真实业务负载下的<code>Kafka</code> 集群表现。之后如何利用已有的监控指标来找出系统瓶颈，然后提升整个系统的吞吐量，这也是最能体现你工作价值的地方。</li></ul></li></ul><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-17-030632.jpg" alt=""></p><h2 id="2-消息引擎"><a href="#2-消息引擎" class="headerlink" title="2. 消息引擎"></a>2. 消息引擎</h2><ul><li><p>毫无疑问，你现在对 <code>Apache Kafka</code> 一定充满了各种好奇，那么今天就允许我先来尝试回答下 Kafka 是什么这个问题。</p><ul><li>对了，先卖个关子，在下一期我还将继续回答这个问题，而且答案是不同的。那么，Kafka 是什么呢？用一句话概括一下：<strong>Apache Kafka 是一款开源的消息引擎系统</strong>。</li></ul></li><li><p>倘若“消息引擎系统”这个词对你来说有点陌生的话，那么“消息队列”“消息中间件”的提法想必你一定是有所耳闻的。不过说实话我更愿意使用消息引擎系统这个称谓，因为消息队列给出了一个很不明确的暗示，仿佛 Kafka 是利用队列的方式构建的；而消息中间件的提法有过度夸张“中间件”之嫌，让人搞不清楚这个中间件到底是做什么的。</p></li><li><p>根据维基百科的定义，消息引擎系统是一组规范。企业利用这组规范在不同系统之间传递语义准确的消息，实现松耦合的异步式数据传递。</p><ul><li>系统 A 发送消息给消息引擎系统，系统 B 从消息引擎系统中读取 A 发送的消息。</li><li>最基础的消息引擎就是做这点事的！不论是上面哪个版本，它们都提到了两个重要的事实：<ul><li>消息引擎传输的对象是消息；</li><li>如何传输消息属于消息引擎设计机制的一部分。</li></ul></li></ul></li><li><p>一个比较容易想到的是使用已有的一些成熟解决方案</p><ul><li>比如使用 CSV、XML 亦或是 JSON；</li><li>又或者你可能熟知国外大厂开源的一些序列化框架，比如 Google 的 Protocol Buffer 或 Facebook 的 Thrift。</li><li>这些都是很酷的办法。<strong>那么现在我告诉你 Kafka 的选择：它使用的是纯二进制的字节序列</strong>。当然消息还是结构化的，只是在使用之前都要将其转换成二进制的字节序列。</li></ul></li></ul><ul><li><p>消息设计出来之后还不够，消息引擎系统还要设定具体的传输协议，即我用什么方法把消息传输出去。常见的有两种方法：</p><ul><li><strong>点对点模型</strong>：也叫消息队列模型。如果拿上面那个“民间版”的定义来说，那么系统 A 发送的消息只能被系统 B 接收，其他任何系统都不能读取 A 发送的消息。日常生活的例子比如电话客服就属于这种模型：同一个客户呼入电话只能被一位客服人员处理，第二个客服人员不能为该客户服务。</li><li><strong>发布 / 订阅模型</strong>：与上面不同的是，它有一个主题（Topic）的概念，你可以理解成逻辑语义相近的消息容器。该模型也有发送方和接收方，只不过提法不同。<ul><li>发送方也称为发布者（Publisher），接收方称为订阅者（Subscriber）。和点对点模型不同的是，这个模型可能存在多个发布者向相同的主题发送消息，而订阅者也可能存在多个，它们都能接收到相同主题的消息。生活中的报纸订阅就是一种典型的发布 / 订阅模型。</li></ul></li><li><strong>比较酷的是 Kafka 同时支持这两种消息引擎模型</strong></li></ul></li><li><p>提到消息引擎系统，你可能会问 JMS 和它是什么关系。JMS 是<code>Java Message Service</code>，它也是支持上面这两种消息引擎模型的。严格来说它并非传输协议而仅仅是一组 API 罢了。不过可能是 JMS 太有名气以至于很多主流消息引擎系统都支持 JMS 规范</p><ul><li>比如 <code>ActiveMQ、RabbitMQ</code>、<code>IBM 的 WebSphere MQ 和 Apache Kafka</code>。当然 Kafka 并未完全遵照 JMS 规范，相反，它另辟蹊径，探索出了一条特有的道路。</li></ul></li><li><p>目前我们仅仅是了解了消息引擎系统是做什么的以及怎么做的，但还有个重要的问题是为什么要使用它。</p><ul><li>答案就是“<strong>削峰填谷</strong>”。这四个字简直比消息引擎本身还要有名气。</li><li>我翻了很多文献，最常见的就是这四个字。所谓的“削峰填谷”就是指缓冲上下游瞬时突发流量，使其更平滑。特别是对于那种发送能力很强的上游系统</li><li>如果没有消息引擎的保护，“脆弱”的下游系统可能会直接被压垮导致全链路服务“雪崩”。<ul><li>但是，一旦有了消息引擎，它能够有效地对抗上游的流量冲击，真正做到将上游的“峰”填满到“谷”中，避免了流量的震荡。消息引擎系统的另一大好处在于发送方和接收方的松耦合，这也在一定程度上简化了应用的开发，减少了系统间不必要的交互。</li></ul></li><li><strong>说了这么多，可能你对“削峰填谷”并没有太多直观的感受。</strong><ul><li>举个例子来说明一下 <code>Kafka</code>在这中间是怎么去“抗”峰值流量的吧。</li><li>订单的每门课程都有一个专门的订阅按钮，点击之后进入到付费页面。这个简单的流程中就可能包含多个子服务，比如点击订阅按钮会调用订单系统生成对应的订单，而处理该订单会依次调用下游的多个子系统服务 ，比如调用支付宝和微信支付的接口、查询你的登录信息、验证课程信息等。</li><li>显然上游的订单操作比较简单，它的 TPS 要远高于处理订单的下游服务，因此如果上下游系统直接对接，势必会出现下游服务无法及时处理上游订单从而造成订单堆积的情形。特别是当出现类似于秒杀这样的业务时，上游订单流量会瞬时增加，可能出现的结果就是直接压跨下游子系统服务。</li><li>解决此问题的一个常见做法是我们对上游系统进行限速，但这种做法对上游系统而言显然是不合理的，毕竟问题并不出现在它那里。所以更常见的办法是引入像 Kafka 这样的消息引擎系统来对抗这种上下游系统 TPS 的错配以及瞬时峰值流量。</li><li>还是这个例子，当引入了 Kafka 之后。<strong>上游订单服务</strong>不再直接与下游子服务进行交互。当新订单生成后它仅仅是向 <code>Kafka Broker</code>发送一条订单消息即可。</li><li>类似地，<strong>下游的各个子服务订阅 Kafka 中的对应主题</strong>，并实时从该主题的各自分区（Partition）中获取到订单消息进行处理，从而实现了上游订单服务与下游订单处理服务的解耦。<ul><li>这样当出现秒杀业务时，<strong>Kafka 能够将瞬时增加的订单流量全部以消息形式保存在对应的主题中，既不影响上游服务的 TPS，同时也给下游子服务留出了充足的时间去消费它们。这就是 Kafka 这类消息引擎系统的最大意义所在。</strong></li></ul></li></ul></li></ul></li><li><p>如果你对 <code>Kafka Broker</code>、主题和分区等术语还不甚了解的话也不必担心，我会在专栏后面专门花时间介绍一下<code>Kafka</code>的常见概念和术语。</p></li></ul><h2 id="3-Kafka-的术语"><a href="#3-Kafka-的术语" class="headerlink" title="3. Kafka 的术语"></a>3. Kafka 的术语</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-17-070118.png" alt=""></p><h3 id="3-1-生产者与消费者"><a href="#3-1-生产者与消费者" class="headerlink" title="3.1 生产者与消费者"></a>3.1 生产者与消费者</h3><ul><li>向主题发布消息的客户端应用程序称为生产者（<code>Producer</code>），生产者程序通常持续不断地向一个或多个主题发送消息，而订阅这些主题消息的客户端应用程序就被称为消费者（<code>Consumer</code>）。</li><li>和生产者类似，消费者也能够同时订阅多个主题的消息。我们把<strong>生产者和消费者统称为客户端（Clients）。</strong></li><li>你可以同时运行多个生产者和消费者实例，这些实例会不断地向 Kafka 集群中的多个主题生产和消费消息。</li></ul><h3 id="3-2-服务端"><a href="#3-2-服务端" class="headerlink" title="3.2 服务端"></a>3.2 服务端</h3><ul><li>有客户端自然也就有服务器端。<code>Kafka</code> 的服务器端由被称为 <code>Broker</code> 的服务进程构成，即一个 Kafka 集群由多个 <code>Broker</code>组成，<code>Broker</code>负责接收和处理客户端发送过来的请求，以及对消息进行持久化。</li><li>虽然多个 <code>Broker</code>进程能够运行在同一台机器上，但更常见的做法是将不同的 Broker 分散运行在不同的机器上，这样如果集群中某一台机器宕机，即使在它上面运行的所有 Broker 进程都挂掉了，其他机器上的 <code>Broker</code> 也依然能够对外提供服务。这其实就是 Kafka 提供高可用的手段之一。</li></ul><h3 id="3-3-备份机制"><a href="#3-3-备份机制" class="headerlink" title="3.3 备份机制"></a>3.3 备份机制</h3><ul><li><p>实现高可用的另一个手段就是备份机制（<code>Replication</code>）。</p></li><li><p>备份的思想很简单，就是把相同的数据拷贝到多台机器上，而这些相同的数据拷贝在 Kafka 中被称为副本（<code>Replica</code>）。</p></li><li><p>其实在整个分布式系统里好像都叫这个名字。副本的数量是可以配置的，这些副本保存着相同的数据，但却有不同的角色和作用。</p></li><li><p><code>Kafka</code> 定义了两类副本：领导者副本（<code>Leader Replica</code>）和追随者副本（<code>Follower Replica</code>）。</p><ul><li>前者对外提供服务，这里的对外指的是与客户端程序进行交互；而后者只是被动地追随领导者副本而已，不能与外界进行交互。</li><li>当然了，你可能知道在很多其他系统中追随者副本是可以对外提供服务的，比如 MySQL 的从库是可以处理读操作的，但是在 Kafka 中追随者副本不会对外提供服务。</li><li>对了，一个有意思的事情是现在已经不提倡使用 Master-Slave 来指代这种主从关系了，毕竟 Slave 有奴隶的意思，在美国这种严禁种族歧视的国度，这种表述有点政治不正确了，所以目前大部分的系统都改成 <code>Leader-Follower</code> 了。</li></ul></li><li><p>副本的工作机制也很简单：生产者总是向领导者副本写消息；而消费者总是从领导者副本读消息。至于追随者副本，它只做一件事：向领导者副本发送请求，请求领导者把最新生产的消息发给它，这样它能保持与领导者的同步。</p></li></ul><h3 id="3-4-伸缩性"><a href="#3-4-伸缩性" class="headerlink" title="3.4 伸缩性"></a>3.4 伸缩性</h3><ul><li><p>虽然有了副本机制可以保证数据的持久化或消息不丢失，但没有解决伸缩性的问题。伸缩性即所谓的 <code>Scalability</code>，是分布式系统中非常重要且必须要谨慎对待的问题。</p></li><li><p>什么是伸缩性呢？</p><ul><li>拿副本来说，虽然现在有了领导者副本和追随者副本，但倘若领导者副本积累了太多的数据以至于单台 Broker 机器都无法容纳了，此时应该怎么办呢？一个很自然的想法就是，能否把数据分割成多份保存在不同的 Broker 上？如果你就是这么想的，那么恭喜你，Kafka 就是这么设计的。</li></ul></li><li><p>这种机制就是所谓的分区（<code>Partitioning</code>）。如果你了解其他分布式系统，你可能听说过分片、分区域等提法，比如 <code>MongoDB</code> 和 <code>Elasticsearch</code>中的<code>Sharding、HBase 中的</code> <code>Region</code>，其实它们都是相同的原理，只是 <code>Partitioning</code> 是最标准的名称。</p></li></ul><h3 id="3-5-分区"><a href="#3-5-分区" class="headerlink" title="3.5 分区"></a>3.5 分区</h3><ul><li><p>Kafka 中的分区机制指的是将每个主题划分成多个分区（Partition），每个分区是一组有序的消息日志。</p></li><li><p>生产者生产的每条消息只会被发送到一个分区中，也就是说如果向一个双分区的主题发送一条消息，这条消息要么在分区 0 中，要么在分区 1 中。如你所见，Kafka 的分区编号是从 0 开始的，如果 Topic 有 100 个分区，那么它们的分区号就是从 0 到 99。</p></li><li><p>讲到这里，你可能有这样的疑问：刚才提到的副本如何与这里的分区联系在一起呢？实际上，副本是在分区这个层级定义的。每个分区下可以配置若干个副本，其中只能有 1 个领导者副本和 N-1 个追随者副本。</p></li><li><p>生产者向分区写入消息，每条消息在分区中的位置信息由一个叫位移（<code>Offset</code>）的数据来表征。分区位移总是从 0 开始，假设一个生产者向一个空分区写入了 10 条消息，那么这 10 条消息的位移依次是 <code>0、1、2、…、9</code>。</p></li></ul><h2 id="4-Kafka-三层消息架构"><a href="#4-Kafka-三层消息架构" class="headerlink" title="4. Kafka 三层消息架构"></a>4. Kafka 三层消息架构</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-17-070118.png" alt=""></p><p>至此我们能够完整地串联起 Kafka 的三层消息架构：</p><ul><li>第一层是主题层，每个主题可以配置 <code>M</code> 个分区，而每个分区又可以配置<code>N</code>个副本。</li><li>第二层是分区层，每个分区的 N 个副本中只能有一个充当领导者角色，对外提供服务；其他 <code>N-1</code> 个副本是追随者副本，只是提供数据冗余之用。</li><li>第三层是消息层，分区中包含若干条消息，每条消息的位移从 0 开始，依次递增。</li><li><strong>最后，客户端程序只能与分区的领导者副本进行交互。</strong></li></ul><h2 id="5-持久化技术"><a href="#5-持久化技术" class="headerlink" title="5. 持久化技术"></a>5. 持久化技术</h2><ul><li>讲完了消息层次，现在来说说<code>Kafka Broker</code> 是如何持久化数据的。</li><li>总的来说，Kafka 使用消息日志（<code>Log</code>）来保存数据，一个日志就是磁盘上一个只能追加写（<code>Append-only</code>）消息的物理文件。<ul><li>因为只能追加写入，故避免了缓慢的随机<code>I/O</code> 操作，改为性能较好的顺序 I/O 写操作，这也是实现 Kafka 高吞吐量特性的一个重要手段。</li><li>不过如果你不停地向一个日志写入消息，最终也会耗尽所有的磁盘空间，因此 <code>Kafka</code> 必然要定期地删除消息以回收磁盘。</li><li>怎么删除呢？简单来说就是通过日志段（<code>Log Segment</code>）机制。<ul><li>在<code>Kafka</code> 底层，一个日志又近一步细分成多个日志段，消息被追加写到当前最新的日志段中，当写满了一个日志段后，<code>Kafka</code>会自动切分出一个新的日志段，并将老的日志段封存起来。</li><li><code>Kafka</code>在后台还有定时任务会定期地检查老的日志段是否能够被删除，从而实现回收磁盘空间的目的。</li></ul></li></ul></li></ul><h2 id="6-再说消费者"><a href="#6-再说消费者" class="headerlink" title="6. 再说消费者"></a>6. 再说消费者</h2><h3 id="6-1-消费者组"><a href="#6-1-消费者组" class="headerlink" title="6.1 消费者组"></a>6.1 消费者组</h3><ul><li>这里再重点说说消费者。在第一期中我提到过两种消息模型，即<ul><li>点对点模型（<code>Peer to Peer，P2P</code>）</li><li>发布订阅模型。<ul><li>这里面的点对点指的是同一条消息只能被下游的一个消费者消费，其他消费者则不能染指。</li><li>在 Kafka 中实现这种 P2P 模型的方法就是引入了消费者组（<code>Consumer Group</code>）。所谓的消费者组，指的是多个消费者实例共同组成一个组来消费一组主题。</li><li>这组主题中的每个分区都只会被组内的一个消费者实例消费，其他消费者实例不能消费它。</li><li>为什么要引入消费者组呢？主要是为了提升消费者端的吞吐量。多个消费者实例同时消费，加速整个消费端的吞吐量（TPS）。<ul><li>会在后面详细介绍消费者组机制，所以现在你只需要了解消费者组是做什么的即可。另外这里的消费者实例可以是运行消费者应用的进程，也可以是一个线程，它们都称为一个消费者实例（<code>Consumer Instance</code>）。</li></ul></li></ul></li></ul></li></ul><h3 id="6-2-重平衡"><a href="#6-2-重平衡" class="headerlink" title="6.2 重平衡"></a>6.2 重平衡</h3><ul><li>消费者组里面的所有消费者实例不仅“瓜分”订阅主题的数据，而且更酷的是它们还能彼此协助。</li><li>假设组内某个实例挂掉了，Kafka 能够自动检测到，然后把这个 Failed 实例之前负责的分区转移给其他活着的消费者。</li><li>这个过程就是 Kafka 中大名鼎鼎的“重平衡”（<code>Rebalance</code>）。嗯，其实既是大名鼎鼎，也是臭名昭著，因为由重平衡引发的消费者问题比比皆是。事实上，目前很多重平衡的 Bug 社区都无力解决。</li></ul><h3 id="6-3-消费者位移"><a href="#6-3-消费者位移" class="headerlink" title="6.3 消费者位移"></a>6.3 消费者位移</h3><ul><li>每个消费者在消费消息的过程中必然需要有个字段记录它当前消费到了分区的哪个位置上，这个字段就是消费者位移（<code>Consumer Offset</code>）。</li><li>注意，这和上面所说的位移完全不是一个概念。<ul><li>上面的“位移”表征的是分区内的消息位置，它是不变的，即一旦消息被成功写入到一个分区上，它的位移值就是固定的了。</li><li>而消费者位移则不同，它可能是随时变化的，毕竟它是消费者消费进度的指示器嘛。</li><li>另外每个消费者有着自己的消费者位移，因此一定要区分这两类位移的区别。我个人把消息在分区中的位移称为分区位移，而把消费者端的位移称为消费者位移。</li></ul></li></ul><h2 id="7-术语小结"><a href="#7-术语小结" class="headerlink" title="7. 术语小结"></a>7. 术语小结</h2><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-18-025036.jpg" alt=""></p><ul><li>消息：<code>Record</code>。Kafka 是消息引擎嘛，这里的消息就是指 Kafka 处理的主要对象。</li><li>主题：<code>Topic</code>。<strong>主题是承载消息的逻辑容器</strong>，在实际使用中多用来区分具体的业务。</li><li>分区：<code>Partition</code>。一个有序不变的消息序列。每个主题下可以有多个分区。</li><li>消息位移：<code>Offset</code>。表示分区中每条消息的位置信息，是一个单调递增且不变的值。</li><li>副本：<code>Replica</code>。Kafka 中同一条消息能够被拷贝到多个地方以提供数据冗余，这些地方就是所谓的副本。副本还分为领导者副本和追随者副本，各自有不同的角色划分。副本是在分区层级下的，即每个分区可配置多个副本实现高可用。</li><li>生产者：<code>Producer</code>。向主题发布新消息的应用程序。</li><li>消费者：<code>Consumer</code>。从主题订阅新消息的应用程序。</li><li>消费者位移：<code>Consumer Offset</code>。表征消费者消费进度，每个消费者都有自己的消费者位移。</li><li>消费者组：<code>Consumer Group</code>。多个消费者实例共同组成的一个组，同时消费多个分区以实现高吞吐。</li><li>重平衡：Rebalance。消费者组内某个消费者实例挂掉后，其他消费者实例自动重新分配订阅主题分区的过程。Rebalance 是 Kafka 消费者端实现高可用的重要手段。</li></ul><p>参考博客系列 ：<a href="https://blog.csdn.net/u013256816/article/details/54743481" target="_blank" rel="noopener">https://blog.csdn.net/u013256816/article/details/54743481</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;kafka-01-简介&quot;&gt;&lt;a href=&quot;#kafka-01-简介&quot; class=&quot;headerlink&quot; title=&quot;kafka-01-简介&quot;&gt;&lt;/a&gt;kafka-01-简介&lt;/h1&gt;&lt;h2 id=&quot;前言-why-learning&quot;&gt;&lt;a href=&quot;#前言-why-learning&quot; class=&quot;headerlink&quot; title=&quot;前言: why learning?&quot;&gt;&lt;/a&gt;前言: why learning?&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;官方文档&lt;/strong&gt;：&lt;a href=&quot;https://kafka.apache.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://kafka.apache.org/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt;⚠️：&lt;strong&gt;此篇废话较多&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;你可能会有这样的疑问，&lt;strong&gt;我为什么要学习 Kafka 呢&lt;/strong&gt;？要回答这个问题，我们不妨从更大的视角来审视它，先聊聊我对这几年互联网技术发展的理解吧。&lt;/li&gt;
+&lt;li&gt;互联网蓬勃发展的这些年涌现出了很多令人眼花缭乱的新技术。当下互联网行业最火的技术当属 ABC 了，即所谓的 AI 人工智能、BigData 大数据和 Cloud 云计算云平台。我个人对区块链技术发展前景存疑，毕竟目前没有看到特别好的落地应用场景，也许在未来几年它会更令人刮目相看吧。&lt;/li&gt;
+&lt;li&gt;对于数据密集型应用来说，如何应对数据量激增、数据复杂度增加以及数据变化速率变快，是彰显大数据工程师、架构师功力的最有效表征。&lt;/li&gt;
+&lt;li&gt;Kafka 在帮助你应对这些问题方面能起到非常好的效果。就拿数据量激增来说，Kafka 能够有效隔离上下游业务，将上游突增的流量缓存起来，以平滑的方式传导到下游子系统中，避免了流量的不规则冲击。由此可见，如果你是一名大数据从业人员，熟练掌握 Kafka 是非常必要的一项技能。&lt;ul&gt;
+&lt;li&gt;刚刚所举的例子仅仅是 Kafka 助力业务的一个场景罢了。事实上，Kafka 有着非常广阔的应用场景。不谦虚地说，目前 Apache Kafka 被认为是整个消息引擎领域的执牛耳者，仅凭这一点就值得我们好好学习一下它。&lt;/li&gt;
+&lt;li&gt;另外，从学习技术的角度而言，Kafka 也是很有亮点的。仅需要学习一套框架就能在实际业务系统中实现消息引擎应用、应用程序集成、分布式存储构建，甚至是流处理应用的开发与部署，听起来还是很超值的吧。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-17-030034.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="kafka" scheme="http://zhuuu.work/tags/kafka/"/>
+    
+  </entry>
+  
+  <entry>
     <title>MyBatisPlus-05-代码自动生成器</title>
     <link href="http://zhuuu.work/2021/08/23/MyBatis-Plus/MyBatisPlus-05-%E4%BB%A3%E7%A0%81%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E5%99%A8/"/>
     <id>http://zhuuu.work/2021/08/23/MyBatis-Plus/MyBatisPlus-05-%E4%BB%A3%E7%A0%81%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E5%99%A8/</id>
@@ -228,42 +289,6 @@
   </entry>
   
   <entry>
-    <title>MyBatisPlus-03-自动填充及乐观锁</title>
-    <link href="http://zhuuu.work/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/"/>
-    <id>http://zhuuu.work/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/</id>
-    <published>2021-08-21T12:38:38.000Z</published>
-    <updated>2021-08-23T13:18:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="MyBatisPlus-03-自动填充及乐观锁"><a href="#MyBatisPlus-03-自动填充及乐观锁" class="headerlink" title="MyBatisPlus-03-自动填充及乐观锁"></a>MyBatisPlus-03-自动填充及乐观锁</h1><h2 id="1-自动填充功能"><a href="#1-自动填充功能" class="headerlink" title="1. 自动填充功能"></a>1. 自动填充功能</h2><ul><li><p>创建时间、修改时间！这些个操作一遍都是自动化完成的，我们不希望手动更新！</p></li><li><p>阿里巴巴开发手册：所有的数据库表：<code>gmt_create、gmt_modified</code>几乎所有的表都要配置上！而且需要自动化！</p></li></ul><h3 id="1-1-方式一-：-数据库级别"><a href="#1-1-方式一-：-数据库级别" class="headerlink" title="1.1 方式一 ： 数据库级别"></a>1.1 方式一 ： 数据库级别</h3><p>1、在表中新增字段 <code>create_time, update_time</code></p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125455.jpg" alt=""></p><p>2、再次测试插入方法，我们需要先把实体类同步！</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Date createTime;</span><br><span class="line"><span class="keyword">private</span> Date updateTime;</span><br></pre></td></tr></table></figure><ol start="3"><li>再次更新查看结果即可</li></ol><a id="more"></a><h3 id="1-2-方式二：代码级别"><a href="#1-2-方式二：代码级别" class="headerlink" title="1.2 方式二：代码级别"></a>1.2 方式二：代码级别</h3><p>1、删除数据库的默认值、更新操作！</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125915.jpg" alt=""></p><p>2、实体类字段属性上需要增加注解</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 字段添加填充内容</span></span><br><span class="line"><span class="meta">@TableField</span>(fill = FieldFill.INSERT)</span><br><span class="line"><span class="keyword">private</span> Date createTime;</span><br><span class="line"><span class="meta">@TableField</span>(fill = FieldFill.INSERT_UPDATE)</span><br><span class="line"><span class="keyword">private</span> Date updateTime;</span><br></pre></td></tr></table></figure><p>3、编写处理器来处理这个注解即可！</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.reflection.MetaObject;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span> <span class="comment">// 一定不要忘记把处理器加到IOC容器中！</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyMetaObjectHandler</span> <span class="keyword">implements</span> <span class="title">MetaObjectHandler</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 插入时的填充策略</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertFill</span><span class="params">(MetaObject metaObject)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">"start insert fill....."</span>);</span><br><span class="line">    <span class="comment">// setFieldValByName(String fieldName, Object fieldVal, MetaObject</span></span><br><span class="line">    <span class="comment">// metaObject</span></span><br><span class="line">    <span class="keyword">this</span>.setFieldValByName(<span class="string">"createTime"</span>,<span class="keyword">new</span> Date(),metaObject);</span><br><span class="line">    <span class="keyword">this</span>.setFieldValByName(<span class="string">"updateTime"</span>,<span class="keyword">new</span> Date(),metaObject);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 更新时的填充策略</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateFill</span><span class="params">(MetaObject metaObject)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">"start update fill....."</span>);</span><br><span class="line">    <span class="keyword">this</span>.setFieldValByName(<span class="string">"updateTime"</span>,<span class="keyword">new</span> Date(),metaObject);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>4、测试插入</p><p>5、测试更新、观察时间即可！</p><h2 id="2-乐观锁"><a href="#2-乐观锁" class="headerlink" title="2. 乐观锁"></a>2. 乐观锁</h2><p>简单理解：</p><ul><li>乐观锁 : 故名思意十分乐观，它总是认为不会出现问题，无论干什么不去上锁！如果出现了问题，再次更新值测试</li><li>悲观锁：故名思意十分悲观，它总是认为总是出现问题，无论干什么都会上锁！再去操作！</li></ul><p>这里主要讲解 乐观锁机制！</p><ul><li>乐观锁实现方式：</li></ul><p>1.取出记录时，获取当前 version</p><p>2.更新时，带上这个version</p><p>3.执行更新时， set version = newVersion where version = oldVersion</p><p>4.如果version不对，就更新失败</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 大致原理分析</span></span><br><span class="line">乐观锁：1、先查询，获得版本号 version = 1</span><br><span class="line"><span class="comment">-- A</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">name</span> = <span class="string">"zhuuu"</span>, <span class="keyword">version</span> = <span class="keyword">version</span> + <span class="number">1</span></span><br><span class="line"><span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span> <span class="keyword">and</span> <span class="keyword">version</span> = <span class="number">1</span></span><br><span class="line"><span class="comment">-- B 线程抢先完成，这个时候 version = 2，会导致 A 修改失败！</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">name</span> = <span class="string">"zhuuu"</span>, <span class="keyword">version</span> = <span class="keyword">version</span> + <span class="number">1</span></span><br><span class="line"><span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span> <span class="keyword">and</span> <span class="keyword">version</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure><h3 id="2-1-MyBatis-Plus实现"><a href="#2-1-MyBatis-Plus实现" class="headerlink" title="2.1 MyBatis-Plus实现"></a>2.1 <strong>MyBatis-Plus实现</strong></h3><p>1、给数据库中增加version字段！</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-130956.png" alt=""></p><p>2、实体类加对应的字段</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Version</span> <span class="comment">//乐观锁Version注解</span></span><br><span class="line"><span class="keyword">private</span> Integer version;</span><br></pre></td></tr></table></figure><p>3、注册组件</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 扫描我们的 mapper 文件夹</span></span><br><span class="line"><span class="meta">@MapperScan</span>(<span class="string">"com.zhuuu.mapper"</span>)</span><br><span class="line"><span class="meta">@EnableTransactionManagement</span></span><br><span class="line"><span class="meta">@Configuration</span>            <span class="comment">// 配置类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBatisPlusConfig</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 注册乐观锁插件</span></span><br><span class="line">  <span class="meta">@Bean</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> OptimisticLockerInterceptor <span class="title">optimisticLockerInterceptor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> OptimisticLockerInterceptor();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>4、测试一下！</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测试乐观锁成功！</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testOptimisticLocker</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="comment">// 1、查询用户信息</span></span><br><span class="line">  User user = userMapper.selectById(<span class="number">1L</span>);</span><br><span class="line">  <span class="comment">// 2、修改用户信息</span></span><br><span class="line">  user.setName(<span class="string">"朱酱酱"</span>);</span><br><span class="line">  user.setEmail(<span class="string">"1235467@qq.com"</span>);</span><br><span class="line">  <span class="comment">// 3、执行更新操作</span></span><br><span class="line">  userMapper.updateById(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测试乐观锁失败！多线程下</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testOptimisticLocker2</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="comment">// 线程 1</span></span><br><span class="line">  User user = userMapper.selectById(<span class="number">1L</span>);</span><br><span class="line">  user.setName(<span class="string">"zhuuu111"</span>);</span><br><span class="line">  user.setEmail(<span class="string">"2312312313@qq.com"</span>);</span><br><span class="line">  <span class="comment">// 模拟另外一个线程执行了插队操作</span></span><br><span class="line">  User user2 = userMapper.selectById(<span class="number">1L</span>);</span><br><span class="line">  user2.setName(<span class="string">"zhuuu222"</span>);</span><br><span class="line">  user2.setEmail(<span class="string">"12312312312@qq.com"</span>);</span><br><span class="line">  userMapper.updateById(user2);</span><br><span class="line">  <span class="comment">// 自旋锁来多次尝试提交！</span></span><br><span class="line">  userMapper.updateById(user);      <span class="comment">// 如果没有乐观锁就会覆盖插队线程的值！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-131821.png" alt=""></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;MyBatisPlus-03-自动填充及乐观锁&quot;&gt;&lt;a href=&quot;#MyBatisPlus-03-自动填充及乐观锁&quot; class=&quot;headerlink&quot; title=&quot;MyBatisPlus-03-自动填充及乐观锁&quot;&gt;&lt;/a&gt;MyBatisPlus-03-自动填充及乐观锁&lt;/h1&gt;&lt;h2 id=&quot;1-自动填充功能&quot;&gt;&lt;a href=&quot;#1-自动填充功能&quot; class=&quot;headerlink&quot; title=&quot;1. 自动填充功能&quot;&gt;&lt;/a&gt;1. 自动填充功能&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;创建时间、修改时间！这些个操作一遍都是自动化完成的，我们不希望手动更新！&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;阿里巴巴开发手册：所有的数据库表：&lt;code&gt;gmt_create、gmt_modified&lt;/code&gt;几乎所有的表都要配置上！而且需要自动化！&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&quot;1-1-方式一-：-数据库级别&quot;&gt;&lt;a href=&quot;#1-1-方式一-：-数据库级别&quot; class=&quot;headerlink&quot; title=&quot;1.1 方式一 ： 数据库级别&quot;&gt;&lt;/a&gt;1.1 方式一 ： 数据库级别&lt;/h3&gt;&lt;p&gt;1、在表中新增字段 &lt;code&gt;create_time, update_time&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125455.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;2、再次测试插入方法，我们需要先把实体类同步！&lt;/p&gt;
-&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Date createTime;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Date updateTime;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-
-&lt;ol start=&quot;3&quot;&gt;
-&lt;li&gt;再次更新查看结果即可&lt;/li&gt;
-&lt;/ol&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="MyBatis" scheme="http://zhuuu.work/tags/MyBatis/"/>
-    
-      <category term="MyBatis-Plus" scheme="http://zhuuu.work/tags/MyBatis-Plus/"/>
-    
-  </entry>
-  
-  <entry>
     <title>MyBatisPlus-02-主键生成策略及CRUD</title>
     <link href="http://zhuuu.work/2021/08/21/MyBatis-Plus/MyBatisPlus-02-%E4%B8%BB%E9%94%AE%E7%94%9F%E6%88%90%E7%AD%96%E7%95%A5%E5%8F%8ACRUD/"/>
     <id>http://zhuuu.work/2021/08/21/MyBatis-Plus/MyBatisPlus-02-%E4%B8%BB%E9%94%AE%E7%94%9F%E6%88%90%E7%AD%96%E7%95%A5%E5%8F%8ACRUD/</id>
@@ -288,6 +313,42 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="MyBatis" scheme="http://zhuuu.work/tags/MyBatis/"/>
+    
+      <category term="MyBatis-Plus" scheme="http://zhuuu.work/tags/MyBatis-Plus/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>MyBatisPlus-03-自动填充及乐观锁</title>
+    <link href="http://zhuuu.work/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/"/>
+    <id>http://zhuuu.work/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/</id>
+    <published>2021-08-21T12:38:38.000Z</published>
+    <updated>2021-08-23T13:18:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="MyBatisPlus-03-自动填充及乐观锁"><a href="#MyBatisPlus-03-自动填充及乐观锁" class="headerlink" title="MyBatisPlus-03-自动填充及乐观锁"></a>MyBatisPlus-03-自动填充及乐观锁</h1><h2 id="1-自动填充功能"><a href="#1-自动填充功能" class="headerlink" title="1. 自动填充功能"></a>1. 自动填充功能</h2><ul><li><p>创建时间、修改时间！这些个操作一遍都是自动化完成的，我们不希望手动更新！</p></li><li><p>阿里巴巴开发手册：所有的数据库表：<code>gmt_create、gmt_modified</code>几乎所有的表都要配置上！而且需要自动化！</p></li></ul><h3 id="1-1-方式一-：-数据库级别"><a href="#1-1-方式一-：-数据库级别" class="headerlink" title="1.1 方式一 ： 数据库级别"></a>1.1 方式一 ： 数据库级别</h3><p>1、在表中新增字段 <code>create_time, update_time</code></p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125455.jpg" alt=""></p><p>2、再次测试插入方法，我们需要先把实体类同步！</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Date createTime;</span><br><span class="line"><span class="keyword">private</span> Date updateTime;</span><br></pre></td></tr></table></figure><ol start="3"><li>再次更新查看结果即可</li></ol><a id="more"></a><h3 id="1-2-方式二：代码级别"><a href="#1-2-方式二：代码级别" class="headerlink" title="1.2 方式二：代码级别"></a>1.2 方式二：代码级别</h3><p>1、删除数据库的默认值、更新操作！</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125915.jpg" alt=""></p><p>2、实体类字段属性上需要增加注解</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 字段添加填充内容</span></span><br><span class="line"><span class="meta">@TableField</span>(fill = FieldFill.INSERT)</span><br><span class="line"><span class="keyword">private</span> Date createTime;</span><br><span class="line"><span class="meta">@TableField</span>(fill = FieldFill.INSERT_UPDATE)</span><br><span class="line"><span class="keyword">private</span> Date updateTime;</span><br></pre></td></tr></table></figure><p>3、编写处理器来处理这个注解即可！</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.reflection.MetaObject;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="meta">@Component</span> <span class="comment">// 一定不要忘记把处理器加到IOC容器中！</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyMetaObjectHandler</span> <span class="keyword">implements</span> <span class="title">MetaObjectHandler</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 插入时的填充策略</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertFill</span><span class="params">(MetaObject metaObject)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">"start insert fill....."</span>);</span><br><span class="line">    <span class="comment">// setFieldValByName(String fieldName, Object fieldVal, MetaObject</span></span><br><span class="line">    <span class="comment">// metaObject</span></span><br><span class="line">    <span class="keyword">this</span>.setFieldValByName(<span class="string">"createTime"</span>,<span class="keyword">new</span> Date(),metaObject);</span><br><span class="line">    <span class="keyword">this</span>.setFieldValByName(<span class="string">"updateTime"</span>,<span class="keyword">new</span> Date(),metaObject);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 更新时的填充策略</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateFill</span><span class="params">(MetaObject metaObject)</span> </span>&#123;</span><br><span class="line">    log.info(<span class="string">"start update fill....."</span>);</span><br><span class="line">    <span class="keyword">this</span>.setFieldValByName(<span class="string">"updateTime"</span>,<span class="keyword">new</span> Date(),metaObject);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>4、测试插入</p><p>5、测试更新、观察时间即可！</p><h2 id="2-乐观锁"><a href="#2-乐观锁" class="headerlink" title="2. 乐观锁"></a>2. 乐观锁</h2><p>简单理解：</p><ul><li>乐观锁 : 故名思意十分乐观，它总是认为不会出现问题，无论干什么不去上锁！如果出现了问题，再次更新值测试</li><li>悲观锁：故名思意十分悲观，它总是认为总是出现问题，无论干什么都会上锁！再去操作！</li></ul><p>这里主要讲解 乐观锁机制！</p><ul><li>乐观锁实现方式：</li></ul><p>1.取出记录时，获取当前 version</p><p>2.更新时，带上这个version</p><p>3.执行更新时， set version = newVersion where version = oldVersion</p><p>4.如果version不对，就更新失败</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 大致原理分析</span></span><br><span class="line">乐观锁：1、先查询，获得版本号 version = 1</span><br><span class="line"><span class="comment">-- A</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">name</span> = <span class="string">"zhuuu"</span>, <span class="keyword">version</span> = <span class="keyword">version</span> + <span class="number">1</span></span><br><span class="line"><span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span> <span class="keyword">and</span> <span class="keyword">version</span> = <span class="number">1</span></span><br><span class="line"><span class="comment">-- B 线程抢先完成，这个时候 version = 2，会导致 A 修改失败！</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">name</span> = <span class="string">"zhuuu"</span>, <span class="keyword">version</span> = <span class="keyword">version</span> + <span class="number">1</span></span><br><span class="line"><span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span> <span class="keyword">and</span> <span class="keyword">version</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure><h3 id="2-1-MyBatis-Plus实现"><a href="#2-1-MyBatis-Plus实现" class="headerlink" title="2.1 MyBatis-Plus实现"></a>2.1 <strong>MyBatis-Plus实现</strong></h3><p>1、给数据库中增加version字段！</p><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-130956.png" alt=""></p><p>2、实体类加对应的字段</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Version</span> <span class="comment">//乐观锁Version注解</span></span><br><span class="line"><span class="keyword">private</span> Integer version;</span><br></pre></td></tr></table></figure><p>3、注册组件</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 扫描我们的 mapper 文件夹</span></span><br><span class="line"><span class="meta">@MapperScan</span>(<span class="string">"com.zhuuu.mapper"</span>)</span><br><span class="line"><span class="meta">@EnableTransactionManagement</span></span><br><span class="line"><span class="meta">@Configuration</span>            <span class="comment">// 配置类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBatisPlusConfig</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 注册乐观锁插件</span></span><br><span class="line">  <span class="meta">@Bean</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> OptimisticLockerInterceptor <span class="title">optimisticLockerInterceptor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> OptimisticLockerInterceptor();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>4、测试一下！</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测试乐观锁成功！</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testOptimisticLocker</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="comment">// 1、查询用户信息</span></span><br><span class="line">  User user = userMapper.selectById(<span class="number">1L</span>);</span><br><span class="line">  <span class="comment">// 2、修改用户信息</span></span><br><span class="line">  user.setName(<span class="string">"朱酱酱"</span>);</span><br><span class="line">  user.setEmail(<span class="string">"1235467@qq.com"</span>);</span><br><span class="line">  <span class="comment">// 3、执行更新操作</span></span><br><span class="line">  userMapper.updateById(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 测试乐观锁失败！多线程下</span></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testOptimisticLocker2</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="comment">// 线程 1</span></span><br><span class="line">  User user = userMapper.selectById(<span class="number">1L</span>);</span><br><span class="line">  user.setName(<span class="string">"zhuuu111"</span>);</span><br><span class="line">  user.setEmail(<span class="string">"2312312313@qq.com"</span>);</span><br><span class="line">  <span class="comment">// 模拟另外一个线程执行了插队操作</span></span><br><span class="line">  User user2 = userMapper.selectById(<span class="number">1L</span>);</span><br><span class="line">  user2.setName(<span class="string">"zhuuu222"</span>);</span><br><span class="line">  user2.setEmail(<span class="string">"12312312312@qq.com"</span>);</span><br><span class="line">  userMapper.updateById(user2);</span><br><span class="line">  <span class="comment">// 自旋锁来多次尝试提交！</span></span><br><span class="line">  userMapper.updateById(user);      <span class="comment">// 如果没有乐观锁就会覆盖插队线程的值！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-131821.png" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;MyBatisPlus-03-自动填充及乐观锁&quot;&gt;&lt;a href=&quot;#MyBatisPlus-03-自动填充及乐观锁&quot; class=&quot;headerlink&quot; title=&quot;MyBatisPlus-03-自动填充及乐观锁&quot;&gt;&lt;/a&gt;MyBatisPlus-03-自动填充及乐观锁&lt;/h1&gt;&lt;h2 id=&quot;1-自动填充功能&quot;&gt;&lt;a href=&quot;#1-自动填充功能&quot; class=&quot;headerlink&quot; title=&quot;1. 自动填充功能&quot;&gt;&lt;/a&gt;1. 自动填充功能&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;创建时间、修改时间！这些个操作一遍都是自动化完成的，我们不希望手动更新！&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;阿里巴巴开发手册：所有的数据库表：&lt;code&gt;gmt_create、gmt_modified&lt;/code&gt;几乎所有的表都要配置上！而且需要自动化！&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;1-1-方式一-：-数据库级别&quot;&gt;&lt;a href=&quot;#1-1-方式一-：-数据库级别&quot; class=&quot;headerlink&quot; title=&quot;1.1 方式一 ： 数据库级别&quot;&gt;&lt;/a&gt;1.1 方式一 ： 数据库级别&lt;/h3&gt;&lt;p&gt;1、在表中新增字段 &lt;code&gt;create_time, update_time&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125455.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;2、再次测试插入方法，我们需要先把实体类同步！&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Date createTime;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Date updateTime;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;再次更新查看结果即可&lt;/li&gt;
+&lt;/ol&gt;
     
     </summary>
     
@@ -521,6 +582,37 @@
   </entry>
   
   <entry>
+    <title>开发笔记-04-高并发慢查询</title>
+    <link href="http://zhuuu.work/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-04-%E9%AB%98%E5%B9%B6%E5%8F%91%E6%85%A2%E6%9F%A5%E8%AF%A2/"/>
+    <id>http://zhuuu.work/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-04-%E9%AB%98%E5%B9%B6%E5%8F%91%E6%85%A2%E6%9F%A5%E8%AF%A2/</id>
+    <published>2021-08-05T08:38:38.000Z</published>
+    <updated>2021-08-11T12:52:24.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="开发笔记-04-高并发慢查询"><a href="#开发笔记-04-高并发慢查询" class="headerlink" title="开发笔记-04-高并发慢查询"></a>开发笔记-04-高并发慢查询</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul><li><p><strong>慢查询是高并发之大忌</strong></p></li><li><p>博客转载：<a href="https://www.cnblogs.com/donlianli/p/11068095.html" target="_blank" rel="noopener">https://www.cnblogs.com/donlianli/p/11068095.html</a></p></li></ul><h2 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h2><ul><li>最近又遇到了一次慢查把db（mariadb10)几乎打挂的案例，作为一个核心支付系统的技术负责人，真是每日如履薄冰。因为之前支付系统经常出问题，现在各个BG对支付系统都盯得很紧。这次要不是我及时让DB给暴力清理数据，没准又提一个P2故障；</li><li>抱怨归抱怨，事后复盘，一丝都不能马虎。首先，描述一下故障的全过程。起因是我们支付系统有一个异步队列，这个队列使用的一张mysql表存储，异步回调业务线的任务（姑且表名称叫task)，都会首先放这里。同时这个task表还有其他的异步任务，不同的任务使用task_type字段来进行区分。然后应用系统有一个定时任务，扫描这张表是否有待消费的任务，如果有，则会取出来进行消费；典型的生产者消费者模型；</li></ul><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-11-124616.jpg" alt=""></p><a id="more"></a><p>这里的task说的再具体一点：</p><ul><li>1、所有的异步任务都在这张表，有支付成功通知业务线消息，有给结算系统推送支付信息的任务；</li><li>2、消费者在任务处理成功后，则会把任务从task表删除。所以这张表经常是空的；<ul><li>消费者根据不同的任务，调用不同的上游订单系统和结算系统。</li><li>出故障时，是因为推送支付信息的结算系统接口超时，出了问题，导致任务被积压到了task表。</li></ul></li></ul><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-11-124812.jpg" alt=""></p><ul><li><p>任务积压之后，消费者线程池很快就被积压的任务占满，导致应该通知BG订单支付成功的任务也被block住，进而影响到订单支付成功率。</p></li><li><p>消费者线程池隔离没有做到位，立刻找DBA将推送给结算系统的任务进行了备份并清理。并且嘱咐DBA定时清理推送结算任务的数据。这样才化解支付成功率继续下滑的趋势。</p></li><li><p>危机解除后，我们和DBA配合进一步排查问题，找出了事情的根本原因。</p><ul><li>原来是推送结算信息的逻辑中，有一个对task表的查询，而这个查询的sql，没有建索引。</li><li>这样当这类任务数量积压的比较多时，查询会越来越慢，慢查导致mysql堵塞。</li><li>堵塞导致消费者无法拉取任务，进而影响到其他通知BG的任务的消费；分析了一下日志，其实我们的程序查询数量当时3分钟大概查询了1万多次，可以说qps不多。但是问题出现在sql无法命中索引，把mysql的worker thread都用完了。给我们研发的感觉，mysql是如此的脆弱，2w多条数据，查询没有索引，几千个select,就能把它打挂。</li></ul></li><li><p>几乎类似的案例，一年前，我们也碰到过一次。当时支付系统有一个bug，用户每支付一次，都会把支付客史中一个月之前的数据都清理一下（1月1日，清12月1日之前的数据，2月1清理1月1日之前的数据）。</p><ul><li>这个bug藏的很深，这块代码也很少有业务需求，一直没有被发现。但是，是雷就会有爆炸的一天。3月1日凌晨，支付系统突然所有接口都挂了。DBA最终定位是删除支付客史的sql。</li><li>这个问题，我们研发一开始是不承认的，毕竟这个sql,在线上跑了2年多，一直没有出过问题。DBA说这个delete语句删3000w数据，而且在不断的请求,数据库当然扛不住，我们反驳说，这个客史表一共才3000w数据。</li><li>事后我们发现，DBA的描述有误，不是说删除3000w，而是这个delete语句没有走索引，每次要扫描3000w数据。这样才能解释通，也就是说，这个delete进行了全表扫描。</li><li>而实际上，这个delete是按照时间删除的，并且时间字段是有单列索引的，但是为什么这个delete没有走索引呢？我们最后猜测，可能是因为2月份天数太少导致。以前，可能数据比较少，每次删一天，或者2天的数据，mysql可能会走索引。</li><li>但是3月1日比较特殊，因2月28日删的是1月28日一天的数据，3月1日却要删除1月29,30,31三天的数据，mysql可能认为删除这么多数据，没有必要走索引了。</li></ul></li></ul><h2 id="2-如何解决？"><a href="#2-如何解决？" class="headerlink" title="2. 如何解决？"></a>2. 如何解决？</h2><p>遇到类似问题如何解决？</p><p>1、读写分离。</p><p>2、提前消灭慢查询；</p><p>3、对异步任务做好线程隔离；</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;开发笔记-04-高并发慢查询&quot;&gt;&lt;a href=&quot;#开发笔记-04-高并发慢查询&quot; class=&quot;headerlink&quot; title=&quot;开发笔记-04-高并发慢查询&quot;&gt;&lt;/a&gt;开发笔记-04-高并发慢查询&lt;/h1&gt;&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;慢查询是高并发之大忌&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;博客转载：&lt;a href=&quot;https://www.cnblogs.com/donlianli/p/11068095.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/donlianli/p/11068095.html&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;1-问题描述&quot;&gt;&lt;a href=&quot;#1-问题描述&quot; class=&quot;headerlink&quot; title=&quot;1. 问题描述&quot;&gt;&lt;/a&gt;1. 问题描述&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;最近又遇到了一次慢查把db（mariadb10)几乎打挂的案例，作为一个核心支付系统的技术负责人，真是每日如履薄冰。因为之前支付系统经常出问题，现在各个BG对支付系统都盯得很紧。这次要不是我及时让DB给暴力清理数据，没准又提一个P2故障；&lt;/li&gt;
+&lt;li&gt;抱怨归抱怨，事后复盘，一丝都不能马虎。首先，描述一下故障的全过程。起因是我们支付系统有一个异步队列，这个队列使用的一张mysql表存储，异步回调业务线的任务（姑且表名称叫task)，都会首先放这里。同时这个task表还有其他的异步任务，不同的任务使用task_type字段来进行区分。然后应用系统有一个定时任务，扫描这张表是否有待消费的任务，如果有，则会取出来进行消费；典型的生产者消费者模型；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-11-124616.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="开发笔记" scheme="http://zhuuu.work/tags/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
     <title>开发笔记-04-统一异常处理</title>
     <link href="http://zhuuu.work/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-03-SpringBoot%E7%BB%9F%E4%B8%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/"/>
     <id>http://zhuuu.work/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-03-SpringBoot%E7%BB%9F%E4%B8%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/</id>
@@ -567,37 +659,6 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="开发笔记" scheme="http://zhuuu.work/tags/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>开发笔记-04-高并发慢查询</title>
-    <link href="http://zhuuu.work/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-04-%E9%AB%98%E5%B9%B6%E5%8F%91%E6%85%A2%E6%9F%A5%E8%AF%A2/"/>
-    <id>http://zhuuu.work/2021/08/05/deploy_learn/%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0-04-%E9%AB%98%E5%B9%B6%E5%8F%91%E6%85%A2%E6%9F%A5%E8%AF%A2/</id>
-    <published>2021-08-05T08:38:38.000Z</published>
-    <updated>2021-08-11T12:52:24.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="开发笔记-04-高并发慢查询"><a href="#开发笔记-04-高并发慢查询" class="headerlink" title="开发笔记-04-高并发慢查询"></a>开发笔记-04-高并发慢查询</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul><li><p><strong>慢查询是高并发之大忌</strong></p></li><li><p>博客转载：<a href="https://www.cnblogs.com/donlianli/p/11068095.html" target="_blank" rel="noopener">https://www.cnblogs.com/donlianli/p/11068095.html</a></p></li></ul><h2 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h2><ul><li>最近又遇到了一次慢查把db（mariadb10)几乎打挂的案例，作为一个核心支付系统的技术负责人，真是每日如履薄冰。因为之前支付系统经常出问题，现在各个BG对支付系统都盯得很紧。这次要不是我及时让DB给暴力清理数据，没准又提一个P2故障；</li><li>抱怨归抱怨，事后复盘，一丝都不能马虎。首先，描述一下故障的全过程。起因是我们支付系统有一个异步队列，这个队列使用的一张mysql表存储，异步回调业务线的任务（姑且表名称叫task)，都会首先放这里。同时这个task表还有其他的异步任务，不同的任务使用task_type字段来进行区分。然后应用系统有一个定时任务，扫描这张表是否有待消费的任务，如果有，则会取出来进行消费；典型的生产者消费者模型；</li></ul><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-11-124616.jpg" alt=""></p><a id="more"></a><p>这里的task说的再具体一点：</p><ul><li>1、所有的异步任务都在这张表，有支付成功通知业务线消息，有给结算系统推送支付信息的任务；</li><li>2、消费者在任务处理成功后，则会把任务从task表删除。所以这张表经常是空的；<ul><li>消费者根据不同的任务，调用不同的上游订单系统和结算系统。</li><li>出故障时，是因为推送支付信息的结算系统接口超时，出了问题，导致任务被积压到了task表。</li></ul></li></ul><p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-11-124812.jpg" alt=""></p><ul><li><p>任务积压之后，消费者线程池很快就被积压的任务占满，导致应该通知BG订单支付成功的任务也被block住，进而影响到订单支付成功率。</p></li><li><p>消费者线程池隔离没有做到位，立刻找DBA将推送给结算系统的任务进行了备份并清理。并且嘱咐DBA定时清理推送结算任务的数据。这样才化解支付成功率继续下滑的趋势。</p></li><li><p>危机解除后，我们和DBA配合进一步排查问题，找出了事情的根本原因。</p><ul><li>原来是推送结算信息的逻辑中，有一个对task表的查询，而这个查询的sql，没有建索引。</li><li>这样当这类任务数量积压的比较多时，查询会越来越慢，慢查导致mysql堵塞。</li><li>堵塞导致消费者无法拉取任务，进而影响到其他通知BG的任务的消费；分析了一下日志，其实我们的程序查询数量当时3分钟大概查询了1万多次，可以说qps不多。但是问题出现在sql无法命中索引，把mysql的worker thread都用完了。给我们研发的感觉，mysql是如此的脆弱，2w多条数据，查询没有索引，几千个select,就能把它打挂。</li></ul></li><li><p>几乎类似的案例，一年前，我们也碰到过一次。当时支付系统有一个bug，用户每支付一次，都会把支付客史中一个月之前的数据都清理一下（1月1日，清12月1日之前的数据，2月1清理1月1日之前的数据）。</p><ul><li>这个bug藏的很深，这块代码也很少有业务需求，一直没有被发现。但是，是雷就会有爆炸的一天。3月1日凌晨，支付系统突然所有接口都挂了。DBA最终定位是删除支付客史的sql。</li><li>这个问题，我们研发一开始是不承认的，毕竟这个sql,在线上跑了2年多，一直没有出过问题。DBA说这个delete语句删3000w数据，而且在不断的请求,数据库当然扛不住，我们反驳说，这个客史表一共才3000w数据。</li><li>事后我们发现，DBA的描述有误，不是说删除3000w，而是这个delete语句没有走索引，每次要扫描3000w数据。这样才能解释通，也就是说，这个delete进行了全表扫描。</li><li>而实际上，这个delete是按照时间删除的，并且时间字段是有单列索引的，但是为什么这个delete没有走索引呢？我们最后猜测，可能是因为2月份天数太少导致。以前，可能数据比较少，每次删一天，或者2天的数据，mysql可能会走索引。</li><li>但是3月1日比较特殊，因2月28日删的是1月28日一天的数据，3月1日却要删除1月29,30,31三天的数据，mysql可能认为删除这么多数据，没有必要走索引了。</li></ul></li></ul><h2 id="2-如何解决？"><a href="#2-如何解决？" class="headerlink" title="2. 如何解决？"></a>2. 如何解决？</h2><p>遇到类似问题如何解决？</p><p>1、读写分离。</p><p>2、提前消灭慢查询；</p><p>3、对异步任务做好线程隔离；</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;开发笔记-04-高并发慢查询&quot;&gt;&lt;a href=&quot;#开发笔记-04-高并发慢查询&quot; class=&quot;headerlink&quot; title=&quot;开发笔记-04-高并发慢查询&quot;&gt;&lt;/a&gt;开发笔记-04-高并发慢查询&lt;/h1&gt;&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;慢查询是高并发之大忌&lt;/strong&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;博客转载：&lt;a href=&quot;https://www.cnblogs.com/donlianli/p/11068095.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.com/donlianli/p/11068095.html&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;1-问题描述&quot;&gt;&lt;a href=&quot;#1-问题描述&quot; class=&quot;headerlink&quot; title=&quot;1. 问题描述&quot;&gt;&lt;/a&gt;1. 问题描述&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;最近又遇到了一次慢查把db（mariadb10)几乎打挂的案例，作为一个核心支付系统的技术负责人，真是每日如履薄冰。因为之前支付系统经常出问题，现在各个BG对支付系统都盯得很紧。这次要不是我及时让DB给暴力清理数据，没准又提一个P2故障；&lt;/li&gt;
-&lt;li&gt;抱怨归抱怨，事后复盘，一丝都不能马虎。首先，描述一下故障的全过程。起因是我们支付系统有一个异步队列，这个队列使用的一张mysql表存储，异步回调业务线的任务（姑且表名称叫task)，都会首先放这里。同时这个task表还有其他的异步任务，不同的任务使用task_type字段来进行区分。然后应用系统有一个定时任务，扫描这张表是否有待消费的任务，如果有，则会取出来进行消费；典型的生产者消费者模型；&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-11-124616.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -873,9 +934,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -907,9 +968,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -1032,9 +1093,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -1468,9 +1529,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -1637,9 +1698,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -1680,9 +1741,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -1759,9 +1820,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -2370,9 +2431,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -2438,9 +2499,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -2468,9 +2529,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -2709,9 +2770,9 @@
     
     
     
-      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
-    
       <category term="计算机组成原理" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="计算机基础理论" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA/"/>
     
   </entry>
   
@@ -3474,83 +3535,6 @@
       <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
     
       <category term="贪心算法" scheme="http://zhuuu.work/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>计算机图形学-伽马修正</title>
-    <link href="http://zhuuu.work/2020/12/09/cv/%E5%9B%BE%E5%83%8F%E5%AD%A6-%E4%BC%BD%E9%A9%AC%E4%BF%AE%E6%AD%A3/"/>
-    <id>http://zhuuu.work/2020/12/09/cv/%E5%9B%BE%E5%83%8F%E5%AD%A6-%E4%BC%BD%E9%A9%AC%E4%BF%AE%E6%AD%A3/</id>
-    <published>2020-12-09T09:38:38.000Z</published>
-    <updated>2020-12-09T09:04:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="图像学-伽马修正"><a href="#图像学-伽马修正" class="headerlink" title="图像学-伽马修正"></a>图像学-伽马修正</h1><h1 id="计算机图形学-伽马修正"><a href="#计算机图形学-伽马修正" class="headerlink" title="计算机图形学-伽马修正"></a>计算机图形学-伽马修正</h1><p><strong>起因：</strong> [][][一个伽马矫正的视频][<a href="https://v.youku.com/v_show/id_XMTQwMjg5NzM4OA==.html]" target="_blank" rel="noopener">https://v.youku.com/v_show/id_XMTQwMjg5NzM4OA==.html]</a></p><p><strong>答案 ：</strong> [一个知乎答案][<a href="https://www.zhihu.com/question/27467127]" target="_blank" rel="noopener">https://www.zhihu.com/question/27467127]</a></p><p><strong>参考博客 ：</strong> [博客地址][<a href="http://hanshilin.com/blog/gamma-and-linear-workflow/]" target="_blank" rel="noopener">http://hanshilin.com/blog/gamma-and-linear-workflow/]</a></p><a id="more"></a><h2 id="1-韦伯-费希纳定律"><a href="#1-韦伯-费希纳定律" class="headerlink" title="1. 韦伯-费希纳定律"></a>1. 韦伯-费希纳定律</h2><ul><li>最早见到韦伯定律的时候，以为就是个非常简单的式子：△I/I=K，△I是差别阈限；I是刺激强度；K是韦伯常数</li><li>根据刺激的不同，受试的不同，其值不同，但对于同一个被试在同等条件下进行同类型的刺激，该值为常数。</li><li>意思是，刺激强度I和在该刺激强度下引起最小可觉差所需要的刺激强度呈正比。例如，假设手里拿一个重量为10g的物体，若增加1g能让你恰好感觉到它的重量产生了变化（增加的重量低于1g你便不能感觉到重量发生了改变），那么如果手里拿一个重量为100g的物体，则需要增加其重量10g才能让你恰好感觉到重量发生了变化。</li></ul><p><strong>费希纳则在韦伯的基础上作出这样一个假设</strong>：</p><ul><li><strong>恰好引起感觉变化的刺激强度变化所引起的感觉变化是相等的。</strong>以上面那个例子为例，<ul><li>意思是，对于给10g物体增加1g所引起的你感觉变化与给100g物体增加10g所引起的你的感觉变化是一样的，都是1个单位的感觉变化。</li><li>换言之，你左手拿11g物体右手拿10g物体，你感觉左手比右手重”一些“；你左手拿110g物体右手拿100g物体，感觉左手比右手重”一些“，这两个”一些“的程度是一样的。 </li></ul></li></ul><ul><li>在这个假设的基础上，费希纳总结出公式：△P = k * △S/S         </li><li>根据该公式，若在某初始刺激为S的条件下，进行强度为10倍最小可觉差的刺激，则相应的感觉变化也应当变成10倍。比如给10g物体增加1g重量刚好能感觉到重量发生了改变，主观感觉变化量为△p；</li></ul><ul><li>虽然这个公式有一部分与韦伯定律的公式非常相似，但意义并不相同：<ul><li>在韦伯定律那里， △I/I=K指的是“当前刺激强度下的最小可觉差”与”当前刺激强度“的关系， △I与I均为变量。</li><li>而关系式△P = k * △S/S 则指示了在初始刺激强度为S时，刺激变化量△S与主观感觉变化量△P的关系。</li></ul></li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">将上式改写成微分式，则有dP &#x3D; k * dS &#x2F; S</span><br><span class="line">   </span><br><span class="line">      对该式两侧同时进行积分：</span><br><span class="line">       ∫ dP  &#x3D; P &#x3D;  ∫ k&#x2F;S * dS  &#x3D;  k*lnS + C</span><br><span class="line">      </span><br><span class="line">      得到了主观感觉量P与刺激强度S的关系式：</span><br><span class="line">      P &#x3D; k*lnS + C</span><br><span class="line"></span><br><span class="line">      为消除积分常数C，令P&#x3D;0，有C &#x3D; -k*lns, s是绝对阈限。</span><br><span class="line"></span><br><span class="line">      可得：</span><br><span class="line">      P &#x3D; k * (lnS - lns)</span><br><span class="line">     </span><br><span class="line">     设绝对阈限为单位1，则lns &#x3D;0，</span><br><span class="line"></span><br><span class="line">     故可改写为P &#x3D;k *lnS &#x3D; k*(lgS&#x2F;lge) &#x3D; k&#x2F;lge * lgS  </span><br><span class="line">                         &#x3D; K * lgS</span><br><span class="line"></span><br><span class="line">     得到费希纳定律的公式。</span><br><span class="line"></span><br><span class="line">     若某振幅为10个单位的音波引起的声音的主观感觉量为1，如果把该音波的振幅扩大到100个单位，则声音的主观感觉量仅增加1。换言之，根据费希纳定律，若要感觉强度呈线性增长，则刺激强度需要呈几何倍数增长。</span><br></pre></td></tr></table></figure><p><strong>注意：</strong></p><p>[知乎另外一个答案][<a href="https://www.zhihu.com/question/314657948?sort=created]" target="_blank" rel="noopener">https://www.zhihu.com/question/314657948?sort=created]</a></p><p><strong>参考博客 ：</strong> </p><p><a href="https://www.douban.com/note/506270934/" target="_blank" rel="noopener">https://www.douban.com/note/506270934/</a></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;图像学-伽马修正&quot;&gt;&lt;a href=&quot;#图像学-伽马修正&quot; class=&quot;headerlink&quot; title=&quot;图像学-伽马修正&quot;&gt;&lt;/a&gt;图像学-伽马修正&lt;/h1&gt;&lt;h1 id=&quot;计算机图形学-伽马修正&quot;&gt;&lt;a href=&quot;#计算机图形学-伽马修正&quot; class=&quot;headerlink&quot; title=&quot;计算机图形学-伽马修正&quot;&gt;&lt;/a&gt;计算机图形学-伽马修正&lt;/h1&gt;&lt;p&gt;&lt;strong&gt;起因：&lt;/strong&gt; [][][一个伽马矫正的视频][&lt;a href=&quot;https://v.youku.com/v_show/id_XMTQwMjg5NzM4OA==.html]&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://v.youku.com/v_show/id_XMTQwMjg5NzM4OA==.html]&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;答案 ：&lt;/strong&gt; [一个知乎答案][&lt;a href=&quot;https://www.zhihu.com/question/27467127]&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.zhihu.com/question/27467127]&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;参考博客 ：&lt;/strong&gt; [博客地址][&lt;a href=&quot;http://hanshilin.com/blog/gamma-and-linear-workflow/]&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://hanshilin.com/blog/gamma-and-linear-workflow/]&lt;/a&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="计算机图形学" scheme="http://zhuuu.work/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Leetcode-897-递增顺序查找树</title>
-    <link href="http://zhuuu.work/2020/12/07/Leetcode/Leetcode-897-%E9%80%92%E5%A2%9E%E9%A1%BA%E5%BA%8F%E6%9F%A5%E6%89%BE%E6%A0%91/"/>
-    <id>http://zhuuu.work/2020/12/07/Leetcode/Leetcode-897-%E9%80%92%E5%A2%9E%E9%A1%BA%E5%BA%8F%E6%9F%A5%E6%89%BE%E6%A0%91/</id>
-    <published>2020-12-07T07:52:53.000Z</published>
-    <updated>2020-12-07T03:42:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Leetcode-897-递增顺序查找树"><a href="#Leetcode-897-递增顺序查找树" class="headerlink" title="Leetcode-897-递增顺序查找树"></a>Leetcode-897-<a href="https://leetcode-cn.com/problems/increasing-order-search-tree/" target="_blank" rel="noopener">递增顺序查找树</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a><strong>题目描述</strong></h2><p>给你一个树，请你 <strong>按中序遍历</strong> 重新排列树，使树中最左边的结点现在是树的根，并且每个结点没有左子结点，只有一个右子结点。</p><pre><code>示例 ：输入：[5,3,6,2,4,null,8,1,null,null,null,7,9]      5      /     \    3    6   / \    \  2   4    8 /        / \ 1        7   9输出：[1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9] 1  \   2    \     3      \       4        \         5          \           6            \             7              \               8                \                 9  </code></pre><a id="more"></a><h2 id="思路：中序遍历-构造新树"><a href="#思路：中序遍历-构造新树" class="headerlink" title="思路：中序遍历 + 构造新树"></a>思路：中序遍历 + 构造新树</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val, TreeNode left, TreeNode right) &#123;</span></span><br><span class="line"><span class="comment"> *         this.val = val;</span></span><br><span class="line"><span class="comment"> *         this.left = left;</span></span><br><span class="line"><span class="comment"> *         this.right = right;</span></span><br><span class="line"><span class="comment"> *     &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">increasingBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">        List&lt;Integer&gt; vals = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        inorder(root,vals);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构造新树</span></span><br><span class="line">        TreeNode ans = <span class="keyword">new</span> TreeNode(<span class="number">0</span>);</span><br><span class="line">        TreeNode cur = ans;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> val:vals)&#123;</span><br><span class="line">            cur.right = <span class="keyword">new</span> TreeNode(val);  <span class="comment">// 构造新的结点</span></span><br><span class="line">            cur = cur.right;    <span class="comment">// 方向只向右延伸</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans.right;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 中序遍历</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inorder</span><span class="params">(TreeNode node,List&lt;Integer&gt; vals)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(node == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">        inorder(node.left,vals);</span><br><span class="line">        vals.add(node.val);</span><br><span class="line">        inorder(node.right,vals);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><strong>复杂度分析</strong></p><ul><li><strong>时间复杂度</strong>：O(N)，其中 N 是树上的节点个数。</li><li><strong>空间复杂度</strong>：O(N)。</li></ul>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Leetcode-897-递增顺序查找树&quot;&gt;&lt;a href=&quot;#Leetcode-897-递增顺序查找树&quot; class=&quot;headerlink&quot; title=&quot;Leetcode-897-递增顺序查找树&quot;&gt;&lt;/a&gt;Leetcode-897-&lt;a href=&quot;https://leetcode-cn.com/problems/increasing-order-search-tree/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;递增顺序查找树&lt;/a&gt;&lt;/h1&gt;&lt;h2 id=&quot;题目描述&quot;&gt;&lt;a href=&quot;#题目描述&quot; class=&quot;headerlink&quot; title=&quot;题目描述&quot;&gt;&lt;/a&gt;&lt;strong&gt;题目描述&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;给你一个树，请你 &lt;strong&gt;按中序遍历&lt;/strong&gt; 重新排列树，使树中最左边的结点现在是树的根，并且每个结点没有左子结点，只有一个右子结点。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;示例 ：
-
-输入：[5,3,6,2,4,null,8,1,null,null,null,7,9]
-
-      5
-      /     \
-    3    6
-   / \    \
-  2   4    8
- /        / \ 
-1        7   9
-
-输出：[1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
-
- 1
-  \
-   2
-    \
-     3
-      \
-       4
-        \
-         5
-          \
-           6
-            \
-             7
-              \
-               8
-                \
-                 9  &lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-    
-    
-      <category term="Leetcode" scheme="http://zhuuu.work/tags/Leetcode/"/>
-    
-      <category term="中序遍历" scheme="http://zhuuu.work/tags/%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86/"/>
     
   </entry>
   

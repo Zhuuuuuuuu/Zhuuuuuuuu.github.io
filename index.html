@@ -75,6 +75,118 @@
     
     
     
+    <article id="post-java8new/java8-新特性-lambda表达式中的变量" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/05/15/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F/"
+    >lambda表达式中变量的注意事项</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2022/05/15/java8new/java8-%E6%96%B0%E7%89%B9%E6%80%A7-lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F/" class="article-date">
+  <time datetime="2022-05-15T09:02:24.000Z" itemprop="datePublished">2022-05-15</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h2 id="lambda表达式中变量的注意事项"><a href="#lambda表达式中变量的注意事项" class="headerlink" title="lambda表达式中变量的注意事项"></a>lambda表达式中变量的注意事项</h2><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>The restriction to effectively final variables prohibits access to dynamically-changing local variables, whose capture would likely introduce concurrency problems.</p>
+<p>在Java的线程模型中，栈帧中的局部变量是线程私有的，永远不需要进行同步。假如说允许通过匿名内部类把栈帧中的变量地址泄漏出去(逃逸)，就会引发非常可怕的后果：一份“本来被Java线程模型规定永远是线程私有的数据”可能被并发访问！哪怕它不被并发访问，栈中变量的内存地址泄漏到栈帧之外这件事本身已经足够危险了，这是Java这种内存安全的语言绝对无法容忍的</p>
+<p>这才是本质原因。</p>
+<h2 id="举例描述"><a href="#举例描述" class="headerlink" title="举例描述"></a>举例描述</h2><ul>
+<li>下面是比较长的答案。对于如下代码：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">例子1:</span><br><span class="line">public void doSomething() &#123;</span><br><span class="line"></span><br><span class="line">int value &#x3D; 0;</span><br><span class="line"></span><br><span class="line">IntStream.range(0, 10).forEach(i -&gt; value++ );</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">你会得到一个编译错误：Variable used in lambda expression should be final or effectively final。如果从头分析一下跟这个问题相关的知识，事情要从Java 8之前就存在的匿名内部类说起：</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">例子2:</span><br><span class="line">public void doSomething() &#123;</span><br><span class="line"></span><br><span class="line">int value &#x3D; 0;</span><br><span class="line"></span><br><span class="line">Executors.newSingleThreadExecutor().submit(new Runnable() &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void run() &#123;undefined</span><br><span class="line">value++;</span><br><span class="line">&#125;</span><br><span class="line">&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">同样，你会得到一个编译错误：Variable is accessed within inner class. Needs to be declared final.</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ol>
+<li>第一个问题，为什么存在这样的限制？<br>要回答这个问题，我们需要首先明白，匿名内部类外面的value和里面的value是同一个内存地址中的数据么？</li>
+</ol>
+<ul>
+<li>很明显不是，因为我们都知道，局部变量存在于栈帧的局部变量表中，一旦方法结束，栈帧被销毁，这个变量(这份数据)就不再存在</li>
+<li>但是匿名内部类中的value可能在栈帧销毁后继续存在(比如在这个例子中，匿名内部类被提交到了线程池中)。</li>
+<li>所以，只有一个可能，在匿名内部类被创建的时候，被捕获的局部变量发生了复制。<ul>
+<li>如果我们允许在匿名内部类中执行value++操作，带来的后果就是，匿名内部类中的value的拷贝被更新了，但是原先的value不会受到任何影响(因为它可能已经不存在了)——你看上去好像两个value是同一个地址，同一份数据，但是实际上发生了拷贝，和方法调用的值传递如出一辙。这是很可怕的一件事情，它会让你误以为，在匿名内部类中执行value++会改变原先的局部变量value</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>这还不是最可怕的。最可怕的是，如果允许匿名内部类修改外面的局部变量，会颠覆掉整个Java线程模型！！！！！！</li>
+</ol>
+<p><code>The restriction to effectively final variables prohibits access to dynamically-changing local variables, whose capture would likely introduce concurrency problems.</code></p>
+<ul>
+<li>在Java的线程模型中，栈帧中的局部变量是线程私有的，永远不需要进行同步。但是，假如说我们通过匿名内部类把栈帧中的变量地址泄漏出去，就会引发非常可怕的后果：一份“本来被Java线程模型规定永远是线程私有的数据”可能被并发访问！！！</li>
+</ul>
+<h2 id="3-解决方法"><a href="#3-解决方法" class="headerlink" title="3. 解决方法"></a>3. 解决方法</h2><ol>
+<li>因此，在Java 8之前，编译器会强迫你加上一个final关键字：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public void doSomething() &#123;</span><br><span class="line"></span><br><span class="line">final int value &#x3D; 0; &#x2F;&#x2F; 不声明final不给过编译，你给老子死了这条修改的心吧</span><br><span class="line"></span><br><span class="line">Executors.newSingleThreadExecutor().submit(new Runnable() &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line"></span><br><span class="line">public void run() &#123;</span><br><span class="line"></span><br><span class="line">System.out.println(value);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>第二个问题：那为什么Java 8之后我可以不写final了呢？</li>
+</ol>
+<ul>
+<li><p>Java 8引入了lambda表达式，我们从此可以非常方便地编写大量的小代码块，但是在捕获外围的局部变量这件事上，lambda表达式和匿名内部类没有任何区别——被捕获的局部变量必须是final的。这就带来了一个问题，继续坚持把局部变量声明成final的话，烦也烦死了。 因此，JLS做出了一个妥协：</p>
+</li>
+<li><p>假如一个局部变量在整个生命周期中都没有被改变(指向)，那么它就是effectively final的——换句话说，不是final，胜似final。这样的局部变量也允许被lambda表达式或者匿名内部类所捕获，不过只能看不能摸——可以读取，但是不能修改。</p>
+</li>
+</ul>
+<ol start="3">
+<li>下一个问题是，老子就是想在lambda表达式里面改外面的值！你咬我啊！</li>
+</ol>
+<ul>
+<li>为什么转换成一个AtomicInteger就可以了呢？这跟线程安全没有半毛钱关系，纯粹是利用了这样一个技巧：AtomicInteger可以当作int的容器。因为它是在堆上被分配的，我们完全没有改变这个局部变量的指向(effectively final成立)，就达到了修改其中数据的目的。</li>
+</ul>
+
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java%E5%9F%BA%E7%A1%80/" rel="tag">Java基础</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">lambda表达式</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Leetcode/Leetcode-203-移除链表元素" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -395,6 +507,86 @@
 
 </article>
     
+    <article id="post-kafka/kafka-01-简介" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/10/13/kafka/kafka-01-%E7%AE%80%E4%BB%8B/"
+    >kafka-01-简介</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2021/10/13/kafka/kafka-01-%E7%AE%80%E4%BB%8B/" class="article-date">
+  <time datetime="2021-10-13T09:02:24.000Z" itemprop="datePublished">2021-10-13</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="kafka-01-简介"><a href="#kafka-01-简介" class="headerlink" title="kafka-01-简介"></a>kafka-01-简介</h1><h2 id="前言-why-learning"><a href="#前言-why-learning" class="headerlink" title="前言: why learning?"></a>前言: why learning?</h2><p><strong>官方文档</strong>：<a href="https://kafka.apache.org/" target="_blank" rel="noopener">https://kafka.apache.org/</a></p>
+<p><strong>注意：</strong>⚠️：<strong>此篇废话较多</strong></p>
+<ul>
+<li>你可能会有这样的疑问，<strong>我为什么要学习 Kafka 呢</strong>？要回答这个问题，我们不妨从更大的视角来审视它，先聊聊我对这几年互联网技术发展的理解吧。</li>
+<li>互联网蓬勃发展的这些年涌现出了很多令人眼花缭乱的新技术。当下互联网行业最火的技术当属 ABC 了，即所谓的 AI 人工智能、BigData 大数据和 Cloud 云计算云平台。我个人对区块链技术发展前景存疑，毕竟目前没有看到特别好的落地应用场景，也许在未来几年它会更令人刮目相看吧。</li>
+<li>对于数据密集型应用来说，如何应对数据量激增、数据复杂度增加以及数据变化速率变快，是彰显大数据工程师、架构师功力的最有效表征。</li>
+<li>Kafka 在帮助你应对这些问题方面能起到非常好的效果。就拿数据量激增来说，Kafka 能够有效隔离上下游业务，将上游突增的流量缓存起来，以平滑的方式传导到下游子系统中，避免了流量的不规则冲击。由此可见，如果你是一名大数据从业人员，熟练掌握 Kafka 是非常必要的一项技能。<ul>
+<li>刚刚所举的例子仅仅是 Kafka 助力业务的一个场景罢了。事实上，Kafka 有着非常广阔的应用场景。不谦虚地说，目前 Apache Kafka 被认为是整个消息引擎领域的执牛耳者，仅凭这一点就值得我们好好学习一下它。</li>
+<li>另外，从学习技术的角度而言，Kafka 也是很有亮点的。仅需要学习一套框架就能在实际业务系统中实现消息引擎应用、应用程序集成、分布式存储构建，甚至是流处理应用的开发与部署，听起来还是很超值的吧。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-11-17-030034.jpg" alt=""></p>
+      
+      <a class="article-more-link" href="/2021/10/13/kafka/kafka-01-%E7%AE%80%E4%BB%8B/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-MyBatis-Plus/MyBatisPlus-05-代码自动生成器" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -552,87 +744,6 @@
 
 </article>
     
-    <article id="post-MyBatis-Plus/MyBatisPlus-03-自动填充及乐观锁" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/"
-    >MyBatisPlus-03-自动填充及乐观锁</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/" class="article-date">
-  <time datetime="2021-08-21T12:38:38.000Z" itemprop="datePublished">2021-08-21</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="MyBatisPlus-03-自动填充及乐观锁"><a href="#MyBatisPlus-03-自动填充及乐观锁" class="headerlink" title="MyBatisPlus-03-自动填充及乐观锁"></a>MyBatisPlus-03-自动填充及乐观锁</h1><h2 id="1-自动填充功能"><a href="#1-自动填充功能" class="headerlink" title="1. 自动填充功能"></a>1. 自动填充功能</h2><ul>
-<li><p>创建时间、修改时间！这些个操作一遍都是自动化完成的，我们不希望手动更新！</p>
-</li>
-<li><p>阿里巴巴开发手册：所有的数据库表：<code>gmt_create、gmt_modified</code>几乎所有的表都要配置上！而且需要自动化！</p>
-</li>
-</ul>
-<h3 id="1-1-方式一-：-数据库级别"><a href="#1-1-方式一-：-数据库级别" class="headerlink" title="1.1 方式一 ： 数据库级别"></a>1.1 方式一 ： 数据库级别</h3><p>1、在表中新增字段 <code>create_time, update_time</code></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125455.jpg" alt=""></p>
-<p>2、再次测试插入方法，我们需要先把实体类同步！</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Date createTime;</span><br><span class="line"><span class="keyword">private</span> Date updateTime;</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>再次更新查看结果即可</li>
-</ol>
-      
-      <a class="article-more-link" href="/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis-Plus/" rel="tag">MyBatis-Plus</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
     <article id="post-MyBatis-Plus/MyBatisPlus-02-主键生成策略及CRUD" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -714,7 +825,7 @@
 
 </article>
     
-    <article id="post-MyBatis-Plus/MyBatisPlus-01-概述及入门案例" class="article article-type-post" itemscope
+    <article id="post-MyBatis-Plus/MyBatisPlus-03-自动填充及乐观锁" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -722,8 +833,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/08/21/MyBatis-Plus/MyBatisPlus-01-%E6%A6%82%E8%BF%B0%E5%8F%8A%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B/"
-    >MyBatisPlus-01-概述及入门案例</a
+  <a class="article-title" href="/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/"
+    >MyBatisPlus-03-自动填充及乐观锁</a
   >
 </h2>
   
@@ -733,8 +844,8 @@
 
     
     <div class="article-meta">
-      <a href="/2021/08/21/MyBatis-Plus/MyBatisPlus-01-%E6%A6%82%E8%BF%B0%E5%8F%8A%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B/" class="article-date">
-  <time datetime="2021-08-21T11:38:38.000Z" itemprop="datePublished">2021-08-21</time>
+      <a href="/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/" class="article-date">
+  <time datetime="2021-08-21T12:38:38.000Z" itemprop="datePublished">2021-08-21</time>
 </a>
       
       
@@ -752,29 +863,22 @@
       
 
       
-      <h1 id="MyBatisPlus-01-概述及入门案例"><a href="#MyBatisPlus-01-概述及入门案例" class="headerlink" title="MyBatisPlus-01-概述及入门案例"></a>MyBatisPlus-01-概述及入门案例</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ol>
-<li>为什么要学习<code>MyBatis-Plus</code>?</li>
-</ol>
-<ul>
-<li><code>MyBatisPlus</code>可以节省我们大量工作时间，所有的CRUD代码它都可以自动化完成！</li>
-</ul>
-<ol start="2">
-<li>类似的市场上的应用技术</li>
-</ol>
-<ul>
-<li><code>JPA 、 tk-mapper、MyBatisPlus</code></li>
-</ul>
-<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><ul>
-<li>MyBatis 本来就是简化 JDBC 操作的！</li>
-<li>官网：<a href="https://mp.baomidou.com/" target="_blank" rel="noopener">https://mp.baomidou.com/</a> <ul>
-<li>MyBatis Plus，简化 MyBatis ！</li>
-</ul>
+      <h1 id="MyBatisPlus-03-自动填充及乐观锁"><a href="#MyBatisPlus-03-自动填充及乐观锁" class="headerlink" title="MyBatisPlus-03-自动填充及乐观锁"></a>MyBatisPlus-03-自动填充及乐观锁</h1><h2 id="1-自动填充功能"><a href="#1-自动填充功能" class="headerlink" title="1. 自动填充功能"></a>1. 自动填充功能</h2><ul>
+<li><p>创建时间、修改时间！这些个操作一遍都是自动化完成的，我们不希望手动更新！</p>
+</li>
+<li><p>阿里巴巴开发手册：所有的数据库表：<code>gmt_create、gmt_modified</code>几乎所有的表都要配置上！而且需要自动化！</p>
 </li>
 </ul>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-103421.png" alt=""></p>
-<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-102908.png" alt=""></p>
+<h3 id="1-1-方式一-：-数据库级别"><a href="#1-1-方式一-：-数据库级别" class="headerlink" title="1.1 方式一 ： 数据库级别"></a>1.1 方式一 ： 数据库级别</h3><p>1、在表中新增字段 <code>create_time, update_time</code></p>
+<p><img src="https://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/2021-08-23-125455.jpg" alt=""></p>
+<p>2、再次测试插入方法，我们需要先把实体类同步！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Date createTime;</span><br><span class="line"><span class="keyword">private</span> Date updateTime;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>再次更新查看结果即可</li>
+</ol>
       
-      <a class="article-more-link" href="/2021/08/21/MyBatis-Plus/MyBatisPlus-01-%E6%A6%82%E8%BF%B0%E5%8F%8A%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B/">阅读更多...</a>
+      <a class="article-more-link" href="/2021/08/21/MyBatis-Plus/MyBatisPlus-03-%E8%87%AA%E5%8A%A8%E5%A1%AB%E5%85%85%E5%8F%8A%E4%B9%90%E8%A7%82%E9%94%81/">阅读更多...</a>
       
       
       <!-- reward -->
@@ -786,76 +890,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis/" rel="tag">MyBatis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MyBatis-Plus/" rel="tag">MyBatis-Plus</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-JUC/JUC-21-FutureTask" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/08/17/JUC/JUC-21-FutureTask/"
-    >JUC-21-FutureTask 源码分析</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2021/08/17/JUC/JUC-21-FutureTask/" class="article-date">
-  <time datetime="2021-08-17T09:38:38.000Z" itemprop="datePublished">2021-08-17</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h2 id="JUC-21-FutureTask-源码分析"><a href="#JUC-21-FutureTask-源码分析" class="headerlink" title="JUC-21-FutureTask 源码分析"></a>JUC-21-FutureTask 源码分析</h2><ul>
-<li>废话不多收，直接手撕源码</li>
-</ul>
-      
-      <a class="article-more-link" href="/2021/08/17/JUC/JUC-21-FutureTask/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FutureTask/" rel="tag">FutureTask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="tag">线程池</a></li></ul>
 
 
     </footer>

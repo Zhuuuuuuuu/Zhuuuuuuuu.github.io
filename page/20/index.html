@@ -75,6 +75,152 @@
     
     
     
+    <article id="post-JavaBasement/Java-基础-线程中断" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/28/JavaBasement/Java-%E5%9F%BA%E7%A1%80-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/"
+    >Java-基础-线程中断</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/28/JavaBasement/Java-%E5%9F%BA%E7%A1%80-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/" class="article-date">
+  <time datetime="2020-08-28T08:38:38.000Z" itemprop="datePublished">2020-08-28</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="Java-基础-线程中断"><a href="#Java-基础-线程中断" class="headerlink" title="Java-基础-线程中断"></a>Java-基础-线程中断</h1><h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>Thread提供了interrupt方法，中断线程的执行：</p>
+<ul>
+<li>如果线程堵塞在object.wait、Thread.join和Thread.sleep，将会抛出<code>InterruptedException</code>,同时清除线程的中断状态;</li>
+<li>如果线程堵塞在java.nio.channels.InterruptibleChannel的IO上，Channel将会被关闭，线程被置为中断状态，并抛出java.nio.channels.ClosedByInterruptException；</li>
+<li>如果线程堵塞在java.nio.channels.Selector上，线程被置为中断状态，select方法会马上返回，类似调用wakeup的效果；</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心 interrupt 方法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">interrupt</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">this</span> != Thread.currentThread()) <span class="comment">// 非本线程，需要检查权限</span></span><br><span class="line">         checkAccess();</span><br><span class="line"></span><br><span class="line">     <span class="keyword">synchronized</span> (blockerLock) &#123;</span><br><span class="line">         Interruptible b = blocker;</span><br><span class="line">         <span class="keyword">if</span> (b != <span class="keyword">null</span>) &#123;</span><br><span class="line">             interrupt0();           <span class="comment">// 仅仅设置interrupt标志位</span></span><br><span class="line">             b.interrupt(<span class="keyword">this</span>);    <span class="comment">// 调用如 I/O 操作定义的中断方法</span></span><br><span class="line">             <span class="keyword">return</span>;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     interrupt0();</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="comment">// 静态方法，这个方法有点坑，调用该方法调用后会清除中断状态。</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">interrupted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> currentThread().isInterrupted(<span class="keyword">true</span>);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="comment">// 这个方法不会清除中断状态</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isInterrupted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> isInterrupted(<span class="keyword">false</span>);</span><br><span class="line"> &#125;</span><br><span class="line"><span class="comment">// 上面两个方法会调用这个本地方法，参数代表是否清除中断状态</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">boolean</span> <span class="title">isInterrupted</span><span class="params">(<span class="keyword">boolean</span> ClearInterrupted)</span></span>;</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/28/JavaBasement/Java-%E5%9F%BA%E7%A1%80-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java%E5%9F%BA%E7%A1%80/" rel="tag">Java基础</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD/" rel="tag">线程中断</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
+    <article id="post-Leetcode/剑指offer--21-调整数组顺序使奇数位于偶数前面" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--21-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/"
+    >剑指offer--21-调整数组顺序使奇数位于偶数前面</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--21-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/" class="article-date">
+  <time datetime="2020-08-26T07:15:53.000Z" itemprop="datePublished">2020-08-26</time>
+</a>
+      
+      
+      
+      
+    </div>
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="剑指offer–21-调整数组顺序使奇数位于偶数前面"><a href="#剑指offer–21-调整数组顺序使奇数位于偶数前面" class="headerlink" title="剑指offer–21-调整数组顺序使奇数位于偶数前面"></a>剑指offer–21-<a href="https://leetcode-cn.com/problems/diao-zheng-shu-zu-shun-xu-shi-qi-shu-wei-yu-ou-shu-qian-mian-lcof/" target="_blank" rel="noopener">调整数组顺序使奇数位于偶数前面</a></h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><ul>
+<li>输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。</li>
+</ul>
+<p><strong>示例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：nums &#x3D; [1,2,3,4]</span><br><span class="line">输出：[1,3,2,4] </span><br><span class="line">注：[3,1,2,4] 也是正确的答案之一。</span><br></pre></td></tr></table></figure>
+      
+      <a class="article-more-link" href="/2020/08/26/Leetcode/%E5%89%91%E6%8C%87offer--21-%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/">阅读更多...</a>
+      
+      
+      <!-- reward -->
+      
+    </div>
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-Leetcode/剑指offer--40-最小的K个数" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -667,151 +813,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/" rel="tag">雪花算法</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/Linux-04-僵尸进程,孤儿进程" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/25/Linux/Linux-04-%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B,%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/"
-    >Linux-04-僵尸进程,孤儿进程</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/25/Linux/Linux-04-%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B,%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/" class="article-date">
-  <time datetime="2020-08-25T08:52:53.000Z" itemprop="datePublished">2020-08-25</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Linux-04-僵尸进程-孤儿进程"><a href="#Linux-04-僵尸进程-孤儿进程" class="headerlink" title="Linux-04-僵尸进程,孤儿进程"></a>Linux-04-僵尸进程,孤儿进程</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
-<li>正常情况下，子进程是通过父进程创建的，子进程再创建新的进程。子进程的结束和父进程的运行是一个异步过程,即父进程永远无法预测子进程 到底什么时候结束。 当一个 进程完成它的工作终止之后，它的父进程需要调用<code>wait()</code>或者<code>waitpid()</code>系统调用取得子进程的终止状态</li>
-</ul>
-<p>　　<strong>孤儿进程：一个父进程退出，而它的一个或多个子进程还在运行，那么那些子进程将成为孤儿进程。孤儿进程将被init进程(进程号为1)所收养，并由init进程对它们完成状态收集工作。</strong></p>
-<p>　　<strong>僵尸进程：一个进程使用fork创建子进程，如果子进程退出，而父进程并没有调用wait或waitpid获取子进程的状态信息，那么子进程的进程描述符仍然保存在系统中。这种进程称之为僵死进程。</strong></p>
-      
-      <a class="article-more-link" href="/2020/08/25/Linux/Linux-04-%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B,%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%83%B5%E5%B0%B8%E8%BF%9B%E7%A8%8B/" rel="tag">僵尸进程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A4%E5%84%BF%E8%BF%9B%E7%A8%8B/" rel="tag">孤儿进程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-  
-  
-
-  
-
-</article>
-    
-    <article id="post-Linux/Linux-03-PV" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/25/Linux/Linux-03-PV/"
-    >Linux-03-PV</a
-  >
-</h2>
-  
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/08/25/Linux/Linux-03-PV/" class="article-date">
-  <time datetime="2020-08-25T08:52:53.000Z" itemprop="datePublished">2020-08-25</time>
-</a>
-      
-      
-      
-      
-    </div>
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-
-
-      
-
-      
-      <h1 id="Linux-03-PV"><a href="#Linux-03-PV" class="headerlink" title="Linux-03-PV"></a>Linux-03-PV</h1><h2 id="1-疑惑解答"><a href="#1-疑惑解答" class="headerlink" title="1. 疑惑解答"></a>1. 疑惑解答</h2><ul>
-<li>进程通常分为<strong>就绪、运行和阻塞</strong>三个工作状态。三种状态在某些条件下可以转换，三者之间的转换关系如下：</li>
-</ul>
-<p><img src="http://zhuuu-bucket.oss-cn-beijing.aliyuncs.com/img/20200825-131907370.png" alt="mark"></p>
-<p>进程三个状态之间的转换就是靠PV操作来控制的。</p>
-<p><strong>PV操作主要就是P操作、V操作和信号量。其中信号量起到了至关重要的作用。</strong></p>
-      
-      <a class="article-more-link" href="/2020/08/25/Linux/Linux-03-PV/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/" rel="tag">进程通信方式</a></li></ul>
 
 
     </footer>
